@@ -1,0 +1,34 @@
+# Dependencias
+node_modules/
+
+# Compilados: se generan con `npm run build`
+dist/
+build/
+
+# Variables de entorno. NUNCA se publican:
+# `backend/.env` lleva la contrasena de MySQL y el secreto del JWT.
+# Lo que se versiona son los `.env.example`, sin valores reales.
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Herramientas y editores
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Respaldo del repositorio anterior del frontend (Proyecto_Final).
+# Se conserva en disco por si hay que recuperar esos commits, pero no
+# forma parte de este repositorio.
+.git-proyecto-final-backup/
+
+# Empaquetados
+*.zip

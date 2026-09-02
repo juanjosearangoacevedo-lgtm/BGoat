@@ -1,0 +1,176 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL DARK MODE — GOD'S EYES SAS palette
+   Applies when <html class="dark"> is set by DarkModeContext.
+   These overrides target the hardcoded Tailwind color classes used in all
+   existing components so they flip to dark without modifying each file.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Smooth transition on all interactive elements ────────────────────────── */
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Base backgrounds ─────────────────────────────────────────────────────── */
+html.dark body                             { background-color: #0F0B1E !important; color: #E8E0FF !important; }
+html.dark .bg-white                        { background-color: #1A1530 !important; }
+html.dark .bg-gray-50                      { background-color: #0F0B1E !important; }
+html.dark .bg-gray-100                     { background-color: #231D3A !important; }
+html.dark .bg-gray-200                     { background-color: #2C2448 !important; }
+
+/* ── Card / panel surfaces ────────────────────────────────────────────────── */
+html.dark .rounded-2xl.bg-white,
+html.dark .rounded-xl.bg-white,
+html.dark .rounded-lg.bg-white            { background-color: #231D3A !important; }
+html.dark .bg-gray-50\/30                 { background-color: rgba(44,36,72,0.3) !important; }
+html.dark .bg-gray-50\/50                 { background-color: rgba(44,36,72,0.5) !important; }
+
+/* ── Text colors ──────────────────────────────────────────────────────────── */
+html.dark .text-gray-900                  { color: #F0EAFF !important; }
+html.dark .text-gray-800                  { color: #E8E0FF !important; }
+html.dark .text-gray-700                  { color: #C4B8F0 !important; }
+html.dark .text-gray-600                  { color: #A89FC8 !important; }
+html.dark .text-gray-500                  { color: #7A6FAA !important; }
+html.dark .text-gray-400                  { color: #5A4FCF !important; }
+
+/* ── Borders & dividers ───────────────────────────────────────────────────── */
+html.dark .border-gray-100               { border-color: #2C2448 !important; }
+html.dark .border-gray-200               { border-color: #2C2448 !important; }
+html.dark .border-t.border-gray-200      { border-color: #2C2448 !important; }
+html.dark .border-b.border-gray-200      { border-color: #2C2448 !important; }
+html.dark .border-l.border-gray-200      { border-color: #2C2448 !important; }
+html.dark .divide-gray-50 > *            { border-color: #2C2448 !important; }
+html.dark .divide-y > *                  { border-color: #2C2448 !important; }
+
+/* ── Input fields ─────────────────────────────────────────────────────────── */
+html.dark input[type="text"],
+html.dark input[type="email"],
+html.dark input[type="password"],
+html.dark input[type="number"],
+html.dark input[type="date"],
+html.dark select,
+html.dark textarea                        {
+  background-color: #2C2448 !important;
+  border-color: #5A4FCF !important;
+  color: #E8E0FF !important;
+}
+html.dark input::placeholder              { color: #7A6FAA !important; }
+
+/* ── Table elements ───────────────────────────────────────────────────────── */
+html.dark table                           { background-color: #231D3A !important; }
+html.dark thead                           { background-color: #1A1530 !important; }
+html.dark .bg-gray-50.border-b           { background-color: #1A1530 !important; }
+html.dark tr:hover                        { background-color: rgba(44,36,72,0.5) !important; }
+
+/* ── Shadows ──────────────────────────────────────────────────────────────── */
+html.dark .shadow-sm                      { box-shadow: 0 1px 3px rgba(0,0,0,0.6) !important; }
+html.dark .shadow-md                      { box-shadow: 0 4px 12px rgba(0,0,0,0.5) !important; }
+html.dark .shadow-lg                      { box-shadow: 0 8px 24px rgba(0,0,0,0.6) !important; }
+html.dark .shadow-xl                      { box-shadow: 0 16px 40px rgba(0,0,0,0.7) !important; }
+html.dark .shadow-2xl                     { box-shadow: 0 24px 60px rgba(0,0,0,0.8) !important; }
+
+/* ── Header & nav ─────────────────────────────────────────────────────────── */
+html.dark .h-16.bg-white                  { background-color: #1A1530 !important; border-color: #2C2448 !important; }
+html.dark .border-b.border-gray-200      { border-color: #2C2448 !important; }
+html.dark .border-l.border-gray-200      { border-color: #2C2448 !important; }
+
+/* ── Search input in header ───────────────────────────────────────────────── */
+html.dark .bg-gray-50.border.border-gray-200 { background-color: #2C2448 !important; border-color: #5A4FCF !important; }
+
+/* ── Hover states ─────────────────────────────────────────────────────────── */
+html.dark .hover\:bg-gray-100:hover       { background-color: #2C2448 !important; }
+html.dark .hover\:bg-gray-50:hover        { background-color: #231D3A !important; }
+html.dark .hover\:bg-gray-50\/50:hover    { background-color: rgba(44,36,72,0.5) !important; }
+
+/* ── Stat / KPI backgrounds ───────────────────────────────────────────────── */
+html.dark .bg-green-50                    { background-color: rgba(16,185,129,0.1) !important; }
+html.dark .bg-green-100                   { background-color: rgba(16,185,129,0.15) !important; }
+html.dark .bg-red-50                      { background-color: rgba(239,68,68,0.1) !important; }
+html.dark .bg-blue-50                     { background-color: rgba(59,130,246,0.1) !important; }
+html.dark .bg-teal-50                     { background-color: rgba(20,184,166,0.1) !important; }
+html.dark .bg-yellow-50                   { background-color: rgba(234,179,8,0.1) !important; }
+html.dark .bg-purple-50                   { background-color: rgba(139,92,246,0.1) !important; }
+
+/* ── Modal overlays ───────────────────────────────────────────────────────── */
+html.dark .fixed.inset-0.bg-black\/50    { background-color: rgba(0,0,0,0.75) !important; }
+
+/* ── Transition on all elements globally ─────────────────────────────────── */
+html.dark *,
+html:not(.dark) * {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLL — barras finas y desplazamiento suave
+   `.scroll-suave`  : paneles claros (tablas, modales, listas)
+   `.scroll-sidebar`: menu lateral, sobre el degradado morado
+   ═══════════════════════════════════════════════════════════════════════════ */
+.scroll-suave,
+.scroll-sidebar {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+
+/* Solo el menu lateral corta el encadenamiento del scroll. En los paneles
+   claros no debe hacerlo: un contenedor con `overflow-x: auto` tambien es
+   contenedor de scroll vertical, y con `contain` la rueda del raton sobre una
+   tabla dejaba de mover la pagina. */
+.scroll-sidebar { overscroll-behavior: contain; }
+
+.scroll-suave { scrollbar-color: rgba(67, 58, 155, 0.25) transparent; }
+.scroll-sidebar { scrollbar-color: rgba(255, 255, 255, 0.25) transparent; }
+
+.scroll-suave::-webkit-scrollbar,
+.scroll-sidebar::-webkit-scrollbar { width: 8px; height: 8px; }
+
+.scroll-suave::-webkit-scrollbar-track,
+.scroll-sidebar::-webkit-scrollbar-track { background: transparent; }
+
+.scroll-suave::-webkit-scrollbar-thumb {
+  background-color: rgba(67, 58, 155, 0.22);
+  border-radius: 9999px;
+}
+.scroll-suave::-webkit-scrollbar-thumb:hover { background-color: rgba(67, 58, 155, 0.45); }
+
+.scroll-sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+}
+.scroll-sidebar::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.4); }
+
+html.dark .scroll-suave { scrollbar-color: rgba(167, 139, 250, 0.3) transparent; }
+html.dark .scroll-suave::-webkit-scrollbar-thumb { background-color: rgba(167, 139, 250, 0.3); }
+
+/* Las transiciones globales del modo oscuro no deben frenar el menu lateral. */
+html.dark aside,
+html.dark main,
+html.dark header { transition-property: background-color, border-color, color, box-shadow, margin, left, width; }
+
+/* ---------------------------------------------------------------------
+   Impresion.
+
+   El boton "Exportar PDF" de Reportes abre el dialogo del navegador, asi
+   que el PDF sale de estas reglas: fuera el menu, la cabecera fija, el pie
+   y los propios botones; el contenido recupera el ancho completo. Sin
+   esto el archivo salia con la franja morada del sidebar en cada pagina y
+   el contenido corrido a la derecha.
+   --------------------------------------------------------------------- */
+@media print {
+  aside,
+  header,
+  footer,
+  .no-print { display: none !important; }
+
+  main {
+    margin: 0 !important;
+    padding-top: 0 !important;
+    min-height: 0 !important;
+  }
+
+  html, body { background: #ffffff !important; }
+
+  /* Las tarjetas y los graficos no deben partirse a mitad de pagina. */
+  .recharts-wrapper,
+  .rounded-2xl { break-inside: avoid; page-break-inside: avoid; }
+}
