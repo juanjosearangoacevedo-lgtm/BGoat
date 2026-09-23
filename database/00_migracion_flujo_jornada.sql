@@ -478,6 +478,40 @@ SET @sql = IF(@migrar AND @falta_reg,
   'DO 0');
 PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
 
+-- Red de seguridad: horas capturadas sin orden en una base sin ningun
+-- lote. La jornada exige lote, y borrar el registro seria perder historia,
+-- asi que se cuelga de un lote marcador que la empresa puede revisar.
+-- `id_marca` se suelta aqui porque el paso 5 la borra de todos modos.
+SET @sin_lote = 0;
+SET @sql = IF(@migrar,
+  'SET @sin_lote = (EXISTS (SELECT 1 FROM `registros_horarios`)
+                    AND NOT EXISTS (SELECT 1 FROM `lotes`))',
+  'DO 0');
+PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
+
+SET @sql = IF(@migrar AND @sin_lote,
+  'INSERT INTO `clientes` (`nombre`, `descripcion`, `estado`)
+   SELECT ''Sin asignar'', ''Creado por la migracion: revisar los lotes que quedaron aqui'', ''ACTIVO''
+     FROM DUAL
+    WHERE NOT EXISTS (SELECT 1 FROM (SELECT `nombre` FROM `clientes`) c WHERE c.`nombre` = ''Sin asignar'')',
+  'DO 0');
+PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
+
+SET @sql = IF(@migrar AND @sin_lote,
+  'ALTER TABLE `lotes` MODIFY COLUMN `id_marca` BIGINT NULL',
+  'DO 0');
+PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
+
+SET @sql = IF(@migrar AND @sin_lote,
+  'INSERT INTO `lotes` (`codigo_lote`, `id_cliente`, `fecha_recepcion`, `estado`, `observaciones`)
+   SELECT ''SIN-LOTE-MIGRACION'',
+          (SELECT `id_cliente` FROM `clientes` WHERE `nombre` = ''Sin asignar'' LIMIT 1),
+          (SELECT MIN(`fecha`) FROM `registros_horarios`),
+          ''FINALIZADO'',
+          ''Creado por la migracion: horas capturadas sin orden ni lote''',
+  'DO 0');
+PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
+
 SET @sql = IF(@migrar,
   'INSERT INTO `jornada_modulo`
      (`id_modulo`, `fecha`, `id_lote`, `id_orden_produccion`, `cantidad_operarias`,

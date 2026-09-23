@@ -1,0 +1,5 @@
+# Lo que se ejecuta en el VPS (Linux) viaja con LF aunque el checkout sea en
+# Windows: un `\r` en el shebang deja `backup.sh` sin correr.
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+*.conf      text eol=lf

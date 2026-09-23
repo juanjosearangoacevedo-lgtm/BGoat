@@ -41,6 +41,11 @@ tar -czf /tmp/bgoat.tar.gz --exclude=node_modules --exclude=dist --exclude=.git 
 
 El `.env` del servidor **no viaja en ese paquete** y no se pisa.
 
+Los scripts (`*.sh`), los `Dockerfile` y `nginx.conf` tienen que llegar con fin
+de linea LF. `.gitattributes` lo fuerza en el checkout; si un `.sh` falla en el
+VPS con `bash\r: No such file or directory`, se arregla con
+`sed -i 's/\r$//' archivo.sh`.
+
 Si solo cambio el frontend, reconstruir uno solo es mas rapido:
 `ssh bitemo 'cd /opt/bgoat && docker compose up -d --build web'`
 
@@ -75,12 +80,30 @@ ssh bitemo 'cd /opt/bgoat && ./backup.sh'
 ```
 
 ```bash
-ssh bitemo 'cd /opt/bgoat && set -a && . ./.env && set +a && for f in 00_migracion_flujo_jornada 01_schema_bgoat 02_seed_bgoat; do docker compose exec -T db mysql -u root -p"$DB_ROOT_PASSWORD" bgoat < database/$f.sql; done'
+ssh bitemo 'set -e; cd /opt/bgoat && set -a && . ./.env && set +a && export MYSQL_PWD="$DB_ROOT_PASSWORD" && for f in 00_migracion_flujo_jornada 00b_migracion_modulos_calculados 00c_migracion_ordenes_libres 01_schema_bgoat 02_seed_bgoat; do echo "==> $f"; docker compose exec -T -e MYSQL_PWD db mysql -u root bgoat < database/$f.sql; done'
 ```
 
-Los tres en ese orden: la migracion prepara las columnas, el esquema recrea las
-vistas sobre ellas y el seed repone los catalogos. La migracion corre una sola
-vez --queda anotada en la tabla `migraciones`-- y es inofensiva si ya se aplico.
+Los cinco en ese orden (el mismo de `backend/scripts/setup-db.js`): las
+migraciones preparan las columnas, el esquema recrea las vistas sobre ellas y el
+seed repone los catalogos. Cada migracion corre una sola vez --queda anotada en
+la tabla `migraciones`-- y es inofensiva si ya se aplico.
+
+El `set -e` es obligatorio: sin el, si una migracion falla el bucle sigue con
+la siguiente y la base queda a medio camino. No meter la salida de `mysql` en
+una tuberia (`| grep`), porque eso tapa el codigo de error.
+
+**Antes de migrar produccion, probar en local con sus datos.** Bajar el ultimo
+respaldo, cargarlo en una base aparte y correr los cinco archivos contra ella.
+Ojo: `00` y `01` traen `USE bgoat;`, asi que hay que cambiarlo, o se aplican
+sobre la base de desarrollo:
+
+```bash
+sed -e 's/^USE `bgoat`;/USE `bgoat_prod_prueba`;/' -e '/^CREATE DATABASE IF NOT EXISTS `bgoat`/d' database/00_migracion_flujo_jornada.sql | mysql -u root -p bgoat_prod_prueba
+```
+
+Asi aparecio el caso de las horas capturadas sin orden y sin ningun lote en la
+base. La migracion `00` ahora lo cubre con un lote marcador,
+`SIN-LOTE-MIGRACION`, a nombre del cliente "Sin asignar".
 
 ### Las fichas tecnicas
 
