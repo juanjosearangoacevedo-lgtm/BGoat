@@ -2,7 +2,7 @@ import { reglas } from "@/shared/validations";
 
 /**
  * Reglas del formulario de causa -> tabla `causas_desviacion`.
- * Es el catalogo de botones que ve la supervisora cuando una hora no alcanza
+ * Es el catalogo de botones que ve la digitadora cuando una hora no alcanza
  * la meta, por eso el codigo y el nombre son cortos y no se repiten.
  */
 export const causaLimites = {

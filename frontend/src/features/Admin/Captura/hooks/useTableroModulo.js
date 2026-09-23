@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiClient, withQuery } from "@/shared/services/apiClient";
 import { buildPath, endpoints } from "@/shared/services/endpoints";
-import { hoyLocal } from "./useCapturaPage";
+import { hoyLocal } from "@/shared/utils/formatters";
 
 /**
  * Tablero de un modulo en un dia -> `vw_tablero_modulo_dia`.

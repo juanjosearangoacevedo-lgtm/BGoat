@@ -3,7 +3,7 @@ import { formatMoneda, formatNumero } from "@/shared/utils/formatters";
 function Dato({ etiqueta, valor, nota, tono = "gris" }) {
   const tonos = {
     gris: "text-gray-900",
-    morado: "text-[#433A9B]",
+    marca: "text-[#0F4C3F]",
     verde: "text-green-600",
     ambar: "text-[#b46a12]",
   };
@@ -29,21 +29,22 @@ function Dato({ etiqueta, valor, nota, tono = "gris" }) {
 export function TableroCabecera({ cabecera, jornada, modulo }) {
   if (!cabecera) return null;
 
+
   return (
     <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
       <Dato etiqueta="Modulo" valor={modulo?.codigo ?? "—"} nota={modulo?.nombre} />
-      <Dato etiqueta="Personas" valor={cabecera.personas} tono="morado" />
+      <Dato etiqueta="Personas" valor={cabecera.personas} tono="marca" />
       <Dato
-        etiqueta="Referencia"
-        valor={cabecera.codigo_referencia ?? "—"}
-        nota={cabecera.referencia}
+        etiqueta="Lote"
+        valor={cabecera.lote ?? "—"}
+        nota={cabecera.codigo_referencia ? `Ref. ${cabecera.codigo_referencia}` : null}
       />
-      <Dato etiqueta="Cliente" valor={cabecera.cliente ?? "—"} />
+      <Dato etiqueta="Cliente" valor={cabecera.cliente ?? "—"} nota={cabecera.referencia} />
       <Dato
         etiqueta="Tiempo / unidad (SAM)"
         valor={`${cabecera.sam} min`}
         nota="Lo que el cliente paga por prenda"
-        tono="morado"
+        tono="marca"
       />
 
       <Dato
@@ -63,7 +64,7 @@ export function TableroCabecera({ cabecera, jornada, modulo }) {
         etiqueta="Meta / dia"
         valor={formatNumero(Math.round(cabecera.meta_dia))}
         nota={`Jornada completa · ${jornada?.franjas?.length ?? 0} franjas`}
-        tono="morado"
+        tono="marca"
       />
       <Dato etiqueta="$ / unidad" valor={formatMoneda(cabecera.precio_unidad)} tono="verde" />
       <Dato

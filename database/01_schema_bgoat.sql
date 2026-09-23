@@ -5,10 +5,25 @@
 -- Script de creacion de la base de datos (DDL)
 -- Motor: MySQL 8.0 / InnoDB / utf8mb4
 --
--- Contenido: 32 tablas, 8 vistas
+-- Contenido: 24 tablas, 8 vistas
 -- Schema  : `bgoat`
 --
--- El modelo gira alrededor de `registros_horarios`: una fila por
+-- EL FLUJO QUE MODELA ESTE ESQUEMA
+--
+--   La digitadora entra, abre la jornada de un modulo y dice cuatro
+--   cosas: que modulo, cuantas operarias, cual cliente y cual lote.
+--   Eso es `jornada_modulo` + `jornada_operaria`. De ahi en adelante,
+--   cada hora registra cuanto se produjo y --si algo paso-- que paso.
+--
+--     jornada_modulo (modulo + fecha + lote + digitadora)
+--            |
+--            +--> jornada_operaria   (N filas; id_operario NULL = anonima)
+--            |
+--            +--> registros_horarios (una fila por franja de la jornada)
+--                        |
+--                        +--> registro_minutos_perdidos (la incidencia)
+--
+-- `registros_horarios` sigue siendo el corazon: una fila por
 -- (modulo, fecha, franja de jornada). Es la digitalizacion exacta del
 -- tablero fisico de planta, que es la fuente de todo el sistema.
 --
@@ -25,9 +40,16 @@
 -- no en el codigo, y se copia a cada registro para que el historico no
 -- cambie si manana se reconfigura.
 --
--- `precio_aplicado` sale de `ordenes_produccion.valor_maquila_unidad`:
--- lo que el cliente paga por prenda. Con el, cada franja se puede leer
--- en pesos y no solo en unidades.
+-- DONDE VIVE CADA CONSTANTE DEL CALCULO
+--
+--   `sam_pactado`          -> `lotes`. Viene en la ficha tecnica que el
+--                             cliente manda con el lote. Cada lote trae
+--                             la suya, por eso no hay catalogo de fichas.
+--   `valor_maquila_unidad` -> `ordenes_produccion`. Lo que el cliente
+--                             paga por prenda confeccionada.
+--
+-- Las dos se copian al registro (`sam_aplicado`, `precio_aplicado`)
+-- para que renegociar manana no reescriba lo que ya paso.
 --
 -- Ver `DISENO_CONCEPTUAL.md` en la raiz del proyecto para el porque de
 -- cada tabla y cada indicador.
@@ -40,65 +62,60 @@ SET @OLD_UNIQUE_CHECKS = @@UNIQUE_CHECKS, UNIQUE_CHECKS = 0;
 SET @OLD_FOREIGN_KEY_CHECKS = @@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS = 0;
 SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
-CREATE SCHEMA IF NOT EXISTS `bgoat`
-  DEFAULT CHARACTER SET utf8mb4
-  DEFAULT COLLATE utf8mb4_0900_ai_ci;
+CREATE DATABASE IF NOT EXISTS `bgoat` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `bgoat`;
 
 -- ---------------------------------------------------------------------
 -- Tabla `clientes`
+--   Una fila = un cliente-marca: para quien se confecciona.
+--
+--   Antes habia dos tablas, `clientes` (identidad fiscal) y `marcas`
+--   (nombre comercial), sin ninguna llave entre ellas: la relacion solo
+--   existia dentro de un pedido. En la planta nadie dice "el lote de
+--   Crystal para la marca GEF": dice "el lote de GEF". Por eso ahora es
+--   una sola entidad, identificada por `nombre` --que es como la planta
+--   la nombra-- con los datos fiscales como acompanamiento opcional.
+--
+--   Si un mismo cliente juridico maneja varias marcas son varias filas y
+--   el NIT se repite: por eso el indice unico va sobre `nombre` y no
+--   sobre el documento.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `clientes` (
   `id_cliente` BIGINT NOT NULL AUTO_INCREMENT,
-  `tipo_documento` ENUM('CC', 'CE', 'NIT', 'PASAPORTE', 'OTRO') NOT NULL DEFAULT 'NIT',
-  `numero_documento` VARCHAR(30) NOT NULL,
+  `nombre` VARCHAR(120) NOT NULL,
+  `descripcion` VARCHAR(255) DEFAULT NULL,
   `razon_social` VARCHAR(160) DEFAULT NULL,
-  `nombres` VARCHAR(100) DEFAULT NULL,
-  `apellidos` VARCHAR(100) DEFAULT NULL,
+  `tipo_documento` ENUM('CC', 'CE', 'NIT', 'PASAPORTE', 'OTRO') NOT NULL DEFAULT 'NIT',
+  `numero_documento` VARCHAR(30) DEFAULT NULL,
   `telefono` VARCHAR(30) DEFAULT NULL,
   `correo` VARCHAR(150) DEFAULT NULL,
   `direccion` VARCHAR(200) DEFAULT NULL,
   `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_cliente`),
-  UNIQUE INDEX `uq_clientes_documento` (`tipo_documento`, `numero_documento`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
--- Tabla `colores`
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `colores` (
-  `id_color` BIGINT NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(50) NOT NULL,
-  `codigo_hex` CHAR(7) DEFAULT NULL,
-  `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
-  PRIMARY KEY (`id_color`),
-  UNIQUE INDEX `uq_colores_nombre` (`nombre`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
--- Tabla `marcas`
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `marcas` (
-  `id_marca` BIGINT NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(100) NOT NULL,
-  `descripcion` VARCHAR(255) DEFAULT NULL,
-  `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
-  `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_marca`),
-  UNIQUE INDEX `uq_marcas_nombre` (`nombre`)
+  UNIQUE INDEX `uq_clientes_nombre` (`nombre`),
+  INDEX `idx_clientes_documento` (`numero_documento`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
 -- Tabla `modulos`
---   `horas_jornada`  -> cifra de planeacion para estimar cuanto rinde el
---                       modulo en un dia. YA NO define el alto de la
---                       rejilla de captura: eso lo dan las franjas de la
---                       jornada del dia (`jornada_franjas`), que cambian
---                       entre semana y sabado.
---   `umbral_cumplimiento` -> por debajo de este %, la app le pide la causa
---                            a la supervisora.
---   Capacidad = capacidad_operarios * horas_semanales * 60 * eficiencia/100
+--   Dos parametros, y los dos son decisiones de la empresa que ningun
+--   calculo puede deducir:
+--
+--   `capacidad_operarios`  -> cuantos puestos tiene el modulo. Es el
+--                             tope al armar la jornada, NO la gente que
+--                             hay hoy: esa la declara `jornada_modulo`.
+--   `umbral_cumplimiento`  -> por debajo de este %, la app le pide la
+--                             incidencia a la digitadora.
+--
+--   Aqui vivian tres cifras mas --`horas_jornada`, `horas_semanales` y
+--   `eficiencia_esperada`-- que se digitaban a mano. En el tablero de la
+--   empresa las tres son celdas VERDES, o sea resultados:
+--     * las horas del dia salen de `jornada_franjas` (520 minutos entre
+--       semana, 440 el sabado), no de un 9 escrito a mano;
+--     * la eficiencia es unidades contra meta: se mide, no se declara.
+--   Tener la version digitada al lado de la calculada solo servia para
+--   que las dos se contradijeran, y la digitada siempre perdia.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `modulos` (
   `id_modulo` BIGINT NOT NULL AUTO_INCREMENT,
@@ -106,18 +123,13 @@ CREATE TABLE IF NOT EXISTS `modulos` (
   `nombre` VARCHAR(100) NOT NULL,
   `ubicacion` VARCHAR(150) DEFAULT NULL,
   `capacidad_operarios` SMALLINT NOT NULL DEFAULT '1',
-  `horas_jornada` TINYINT NOT NULL DEFAULT '9',
-  `horas_semanales` DECIMAL(5,2) NOT NULL DEFAULT '44.00',
-  `eficiencia_esperada` DECIMAL(5,2) NOT NULL DEFAULT '80.00',
   `umbral_cumplimiento` DECIMAL(5,2) NOT NULL DEFAULT '85.00',
   `orden_visual` SMALLINT NOT NULL DEFAULT '1',
   `estado` ENUM('ACTIVO', 'INACTIVO', 'MANTENIMIENTO') NOT NULL DEFAULT 'ACTIVO',
   `observaciones` VARCHAR(500) DEFAULT NULL,
   PRIMARY KEY (`id_modulo`),
   UNIQUE INDEX `uq_modulos_codigo` (`codigo`),
-  CONSTRAINT `chk_modulos_eficiencia` CHECK (`eficiencia_esperada` BETWEEN 0 AND 100),
-  CONSTRAINT `chk_modulos_umbral` CHECK (`umbral_cumplimiento` BETWEEN 0 AND 100),
-  CONSTRAINT `chk_modulos_jornada` CHECK (`horas_jornada` BETWEEN 1 AND 24)
+  CONSTRAINT `chk_modulos_umbral` CHECK (`umbral_cumplimiento` BETWEEN 0 AND 100)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
@@ -151,7 +163,10 @@ CREATE TABLE IF NOT EXISTS `roles` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
--- Tabla `tallas`
+-- Tablas `tallas`, `colores` y `tipos_prenda`
+--   Catalogos simples del producto. No tienen pantalla propia: se
+--   gestionan desde el formulario del lote, que es el unico sitio donde
+--   se usan (el tipo de prenda del lote y su desglose por talla y color).
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `tallas` (
   `id_talla` BIGINT NOT NULL AUTO_INCREMENT,
@@ -162,9 +177,15 @@ CREATE TABLE IF NOT EXISTS `tallas` (
   UNIQUE INDEX `uq_tallas_nombre` (`nombre`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
--- ---------------------------------------------------------------------
--- Tabla `tipos_prenda`
--- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `colores` (
+  `id_color` BIGINT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(50) NOT NULL,
+  `codigo_hex` CHAR(7) DEFAULT NULL,
+  `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
+  PRIMARY KEY (`id_color`),
+  UNIQUE INDEX `uq_colores_nombre` (`nombre`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `tipos_prenda` (
   `id_tipo_prenda` BIGINT NOT NULL AUTO_INCREMENT,
   `nombre` VARCHAR(80) NOT NULL,
@@ -176,9 +197,13 @@ CREATE TABLE IF NOT EXISTS `tipos_prenda` (
 
 -- ---------------------------------------------------------------------
 -- Tabla `causas_desviacion`
---   Catalogo de motivos por los que una hora no alcanza la meta.
+--   El catalogo de INCIDENCIAS: los motivos por los que una hora no
+--   alcanza la meta. Es lo que la digitadora ve como botones cuando
+--   registra una hora que se cayo.
+--
 --   `tipo` separa el tiempo perdido imputable al cliente (EXTERNA) del
 --   propio (INTERNA) y del planeado (montaje, curva de aprendizaje).
+--   `requiere_nota` obliga a escribir la explicacion adicional.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `causas_desviacion` (
   `id_causa` BIGINT NOT NULL AUTO_INCREMENT,
@@ -195,6 +220,10 @@ CREATE TABLE IF NOT EXISTS `causas_desviacion` (
 
 -- ---------------------------------------------------------------------
 -- Tabla `jornadas`
+--   OJO con el nombre: esto es el HORARIO de la planta, el patron de
+--   franjas. La jornada de trabajo de un modulo en un dia concreto es
+--   `jornada_modulo`, mas abajo.
+--
 --   La planta no trabaja el mismo horario todos los dias: de martes a
 --   viernes son 520 minutos y el sabado 440. Cada jornada es un patron
 --   de franjas; `jornada_dia` dice que dia de la semana usa cual.
@@ -210,7 +239,7 @@ CREATE TABLE IF NOT EXISTS `jornadas` (
 
 -- ---------------------------------------------------------------------
 -- Tabla `jornada_franjas`
---   Una franja = una columna de la rejilla de captura.
+--   Una franja = una hora de captura = un recordatorio a la digitadora.
 --
 --   `minutos` es el ancho REAL de la franja y es el dato que fija la
 --   meta. La ultima franja del dia casi nunca dura 60: de martes a
@@ -240,7 +269,7 @@ CREATE TABLE IF NOT EXISTS `jornada_franjas` (
 
 -- ---------------------------------------------------------------------
 -- Tabla `jornada_dia`
---   Que jornada rige cada dia (1 = lunes ... 7 = domingo).
+--   Que horario rige cada dia (1 = lunes ... 7 = domingo).
 --   Un dia sin fila es un dia que no se trabaja.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `jornada_dia` (
@@ -255,84 +284,114 @@ CREATE TABLE IF NOT EXISTS `jornada_dia` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
--- Tabla `pedidos`
---   Compromiso de entrega con el cliente. No es un modulo de ventas:
---   lo que importa es la cantidad y la fecha comprometida.
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `pedidos` (
-  `id_pedido` BIGINT NOT NULL AUTO_INCREMENT,
-  `numero_pedido` VARCHAR(50) NOT NULL,
-  `id_cliente` BIGINT NOT NULL,
-  `id_marca` BIGINT DEFAULT NULL,
-  `fecha_pedido` DATE NOT NULL,
-  `fecha_entrega_programada` DATE DEFAULT NULL,
-  `fecha_entrega_real` DATE DEFAULT NULL,
-  `estado` ENUM('REGISTRADO', 'APROBADO', 'EN_PRODUCCION', 'DESPACHADO', 'ENTREGADO', 'CANCELADO') NOT NULL DEFAULT 'REGISTRADO',
-  `observaciones` VARCHAR(500) DEFAULT NULL,
-  `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_pedido`),
-  UNIQUE INDEX `uq_pedidos_numero` (`numero_pedido`),
-  INDEX `fk_pedidos_cliente` (`id_cliente`),
-  INDEX `fk_pedidos_marca` (`id_marca`),
-  CONSTRAINT `fk_pedidos_cliente`
-    FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_pedidos_marca`
-    FOREIGN KEY (`id_marca`) REFERENCES `marcas` (`id_marca`)
-    ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
--- Tabla `referencias`
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `referencias` (
-  `id_referencia` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_marca` BIGINT NOT NULL,
-  `codigo` VARCHAR(50) NOT NULL,
-  `nombre` VARCHAR(120) NOT NULL,
-  `descripcion` VARCHAR(255) DEFAULT NULL,
-  `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
-  PRIMARY KEY (`id_referencia`),
-  UNIQUE INDEX `uq_referencias_codigo` (`codigo`),
-  INDEX `fk_referencias_marca` (`id_marca`),
-  CONSTRAINT `fk_referencias_marca`
-    FOREIGN KEY (`id_marca`) REFERENCES `marcas` (`id_marca`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
 -- Tabla `lotes`
+--   El trabajo que llega del cliente, y la unica fuente de todo lo que
+--   hay que saber del producto.
+--
+--   Antes esto estaba repartido en cuatro tablas: `referencias` (el
+--   codigo del producto), `fichas_tecnicas` (el SAM y los documentos) y
+--   sus hijas de operaciones, materiales y medidas. En la practica cada
+--   lote llega con SU PROPIA ficha tecnica --son todas distintas--, asi
+--   que el catalogo aparte obligaba a crear una referencia y una ficha,
+--   antes de poder registrar el lote, para usarlas una sola vez. Ahora
+--   la ficha tecnica es la imagen que viene con el lote.
+--
+--   Tambien absorbio a `pedidos`: para la empresa el pedido y el lote son
+--   la misma informacion de negocio, y tenerlos separados obligaba a
+--   digitar dos veces el mismo compromiso. De ahi vienen `numero_pedido`
+--   (el folio), `fecha_pedido` y las dos fechas de entrega.
+--
+--   `estado` cubre el ciclo de vida completo, del registro a la entrega:
+--   es la union de los estados que tenian `lotes` y `pedidos` por
+--   separado.
+--
+--   `sam_pactado` son los minutos que el cliente paga por prenda. Es la
+--   linea de rentabilidad y lo que fija la meta de cada hora.
+--
+--   `ruta_imagen` y `ruta_documento_pdf` apuntan a los archivos subidos
+--   (ver POST /api/lotes/:id/ficha). Van separados porque son dos cosas
+--   distintas: la foto de la prenda, que se reconoce de un vistazo, y el
+--   PDF con el detalle, que se lee.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `lotes` (
   `id_lote` BIGINT NOT NULL AUTO_INCREMENT,
   `codigo_lote` VARCHAR(50) NOT NULL,
-  `id_marca` BIGINT NOT NULL,
-  `id_pedido` BIGINT DEFAULT NULL,
-  `id_referencia` BIGINT DEFAULT NULL,
+  `numero_pedido` VARCHAR(50) DEFAULT NULL,
+  `id_cliente` BIGINT NOT NULL,
+  `codigo_referencia` VARCHAR(50) DEFAULT NULL,
+  `nombre_referencia` VARCHAR(120) DEFAULT NULL,
+  `id_tipo_prenda` BIGINT DEFAULT NULL,
+  `sam_pactado` DECIMAL(10,2) DEFAULT NULL,
+  `material_principal` VARCHAR(150) DEFAULT NULL,
+  `ruta_imagen` VARCHAR(500) DEFAULT NULL,
+  `ruta_documento_pdf` VARCHAR(500) DEFAULT NULL,
+  `fecha_pedido` DATE DEFAULT NULL,
   `fecha_recepcion` DATE NOT NULL,
+  `fecha_entrega_programada` DATE DEFAULT NULL,
+  `fecha_entrega_real` DATE DEFAULT NULL,
   `fecha_inicio` DATE DEFAULT NULL,
   `fecha_finalizacion` DATE DEFAULT NULL,
   `cantidad_programada` INT NOT NULL DEFAULT '0',
   `cantidad_recibida` INT NOT NULL DEFAULT '0',
   `observaciones` VARCHAR(500) DEFAULT NULL,
-  `estado` ENUM('REGISTRADO', 'EN_PROCESO', 'FINALIZADO', 'CANCELADO', 'INACTIVO') NOT NULL DEFAULT 'REGISTRADO',
+  `estado` ENUM('REGISTRADO', 'APROBADO', 'EN_PROCESO', 'DESPACHADO',
+                'ENTREGADO', 'FINALIZADO', 'CANCELADO', 'INACTIVO')
+           NOT NULL DEFAULT 'REGISTRADO',
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_lote`),
   UNIQUE INDEX `uq_lotes_codigo` (`codigo_lote`),
-  INDEX `fk_lotes_marca` (`id_marca`),
-  INDEX `fk_lotes_pedido` (`id_pedido`),
-  INDEX `fk_lotes_referencia` (`id_referencia`),
+  -- MySQL admite varios NULL en un indice unico: el folio no se repite,
+  -- pero un lote sin pedido formal se registra igual.
+  UNIQUE INDEX `uq_lotes_numero_pedido` (`numero_pedido`),
+  INDEX `fk_lotes_cliente` (`id_cliente`),
+  INDEX `fk_lotes_tipo_prenda` (`id_tipo_prenda`),
   INDEX `idx_lotes_estado_fecha` (`estado`, `fecha_recepcion`),
-  CONSTRAINT `fk_lotes_marca`
-    FOREIGN KEY (`id_marca`) REFERENCES `marcas` (`id_marca`)
+  INDEX `idx_lotes_referencia` (`codigo_referencia`),
+  CONSTRAINT `fk_lotes_cliente`
+    FOREIGN KEY (`id_cliente`) REFERENCES `clientes` (`id_cliente`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_lotes_pedido`
-    FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_lotes_referencia`
-    FOREIGN KEY (`id_referencia`) REFERENCES `referencias` (`id_referencia`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `chk_lotes_cantidades` CHECK (`cantidad_programada` >= 0 AND `cantidad_recibida` >= 0)
+  CONSTRAINT `fk_lotes_tipo_prenda`
+    FOREIGN KEY (`id_tipo_prenda`) REFERENCES `tipos_prenda` (`id_tipo_prenda`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `chk_lotes_cantidades` CHECK (`cantidad_programada` >= 0 AND `cantidad_recibida` >= 0),
+  CONSTRAINT `chk_lotes_sam` CHECK (`sam_pactado` IS NULL OR `sam_pactado` > 0)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- ---------------------------------------------------------------------
+-- Tabla `lote_detalle_talla_color`
+--   Desglose OPCIONAL del lote por talla y color. Cero filas es un
+--   estado valido: el negocio todavia no decide si lo va a usar, y
+--   exigirlo bloquearia el registro del lote por un dato que a veces no
+--   viene en la hoja del cliente.
+--
+--   La produccion se sigue midiendo por lote, no por esta tabla: la
+--   captura horaria no la toca. Existe para el dia en que la empresa
+--   quiera saber cuantas tallas M salieron.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `lote_detalle_talla_color` (
+  `id_detalle` BIGINT NOT NULL AUTO_INCREMENT,
+  `id_lote` BIGINT NOT NULL,
+  `id_talla` BIGINT DEFAULT NULL,
+  `id_color` BIGINT DEFAULT NULL,
+  `cantidad` INT DEFAULT NULL,
+  PRIMARY KEY (`id_detalle`),
+  -- La misma talla y color dos veces son dos numeros para el mismo
+  -- casillero: el segundo taparia al primero en cualquier reporte. El
+  -- backend ya lo rechaza; aqui queda garantizado tambien para las cargas
+  -- por SQL, como la de la migracion.
+  UNIQUE INDEX `uq_detalle_lote_talla_color` (`id_lote`, `id_talla`, `id_color`),
+  INDEX `fk_detalle_lote` (`id_lote`),
+  INDEX `fk_detalle_talla` (`id_talla`),
+  INDEX `fk_detalle_color` (`id_color`),
+  CONSTRAINT `fk_detalle_lote`
+    FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_detalle_talla`
+    FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_detalle_color`
+    FOREIGN KEY (`id_color`) REFERENCES `colores` (`id_color`)
+    ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
@@ -381,35 +440,14 @@ CREATE TABLE IF NOT EXISTS `usuarios` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
--- Tabla `fichas_tecnicas`
---   `sam_pactado` es el tiempo estandar negociado con el cliente:
---   minutos que se pagan por cada unidad. Es la linea de rentabilidad.
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `fichas_tecnicas` (
-  `id_ficha_tecnica` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_referencia` BIGINT NOT NULL,
-  `codigo_ficha` VARCHAR(50) NOT NULL,
-  `version` VARCHAR(20) NOT NULL DEFAULT '1.0',
-  `descripcion` TEXT NULL,
-  `material_principal` VARCHAR(150) DEFAULT NULL,
-  `ruta_imagen` VARCHAR(500) DEFAULT NULL,
-  `ruta_documento_pdf` VARCHAR(500) DEFAULT NULL,
-  `sam_pactado` DECIMAL(10,2) DEFAULT NULL,
-  `personal_requerido` SMALLINT DEFAULT NULL,
-  `estado` ENUM('BORRADOR', 'VIGENTE', 'OBSOLETA', 'INACTIVA') NOT NULL DEFAULT 'BORRADOR',
-  `fecha_vigencia` DATE DEFAULT NULL,
-  `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_ficha_tecnica`),
-  UNIQUE INDEX `uq_fichas_codigo_version` (`codigo_ficha`, `version`),
-  INDEX `fk_fichas_referencia` (`id_referencia`),
-  CONSTRAINT `fk_fichas_referencia`
-    FOREIGN KEY (`id_referencia`) REFERENCES `referencias` (`id_referencia`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `chk_ficha_sam` CHECK (`sam_pactado` IS NULL OR `sam_pactado` > 0)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
 -- Tabla `operarios`
+--   El personal de planta. Es el catalogo del que la digitadora escoge
+--   cuando quiere dejar registrado QUIEN esta en el modulo; si no lo
+--   sabe o no hace falta, la operaria queda anonima en la jornada y
+--   esta tabla ni se toca.
+--
+--   `cargo` ya no incluye SUPERVISOR: la configuracion de la jornada la
+--   hace la digitadora desde la app, no una supervisora por modulo.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `operarios` (
   `id_operario` BIGINT NOT NULL AUTO_INCREMENT,
@@ -422,7 +460,7 @@ CREATE TABLE IF NOT EXISTS `operarios` (
   `telefono` VARCHAR(30) DEFAULT NULL,
   `correo` VARCHAR(150) DEFAULT NULL,
   `fecha_ingreso` DATE NOT NULL,
-  `cargo` ENUM('OPERARIO', 'SUPERVISOR', 'MECANICO', 'OTRO') NOT NULL DEFAULT 'OPERARIO',
+  `cargo` ENUM('OPERARIO', 'MECANICO', 'OTRO') NOT NULL DEFAULT 'OPERARIO',
   `especialidad` VARCHAR(100) DEFAULT NULL,
   `estado` ENUM('ACTIVO', 'INACTIVO', 'RETIRADO') NOT NULL DEFAULT 'ACTIVO',
   PRIMARY KEY (`id_operario`),
@@ -435,43 +473,6 @@ CREATE TABLE IF NOT EXISTS `operarios` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
--- Tabla `prendas`
---   Combinacion referencia + tipo + talla + color (SKU). Catalogo:
---   la produccion se mide por referencia, no por SKU.
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `prendas` (
-  `id_prenda` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_referencia` BIGINT NOT NULL,
-  `id_tipo_prenda` BIGINT NOT NULL,
-  `id_talla` BIGINT NOT NULL,
-  `id_color` BIGINT NOT NULL,
-  `sku` VARCHAR(80) NOT NULL,
-  `nombre` VARCHAR(150) NOT NULL,
-  `descripcion` VARCHAR(500) DEFAULT NULL,
-  `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
-  `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_prenda`),
-  UNIQUE INDEX `uq_prendas_sku` (`sku`),
-  UNIQUE INDEX `uq_prendas_combinacion` (`id_referencia`, `id_tipo_prenda`, `id_talla`, `id_color`),
-  INDEX `fk_prendas_referencia` (`id_referencia`),
-  INDEX `fk_prendas_tipo` (`id_tipo_prenda`),
-  INDEX `fk_prendas_talla` (`id_talla`),
-  INDEX `fk_prendas_color` (`id_color`),
-  CONSTRAINT `fk_prendas_color`
-    FOREIGN KEY (`id_color`) REFERENCES `colores` (`id_color`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_prendas_referencia`
-    FOREIGN KEY (`id_referencia`) REFERENCES `referencias` (`id_referencia`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_prendas_talla`
-    FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_prendas_tipo`
-    FOREIGN KEY (`id_tipo_prenda`) REFERENCES `tipos_prenda` (`id_tipo_prenda`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
 -- Tabla `recuperacion_claves`
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `recuperacion_claves` (
@@ -481,10 +482,10 @@ CREATE TABLE IF NOT EXISTS `recuperacion_claves` (
   `fecha_solicitud` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_expiracion` DATETIME NOT NULL,
   `fecha_uso` DATETIME DEFAULT NULL,
-  `estado` ENUM('PENDIENTE', 'UTILIZADO', 'VENCIDO', 'ANULADO') NOT NULL DEFAULT 'PENDIENTE',
+  `estado` ENUM('PENDIENTE', 'USADO', 'EXPIRADO', 'ANULADO') NOT NULL DEFAULT 'PENDIENTE',
   PRIMARY KEY (`id_recuperacion`),
-  UNIQUE INDEX `uq_recuperacion_token` (`token_hash`),
-  INDEX `fk_recuperacion_usuario` (`id_usuario`),
+  INDEX `idx_recuperacion_usuario` (`id_usuario`, `estado`),
+  INDEX `idx_recuperacion_token` (`token_hash`),
   CONSTRAINT `fk_recuperacion_usuario`
     FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`)
     ON DELETE CASCADE ON UPDATE CASCADE
@@ -512,126 +513,29 @@ CREATE TABLE IF NOT EXISTS `sesiones_acceso` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
--- Tabla `asignaciones_modulo`
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `asignaciones_modulo` (
-  `id_asignacion` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_modulo` BIGINT NOT NULL,
-  `id_operario` BIGINT NOT NULL,
-  `fecha_inicio` DATETIME NOT NULL,
-  `fecha_fin` DATETIME DEFAULT NULL,
-  `turno` ENUM('MANANA', 'TARDE', 'NOCHE', 'MIXTO') NOT NULL DEFAULT 'MANANA',
-  `rol_asignacion` ENUM('OPERARIO', 'SUPERVISOR', 'MECANICO') NOT NULL DEFAULT 'OPERARIO',
-  `estado` ENUM('PROGRAMADA', 'ACTIVA', 'FINALIZADA', 'CANCELADA') NOT NULL DEFAULT 'PROGRAMADA',
-  `observaciones` VARCHAR(500) DEFAULT NULL,
-  PRIMARY KEY (`id_asignacion`),
-  UNIQUE INDEX `uq_asignacion_modulo_operario` (`id_modulo`, `id_operario`, `fecha_inicio`),
-  INDEX `idx_asignaciones_modulo_fecha` (`id_modulo`, `fecha_inicio`),
-  INDEX `idx_asignaciones_operario_fecha` (`id_operario`, `fecha_inicio`),
-  INDEX `idx_asignaciones_estado` (`estado`),
-  CONSTRAINT `fk_asignacion_modulo`
-    FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_asignacion_operario`
-    FOREIGN KEY (`id_operario`) REFERENCES `operarios` (`id_operario`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
--- Tabla `detalle_pedido`
---   `valor_maquila_unidad`: lo que el cliente paga por confeccionar
---   una unidad. Con el SAM da la tarifa por minuto del contrato.
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `detalle_pedido` (
-  `id_detalle_pedido` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_pedido` BIGINT NOT NULL,
-  `id_prenda` BIGINT NOT NULL,
-  `cantidad` INT NOT NULL,
-  `valor_maquila_unidad` DECIMAL(14,2) NOT NULL DEFAULT '0.00',
-  `subtotal` DECIMAL(16,2) AS (`cantidad` * `valor_maquila_unidad`) STORED,
-  `observaciones` VARCHAR(300) DEFAULT NULL,
-  PRIMARY KEY (`id_detalle_pedido`),
-  UNIQUE INDEX `uq_detalle_pedido_prenda` (`id_pedido`, `id_prenda`),
-  INDEX `fk_detalle_pedido_prenda` (`id_prenda`),
-  CONSTRAINT `fk_detalle_pedido_pedido`
-    FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_detalle_pedido_prenda`
-    FOREIGN KEY (`id_prenda`) REFERENCES `prendas` (`id_prenda`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `chk_detalle_pedido_cantidad` CHECK (`cantidad` > 0)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
--- Tabla `ficha_tecnica_operaciones`
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ficha_tecnica_operaciones` (
-  `id_operacion` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_ficha_tecnica` BIGINT NOT NULL,
-  `numero_operacion` SMALLINT NOT NULL,
-  `nombre_operacion` VARCHAR(150) NOT NULL,
-  `descripcion` VARCHAR(500) DEFAULT NULL,
-  `maquina_requerida` VARCHAR(100) DEFAULT NULL,
-  `tiempo_estandar_minutos` DECIMAL(10,2) DEFAULT NULL,
-  PRIMARY KEY (`id_operacion`),
-  UNIQUE INDEX `uq_ficha_numero_operacion` (`id_ficha_tecnica`, `numero_operacion`),
-  CONSTRAINT `fk_operacion_ficha`
-    FOREIGN KEY (`id_ficha_tecnica`) REFERENCES `fichas_tecnicas` (`id_ficha_tecnica`)
-    ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
--- Tabla `ficha_tecnica_materiales`
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ficha_tecnica_materiales` (
-  `id_material` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_ficha_tecnica` BIGINT NOT NULL,
-  `nombre` VARCHAR(150) NOT NULL,
-  `tipo` ENUM('TELA', 'INSUMO', 'ACCESORIO', 'ETIQUETA', 'EMPAQUE', 'OTRO') NOT NULL DEFAULT 'INSUMO',
-  `descripcion` VARCHAR(300) DEFAULT NULL,
-  `cantidad_por_prenda` DECIMAL(12,4) NOT NULL DEFAULT '1.0000',
-  `unidad_medida` VARCHAR(20) NOT NULL DEFAULT 'UND',
-  `obligatorio` TINYINT(1) NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id_material`),
-  UNIQUE INDEX `uq_ficha_material` (`id_ficha_tecnica`, `nombre`),
-  CONSTRAINT `fk_material_ficha`
-    FOREIGN KEY (`id_ficha_tecnica`) REFERENCES `fichas_tecnicas` (`id_ficha_tecnica`)
-    ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
--- Tabla `ficha_tecnica_medidas`
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `ficha_tecnica_medidas` (
-  `id_medida` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_ficha_tecnica` BIGINT NOT NULL,
-  `id_talla` BIGINT NOT NULL,
-  `punto_medida` VARCHAR(120) NOT NULL,
-  `valor_cm` DECIMAL(8,2) NOT NULL,
-  `tolerancia_cm` DECIMAL(6,2) NOT NULL DEFAULT '0.50',
-  PRIMARY KEY (`id_medida`),
-  UNIQUE INDEX `uq_ficha_talla_punto` (`id_ficha_tecnica`, `id_talla`, `punto_medida`),
-  INDEX `fk_medida_talla` (`id_talla`),
-  CONSTRAINT `fk_medida_ficha`
-    FOREIGN KEY (`id_ficha_tecnica`) REFERENCES `fichas_tecnicas` (`id_ficha_tecnica`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_medida_talla`
-    FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
-
--- ---------------------------------------------------------------------
 -- Tabla `ordenes_produccion`
---   Asigna un lote a un modulo con una ficha tecnica. Es lo que el
---   modulo esta confeccionando, y de ahi sale el SAM de la rejilla.
+--   El compromiso de produccion sobre un lote: cuanto hay que sacar,
+--   para cuando y a que valor de maquila.
+--
+--   NO NOMBRA MODULO. La orden nace libre y se queda en el tablero hasta
+--   que un modulo la toma, y eso pasa en un solo sitio: al abrir la
+--   jornada. Desde ese momento ningun otro modulo puede tomarla.
+--   El vinculo vive en `jornada_modulo.id_orden_produccion`, y
+--   `vw_avance_orden` lo lee para decir quien la tiene ('LIBRE' o
+--   'TOMADA').
+--
+--   Antes habia una columna `id_modulo NOT NULL`: obligaba a decidir el
+--   modulo en el escritorio, dias antes, cuando quien sabe que modulo se
+--   desocupa es la planta el mismo dia.
+--
+--   `valor_maquila_unidad` es lo que el cliente paga por prenda. Con el
+--   `sam_pactado` del lote da la tarifa por minuto, que es la metrica
+--   economica real de una maquila.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   `id_orden_produccion` BIGINT NOT NULL AUTO_INCREMENT,
   `numero_orden` VARCHAR(50) NOT NULL,
-  `id_pedido` BIGINT DEFAULT NULL,
   `id_lote` BIGINT NOT NULL,
-  `id_modulo` BIGINT NOT NULL,
-  `id_ficha_tecnica` BIGINT NOT NULL,
   `fecha_emision` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `fecha_inicio_programada` DATE DEFAULT NULL,
   `fecha_fin_programada` DATE DEFAULT NULL,
@@ -645,72 +549,135 @@ CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   `creado_por` BIGINT NOT NULL,
   PRIMARY KEY (`id_orden_produccion`),
   UNIQUE INDEX `uq_ordenes_numero` (`numero_orden`),
-  INDEX `fk_orden_pedido` (`id_pedido`),
   INDEX `fk_orden_lote` (`id_lote`),
-  INDEX `fk_orden_ficha` (`id_ficha_tecnica`),
   INDEX `fk_orden_creador` (`creado_por`),
   INDEX `idx_orden_estado_fecha` (`estado`, `fecha_emision`),
-  INDEX `idx_orden_modulo` (`id_modulo`),
   CONSTRAINT `fk_orden_creador`
     FOREIGN KEY (`creado_por`) REFERENCES `usuarios` (`id_usuario`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_orden_ficha`
-    FOREIGN KEY (`id_ficha_tecnica`) REFERENCES `fichas_tecnicas` (`id_ficha_tecnica`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_orden_lote`
     FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_orden_modulo`
-    FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `fk_orden_pedido`
-    FOREIGN KEY (`id_pedido`) REFERENCES `pedidos` (`id_pedido`)
-    ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `chk_orden_cantidad` CHECK (`cantidad_programada` > 0)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
--- ---------------------------------------------------------------------
--- Tabla `detalle_orden_produccion`
---   Distribucion de la orden por prenda (talla / color).
--- ---------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `detalle_orden_produccion` (
-  `id_detalle_orden` BIGINT NOT NULL AUTO_INCREMENT,
-  `id_orden_produccion` BIGINT NOT NULL,
-  `id_prenda` BIGINT NOT NULL,
-  `cantidad_programada` INT NOT NULL,
-  `observaciones` VARCHAR(300) DEFAULT NULL,
-  PRIMARY KEY (`id_detalle_orden`),
-  UNIQUE INDEX `uq_detalle_orden_prenda` (`id_orden_produccion`, `id_prenda`),
-  INDEX `fk_detalle_orden_prenda` (`id_prenda`),
-  CONSTRAINT `fk_detalle_orden_orden`
-    FOREIGN KEY (`id_orden_produccion`) REFERENCES `ordenes_produccion` (`id_orden_produccion`)
-    ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_detalle_orden_prenda`
-    FOREIGN KEY (`id_prenda`) REFERENCES `prendas` (`id_prenda`)
+-- =====================================================================
+-- Tabla `jornada_modulo`   <- LO QUE LA DIGITADORA CONFIGURA AL ENTRAR
+--
+--   Una fila = un modulo trabajando un lote un dia. Es el resultado del
+--   asistente de inicio de jornada: modulo, cantidad de operarias,
+--   cliente y lote.
+--
+--   Reemplaza a `asignaciones_modulo`, que definia quien trabajaba en
+--   cada modulo con rangos de fechas abiertos y un rol SUPERVISOR. Aquel
+--   modelo respondia "quien esta asignado a este modulo en general"; el
+--   dato que el sistema necesita es "quien esta HOY en este modulo",
+--   que es lo unico que permite repartir la produccion de la hora.
+--
+--   `id_lote` es el lote que el modulo esta corriendo AHORA. Si a mitad
+--   del dia cambia de referencia, se cambia aqui: las horas ya
+--   capturadas conservan su propio `id_lote` y no se reescriben.
+--
+--   `cantidad_operarias` es la cifra que la digitadora declara al abrir.
+--   No congela nada: cada franja guarda su `personas_presentes`, que
+--   arranca en este numero y ella puede bajar si alguien falto. Asi la
+--   meta sigue siendo dinamica, que es la razon de ser del tablero.
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS `jornada_modulo` (
+  `id_jornada_modulo` BIGINT NOT NULL AUTO_INCREMENT,
+  `id_modulo` BIGINT NOT NULL,
+  `fecha` DATE NOT NULL,
+  `id_lote` BIGINT NOT NULL,
+  `id_orden_produccion` BIGINT DEFAULT NULL,
+  `cantidad_operarias` SMALLINT NOT NULL DEFAULT '0',
+  `estado` ENUM('ABIERTA', 'CERRADA') NOT NULL DEFAULT 'ABIERTA',
+  `abierta_por` BIGINT NOT NULL,
+  `fecha_apertura` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_cierre` DATETIME DEFAULT NULL,
+  `observaciones` VARCHAR(500) DEFAULT NULL,
+  PRIMARY KEY (`id_jornada_modulo`),
+  UNIQUE INDEX `uq_jornada_modulo_fecha` (`id_modulo`, `fecha`),
+  INDEX `fk_jornada_modulo_lote` (`id_lote`),
+  INDEX `fk_jornada_modulo_orden` (`id_orden_produccion`),
+  INDEX `fk_jornada_modulo_usuario` (`abierta_por`),
+  INDEX `idx_jornada_modulo_fecha` (`fecha`, `estado`),
+  CONSTRAINT `fk_jornada_modulo_modulo`
+    FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `chk_detalle_orden_cantidad` CHECK (`cantidad_programada` > 0)
+  CONSTRAINT `fk_jornada_modulo_lote`
+    FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_jornada_modulo_orden`
+    FOREIGN KEY (`id_orden_produccion`) REFERENCES `ordenes_produccion` (`id_orden_produccion`)
+    ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_jornada_modulo_usuario`
+    FOREIGN KEY (`abierta_por`) REFERENCES `usuarios` (`id_usuario`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `chk_jornada_modulo_operarias` CHECK (`cantidad_operarias` >= 0)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- =====================================================================
+-- Tabla `jornada_operaria`
+--
+--   La nomina del modulo ese dia: una fila por puesto, numeradas de 1 a
+--   `cantidad_operarias`.
+--
+--   `id_operario` NULL es una OPERARIA ANONIMA: el sistema sabe que hay
+--   una persona ahi --y por lo tanto cuenta para los minutos
+--   disponibles-- pero no quien es. Es el caso normal en planta: la
+--   digitadora sabe que hay cinco maquinas andando mucho antes de saber
+--   el nombre de las cinco. Exigir la identificacion habria obligado a
+--   inventar operarias en el catalogo para poder arrancar el dia.
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS `jornada_operaria` (
+  `id_jornada_operaria` BIGINT NOT NULL AUTO_INCREMENT,
+  `id_jornada_modulo` BIGINT NOT NULL,
+  `numero` SMALLINT NOT NULL,
+  `id_operario` BIGINT DEFAULT NULL,
+  PRIMARY KEY (`id_jornada_operaria`),
+  UNIQUE INDEX `uq_jornada_operaria_numero` (`id_jornada_modulo`, `numero`),
+  -- MySQL admite varios NULL en un indice unico: por eso esto impide
+  -- repetir a la misma operaria y no estorba a las anonimas.
+  UNIQUE INDEX `uq_jornada_operaria_operario` (`id_jornada_modulo`, `id_operario`),
+  INDEX `fk_jornada_operaria_operario` (`id_operario`),
+  CONSTRAINT `fk_jornada_operaria_jornada`
+    FOREIGN KEY (`id_jornada_modulo`) REFERENCES `jornada_modulo` (`id_jornada_modulo`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_jornada_operaria_operario`
+    FOREIGN KEY (`id_operario`) REFERENCES `operarios` (`id_operario`)
+    ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `chk_jornada_operaria_numero` CHECK (`numero` BETWEEN 1 AND 99)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- =====================================================================
 -- Tabla `registros_horarios`  <- EL CORAZON DEL SISTEMA
 --
---   Una fila = una celda del tablero = un modulo en una hora de la jornada.
---   El indice unico (id_modulo, fecha, hora_jornada) garantiza que la
---   rejilla no tenga celdas duplicadas.
+--   Una fila = una celda del tablero = un modulo en una hora de la
+--   jornada. El indice unico (id_modulo, fecha, hora_jornada) garantiza
+--   que la rejilla no tenga celdas duplicadas.
 --
---   `sam_aplicado` se guarda con el registro (no se lee de la ficha al
---   consultar) para que el historico no cambie si el SAM se renegocia.
+--   `sam_aplicado`, `precio_aplicado` y `minutos_franja` se guardan CON
+--   el registro (no se leen del lote ni de la orden al consultar) para
+--   que el historico no cambie si manana se renegocia el SAM, la tarifa
+--   o el horario.
+--
+--   `id_lote` es la misma idea: guarda que se estaba confeccionando en
+--   esa hora, aunque el modulo cambie de lote mas tarde en el dia.
 -- =====================================================================
 CREATE TABLE IF NOT EXISTS `registros_horarios` (
   `id_registro` BIGINT NOT NULL AUTO_INCREMENT,
+  `id_jornada_modulo` BIGINT NOT NULL,
   `id_modulo` BIGINT NOT NULL,
   `fecha` DATE NOT NULL,
   `hora_jornada` TINYINT NOT NULL,
+  `minutos_franja` SMALLINT NOT NULL DEFAULT '60',
+  `id_lote` BIGINT DEFAULT NULL,
   `id_orden_produccion` BIGINT DEFAULT NULL,
   `personas_presentes` SMALLINT NOT NULL DEFAULT '0',
   `unidades_producidas` INT NOT NULL DEFAULT '0',
   `unidades_defectuosas` INT NOT NULL DEFAULT '0',
   `sam_aplicado` DECIMAL(10,2) DEFAULT NULL,
+  `precio_aplicado` DECIMAL(14,2) DEFAULT NULL,
   `id_causa` BIGINT DEFAULT NULL,
   `nota` VARCHAR(300) DEFAULT NULL,
   `registrado_por` BIGINT NOT NULL,
@@ -720,12 +687,20 @@ CREATE TABLE IF NOT EXISTS `registros_horarios` (
   PRIMARY KEY (`id_registro`),
   UNIQUE INDEX `uq_registro_celda` (`id_modulo`, `fecha`, `hora_jornada`),
   INDEX `idx_registro_fecha` (`fecha`),
+  INDEX `idx_registro_jornada` (`id_jornada_modulo`),
+  INDEX `idx_registro_lote` (`id_lote`),
   INDEX `idx_registro_orden` (`id_orden_produccion`),
   INDEX `idx_registro_causa` (`id_causa`),
   INDEX `fk_registro_usuario` (`registrado_por`),
+  CONSTRAINT `fk_registro_jornada`
+    FOREIGN KEY (`id_jornada_modulo`) REFERENCES `jornada_modulo` (`id_jornada_modulo`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_registro_modulo`
     FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_registro_lote`
+    FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`)
+    ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_registro_orden`
     FOREIGN KEY (`id_orden_produccion`) REFERENCES `ordenes_produccion` (`id_orden_produccion`)
     ON DELETE SET NULL ON UPDATE CASCADE,
@@ -741,14 +716,17 @@ CREATE TABLE IF NOT EXISTS `registros_horarios` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- =====================================================================
--- Tabla `registro_minutos_perdidos`
+-- Tabla `registro_minutos_perdidos`   <- LA INCIDENCIA DE LA HORA
 --
 --   Los minutos que el modulo estuvo detenido en esa hora, abiertos por
---   causa. El tablero de la empresa trae tres columnas fijas (maquina,
---   calidad, montaje/insumos); aqui son N causas del catalogo, para que
---   se pueda agregar un motivo sin volver a tocar el esquema.
+--   causa. Es lo que la digitadora responde cuando una hora se cae:
+--   que paso, cuanto tiempo y --si la causa lo exige-- por que.
 --
---   `minutos` son minutos DE MODULO: es lo que la supervisora observa
+--   El tablero de la empresa trae tres columnas fijas (maquina, calidad,
+--   montaje/insumos); aqui son N causas del catalogo, para que se pueda
+--   agregar un motivo sin volver a tocar el esquema.
+--
+--   `minutos` son minutos DE MODULO: es lo que la digitadora observa
 --   ("la maquina estuvo 20 minutos parada"). Multiplicados por las
 --   personas presentes dan los minutos-persona perdidos, que es la
 --   unidad comparable contra `minutos_disponibles`.
@@ -775,8 +753,8 @@ CREATE TABLE IF NOT EXISTS `registro_minutos_perdidos` (
 -- Tabla `migraciones`
 --   Deja constancia de los ajustes que solo pueden correr una vez.
 --   `npm run db:setup` se ejecuta muchas veces sobre la misma base: sin
---   esta marca, un relleno de datos historicos se volveria a aplicar y
---   pisaria justo lo que se queria conservar.
+--   esta marca, una migracion de datos historicos se volveria a aplicar
+--   y pisaria justo lo que se queria conservar.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `migraciones` (
   `clave` VARCHAR(80) NOT NULL,
@@ -785,42 +763,64 @@ CREATE TABLE IF NOT EXISTS `migraciones` (
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- =====================================================================
--- Columnas agregadas a tablas que ya existian
---
---   `CREATE TABLE IF NOT EXISTS` no toca una tabla ya creada, asi que
---   las columnas nuevas se agregan aqui con guarda sobre
---   information_schema. Correr el script dos veces no falla.
---
---   `minutos_franja` y `precio_aplicado` se copian AL REGISTRO, igual
---   que `sam_aplicado`: si manana cambia el horario o se renegocia la
---   tarifa, lo que ya paso no se recalcula solo.
--- =====================================================================
-SET @sql_col = (SELECT IF(
-  (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'registros_horarios'
-      AND COLUMN_NAME = 'minutos_franja') = 0,
-  'ALTER TABLE `registros_horarios`
-     ADD COLUMN `minutos_franja` SMALLINT NOT NULL DEFAULT 60 AFTER `hora_jornada`',
-  'DO 0'));
-PREPARE ejecutar FROM @sql_col; EXECUTE ejecutar; DEALLOCATE PREPARE ejecutar;
-
-SET @sql_col = (SELECT IF(
-  (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'registros_horarios'
-      AND COLUMN_NAME = 'precio_aplicado') = 0,
-  'ALTER TABLE `registros_horarios`
-     ADD COLUMN `precio_aplicado` DECIMAL(14,2) DEFAULT NULL AFTER `sam_aplicado`',
-  'DO 0'));
-PREPARE ejecutar FROM @sql_col; EXECUTE ejecutar; DEALLOCATE PREPARE ejecutar;
-
--- =====================================================================
 -- Vistas
+--
+-- Todos los calculos viven aqui, no en el frontend: la pantalla puede
+-- adelantar un numero mientras la digitadora escribe, pero el que queda
+-- guardado siempre es el de la base.
 -- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- vw_horario_jornada
+--   Cuanto dura de verdad un dia de planta, por patron de horario.
+--
+--   El tablero de la empresa trae "Horas dia" como celda VERDE, o sea
+--   calculada, y aqui es lo mismo: la suma de `jornada_franjas`. Son
+--   520 minutos de martes a viernes (8 franjas de 60 y una de 40) y 440
+--   el sabado. Nadie escribe ese numero: si cambia el horario se
+--   cambian filas de franjas y esta vista se mueve sola.
+--
+--   Antes cada modulo llevaba su propio `horas_jornada` digitado, que
+--   decia 9 mientras la planta trabajaba 8.67. El horario es de la
+--   planta, no del modulo.
+--
+--   Las subconsultas son a proposito: cruzar franjas y dias en un solo
+--   JOIN multiplica las filas y los minutos salen contados una vez por
+--   cada dia de la semana que usa el patron.
+-- ---------------------------------------------------------------------
+CREATE OR REPLACE VIEW `vw_horario_jornada` AS
+SELECT
+  j.id_jornada                                     AS id_jornada,
+  j.codigo                                         AS codigo,
+  j.nombre                                         AS nombre,
+  j.estado                                         AS estado,
+  (SELECT COUNT(*) FROM jornada_franjas f
+    WHERE f.id_jornada = j.id_jornada)             AS franjas,
+  (SELECT COALESCE(SUM(f.minutos), 0) FROM jornada_franjas f
+    WHERE f.id_jornada = j.id_jornada)             AS minutos_totales,
+  ROUND(
+    (SELECT COALESCE(SUM(f.minutos), 0) FROM jornada_franjas f
+      WHERE f.id_jornada = j.id_jornada) / 60.0, 2) AS horas_totales,
+  (SELECT MIN(f.hora_inicio) FROM jornada_franjas f
+    WHERE f.id_jornada = j.id_jornada)             AS hora_inicio,
+  (SELECT MAX(f.hora_fin) FROM jornada_franjas f
+    WHERE f.id_jornada = j.id_jornada)             AS hora_fin,
+  (SELECT COUNT(*) FROM jornada_dia d
+    WHERE d.id_jornada = j.id_jornada)             AS dias_que_lo_usan,
+  (SELECT GROUP_CONCAT(d.dia_semana ORDER BY d.dia_semana) FROM jornada_dia d
+    WHERE d.id_jornada = j.id_jornada)             AS dias_semana
+FROM jornadas j;
 
 -- ---------------------------------------------------------------------
 -- vw_registro_horario
 --   La rejilla con todos los calculos hechos. Es la vista base de la que
 --   se derivan casi todas las demas.
+--
+--   La cadena hasta el producto es ahora directa: registro -> lote ->
+--   cliente. Antes habia que pasar por orden -> ficha -> referencia ->
+--   marca para la marca, y por orden -> pedido -> cliente para el
+--   cliente; como el pedido era opcional, una orden sin pedido dejaba
+--   el nombre del cliente en blanco en su propio tablero.
 -- ---------------------------------------------------------------------
 CREATE OR REPLACE VIEW `vw_registro_horario` AS
 SELECT
@@ -837,12 +837,15 @@ SELECT
   m.codigo                                         AS codigo_modulo,
   m.nombre                                         AS nombre_modulo,
   m.umbral_cumplimiento                            AS umbral_cumplimiento,
+  r.id_jornada_modulo                              AS id_jornada_modulo,
+  r.id_lote                                        AS id_lote,
+  lot.codigo_lote                                  AS codigo_lote,
+  lot.codigo_referencia                            AS codigo_referencia,
+  lot.nombre_referencia                            AS nombre_referencia,
+  cli.id_cliente                                   AS id_cliente,
+  cli.nombre                                       AS nombre_cliente,
   r.id_orden_produccion                            AS id_orden_produccion,
   o.numero_orden                                   AS numero_orden,
-  ref.codigo                                       AS codigo_referencia,
-  ref.nombre                                       AS nombre_referencia,
-  mar.nombre                                       AS nombre_marca,
-  cli.razon_social                                 AS nombre_cliente,
   r.personas_presentes                             AS personas_presentes,
   r.unidades_producidas                            AS unidades_producidas,
   r.unidades_defectuosas                           AS unidades_defectuosas,
@@ -850,8 +853,8 @@ SELECT
   r.sam_aplicado                                   AS sam_aplicado,
   r.precio_aplicado                                AS precio_aplicado,
 
-  -- Minutos-persona que la empresa puso en esa franja. Antes se asumia
-  -- que toda franja duraba 60; ahora manda el ancho real de la franja.
+  -- Minutos-persona que la empresa puso en esa franja. Manda el ancho
+  -- real de la franja, no un 60 fijo.
   (r.personas_presentes * r.minutos_franja)        AS minutos_disponibles,
 
   -- Meta con dos decimales a proposito: el total del dia se arma
@@ -882,8 +885,9 @@ SELECT
          ELSE (r.personas_presentes * r.minutos_franja) / r.unidades_producidas
     END, 2)                                        AS sam_observado,
 
-  -- Dinero. `precio_aplicado` sale de `ordenes_produccion.valor_maquila_unidad`:
-  -- lo que el cliente paga por prenda confeccionada.
+  -- Dinero. `precio_aplicado` sale de
+  -- `ordenes_produccion.valor_maquila_unidad`: lo que el cliente paga
+  -- por prenda confeccionada.
   ROUND(
     CASE WHEN COALESCE(r.sam_aplicado, 0) = 0 THEN 0
          ELSE (r.personas_presentes * r.minutos_franja) / r.sam_aplicado
@@ -902,7 +906,7 @@ SELECT
     END, 2)                                        AS cumplimiento_facturacion,
 
   -- Tiempo perdido. `minutos_perdidos` es tiempo de modulo (lo que ve la
-  -- supervisora); `minutos_perdidos_persona` lo lleva a minutos-persona,
+  -- digitadora); `minutos_perdidos_persona` lo lleva a minutos-persona,
   -- que es la unidad de `minutos_disponibles`.
   COALESCE(perd.minutos_perdidos, 0)               AS minutos_perdidos,
   COALESCE(perd.minutos_perdidos, 0) * r.personas_presentes AS minutos_perdidos_persona,
@@ -923,13 +927,12 @@ SELECT
 FROM registros_horarios r
 JOIN modulos  m   ON m.id_modulo = r.id_modulo
 JOIN usuarios u   ON u.id_usuario = r.registrado_por
-LEFT JOIN causas_desviacion c ON c.id_causa = r.id_causa
+JOIN jornada_modulo jm ON jm.id_jornada_modulo = r.id_jornada_modulo
+-- El lote de la hora; si no quedo foto, el que la jornada tenga ahora.
+LEFT JOIN lotes lot ON lot.id_lote = COALESCE(r.id_lote, jm.id_lote)
+LEFT JOIN clientes cli ON cli.id_cliente = lot.id_cliente
 LEFT JOIN ordenes_produccion o ON o.id_orden_produccion = r.id_orden_produccion
-LEFT JOIN fichas_tecnicas f ON f.id_ficha_tecnica = o.id_ficha_tecnica
-LEFT JOIN referencias ref ON ref.id_referencia = f.id_referencia
-LEFT JOIN marcas mar ON mar.id_marca = ref.id_marca
-LEFT JOIN pedidos ped ON ped.id_pedido = o.id_pedido
-LEFT JOIN clientes cli ON cli.id_cliente = ped.id_cliente
+LEFT JOIN causas_desviacion c ON c.id_causa = r.id_causa
 -- WEEKDAY() devuelve 0 = lunes, y `jornada_dia` usa 1 = lunes.
 LEFT JOIN jornada_dia jd ON jd.dia_semana = WEEKDAY(r.fecha) + 1
 LEFT JOIN jornada_franjas jf
@@ -975,7 +978,7 @@ SELECT
 
   -- Minutos ganados sobre minutos puestos. Con un solo SAM en el dia da
   -- exactamente lo mismo que unidades/meta, que es como lo saca el
-  -- tablero de pared; con dos referencias en el dia esta es la correcta,
+  -- tablero de pared; con dos lotes en el dia esta es la correcta,
   -- porque pesa cada hora por los minutos que realmente valia.
   ROUND(
     CASE WHEN SUM(v.minutos_disponibles) = 0 THEN 0
@@ -1043,6 +1046,9 @@ GROUP BY v.fecha, v.hora_jornada;
 -- ---------------------------------------------------------------------
 -- vw_avance_orden
 --   Estado de cada orden de produccion con su avance real.
+--
+--   El SAM pactado ahora sale del lote, no de una ficha tecnica: es el
+--   mismo dato, en el sitio donde la empresa lo recibe.
 -- ---------------------------------------------------------------------
 CREATE OR REPLACE VIEW `vw_avance_orden` AS
 SELECT
@@ -1050,24 +1056,23 @@ SELECT
   o.numero_orden                                   AS numero_orden,
   o.estado                                         AS estado,
   o.prioridad                                      AS prioridad,
-  o.id_pedido                                      AS id_pedido,
-  ped.numero_pedido                                AS numero_pedido,
-  ped.fecha_entrega_programada                     AS fecha_entrega_programada,
-  cli.id_cliente                                   AS id_cliente,
-  COALESCE(cli.razon_social, CONCAT(COALESCE(cli.nombres, ''), ' ', COALESCE(cli.apellidos, ''))) AS nombre_cliente,
   o.id_lote                                        AS id_lote,
   lot.codigo_lote                                  AS codigo_lote,
-  o.id_modulo                                      AS id_modulo,
+  lot.codigo_referencia                            AS codigo_referencia,
+  lot.nombre_referencia                            AS nombre_referencia,
+  lot.sam_pactado                                  AS sam_pactado,
+  lot.numero_pedido                                AS numero_pedido,
+  lot.fecha_entrega_programada                     AS fecha_entrega_programada,
+  lot.fecha_entrega_real                           AS fecha_entrega_real,
+  cli.id_cliente                                   AS id_cliente,
+  cli.nombre                                       AS nombre_cliente,
+  -- El modulo NO es un campo de la orden: es quien la tomo. Queda NULL
+  -- mientras la orden esta libre.
+  tom.id_modulo                                    AS id_modulo,
   mdl.codigo                                       AS codigo_modulo,
   mdl.nombre                                       AS nombre_modulo,
-  o.id_ficha_tecnica                               AS id_ficha_tecnica,
-  fic.codigo_ficha                                 AS codigo_ficha,
-  fic.sam_pactado                                  AS sam_pactado,
-  ref.id_referencia                                AS id_referencia,
-  ref.codigo                                       AS codigo_referencia,
-  ref.nombre                                       AS nombre_referencia,
-  mar.id_marca                                     AS id_marca,
-  mar.nombre                                       AS nombre_marca,
+  CASE WHEN tom.id_modulo IS NULL THEN 'LIBRE' ELSE 'TOMADA' END AS asignacion,
+  tom.tomada_el                                    AS tomada_el,
   o.cantidad_programada                            AS cantidad_programada,
   COALESCE(p.unidades_producidas, 0)               AS unidades_producidas,
   COALESCE(p.unidades_defectuosas, 0)              AS unidades_defectuosas,
@@ -1087,8 +1092,8 @@ SELECT
     END, 2)                                        AS sam_observado,
   o.valor_maquila_unidad                           AS valor_maquila_unidad,
   ROUND(
-    CASE WHEN COALESCE(fic.sam_pactado, 0) = 0 THEN NULL
-         ELSE o.valor_maquila_unidad / fic.sam_pactado
+    CASE WHEN COALESCE(lot.sam_pactado, 0) = 0 THEN NULL
+         ELSE o.valor_maquila_unidad / lot.sam_pactado
     END, 2)                                        AS tarifa_minuto_pactada,
   ROUND(
     CASE WHEN COALESCE(p.unidades_producidas, 0) = 0 OR o.valor_maquila_unidad IS NULL THEN NULL
@@ -1103,21 +1108,35 @@ SELECT
   CONCAT(usr.nombres, ' ', usr.apellidos)          AS nombre_creador,
   o.observaciones                                  AS observaciones
 FROM ordenes_produccion o
-JOIN lotes           lot ON lot.id_lote = o.id_lote
-JOIN modulos         mdl ON mdl.id_modulo = o.id_modulo
-JOIN fichas_tecnicas fic ON fic.id_ficha_tecnica = o.id_ficha_tecnica
-JOIN referencias     ref ON ref.id_referencia = fic.id_referencia
-JOIN marcas          mar ON mar.id_marca = ref.id_marca
-JOIN usuarios        usr ON usr.id_usuario = o.creado_por
-LEFT JOIN pedidos    ped ON ped.id_pedido = o.id_pedido
-LEFT JOIN clientes   cli ON cli.id_cliente = ped.id_cliente
+JOIN lotes    lot ON lot.id_lote = o.id_lote
+JOIN clientes cli ON cli.id_cliente = lot.id_cliente
+JOIN usuarios usr ON usr.id_usuario = o.creado_por
+-- Quien la tomo. La orden nace libre y la toma el modulo que abre su
+-- jornada con ella; desde ese momento ningun otro puede tomarla, y eso
+-- lo valida el backend al abrir la jornada.
+--
+-- MIN() es un desempate defensivo: si por lo que sea quedaran dos
+-- modulos sobre la misma orden, la vista escoge uno y no duplica la fila
+-- de la orden, que es lo que romperia los listados.
+LEFT JOIN (
+  SELECT id_orden_produccion,
+         MIN(id_modulo)        AS id_modulo,
+         MIN(fecha_apertura)   AS tomada_el
+  FROM jornada_modulo
+  WHERE id_orden_produccion IS NOT NULL
+  GROUP BY id_orden_produccion
+) tom ON tom.id_orden_produccion = o.id_orden_produccion
+LEFT JOIN modulos mdl ON mdl.id_modulo = tom.id_modulo
 LEFT JOIN (
   SELECT
     id_orden_produccion,
     COUNT(*)                            AS horas_registradas,
     SUM(unidades_producidas)            AS unidades_producidas,
     SUM(unidades_defectuosas)           AS unidades_defectuosas,
-    SUM(personas_presentes * 60)        AS minutos_disponibles,
+    -- Minutos-persona reales de cada franja. Antes decia
+    -- `personas_presentes * 60`, que inflaba la franja de 40 y hacia
+    -- ver la orden menos eficiente de lo que fue.
+    SUM(personas_presentes * minutos_franja)             AS minutos_disponibles,
     SUM(unidades_producidas * COALESCE(sam_aplicado, 0)) AS minutos_ganados
   FROM registros_horarios
   WHERE estado <> 'ANULADO' AND id_orden_produccion IS NOT NULL
@@ -1126,8 +1145,8 @@ LEFT JOIN (
 
 -- ---------------------------------------------------------------------
 -- vw_perdidas_por_causa
---   Pareto del tiempo perdido: cuantos minutos se fueron por cada causa.
---   minutos_perdidos = minutos disponibles - minutos ganados.
+--   Pareto del tiempo perdido: cuantos minutos se fueron por cada
+--   incidencia, y cuanto costaron.
 -- ---------------------------------------------------------------------
 CREATE OR REPLACE VIEW `vw_perdidas_por_causa` AS
 SELECT
@@ -1141,7 +1160,7 @@ SELECT
   cd.responsable                                   AS responsable,
   COUNT(*)                                         AS horas_afectadas,
 
-  -- Minutos de modulo: lo que la supervisora anoto en el tablero.
+  -- Minutos de modulo: lo que la digitadora anoto en el tablero.
   SUM(p.minutos)                                   AS minutos_modulo,
 
   -- Minutos-persona: la unidad comparable contra la capacidad. Es la
@@ -1151,7 +1170,7 @@ SELECT
   SUM(p.minutos * v.personas_presentes)            AS minutos_perdidos,
 
   -- Lo que esos minutos habrian producido y facturado al SAM y al
-  -- precio de la orden que estaba corriendo.
+  -- precio que corria en esa hora.
   ROUND(SUM(
     CASE WHEN COALESCE(v.sam_aplicado, 0) = 0 THEN 0
          ELSE (p.minutos * v.personas_presentes) / v.sam_aplicado
@@ -1173,7 +1192,7 @@ GROUP BY v.fecha, v.id_modulo, v.codigo_modulo,
 --   la empresa llena a mano, ya cuadrada.
 --
 --   Lo que aporta sobre `vw_registro_horario` son los acumulados: la
---   supervisora no quiere saber solo como le fue en la hora, quiere
+--   digitadora no quiere saber solo como le fue en la hora, quiere
 --   saber como va el dia mientras todavia puede reaccionar. En la hoja
 --   de calculo eso es una formula distinta en cada fila, que crece
 --   sola y que nadie revisa; aqui es una ventana.
@@ -1218,6 +1237,7 @@ SELECT
   v.nombre_causa                                   AS nombre_causa,
   v.nota                                           AS nota,
   v.numero_orden                                   AS numero_orden,
+  v.codigo_lote                                    AS codigo_lote,
   v.codigo_referencia                              AS codigo_referencia,
   v.nombre_referencia                              AS nombre_referencia,
   v.nombre_cliente                                 AS nombre_cliente
@@ -1227,7 +1247,7 @@ WINDOW dia AS (PARTITION BY v.id_modulo, v.fecha ORDER BY v.hora_jornada);
 -- ---------------------------------------------------------------------
 -- vw_curva_arranque
 --   Eficiencia hora a hora desde que la orden arranco. Muestra cuanto
---   tarda un modulo en llegar a regimen con una referencia nueva.
+--   tarda un modulo en llegar a regimen con un lote nuevo.
 -- ---------------------------------------------------------------------
 CREATE OR REPLACE VIEW `vw_curva_arranque` AS
 SELECT
@@ -1249,14 +1269,22 @@ WHERE v.id_orden_produccion IS NOT NULL;
 
 -- ---------------------------------------------------------------------
 -- vw_productividad_operario
---   Produccion ATRIBUIDA a cada operario: el modulo se mide completo, y
---   su produccion se reparte entre las personas asignadas esa hora.
+--   Produccion ATRIBUIDA a cada operaria: el modulo se mide completo, y
+--   su produccion se reparte entre las personas que estuvieron ese dia.
 --   No es una medicion individual, es una atribucion proporcional.
+--
+--   Sale de la nomina de la jornada, que es una lista cerrada del dia.
+--   Antes salia de `asignaciones_modulo`, con rangos de fechas abiertos:
+--   una asignacion sin fecha de fin atribuia produccion para siempre,
+--   incluso a quien ya no estaba en ese modulo.
+--
+--   Las operarias anonimas no aparecen: cuentan para los minutos
+--   disponibles del modulo, pero no hay a quien atribuirles nada.
 -- ---------------------------------------------------------------------
 CREATE OR REPLACE VIEW `vw_productividad_operario` AS
 SELECT
   v.fecha                                          AS fecha,
-  a.id_operario                                    AS id_operario,
+  jo.id_operario                                   AS id_operario,
   op.codigo_operario                               AS codigo_operario,
   CONCAT(op.nombres, ' ', op.apellidos)            AS nombre_operario,
   op.cargo                                         AS cargo,
@@ -1266,15 +1294,10 @@ SELECT
   ROUND(SUM(v.unidades_producidas / NULLIF(v.personas_presentes, 0)), 2) AS unidades_atribuidas,
   ROUND(AVG(v.eficiencia), 2)                      AS eficiencia_promedio
 FROM vw_registro_horario v
-JOIN asignaciones_modulo a
-  ON a.id_modulo = v.id_modulo
- AND a.rol_asignacion = 'OPERARIO'
- AND a.estado IN ('ACTIVA', 'FINALIZADA')
- AND DATE(a.fecha_inicio) <= v.fecha
- AND (a.fecha_fin IS NULL OR DATE(a.fecha_fin) >= v.fecha)
-JOIN operarios op ON op.id_operario = a.id_operario
+JOIN jornada_operaria jo ON jo.id_jornada_modulo = v.id_jornada_modulo
+JOIN operarios op ON op.id_operario = jo.id_operario
 WHERE v.personas_presentes > 0
-GROUP BY v.fecha, a.id_operario, op.codigo_operario, op.nombres, op.apellidos,
+GROUP BY v.fecha, jo.id_operario, op.codigo_operario, op.nombres, op.apellidos,
          op.cargo, v.id_modulo, v.codigo_modulo;
 
 SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS;

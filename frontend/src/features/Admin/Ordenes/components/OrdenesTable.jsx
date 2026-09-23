@@ -19,18 +19,33 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
     },
     {
       key: "nombre_cliente",
-      header: "Cliente / Marca",
+      header: "Cliente",
       sortable: true,
       render: (orden) => (
         <div className="min-w-0">
           <p className="truncate text-sm text-gray-800">{orden.nombre_cliente || GUION}</p>
-          <p className="truncate text-xs text-gray-400">{orden.nombre_marca || GUION}</p>
+          <p className="truncate text-xs text-gray-400">{orden.nombre_referencia || GUION}</p>
         </div>
       ),
       exportar: (orden) => orden.nombre_cliente || "",
     },
     { key: "codigo_lote", header: "Lote", sortable: true },
-    { key: "codigo_modulo", header: "Modulo", sortable: true },
+    {
+      key: "codigo_modulo",
+      header: "Modulo",
+      sortable: true,
+      // La orden no pertenece a un modulo: o esta libre, o la tomo uno al
+      // abrir su jornada. Mientras este libre cualquiera puede cogerla.
+      render: (orden) =>
+        orden.codigo_modulo ? (
+          <span className="text-gray-700">{orden.codigo_modulo}</span>
+        ) : (
+          <span className="rounded-md bg-[#D08E10]/10 px-2 py-0.5 text-xs font-medium text-[#b46a12]">
+            Libre
+          </span>
+        ),
+      exportar: (orden) => orden.codigo_modulo || "Libre",
+    },
     {
       key: "codigo_referencia",
       header: "Referencia",
@@ -50,8 +65,11 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       render: (orden) => (
         <div className="w-28">
           <Progress value={Number(orden.porcentaje_avance || 0)} className="h-2" />
+          {/* La vista la llama `unidades_producidas`. Decia
+              `cantidad_producida`, que no existe, asi que el numerador
+              salia en 0 aunque la barra si se moviera. */}
           <span className="mt-1 block text-xs text-gray-500">
-            {formatNumero(orden.cantidad_producida)} / {formatNumero(orden.cantidad_programada)}
+            {formatNumero(orden.unidades_producidas)} / {formatNumero(orden.cantidad_programada)}
           </span>
         </div>
       ),

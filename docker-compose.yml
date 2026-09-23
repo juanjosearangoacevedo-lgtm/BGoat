@@ -1,0 +1,89 @@
+# BGoat en produccion: base de datos + API + panel/Nginx.
+#
+# Levantar con:  docker compose up -d --build
+# Las variables vienen del .env de esta misma carpeta (copiar de .env.example).
+#
+# Este stack convive con Bitemo en el mismo VPS sin tocarlo: nombre de proyecto
+# propio, red propia, volumen propio y un puerto publico distinto (Bitemo es
+# dueno del 80 y el 443). Borrar BGoat entero no deja rastro en Bitemo:
+#   docker compose -p bgoat down -v
+name: bgoat
+
+services:
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    # OJO: aqui NO se fijan --character-set-server ni --collation-server, al
+    # reves que en Bitemo. 01_schema_bgoat.sql pide utf8mb4_0900_ai_ci, que ya
+    # es el valor por defecto de MySQL 8; forzar utf8mb4_unicode_ci "por
+    # copiar" dejaria la base con una collation distinta a la de desarrollo.
+    command:
+      # El VPS tiene 1.9 GB de RAM y ya hay otro MySQL corriendo (el de
+      # Bitemo). performance_schema se lleva ~150 MB para datos de
+      # diagnostico que este proyecto no consulta.
+      - --performance-schema=OFF
+      - --innodb-buffer-pool-size=128M
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+      # Carga del esquema en el PRIMER arranque, y solo si db_data esta vacio.
+      # El numero del nombre fija el orden: esquema y despues catalogos.
+      # Los datos de demostracion (03_demo) se dejan fuera a proposito: esto es
+      # la base real de la empresa. Ver DESPLIEGUE.md si se quieren cargar.
+      # `00_migracion` va primero: en una base que ya existia la lleva al
+      # flujo de jornada antes de que el esquema cree sus vistas. En un
+      # primer arranque no hace nada (se detecta por la tabla `marcas`).
+      - ./database/00_migracion_flujo_jornada.sql:/docker-entrypoint-initdb.d/05-migracion.sql:ro
+      - ./database/01_schema_bgoat.sql:/docker-entrypoint-initdb.d/10-schema.sql:ro
+      - ./database/02_seed_bgoat.sql:/docker-entrypoint-initdb.d/20-seed.sql:ro
+    # No se publica el puerto: MySQL solo existe dentro de la red de este stack.
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      MAX_INTENTOS_FALLIDOS: ${MAX_INTENTOS_FALLIDOS}
+      MINUTOS_BLOQUEO: ${MINUTOS_BLOQUEO}
+    volumes:
+      # Las fichas tecnicas que se suben con cada lote. Van en un volumen
+      # porque son archivos en disco, no filas: sin esto, `docker compose
+      # up --build` se lleva por delante todas las fichas cargadas.
+      - fichas:/app/uploads/fichas
+    # server.js se cierra con exit(1) si MySQL no responde al arrancar. Esperar
+    # a que la base este *healthy* evita el ciclo de reinicios del primer
+    # despliegue, cuando MySQL tarda en crear el esquema.
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./frontend
+    restart: unless-stopped
+    ports:
+      # Solo este puerto queda expuesto al mundo. El 80/443 son de Bitemo.
+      - "${PUERTO_PUBLICO:-8080}:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+  fichas:

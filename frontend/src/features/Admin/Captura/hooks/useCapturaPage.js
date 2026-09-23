@@ -2,27 +2,26 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { apiClient, withQuery } from "@/shared/services/apiClient";
 import { endpoints } from "@/shared/services/endpoints";
-
-/** Fecha de hoy en formato YYYY-MM-DD, en hora local. */
-export function hoyLocal() {
-  const ahora = new Date();
-  const desfase = ahora.getTimezoneOffset() * 60000;
-  return new Date(ahora.getTime() - desfase).toISOString().slice(0, 10);
-}
+import { hoyLocal } from "@/shared/utils/formatters";
 
 /**
  * Rejilla de captura horaria -> tabla `registros_horarios`.
  *
- * Es la pantalla que usa la supervisora en su recorrido: una fila por
+ * Es la pantalla que usa la digitadora en su recorrido: una fila por
  * modulo, una columna por franja de la jornada.
+ *
+ * Un modulo solo se puede capturar si tiene jornada abierta: la jornada
+ * es la que dice que lote se esta produciendo y con cuantas operarias, y
+ * de ahi sale el SAM. Los modulos sin jornada llegan igual en la rejilla
+ * (con `tiene_jornada: false`) para que la pantalla ofrezca abrirla.
  *
  * Las franjas las manda el backend (`jornada_franjas`) y no son todas de
  * 60 minutos: de martes a viernes la ultima dura 40 y el sabado 20. Por
  * eso aqui no hay ningun 60 escrito: el ancho de la franja llega con los
  * datos y de ahi sale la meta.
  */
-export function useCapturaPage() {
-  const [fecha, setFecha] = useState(hoyLocal);
+export function useCapturaPage({ fechaInicial = null } = {}) {
+  const [fecha, setFecha] = useState(() => fechaInicial || hoyLocal());
   const [rejilla, setRejilla] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
@@ -128,7 +127,7 @@ export function useCapturaPage() {
   }, [celdaActiva, fecha, cargar]);
 
   /**
-   * Calculos en vivo mientras la supervisora digita.
+   * Calculos en vivo mientras la digitadora digita.
    *
    * Repiten lo que hace `vw_registro_horario` para que la pantalla
    * responda sin ir al servidor; el numero que queda guardado siempre es
@@ -175,7 +174,9 @@ export function useCapturaPage() {
   }, [celdaActiva]);
 
   const resumen = useMemo(() => {
-    if (!rejilla) return { registradas: 0, totales: 0, pendientes: 0, porcentaje: 0 };
+    if (!rejilla) {
+      return { registradas: 0, totales: 0, pendientes: 0, porcentaje: 0, sinJornada: 0 };
+    }
 
     const registradas = rejilla.resumen?.celdas_registradas ?? 0;
     const totales = rejilla.resumen?.celdas_totales ?? 0;
@@ -189,6 +190,8 @@ export function useCapturaPage() {
     return {
       registradas,
       totales,
+      sinJornada: rejilla.resumen?.modulos_sin_jornada ?? 0,
+      conJornada: rejilla.resumen?.modulos_con_jornada ?? 0,
       pendientes: Math.max(totales - registradas, 0),
       porcentaje: totales > 0 ? Math.round((registradas * 100) / totales) : 0,
       unidades: suma("unidades_producidas"),

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCrudResource } from "@/shared/hooks/useCrudResource";
 import { useListaAdmin } from "@/shared/hooks/useListaAdmin";
 import { apiClient, withQuery } from "@/shared/services/apiClient";
-import { endpoints } from "@/shared/services/endpoints";
+import { buildPath, endpoints } from "@/shared/services/endpoints";
 import { porcentaje } from "@/shared/utils/formatters";
 import { crearModuloEsquema, moduloEstados } from "../validations/moduloValidation";
 
@@ -23,22 +23,11 @@ export const emptyModuloForm = {
   nombre: "",
   ubicacion: "",
   capacidad_operarios: "",
-  horas_jornada: "9",
-  horas_semanales: "44",
-  eficiencia_esperada: "80",
   umbral_cumplimiento: "85",
   orden_visual: "1",
   estado: "ACTIVO",
   observaciones: "",
 };
-
-/** Minutos-hombre disponibles por semana segun la capacidad configurada. */
-export function capacidadSemanalMinutos(modulo) {
-  const operarios = Number(modulo?.capacidad_operarios || 0);
-  const horas = Number(modulo?.horas_semanales || 0);
-  const eficiencia = Number(modulo?.eficiencia_esperada || 0);
-  return Math.round(operarios * horas * 60 * (eficiencia / 100));
-}
 
 export function useModulosPage() {
   const crud = useCrudResource({
@@ -50,9 +39,6 @@ export function useModulosPage() {
     transformarPayload: (datos) => ({
       ...datos,
       capacidad_operarios: Number(datos.capacidad_operarios || 0),
-      horas_jornada: Number(datos.horas_jornada || 9),
-      horas_semanales: Number(datos.horas_semanales || 44),
-      eficiencia_esperada: Number(datos.eficiencia_esperada || 80),
       umbral_cumplimiento: Number(datos.umbral_cumplimiento || 85),
       orden_visual: Number(datos.orden_visual || 1),
     }),
@@ -60,6 +46,7 @@ export function useModulosPage() {
 
   const [estado, setEstado] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [jornadaSeleccionada, setJornadaSeleccionada] = useState(null);
 
   // Estado del dia de cada modulo (produccion, eficiencia, orden activa).
   useEffect(() => {
@@ -76,6 +63,36 @@ export function useModulosPage() {
       activo = false;
     };
   }, [crud.allItems]);
+
+  /**
+   * La jornada de hoy del modulo abierto: que lote corre y quien esta.
+   *
+   * Antes este panel mostraba "personal asignado" desde
+   * `asignaciones_modulo`, que eran rangos de fechas abiertos y nunca se
+   * poblaba. Ahora sale de la nomina de la jornada, que es una lista
+   * cerrada del dia y si dice quien esta hoy en el modulo.
+   */
+  useEffect(() => {
+    if (!selected?.id_modulo) {
+      setJornadaSeleccionada(null);
+      return undefined;
+    }
+
+    let activo = true;
+    (async () => {
+      try {
+        const ruta = buildPath(endpoints.jornadaModulo, { id: selected.id_modulo });
+        const respuesta = await apiClient.get(ruta);
+        if (activo) setJornadaSeleccionada(respuesta);
+      } catch {
+        if (activo) setJornadaSeleccionada(null);
+      }
+    })();
+
+    return () => {
+      activo = false;
+    };
+  }, [selected]);
 
   /** Cruza la configuracion del modulo con su estado del dia. */
   const modulos = useMemo(() => {
@@ -126,33 +143,50 @@ export function useModulosPage() {
     extraReset: [crud.search],
   });
 
+  /**
+   * El cierre del dia de toda la planta: la fila de totales del tablero.
+   *
+   * Todo sale sumado de `vw_estado_modulo_dia`, no recalculado aqui.
+   */
   const totals = useMemo(() => {
     const suma = (campo) => modulos.reduce((total, modulo) => total + Number(modulo[campo] || 0), 0);
 
     const producido = suma("unidades_producidas");
-    const capacidad = suma("capacidad_operarios");
-    const minutosDisponibles = modulos.reduce(
-      (total, modulo) =>
-        total + Number(modulo.promedio_personas || 0) * 60 * Number(modulo.horas_registradas || 0),
-      0,
-    );
+    const metaDia = suma("meta_dia");
+    const minutosDisponibles = suma("minutos_disponibles");
+    const minutosGanados = suma("minutos_ganados");
+    const facturacionMeta = suma("facturacion_meta");
+    const facturacionReal = suma("facturacion_real");
+
+    // El horario es de la planta, no del modulo: todas las filas traen el
+    // mismo valor y basta con leerlo de la primera.
+    const horario = modulos.find((modulo) => Number(modulo.minutos_horario) > 0);
 
     return {
       modulos: modulos.length,
-      capacidad,
+      capacidad: suma("capacidad_operarios"),
       operariosAsignados: Math.round(suma("promedio_personas")),
       producido,
+      metaDia: Math.round(metaDia),
+
+      // Minutos ganados sobre minutos puestos, igual que las vistas.
+      // Promediar el porcentaje de cada modulo le daba el mismo peso a
+      // uno de 3 personas que a uno de 12.
       eficiencia:
-        modulos.length > 0
-          ? Number(
-              (
-                modulos.reduce((total, modulo) => total + Number(modulo.eficiencia || 0), 0) /
-                modulos.length
-              ).toFixed(1),
-            )
+        minutosDisponibles > 0
+          ? Number(((minutosGanados * 100) / minutosDisponibles).toFixed(1))
           : 0,
+
       minutosDisponibles,
-      cumplimiento: porcentaje(producido, suma("meta_dia") || producido),
+      minutosGanados,
+      minutosPerdidos: suma("minutos_perdidos_persona"),
+      facturacionMeta,
+      facturacionReal,
+      cumplimientoFacturacion:
+        facturacionMeta > 0 ? Number(((facturacionReal * 100) / facturacionMeta).toFixed(1)) : 0,
+      cumplimiento: porcentaje(producido, metaDia || producido),
+      minutosHorario: Number(horario?.minutos_horario || 0),
+      horasHorario: Number(horario?.horas_horario || 0),
     };
   }, [modulos]);
 
@@ -163,6 +197,7 @@ export function useModulosPage() {
     ubicaciones,
     selected,
     setSelected,
+    jornadaSeleccionada,
     totals,
   };
 }

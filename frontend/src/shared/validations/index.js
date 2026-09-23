@@ -7,7 +7,7 @@
  *
  *   import { reglas, validarFormulario } from "@/shared/validations";
  *
- *   export const marcaEsquema = {
+ *   export const clienteEsquema = {
  *     nombre: [reglas.requerido("El nombre"), reglas.longitud({ max: 60 })],
  *   };
  */

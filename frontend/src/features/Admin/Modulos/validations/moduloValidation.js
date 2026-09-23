@@ -2,17 +2,17 @@ import { reglas } from "@/shared/validations";
 
 /**
  * Reglas del formulario de modulo -> tabla `modulos`.
- * Las horas de jornada definen el alto de la rejilla de captura y el umbral
- * decide cuando la app pide la causa, asi que ambos tienen rangos estrictos.
+ *
+ * Solo quedan los dos parametros que el negocio decide: cuantos puestos
+ * tiene el modulo y bajo que % se pide la incidencia. Las horas del dia
+ * y la eficiencia salen de lo capturado, asi que no se validan aqui
+ * porque ya no se escriben.
  */
 export const moduloLimites = {
   codigo: { min: 2, max: 20 },
   nombre: { min: 2, max: 60 },
   ubicacion: { max: 60 },
   capacidad: { min: 0, max: 200 },
-  horasJornada: { min: 1, max: 24 },
-  horasSemanales: { min: 1, max: 168 },
-  eficiencia: { min: 1, max: 200 },
   umbral: { min: 1, max: 100 },
   ordenVisual: { min: 1, max: 99 },
   observaciones: { max: 255 },
@@ -45,11 +45,6 @@ export function crearModuloEsquema({ lista = [], editing = null } = {}) {
     ],
     ubicacion: [reglas.longitud({ ...moduloLimites.ubicacion, etiqueta: "La ubicacion" })],
     capacidad_operarios: enteroEnRango(moduloLimites.capacidad, "La capacidad de operarios"),
-    horas_jornada: enteroEnRango(moduloLimites.horasJornada, "Las horas de jornada"),
-    horas_semanales: enteroEnRango(moduloLimites.horasSemanales, "Las horas semanales"),
-    eficiencia_esperada: [
-      reglas.numero({ ...moduloLimites.eficiencia, etiqueta: "La eficiencia esperada" }),
-    ],
     umbral_cumplimiento: [
       reglas.numero({ ...moduloLimites.umbral, etiqueta: "El umbral de cumplimiento" }),
     ],

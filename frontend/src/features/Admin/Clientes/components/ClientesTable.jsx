@@ -15,13 +15,13 @@ export function columnasClientes({ onDetalle, onEdit, onToggleEstado, onDelete }
       sortable: true,
       render: (cliente) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#433A9B]/10 text-xs font-bold text-[#433A9B]">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#0F4C3F]/10 text-xs font-bold text-[#0F4C3F]">
             {iniciales(cliente.nombre)}
           </div>
           <div className="min-w-0">
             <p className="truncate font-medium text-gray-900">{cliente.nombre}</p>
             <p className="truncate text-xs text-gray-400">
-              {cliente.razon_social ? "Empresa" : "Persona"}
+              {cliente.razon_social || cliente.descripcion || "Sin razon social"}
             </p>
           </div>
         </div>

@@ -26,7 +26,7 @@ function AppInner() {
   // Al recargar con sesion activa se entra al panel, no a la pagina publica.
   useEffect(() => {
     if (!cargando && autenticado && (currentPage === defaultPage || currentPage === "login")) {
-      setCurrentPage("dashboard");
+      setCurrentPage("panel");
     }
     // Solo al terminar de rehidratar la sesion: despues el usuario navega libre.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -44,20 +44,17 @@ function AppInner() {
   const Page = route.component;
   const pageProps = { onNavigate: handleNavigate, ...(route.props?.(pageData) || {}) };
 
-  if (isPublicPage(currentPage)) {
-    return (
-      <>
-        <Page {...pageProps} />
-        <Toaster position="top-right" />
-      </>
-    );
-  }
-
+  // Las paginas publicas van sueltas; las del panel, dentro del layout.
+  // El aviso flotante es el mismo en las dos, y estaba escrito dos veces.
   return (
     <>
-      <AdminLayout onNavigate={handleNavigate} currentPage={currentPage}>
+      {isPublicPage(currentPage) ? (
         <Page {...pageProps} />
-      </AdminLayout>
+      ) : (
+        <AdminLayout onNavigate={handleNavigate} currentPage={currentPage}>
+          <Page {...pageProps} />
+        </AdminLayout>
+      )}
       <Toaster position="top-right" />
     </>
   );

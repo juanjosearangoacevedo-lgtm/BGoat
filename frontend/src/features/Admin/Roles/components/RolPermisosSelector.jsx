@@ -16,7 +16,7 @@ function CasillaPermiso({ permiso, marcado, onToggle, disabled }) {
   return (
     <label
       className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 transition-colors ${
-        marcado ? "bg-[#433A9B]/5" : "hover:bg-gray-50"
+        marcado ? "bg-[#0F4C3F]/5" : "hover:bg-gray-50"
       } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
     >
       <Checkbox
@@ -51,7 +51,7 @@ function GrupoModulo({ grupo, seleccionados, onTogglePermiso, onToggleModulo, di
 
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            marcados > 0 ? "bg-[#433A9B]/10 text-[#433A9B]" : "bg-gray-100 text-gray-400"
+            marcados > 0 ? "bg-[#0F4C3F]/10 text-[#0F4C3F]" : "bg-gray-100 text-gray-400"
           }`}
         >
           {marcados}/{grupo.permisos.length}
@@ -106,11 +106,11 @@ export function RolPermisosSelector({
     <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-4">
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-[#433A9B]" />
+          <ShieldCheck className="h-4 w-4 text-[#0F4C3F]" />
           <span className="text-sm font-semibold text-gray-800">Permisos del rol</span>
           <span
             className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-              marcados > 0 ? "bg-[#433A9B] text-white" : "bg-gray-200 text-gray-500"
+              marcados > 0 ? "bg-[#0F4C3F] text-white" : "bg-gray-200 text-gray-500"
             }`}
           >
             {marcados} de {total}
@@ -129,7 +129,7 @@ export function RolPermisosSelector({
           type="button"
           onClick={onToggleTodos}
           disabled={cargando || total === 0}
-          className="h-8 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:border-[#433A9B] hover:text-[#433A9B] disabled:opacity-40"
+          className="h-8 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] disabled:opacity-40"
         >
           {marcados === total && total > 0 ? "Desmarcar todo" : "Marcar todo"}
         </button>

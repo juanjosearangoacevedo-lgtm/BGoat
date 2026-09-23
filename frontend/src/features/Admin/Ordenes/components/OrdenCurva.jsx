@@ -26,12 +26,12 @@ export function OrdenCurva({ curva = [] }) {
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 font-bold text-gray-900">
-          <TrendingUp className="h-4 w-4 text-[#433A9B]" />
+          <TrendingUp className="h-4 w-4 text-[#0F4C3F]" />
           Curva de arranque
         </h3>
         {conDatos && (
           <p className="text-xs text-gray-500">
-            Ultima hora <strong className="text-[#433A9B]">{ultima}%</strong> · maxima {maxima}%
+            Ultima hora <strong className="text-[#0F4C3F]">{ultima}%</strong> · maxima {maxima}%
           </p>
         )}
       </div>
@@ -59,7 +59,7 @@ export function OrdenCurva({ curva = [] }) {
               type="monotone"
               dataKey="eficiencia"
               name="Eficiencia"
-              stroke="#433A9B"
+              stroke="#0F4C3F"
               strokeWidth={2}
               dot={{ r: 3 }}
             />

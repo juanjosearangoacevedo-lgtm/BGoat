@@ -16,13 +16,6 @@ export function nombreCompleto(persona) {
   return partes.length > 0 ? partes.join(" ") : GUION;
 }
 
-/** Un cliente puede ser empresa (razon_social) o persona (nombres + apellidos). */
-export function nombreCliente(cliente) {
-  if (!cliente) return GUION;
-  if (cliente.razon_social) return cliente.razon_social;
-  return nombreCompleto(cliente);
-}
-
 /** "NIT 900123456" a partir de `tipo_documento` y `numero_documento`. */
 export function documento(registro) {
   if (!registro?.numero_documento) return GUION;
@@ -54,6 +47,23 @@ export function formatFechaHora(valor) {
   const fecha = new Date(String(valor).replace(" ", "T"));
   if (Number.isNaN(fecha.getTime())) return String(valor);
   return `${formatFecha(valor)} ${fecha.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}`;
+}
+
+/**
+ * El dia de HOY en la zona del equipo, no en UTC.
+ *
+ * `new Date().toISOString()` da la fecha UTC: en Colombia (UTC-5) eso
+ * empieza a devolver el dia siguiente a partir de las 7:00pm, y la
+ * pantalla se quedaria pidiendo la produccion de manana.
+ *
+ * Estaba duplicada palabra por palabra en `useCapturaPage` y en
+ * `useJornadaPage`, y otras tres pantallas la importaban desde el hook de
+ * captura: una dependencia entre features para pedir una fecha.
+ */
+export function hoyLocal() {
+  const ahora = new Date();
+  const desfase = ahora.getTimezoneOffset() * 60000;
+  return new Date(ahora.getTime() - desfase).toISOString().slice(0, 10);
 }
 
 /** DATETIME de MySQL -> aaaa-mm-dd, que es lo que espera un <input type="date">. */

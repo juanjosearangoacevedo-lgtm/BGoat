@@ -36,17 +36,22 @@ function avisarSesionExpirada() {
 async function request(path, { method = "GET", body, headers, signal } = {}) {
   const token = getToken();
 
+  // Un FormData (la ficha tecnica del lote) viaja tal cual: el navegador
+  // le pone el Content-Type con el `boundary`, que nosotros no podemos
+  // calcular. Ponerlo a mano rompe la subida.
+  const esFormulario = typeof FormData !== "undefined" && body instanceof FormData;
+
   let respuesta;
   try {
     respuesta = await fetch(`${baseUrl}${path}`, {
       method,
       signal,
       headers: {
-        "Content-Type": "application/json",
+        ...(esFormulario ? {} : { "Content-Type": "application/json" }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...headers,
       },
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      body: body === undefined ? undefined : esFormulario ? body : JSON.stringify(body),
     });
   } catch (error) {
     if (error.name === "AbortError") throw error;
@@ -86,10 +91,30 @@ export function withQuery(path, params = {}) {
   return cadena ? `${path}?${cadena}` : path;
 }
 
+/**
+ * URL completa de un archivo servido por el backend.
+ *
+ * La base de la API termina en `/api` y los archivos cuelgan de la raiz,
+ * asi que hay que quitarle ese sufijo: `/uploads/fichas/x.jpg` ->
+ * `http://localhost:4000/uploads/fichas/x.jpg`.
+ */
+export function archivoUrl(ruta) {
+  if (!ruta) return null;
+  if (/^https?:\/\//i.test(ruta)) return ruta;
+  return `${baseUrl.replace(/\/api\/?$/, "")}${ruta}`;
+}
+
 export const apiClient = {
   get: (path, options) => request(path, { ...options, method: "GET" }),
   post: (path, body, options) => request(path, { ...options, method: "POST", body }),
   put: (path, body, options) => request(path, { ...options, method: "PUT", body }),
   patch: (path, body, options) => request(path, { ...options, method: "PATCH", body }),
   delete: (path, options) => request(path, { ...options, method: "DELETE" }),
+
+  /** Sube un archivo con FormData. `campo` es el nombre que espera multer. */
+  subir: (path, archivo, campo = "ficha", options) => {
+    const datos = new FormData();
+    datos.append(campo, archivo);
+    return request(path, { ...options, method: "POST", body: datos });
+  },
 };

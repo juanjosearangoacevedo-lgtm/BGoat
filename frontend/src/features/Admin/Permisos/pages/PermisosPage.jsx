@@ -39,7 +39,7 @@ export function PermisosPage({ onNavigate }) {
         </Button>
         <Button
           onClick={() => onNavigate?.("roles")}
-          className="h-10 gap-2 rounded-xl bg-[#433A9B] px-5 text-white hover:bg-[#433A9B]/90"
+          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
         >
           <Shield className="h-4 w-4" />
           Gestionar en Roles
@@ -56,7 +56,7 @@ export function PermisosPage({ onNavigate }) {
         columns={4}
         items={[
           { label: "Permisos del sistema", value: permisos.resumen.permisos },
-          { label: "Modulos protegidos", value: permisos.resumen.modulos, color: "#F39A3D" },
+          { label: "Modulos protegidos", value: permisos.resumen.modulos, color: "#D08E10" },
           { label: "Roles configurados", value: permisos.resumen.roles, color: "#10b981" },
           {
             label: "Permisos sin usar",

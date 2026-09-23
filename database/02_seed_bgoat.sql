@@ -6,11 +6,12 @@
 -- sin duplicar registros.
 --
 -- Contenido:
---   * roles              : Administrador, Supervisor, Operario
+--   * roles              : Administrador, Digitadora, Operario
 --   * permisos           : matriz modulo x accion (la misma que pinta el front)
 --   * rol_permiso        : permisos por rol
---   * causas_desviacion  : catalogo de motivos de tiempo perdido
---   * tallas / colores / tipos_prenda
+--   * causas_desviacion  : catalogo de incidencias de la hora
+--   * jornadas           : el horario real de la planta
+--   * tallas / colores / tipos_prenda : catalogos del producto
 --   * usuario administrador inicial
 -- =====================================================================
 
@@ -18,10 +19,15 @@ USE `bgoat`;
 
 -- ---------------------------------------------------------------------
 -- Roles
+--
+--   "Digitadora" reemplaza a "Supervisor": es quien abre la jornada del
+--   modulo, declara las operarias, escoge el lote y registra cada hora.
+--   El concepto de una supervisora distinta por modulo desaparecio con
+--   la tabla `asignaciones_modulo`.
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `roles` (`nombre`, `descripcion`, `estado`) VALUES
   ('Administrador', 'Control total del sistema', 'ACTIVO'),
-  ('Supervisor',    'Captura de produccion y gestion de planta', 'ACTIVO'),
+  ('Digitadora',    'Configura la jornada del modulo y registra la produccion de cada hora', 'ACTIVO'),
   ('Operario',      'Consulta de ordenes e indicadores', 'ACTIVO');
 
 -- ---------------------------------------------------------------------
@@ -31,6 +37,11 @@ INSERT IGNORE INTO `roles` (`nombre`, `descripcion`, `estado`) VALUES
 --   CONSULTA    -> VER, EXPORTAR                (tableros)
 --   SIN_BORRADO -> VER, CREAR, EDITAR           (no se borran registros)
 --   COMPLETO    -> las cinco acciones
+--
+-- `Panel` es un solo modulo porque es una sola pantalla: el resumen, los
+-- indicadores y los reportes leen las mismas vistas y antes eran tres
+-- entradas de menu que llevaban a lo mismo. `EXPORTAR` sigue separado de
+-- `VER` para poder dar consulta sin dar descarga.
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `permisos` (`nombre`, `modulo`, `accion`, `descripcion`)
 SELECT
@@ -39,25 +50,18 @@ SELECT
   a.accion,
   CONCAT(a.accion, ' en el modulo ', m.modulo)
 FROM (
-  SELECT 'Dashboard'       AS modulo, 'CONSULTA'    AS alcance UNION ALL
+  SELECT 'Panel'           AS modulo, 'CONSULTA'    AS alcance UNION ALL
+  SELECT 'Jornada',              'SIN_BORRADO'                 UNION ALL
   SELECT 'Captura',              'SIN_BORRADO'                 UNION ALL
   SELECT 'Usuarios',             'COMPLETO'                    UNION ALL
   SELECT 'Roles',                'COMPLETO'                    UNION ALL
   SELECT 'Permisos',             'SIN_BORRADO'                 UNION ALL
   SELECT 'Clientes',             'COMPLETO'                    UNION ALL
-  SELECT 'Marcas',               'COMPLETO'                    UNION ALL
-  SELECT 'Pedidos',              'COMPLETO'                    UNION ALL
   SELECT 'Lotes',                'COMPLETO'                    UNION ALL
-  SELECT 'Referencias',          'COMPLETO'                    UNION ALL
-  SELECT 'Fichas Tecnicas',      'COMPLETO'                    UNION ALL
-  SELECT 'Prendas',              'COMPLETO'                    UNION ALL
   SELECT 'Operarios',            'COMPLETO'                    UNION ALL
   SELECT 'Modulos',              'COMPLETO'                    UNION ALL
-  SELECT 'Asignaciones',         'COMPLETO'                    UNION ALL
   SELECT 'Ordenes',              'COMPLETO'                    UNION ALL
-  SELECT 'Causas',               'COMPLETO'                    UNION ALL
-  SELECT 'Indicadores',          'CONSULTA'                    UNION ALL
-  SELECT 'Reportes',             'CONSULTA'
+  SELECT 'Causas',               'COMPLETO'
 ) m
 JOIN (
   SELECT 'VER'      AS accion UNION ALL
@@ -80,17 +84,21 @@ CROSS JOIN `permisos` p
 WHERE r.nombre = 'Administrador';
 
 -- ---------------------------------------------------------------------
--- Supervisor: captura y planta completas, consulta en lo comercial
+-- Digitadora: todo lo que necesita para arrancar y sostener la jornada.
+--
+--   Lotes y Clientes van completos a proposito: cuando llega un lote
+--   nuevo a media manana, ella tiene que poder registrarlo sin esperar
+--   a que un administrador se conecte. De la orden puede crear y
+--   corregir, pero no eliminar.
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `rol_permiso` (`id_rol`, `id_permiso`)
 SELECT r.id_rol, p.id_permiso
 FROM `roles` r
 JOIN `permisos` p
-  ON (p.modulo IN ('Captura', 'Lotes', 'Fichas Tecnicas', 'Prendas', 'Operarios',
-                   'Modulos', 'Asignaciones', 'Ordenes', 'Causas', 'Referencias'))
-  OR (p.modulo IN ('Dashboard', 'Indicadores', 'Reportes'))
-  OR (p.modulo IN ('Clientes', 'Marcas', 'Pedidos') AND p.accion IN ('VER', 'EXPORTAR'))
-WHERE r.nombre = 'Supervisor';
+  ON (p.modulo IN ('Jornada', 'Captura', 'Lotes', 'Clientes', 'Operarios',
+                   'Modulos', 'Causas', 'Panel'))
+  OR (p.modulo = 'Ordenes' AND p.accion IN ('VER', 'CREAR', 'EDITAR', 'EXPORTAR'))
+WHERE r.nombre = 'Digitadora';
 
 -- ---------------------------------------------------------------------
 -- Operario: solo consulta de su operacion
@@ -99,33 +107,51 @@ INSERT IGNORE INTO `rol_permiso` (`id_rol`, `id_permiso`)
 SELECT r.id_rol, p.id_permiso
 FROM `roles` r
 JOIN `permisos` p
-  ON  p.modulo IN ('Dashboard', 'Ordenes', 'Asignaciones', 'Indicadores')
+  ON  p.modulo IN ('Panel', 'Ordenes', 'Jornada')
   AND p.accion = 'VER'
 WHERE r.nombre = 'Operario';
 
 -- ---------------------------------------------------------------------
--- Causas de desviacion
+-- Causas de desviacion = el catalogo de INCIDENCIAS
 --
--- `tipo` separa el tiempo perdido: PLANEADA (se sabia que iba a pasar),
--- INTERNA (responsabilidad de la empresa) y EXTERNA (del cliente, y por
--- lo tanto negociable).
+-- Es lo que la digitadora ve como botones cuando una hora no alcanza la
+-- meta. `tipo` separa el tiempo perdido: PLANEADA (se sabia que iba a
+-- pasar), INTERNA (responsabilidad de la empresa) y EXTERNA (del
+-- cliente, y por lo tanto negociable).
+--
+-- `requiere_nota` es la explicacion adicional obligatoria: se exige
+-- donde el nombre de la causa no alcanza para entender que paso.
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `causas_desviacion`
   (`codigo`, `nombre`, `tipo`, `responsable`, `requiere_nota`, `orden_visual`) VALUES
-  ('MONTAJE',      'Montaje / cambio de referencia', 'PLANEADA', 'Produccion',    0, 1),
-  ('APRENDIZAJE',  'Curva de aprendizaje',           'PLANEADA', 'Produccion',    0, 2),
-  ('AUSENCIA',     'Ausencia de personal',           'INTERNA',  'Talento humano',0, 3),
-  ('MAQUINA',      'Falla de maquina',               'INTERNA',  'Mantenimiento', 1, 4),
-  ('INSUMO',       'Falta de insumo o corte',        'EXTERNA',  'Comercial',     1, 5),
-  ('CALIDAD',      'Reproceso por calidad',          'INTERNA',  'Calidad',       0, 6),
-  ('ENERGIA',      'Corte de energia',               'EXTERNA',  'Mantenimiento', 0, 7),
-  ('OTRA',         'Otra causa',                     'INTERNA',  NULL,            1, 8);
+  ('MONTAJE',      'Montaje',                'PLANEADA', 'Produccion',     0, 1),
+  ('CAMBIO_REF',   'Cambio de referencia',   'PLANEADA', 'Produccion',     0, 2),
+  ('APRENDIZAJE',  'Curva de aprendizaje',   'PLANEADA', 'Produccion',     0, 3),
+  ('MAQUINA',      'Dano de maquina',        'INTERNA',  'Mantenimiento',  1, 4),
+  ('ENERGIA',      'Corte de energia',       'EXTERNA',  'Mantenimiento',  0, 5),
+  ('INSUMO',       'Falta de material',      'EXTERNA',  'Comercial',      1, 6),
+  ('AUSENCIA',     'Ausencia de personal',   'INTERNA',  'Talento humano', 0, 7),
+  ('CALIDAD',      'Reproceso por calidad',  'INTERNA',  'Calidad',        0, 8),
+  ('OPERATIVO',    'Problema operativo',     'INTERNA',  'Produccion',     1, 9),
+  ('OTRA',         'Otra causa',             'INTERNA',  NULL,             1, 10);
+
+-- `MONTAJE` venia rotulado "Montaje / cambio de referencia". Ahora el
+-- cambio de referencia es su propia causa, asi que el rotulo viejo
+-- sobraba: INSERT IGNORE no toca una fila que ya existe, por eso se
+-- corrige aqui.
+UPDATE `causas_desviacion` SET `nombre` = 'Montaje', `orden_visual` = 1
+ WHERE `codigo` = 'MONTAJE' AND `nombre` <> 'Montaje';
+
+UPDATE `causas_desviacion` SET `nombre` = 'Dano de maquina'
+ WHERE `codigo` = 'MAQUINA' AND `nombre` = 'Falla de maquina';
+
+UPDATE `causas_desviacion` SET `nombre` = 'Falta de material'
+ WHERE `codigo` = 'INSUMO' AND `nombre` = 'Falta de insumo o corte';
 
 -- ---------------------------------------------------------------------
 -- Jornadas y franjas
 --
--- Salen del tablero de pared de Confecciones God's Eyes, tal como lo
--- llena la supervisora:
+-- Salen del tablero de pared de Confecciones God's Eyes:
 --
 --   MAR_VIE : 8 franjas de 60 + una de 40  = 520 minutos
 --   SABADO  : 7 franjas de 60 + una de 20  = 440 minutos
@@ -134,6 +160,9 @@ INSERT IGNORE INTO `causas_desviacion`
 -- (2:40pm-3:00pm y 1:20pm-1:40pm): son el cierre del turno, no se
 -- produce en ellas y por eso no se cargan. Una franja de 0 minutos da
 -- meta 0 y ensucia el promedio del dia.
+--
+-- Cada franja es tambien un recordatorio: al cerrarse, la app le avisa
+-- a la digitadora que tiene esa hora pendiente por registrar.
 --
 -- Si la empresa cambia el horario, se cambia AQUI y la rejilla entera se
 -- reacomoda: ningun calculo tiene el 60 escrito adentro.
@@ -186,15 +215,17 @@ JOIN (
 ) d ON d.jornada = j.codigo;
 
 -- ---------------------------------------------------------------------
--- Tallas
+-- Catalogos del producto
+--
+-- No tienen pantalla propia: se usan desde el formulario del lote (el
+-- tipo de prenda del lote, y las tallas y colores de su desglose
+-- opcional). Antes colgaban del modulo Prendas, que era el SKU armado
+-- con los tres; ese SKU desaparecio, los catalogos no.
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `tallas` (`nombre`, `orden_visual`) VALUES
   ('XS', 1), ('S', 2), ('M', 3), ('L', 4), ('XL', 5), ('XXL', 6),
   ('6', 10), ('8', 11), ('10', 12), ('12', 13), ('14', 14), ('16', 15);
 
--- ---------------------------------------------------------------------
--- Colores
--- ---------------------------------------------------------------------
 INSERT IGNORE INTO `colores` (`nombre`, `codigo_hex`) VALUES
   ('Negro',  '#000000'),
   ('Blanco', '#FFFFFF'),
@@ -205,9 +236,6 @@ INSERT IGNORE INTO `colores` (`nombre`, `codigo_hex`) VALUES
   ('Beige',  '#E7D8C1'),
   ('Rosado', '#F472B6');
 
--- ---------------------------------------------------------------------
--- Tipos de prenda
--- ---------------------------------------------------------------------
 INSERT IGNORE INTO `tipos_prenda` (`nombre`, `descripcion`) VALUES
   ('Camiseta',        'Prenda superior de punto'),
   ('Polo',            'Camiseta con cuello tejido'),
@@ -237,40 +265,3 @@ SELECT
   'admin@bgoat.com', '3219023372',
   '$2a$10$M/YuAycaYTixt9pWqxnlOumqK/qYQ0XhWmFdMHFT4Mt08eNIYzo9.', 'ACTIVO'
 FROM `roles` r WHERE r.nombre = 'Administrador';
-
-
--- ---------------------------------------------------------------------
--- Relleno de los registros capturados antes de que existieran las
--- jornadas.
---
--- Esas filas se guardaron dando por hecho que toda franja duraba 60
--- minutos y sin precio. Aqui se les pone el ancho real de su franja y
--- la tarifa de la orden que estaban corriendo, para que el historico
--- quede en la misma unidad que lo que se capture de ahora en adelante.
---
--- Corre UNA sola vez: `minutos_franja` y `precio_aplicado` son una foto
--- del momento de la captura, y volver a rellenarlos despues de que la
--- empresa cambie el horario o renegocie la tarifa reescribiria el
--- pasado, que es justo lo que estas dos columnas existen para evitar.
--- ---------------------------------------------------------------------
-SET @pendiente = (SELECT COUNT(*) = 0 FROM `migraciones`
-                  WHERE `clave` = '2026-08_jornadas_y_facturacion');
-
-SET @sql_relleno = IF(@pendiente,
-  'UPDATE registros_horarios r
-     JOIN jornada_dia jd ON jd.dia_semana = WEEKDAY(r.fecha) + 1
-     JOIN jornada_franjas jf ON jf.id_jornada = jd.id_jornada
-                            AND jf.orden_franja = r.hora_jornada
-      SET r.minutos_franja = jf.minutos',
-  'DO 0');
-PREPARE ejecutar FROM @sql_relleno; EXECUTE ejecutar; DEALLOCATE PREPARE ejecutar;
-
-SET @sql_relleno = IF(@pendiente,
-  'UPDATE registros_horarios r
-     JOIN ordenes_produccion o ON o.id_orden_produccion = r.id_orden_produccion
-      SET r.precio_aplicado = o.valor_maquila_unidad
-    WHERE r.precio_aplicado IS NULL',
-  'DO 0');
-PREPARE ejecutar FROM @sql_relleno; EXECUTE ejecutar; DEALLOCATE PREPARE ejecutar;
-
-INSERT IGNORE INTO `migraciones` (`clave`) VALUES ('2026-08_jornadas_y_facturacion');

@@ -41,7 +41,14 @@ export function LotesPage() {
     onDelete: lotes.setDeleteTarget,
   };
 
-  const columnas = columnasLotes({ nombreMarca: lotes.nombreMarca, ...manejadores });
+  const columnas = columnasLotes({ nombreCliente: lotes.nombreCliente, ...manejadores });
+
+  // El detalle se relee del listado por id: despues de subir la ficha, el
+  // objeto que se guardo al abrir el modal ya esta viejo y seguiria
+  // mostrando "Sin ficha".
+  const detalleVigente = lotes.detalle
+    ? lotes.items.find((fila) => fila.id_lote === lotes.detalle.id_lote) ?? lotes.detalle
+    : null;
 
   const objetivoEstado = lotes.estadoTarget;
   const activando = objetivoEstado && estaInactivo(objetivoEstado);
@@ -52,7 +59,7 @@ export function LotesPage() {
     title: hayBusqueda ? "Sin resultados" : "No hay lotes cargados",
     description: hayBusqueda
       ? "Ningun lote coincide con la busqueda o los filtros aplicados."
-      : "Registra el lote que llega del cliente para poder crear su orden de produccion.",
+      : "Registra el lote que llega del cliente para poder iniciar la jornada del modulo.",
     action: hayBusqueda ? (
       <Button
         variant="outline"
@@ -64,7 +71,7 @@ export function LotesPage() {
         Limpiar busqueda y filtros
       </Button>
     ) : (
-      <Button onClick={lotes.openCreate} className="bg-[#433A9B] text-white hover:bg-[#433A9B]/90">
+      <Button onClick={lotes.openCreate} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
         <Plus className="mr-2 h-4 w-4" />
         Crear lote
       </Button>
@@ -89,7 +96,7 @@ export function LotesPage() {
       <PageHeader title="Lotes" subtitle={`${lotes.total} lotes registrados`}>
         <Button
           onClick={lotes.openCreate}
-          className="h-10 gap-2 rounded-xl bg-[#433A9B] px-5 text-white hover:bg-[#433A9B]/90"
+          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
         >
           <Plus className="h-4 w-4" />
           Crear lote
@@ -103,11 +110,12 @@ export function LotesPage() {
       )}
 
       <StatsGrid
-        columns={4}
+        columns={5}
         items={[
           { label: "Total lotes", value: lotes.resumen.total },
-          { label: "En proceso", value: lotes.resumen.enProceso, color: "#F39A3D" },
-          { label: "Finalizados", value: lotes.resumen.finalizados, color: "#10b981" },
+          { label: "En proceso", value: lotes.resumen.enProceso, color: "#D08E10" },
+          { label: "Entregados", value: lotes.resumen.entregados, color: "#10b981" },
+          { label: "Sin SAM pactado", value: lotes.resumen.sinSam, color: "#ef4444" },
           { label: "Unidades programadas", value: formatNumero(lotes.resumen.unidades), color: "#6b7280" },
         ]}
       />
@@ -115,7 +123,7 @@ export function LotesPage() {
       <FilterBar
         search={lotes.search}
         onSearch={lotes.setSearch}
-        searchPlaceholder="Buscar por codigo u observaciones..."
+        searchPlaceholder="Buscar por codigo, pedido o referencia..."
         definiciones={lista.definiciones}
         filtros={lista.filtros}
         onFiltro={lista.setFiltro}
@@ -158,15 +166,15 @@ export function LotesPage() {
           footer={paginacion}
           onClick={lotes.verDetalle}
           avatar={() => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#433A9B] to-[#5a4fb8] text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F4C3F] to-[#0F4C3F] text-white">
               <Package2 className="h-4 w-4" />
             </div>
           )}
           primario={(lote) => lote.codigo_lote}
           secundario={(lote) =>
-            [lote.nombre_marca || lotes.nombreMarca?.(lote.id_marca), lote.codigo_referencia]
+            [lote.nombre_cliente || lotes.nombreCliente?.(lote.id_cliente), lote.codigo_referencia]
               .filter(Boolean)
-              .join(" · ") || "Sin marca"
+              .join(" · ") || "Sin cliente"
           }
           meta={(lote) => [
             { label: "Programada", value: formatNumero(lote.cantidad_programada) },
@@ -192,17 +200,32 @@ export function LotesPage() {
         form={lotes.form}
         errors={lotes.errors}
         guardando={lotes.guardando}
-        marcaOptions={lotes.marcaOptions}
-        pedidoOptions={lotes.pedidoOptions}
-        referenciaOptions={lotes.referenciaOptions}
+        clienteOptions={lotes.clienteOptions}
+        tipoPrendaOptions={lotes.tipoPrendaOptions}
+        tallaOptions={lotes.tallaOptions}
+        colorOptions={lotes.colorOptions}
+        subiendoFicha={lotes.subiendoFicha}
+        desglose={lotes.desglose}
+        guardandoDesglose={lotes.guardandoDesglose}
+        onSubirFicha={lotes.subirFicha}
+        onQuitarFicha={lotes.quitarFicha}
+        onGuardarDesglose={lotes.guardarDesglose}
         onChange={lotes.setField}
         onClose={lotes.closeModal}
         onSave={handleSave}
       />
 
       <LoteDetalleModal
-        lote={lotes.detalle}
-        nombreMarca={lotes.nombreMarca}
+        lote={detalleVigente}
+        nombreCliente={lotes.nombreCliente}
+        subiendoFicha={lotes.subiendoFicha}
+        desglose={lotes.desglose}
+        guardandoDesglose={lotes.guardandoDesglose}
+        tallaOptions={lotes.tallaOptions}
+        colorOptions={lotes.colorOptions}
+        onSubirFicha={lotes.subirFicha}
+        onQuitarFicha={lotes.quitarFicha}
+        onGuardarDesglose={lotes.guardarDesglose}
         onClose={lotes.cerrarDetalle}
         onEditar={(lote) => {
           lotes.cerrarDetalle();

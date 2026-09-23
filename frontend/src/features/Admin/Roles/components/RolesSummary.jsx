@@ -9,7 +9,7 @@ export function RolesSummary({ resumen }) {
         { label: "Roles configurados", value: resumen.total },
         { label: "Roles activos", value: resumen.activos, color: "#10b981" },
         { label: "Roles inactivos", value: resumen.inactivos, color: "#6b7280" },
-        { label: "Permisos asignados", value: resumen.permisosAsignados, color: "#F39A3D" },
+        { label: "Permisos asignados", value: resumen.permisosAsignados, color: "#D08E10" },
       ]}
     />
   );

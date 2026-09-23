@@ -68,7 +68,7 @@ export function TablePagination({
             <select
               value={pageSize}
               onChange={(evento) => onPageSizeChange(Number(evento.target.value))}
-              className="h-8 rounded-lg border border-gray-200 bg-white px-2 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#433A9B]/30"
+              className="h-8 rounded-lg border border-gray-200 bg-white px-2 text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
             >
               {TAMANOS_PAGINA.map((tamano) => (
                 <option key={tamano} value={tamano}>
@@ -108,7 +108,7 @@ export function TablePagination({
                 onClick={() => irA(entrada)}
                 aria-current={page === entrada ? "page" : undefined}
                 className={`h-8 min-w-8 rounded-lg px-2 text-sm font-medium transition-colors ${
-                  page === entrada ? "bg-[#433A9B] text-white" : "text-gray-600 hover:bg-gray-100"
+                  page === entrada ? "bg-[#0F4C3F] text-white" : "text-gray-600 hover:bg-gray-100"
                 }`}
                 type="button"
               >

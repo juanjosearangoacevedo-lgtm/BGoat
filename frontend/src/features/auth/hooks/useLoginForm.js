@@ -31,7 +31,7 @@ export function useLoginForm(onNavigate) {
     try {
       const usuario = await iniciarSesion(email.trim(), password);
       toast.success(`Bienvenido, ${usuario.nombres}`);
-      onNavigate?.("dashboard");
+      onNavigate?.("panel");
     } catch (problema) {
       setError(problema.message);
     } finally {

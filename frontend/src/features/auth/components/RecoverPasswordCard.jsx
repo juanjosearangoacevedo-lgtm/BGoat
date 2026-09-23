@@ -5,6 +5,7 @@ import { RecoverPasswordSent } from "./RecoverPasswordSent";
 export function RecoverPasswordCard({
   email,
   error,
+  enviando,
   onEmailChange,
   onNavigate,
   onSubmit,
@@ -20,6 +21,7 @@ export function RecoverPasswordCard({
           <RecoverPasswordForm
             email={email}
             error={error}
+            enviando={enviando}
             onEmailChange={onEmailChange}
             onNavigate={onNavigate}
             onSubmit={onSubmit}

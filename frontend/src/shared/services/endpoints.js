@@ -20,31 +20,33 @@ export const endpoints = {
   permisos: "/permisos",                 // tabla permisos
   rolPermisos: "/roles/:id/permisos",    // tabla rol_permiso
 
+  // --- Jornada (lo primero que hace la digitadora) ---------------------
+  jornada: "/jornada",                       // tabla jornada_modulo
+  jornadaOpciones: "/jornada/opciones",      // modulos + clientes + lotes + operarias
+  jornadaModulo: "/jornada/modulo/:id",      // la jornada de un modulo en una fecha
+  jornadaHorario: "/jornada/horario",        // vw_horario_jornada: cuanto dura el dia
+  cerrarJornada: "/jornada/:id/cerrar",
+  reabrirJornada: "/jornada/:id/reabrir",
+
   // --- Gestion de produccion -------------------------------------------
-  clientes: "/clientes",
-  marcas: "/marcas",
-  pedidos: "/pedidos",
-  referencias: "/referencias",
+  clientes: "/clientes",                 // cliente-marca unificado
   lotes: "/lotes",
-  fichasTecnicas: "/fichas-tecnicas",
-  fichaOperaciones: "/fichas-tecnicas/:id/operaciones",
-  fichaMateriales: "/fichas-tecnicas/:id/materiales",
-  fichaMedidas: "/fichas-tecnicas/:id/medidas",
-  prendas: "/prendas",
-  tallas: "/tallas",
-  colores: "/colores",
-  tiposPrenda: "/tipos-prenda",
+  fichaLote: "/lotes/:id/ficha",         // sube la imagen o el PDF de la ficha
+  fichaLoteTipo: "/lotes/:id/ficha/:tipo", // quita uno de los dos ("imagen" | "pdf")
+  detalleLote: "/lotes/:id/detalle",     // tabla lote_detalle_talla_color
+  tallas: "/tallas",                     // catalogos del producto: no tienen
+  colores: "/colores",                   // pantalla propia, viven dentro del
+  tiposPrenda: "/tipos-prenda",          // formulario del lote
   operarios: "/operarios",
   modulos: "/modulos",
-  asignaciones: "/asignaciones-modulo",
-  causas: "/causas",                     // tabla causas_desviacion
+  causas: "/causas",                     // tabla causas_desviacion (incidencias)
   ordenes: "/ordenes-produccion",
   curvaOrden: "/ordenes-produccion/:id/curva",
 
   // --- Captura horaria (el nucleo) -------------------------------------
   captura: "/captura",                   // tabla registros_horarios
+  capturaPendientes: "/captura/pendientes", // horas vencidas sin registrar
   capturaModulo: "/captura/modulo/:id",  // vw_tablero_modulo_dia
-  capturaJornadas: "/captura/jornadas",  // jornadas + jornada_franjas
 
   // --- Indicadores (vistas) --------------------------------------------
   resumen: "/indicadores/resumen",
@@ -55,7 +57,7 @@ export const endpoints = {
   causasPareto: "/indicadores/causas",                // vw_perdidas_por_causa
   sam: "/indicadores/sam",                            // SAM pactado vs observado
   tendencia: "/indicadores/tendencia",
-  produccionMarca: "/indicadores/produccion-marca",
+  produccionCliente: "/indicadores/produccion-cliente",
   lotesEstado: "/indicadores/lotes-estado",
   ordenesRiesgo: "/indicadores/ordenes-riesgo",
 };

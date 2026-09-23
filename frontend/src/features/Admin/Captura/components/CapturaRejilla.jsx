@@ -1,14 +1,14 @@
-import { Check, Plus, Timer } from "lucide-react";
+import { Check, Lock, Plus, Timer } from "lucide-react";
 import { formatNumero } from "@/shared/utils/formatters";
 
 /** Color de la celda segun el cumplimiento contra el umbral del modulo. */
 function tonoCelda(celda, umbral) {
-  if (!celda) return "border-dashed border-gray-200 bg-gray-50 text-gray-300 hover:border-[#433A9B]/40";
+  if (!celda) return "border-dashed border-gray-200 bg-gray-50 text-gray-300 hover:border-[#0F4C3F]/40";
 
   const cumplimiento = Number(celda.cumplimiento || 0);
   if (celda.unidades_producidas === 0) return "border-red-200 bg-red-50 text-red-600";
   if (cumplimiento >= umbral) return "border-green-200 bg-green-50 text-green-700";
-  if (cumplimiento >= umbral * 0.7) return "border-[#F39A3D]/40 bg-[#F39A3D]/10 text-[#b46a12]";
+  if (cumplimiento >= umbral * 0.7) return "border-[#D08E10]/40 bg-[#D08E10]/10 text-[#b46a12]";
   return "border-red-200 bg-red-50 text-red-600";
 }
 
@@ -26,11 +26,24 @@ function horaCorta(franja) {
  * encabezado marca las que no son de 60 para que se vea por que su meta
  * es mas baja.
  */
-export function CapturaRejilla({ rejilla, onAbrirCelda, soloLectura = false, onVerModulo }) {
+export function CapturaRejilla({
+  rejilla,
+  onAbrirCelda,
+  soloLectura = false,
+  onVerModulo,
+  onAbrirJornada,
+  pendientes = [],
+  moduloDestacado = null,
+}) {
   if (!rejilla) return null;
 
   const franjas = rejilla.jornada?.franjas ?? [];
   const { modulos } = rejilla;
+
+  // Las franjas que el backend marco como vencidas y sin registrar: son
+  // las que el recordatorio esta reclamando, y se resaltan en la rejilla
+  // para que se vea DONDE esta el hueco y no solo cuantos hay.
+  const reclamadas = new Set(pendientes.map((p) => `${p.id_modulo}|${p.hora_jornada}`));
 
   if (franjas.length === 0) {
     return (
@@ -62,7 +75,7 @@ export function CapturaRejilla({ rejilla, onAbrirCelda, soloLectura = false, onV
                   <div>{horaCorta(franja)}</div>
                   <div
                     className={`mt-0.5 text-[10px] font-normal normal-case ${
-                      franja.minutos === 60 ? "text-gray-300" : "text-[#F39A3D]"
+                      franja.minutos === 60 ? "text-gray-300" : "text-[#D08E10]"
                     }`}
                   >
                     {franja.minutos} min
@@ -78,25 +91,64 @@ export function CapturaRejilla({ rejilla, onAbrirCelda, soloLectura = false, onV
             {modulos.map((modulo) => {
               const umbral = Number(modulo.umbral_cumplimiento || 85);
 
+              // Sin jornada no hay nada que capturar: el modulo aparece en
+              // gris con la salida obvia --abrirla-- en vez de celdas que
+              // al tocarlas darian un error.
+              if (!modulo.tiene_jornada) {
+                return (
+                  <tr key={modulo.id_modulo} className="bg-gray-50/60">
+                    <td className="sticky left-0 z-10 bg-gray-50/60 px-4 py-3">
+                      <span className="font-semibold text-gray-500">{modulo.codigo}</span>
+                      <div className="truncate text-xs text-gray-400">Sin jornada</div>
+                    </td>
+                    <td colSpan={franjas.length + 1} className="px-4 py-3">
+                      <button
+                        type="button"
+                        disabled={soloLectura}
+                        onClick={() => onAbrirJornada?.(modulo)}
+                        className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 transition hover:border-[#0F4C3F] hover:text-[#0F4C3F] disabled:cursor-default disabled:hover:border-gray-300 disabled:hover:text-gray-500"
+                      >
+                        <Lock className="h-4 w-4" />
+                        Abrir la jornada de este modulo para poder registrar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              }
+
+              // El modulo del que se viene (recien abierta su jornada) se
+              // marca: en una planta de 12 filas, encontrar la propia es
+              // lo primero que hay que hacer y no deberia costar nada.
+              const destacado = String(moduloDestacado) === String(modulo.id_modulo);
+
               return (
-                <tr key={modulo.id_modulo} className="hover:bg-gray-50/40">
-                  <td className="sticky left-0 z-10 bg-white px-4 py-3">
+                <tr
+                  key={modulo.id_modulo}
+                  className={destacado ? "bg-[#0F4C3F]/5" : "hover:bg-gray-50/40"}
+                >
+                  <td
+                    className={`sticky left-0 z-10 px-4 py-3 ${
+                      destacado ? "bg-[#0F4C3F]/5" : "bg-white"
+                    }`}
+                  >
                     <button
                       type="button"
                       onClick={() => onVerModulo?.(modulo)}
-                      className="text-left font-semibold text-gray-900 hover:text-[#433A9B] hover:underline"
+                      className="text-left font-semibold text-gray-900 hover:text-[#0F4C3F] hover:underline"
                     >
                       {modulo.codigo}
                     </button>
                     <div className="truncate text-xs text-gray-400">
-                      {modulo.orden?.codigo_referencia
-                        ? `Ref. ${modulo.orden.codigo_referencia} · SAM ${modulo.sam_sugerido ?? "—"}`
-                        : "Sin orden asignada"}
+                      {modulo.jornada?.nombre_cliente
+                        ? `${modulo.jornada.nombre_cliente} · ${modulo.jornada.codigo_lote} · SAM ${modulo.sam_sugerido ?? "—"}`
+                        : "Sin lote"}
                     </div>
                   </td>
 
                   {franjas.map((franja) => {
                     const celda = modulo.celdas?.[franja.orden_franja];
+                    const reclamada =
+                      !celda && reclamadas.has(`${modulo.id_modulo}|${franja.orden_franja}`);
 
                     return (
                       <td key={franja.orden_franja} className="px-1 py-2 text-center">
@@ -114,7 +166,11 @@ export function CapturaRejilla({ rejilla, onAbrirCelda, soloLectura = false, onV
                           className={`relative flex h-14 w-16 flex-col items-center justify-center rounded-lg border-2 text-sm transition-all disabled:cursor-default ${tonoCelda(
                             celda,
                             umbral,
-                          )} ${soloLectura ? "" : "hover:shadow-sm"}`}
+                          )} ${soloLectura ? "" : "hover:shadow-sm"} ${
+                            reclamada
+                              ? "animate-pulse border-solid border-[#D08E10] bg-[#D08E10]/10 text-[#b46a12]"
+                              : ""
+                          }`}
                         >
                           {celda ? (
                             <>
@@ -126,7 +182,7 @@ export function CapturaRejilla({ rejilla, onAbrirCelda, soloLectura = false, onV
                               </span>
                               {celda.minutos_perdidos > 0 && (
                                 <span
-                                  className="absolute -right-1 -top-1 rounded-full bg-[#F39A3D] px-1 text-[9px] font-bold leading-tight text-white"
+                                  className="absolute -right-1 -top-1 rounded-full bg-[#0F4C3F] px-1 text-[9px] font-bold leading-tight text-white"
                                   title={`${celda.minutos_perdidos} minutos perdidos`}
                                 >
                                   {celda.minutos_perdidos}
@@ -151,7 +207,7 @@ export function CapturaRejilla({ rejilla, onAbrirCelda, soloLectura = false, onV
                     <div className="text-xs text-gray-400">
                       {modulo.resumen.eficiencia}% ef.
                       {modulo.resumen.franjas_pendientes > 0 && (
-                        <span className="ml-1 text-[#F39A3D]">
+                        <span className="ml-1 text-[#D08E10]">
                           · {modulo.resumen.franjas_pendientes} pend.
                         </span>
                       )}

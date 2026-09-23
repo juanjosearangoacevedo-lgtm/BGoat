@@ -1,16 +1,15 @@
 import { ArrowLeft, CalendarDays, RefreshCw, Timer } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { formatMoneda, formatNumero } from "@/shared/utils/formatters";
+import { formatMoneda, formatNumero, hoyLocal } from "@/shared/utils/formatters";
 import { TableroCabecera } from "../components/TableroCabecera";
 import { TableroTabla } from "../components/TableroTabla";
-import { hoyLocal } from "../hooks/useCapturaPage";
 import { useTableroModulo } from "../hooks/useTableroModulo";
 
 function Indicador({ etiqueta, valor, nota, tono = "gris" }) {
   const tonos = {
     gris: "text-gray-900",
-    morado: "text-[#433A9B]",
+    marca: "text-[#0F4C3F]",
     verde: "text-green-600",
     rojo: "text-red-600",
   };
@@ -66,7 +65,7 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
         <select
           value={idModulo ?? ""}
           onChange={(evento) => setIdModulo(evento.target.value)}
-          className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#433A9B]/30"
+          className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
         >
           {modulos.map((m) => (
             <option key={m.id_modulo} value={m.id_modulo}>
@@ -82,7 +81,7 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
             value={fecha}
             max={hoyLocal()}
             onChange={(evento) => setFecha(evento.target.value)}
-            className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#433A9B]/30"
+            className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
           />
         </div>
 
@@ -114,7 +113,7 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
           etiqueta="Unidades del dia"
           valor={formatNumero(totales.unidades_producidas)}
           nota={`de ${formatNumero(Math.round(totales.meta_dia))} de meta`}
-          tono="morado"
+          tono="marca"
         />
         <Indicador
           etiqueta="Eficiencia del dia"

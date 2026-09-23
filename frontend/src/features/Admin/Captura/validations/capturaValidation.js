@@ -3,7 +3,7 @@ import { reglas, validarFormulario } from "@/shared/validations";
 /**
  * Reglas de la captura horaria -> tabla `registros_horarios`.
  *
- * Es el nucleo del sistema: la supervisora captura de pie, una celda por
+ * Es el nucleo del sistema: la digitadora captura de pie, una celda por
  * hora. Por eso las reglas son pocas y condicionales, no un formulario largo:
  *
  *   - las unidades y las defectuosas son enteros que no bajan de cero,
@@ -68,7 +68,7 @@ export function crearCapturaEsquema({ bajoUmbral = false, causaSeleccionada = nu
  * `excedePerdidos` cubre la unica regla que no es de un solo campo: los
  * minutos perdidos se reparten entre varias causas y lo que no puede
  * pasar es que la suma se salga de la franja. El backend la valida
- * igual; esto es para que la supervisora lo vea antes de guardar.
+ * igual; esto es para que la digitadora lo vea antes de guardar.
  */
 export function validarCaptura({
   valores,

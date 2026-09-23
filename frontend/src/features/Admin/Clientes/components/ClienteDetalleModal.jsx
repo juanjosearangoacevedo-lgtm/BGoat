@@ -1,7 +1,7 @@
 import { Building2 } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { DetailModal } from "@/shared/components/DetailModal";
-import { documento, formatFecha, nombreCliente } from "@/shared/utils/formatters";
+import { documento, formatFecha } from "@/shared/utils/formatters";
 
 /** Detalle de un registro de la tabla `clientes`. */
 export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
@@ -10,11 +10,10 @@ export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
         {
           titulo: "Identificacion",
           filas: [
-            { label: "Tipo de cliente", value: cliente.razon_social ? "Empresa" : "Persona" },
-            { label: "Documento", value: documento(cliente) },
+            { label: "Nombre", value: cliente.nombre },
+            { label: "Descripcion", value: cliente.descripcion, ancho: "completo" },
             { label: "Razon social", value: cliente.razon_social, ancho: "completo" },
-            { label: "Nombres", value: cliente.nombres },
-            { label: "Apellidos", value: cliente.apellidos },
+            { label: "Documento", value: documento(cliente) },
           ],
         },
         {
@@ -33,7 +32,7 @@ export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
     <DetailModal
       open={Boolean(cliente)}
       icon={Building2}
-      title={nombreCliente(cliente)}
+      title={cliente?.nombre}
       subtitle="Cliente"
       estado={cliente?.estado}
       secciones={secciones}
@@ -44,7 +43,7 @@ export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
             Cerrar
           </Button>
           <Button
-            className="flex-1 bg-[#433A9B] text-white hover:bg-[#433A9B]/90"
+            className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
             onClick={() => onEditar?.(cliente)}
           >
             Editar cliente

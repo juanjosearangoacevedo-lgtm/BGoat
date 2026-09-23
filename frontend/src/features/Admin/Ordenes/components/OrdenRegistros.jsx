@@ -10,7 +10,7 @@ export function OrdenRegistros({ registros = [] }) {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <h3 className="mb-5 flex items-center gap-2 font-bold text-gray-900">
-        <Clock className="h-4 w-4 text-[#433A9B]" />
+        <Clock className="h-4 w-4 text-[#0F4C3F]" />
         Horas registradas ({registros.length})
       </h3>
 

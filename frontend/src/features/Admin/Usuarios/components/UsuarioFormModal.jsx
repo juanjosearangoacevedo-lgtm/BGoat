@@ -1,7 +1,8 @@
-import { Check, UserCog } from "lucide-react";
+import { UserCog } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { FormField } from "@/shared/components/FormField";
 import { Modal } from "@/shared/components/Modal";
+import { ModalAcciones } from "@/shared/components/ModalAcciones";
 import { nombreCompleto } from "@/shared/utils/formatters";
 import { usuarioDocumentTypes, usuarioStatusOptions } from "../hooks/useUsuariosPage";
 
@@ -26,24 +27,18 @@ export function UsuarioFormModal({
       onClose={onClose}
       maxWidth="max-w-2xl"
       footer={
-        <>
-          <Button variant="outline" className="flex-1" onClick={onClose} disabled={guardando}>
-            Cancelar
-          </Button>
-          <Button
-            className="flex-1 bg-[#433A9B] text-white hover:bg-[#433A9B]/90"
-            onClick={onSave}
-            disabled={guardando}
-          >
-            <Check className="mr-2 h-4 w-4" />
-            {guardando ? "Guardando..." : editing ? "Guardar cambios" : "Crear usuario"}
-          </Button>
-        </>
+        <ModalAcciones
+          editing={editing}
+          guardando={guardando}
+          entidad="usuario"
+          onClose={onClose}
+          onSave={onSave}
+        />
       }
     >
       <div className="space-y-5">
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#433A9B]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
             Datos personales
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -103,7 +98,7 @@ export function UsuarioFormModal({
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#433A9B]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
             Acceso al sistema
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

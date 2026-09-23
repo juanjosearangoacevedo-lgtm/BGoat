@@ -7,7 +7,7 @@ import { endpoints } from "@/shared/services/endpoints";
 
 /**
  * Listado de ordenes -> vista `vw_avance_orden` (tabla `ordenes_produccion`
- * mas lote, modulo, ficha, cliente, marca y el avance real calculado).
+ * mas lote, modulo, cliente, referencia y el avance real calculado).
  */
 export const ordenStatuses = ["PENDIENTE", "EN_PROCESO", "PAUSADA", "FINALIZADA", "CANCELADA"];
 export const ordenPrioridades = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
@@ -54,6 +54,16 @@ export function useOrdenesPage() {
         label: "Modulo",
         etiquetaTodos: "Todos los modulos",
         opciones: modulos.options,
+      },
+      {
+        // La pregunta de todos los dias: que hay sin coger.
+        clave: "asignacion",
+        label: "Asignacion",
+        etiquetaTodos: "Libres y tomadas",
+        opciones: [
+          { value: "LIBRE", label: "Libres" },
+          { value: "TOMADA", label: "Tomadas" },
+        ],
       },
       {
         clave: "avance",

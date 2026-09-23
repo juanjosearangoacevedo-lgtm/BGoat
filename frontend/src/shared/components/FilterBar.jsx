@@ -69,7 +69,7 @@ export function FilterBar({
                   value={valor === TODOS ? "" : valor}
                   title={definicion.label}
                   onChange={(evento) => onFiltro?.(definicion.clave, evento.target.value || TODOS)}
-                  className="h-9 rounded-lg border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#433A9B]/30"
+                  className="h-9 rounded-lg border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
                 />
               </div>
             );
@@ -93,7 +93,7 @@ export function FilterBar({
               value={valor}
               title={definicion.label}
               onChange={(evento) => onFiltro?.(definicion.clave, evento.target.value)}
-              className={`h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#433A9B]/30 ${
+              className={`h-9 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30 ${
                 definicion.ancho || "w-auto"
               }`}
             >
@@ -115,13 +115,13 @@ export function FilterBar({
           {filtrosActivos.map((activo) => (
             <span
               key={activo.clave}
-              className="flex items-center gap-1 rounded-full bg-[#433A9B]/10 py-1 pl-3 pr-1 text-xs font-medium text-[#433A9B]"
+              className="flex items-center gap-1 rounded-full bg-[#0F4C3F]/10 py-1 pl-3 pr-1 text-xs font-medium text-[#0F4C3F]"
             >
               {activo.label}: {activo.texto}
               <button
                 type="button"
                 onClick={() => onFiltro?.(activo.clave, TODOS)}
-                className="rounded-full p-0.5 hover:bg-[#433A9B]/20"
+                className="rounded-full p-0.5 hover:bg-[#0F4C3F]/20"
                 aria-label={`Quitar filtro ${activo.label}`}
               >
                 <X className="h-3 w-3" />
@@ -132,7 +132,7 @@ export function FilterBar({
           <button
             type="button"
             onClick={onLimpiar}
-            className="text-xs font-medium text-gray-400 underline-offset-2 hover:text-[#433A9B] hover:underline"
+            className="text-xs font-medium text-gray-400 underline-offset-2 hover:text-[#0F4C3F] hover:underline"
           >
             Limpiar todo
           </button>

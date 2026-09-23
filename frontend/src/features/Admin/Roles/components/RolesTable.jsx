@@ -19,7 +19,7 @@ export function columnasRoles({ onDetalle, onEdit, onToggleEstado, onDelete } = 
       sortable: true,
       render: (rol) => (
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#433A9B]/10 text-[#433A9B]">
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#0F4C3F]/10 text-[#0F4C3F]">
             <Shield className="h-4 w-4" />
           </div>
           <span className="font-medium text-gray-900">{rol.nombre}</span>
@@ -48,7 +48,7 @@ export function columnasRoles({ onDetalle, onEdit, onToggleEstado, onDelete } = 
         return (
           <span
             className={`rounded-full px-2 py-1 text-xs font-medium ${
-              total > 0 ? "bg-[#433A9B]/10 text-[#433A9B]" : "bg-amber-50 text-amber-600"
+              total > 0 ? "bg-[#0F4C3F]/10 text-[#0F4C3F]" : "bg-amber-50 text-amber-600"
             }`}
           >
             {total > 0 ? `${total} permisos` : "Sin permisos"}

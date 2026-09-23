@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useCatalogo } from "@/shared/hooks/useCatalogo";
 import { apiClient } from "@/shared/services/apiClient";
@@ -7,31 +7,23 @@ import { aFechaInput } from "@/shared/utils/formatters";
 import { validarOrden } from "../validations/ordenValidation";
 
 /**
- * Formulario de orden de produccion.
+ * Formulario de orden de produccion -> tabla `ordenes_produccion`.
  *
- * `form`    -> tabla `ordenes_produccion`
- * `detalle` -> tabla `detalle_orden_produccion` (una fila por prenda)
+ * La orden asigna un lote a un modulo. El SAM ya no se escoge aqui: viene
+ * en el lote, que es donde llega la ficha tecnica del cliente. Por eso la
+ * estimacion de capacidad se calcula con el SAM del lote elegido.
  *
  * `creado_por` no se pide: lo pone el backend con el usuario de la sesion.
  */
 export const emptyOrdenForm = {
   numero_orden: "",
-  id_pedido: "",
   id_lote: "",
-  id_modulo: "",
-  id_ficha_tecnica: "",
   fecha_inicio_programada: "",
   fecha_fin_programada: "",
   cantidad_programada: "",
   valor_maquila_unidad: "",
   prioridad: "MEDIA",
   estado: "PENDIENTE",
-  observaciones: "",
-};
-
-export const emptyDetalleLinea = {
-  id_prenda: "",
-  cantidad_programada: "",
   observaciones: "",
 };
 
@@ -43,10 +35,7 @@ function toFormValues(orderData) {
 
   return {
     ...orderData,
-    id_pedido: orderData.id_pedido ?? "",
     id_lote: orderData.id_lote ?? "",
-    id_modulo: orderData.id_modulo ?? "",
-    id_ficha_tecnica: orderData.id_ficha_tecnica ?? "",
     fecha_inicio_programada: aFechaInput(orderData.fecha_inicio_programada),
     fecha_fin_programada: aFechaInput(orderData.fecha_fin_programada),
   };
@@ -54,121 +43,140 @@ function toFormValues(orderData) {
 
 export function useOrdenForm({ orderData } = {}) {
   const [form, setForm] = useState({ ...emptyOrdenForm, ...toFormValues(orderData) });
-  const [detalle, setDetalle] = useState(orderData?.detalle ?? []);
   const [guardando, setGuardando] = useState(false);
   const [errors, setErrors] = useState({});
-  const [errorDetalle, setErrorDetalle] = useState("");
 
   const lotes = useCatalogo(endpoints.lotes, {
     valor: "id_lote",
-    etiqueta: (fila) => fila.codigo_lote + (fila.nombre_marca ? " - " + fila.nombre_marca : ""),
+    etiqueta: (fila) =>
+      fila.codigo_lote + (fila.nombre_cliente ? " - " + fila.nombre_cliente : ""),
   });
+  // Los modulos ya no se escogen aqui --la orden nace libre-- pero su
+  // capacidad sirve para proponer con cuanta gente estimar.
   const modulos = useCatalogo(endpoints.modulos, {
     valor: "id_modulo",
     etiqueta: (fila) => fila.codigo + " - " + fila.nombre,
   });
-  const fichas = useCatalogo(endpoints.fichasTecnicas, {
-    valor: "id_ficha_tecnica",
-    etiqueta: (fila) =>
-      fila.codigo_ficha + " v" + fila.version + " - SAM " + (fila.sam_pactado ?? "?") + " min",
-  });
-  const pedidos = useCatalogo(endpoints.pedidos, {
-    valor: "id_pedido",
-    etiqueta: (fila) => fila.numero_pedido + (fila.nombre_cliente ? " - " + fila.nombre_cliente : ""),
-  });
-  const prendas = useCatalogo(endpoints.prendas, {
-    valor: "id_prenda",
-    etiqueta: (fila) => fila.sku + " - " + fila.nombre,
-  });
+
+  const [personasSupuestas, setPersonasSupuestas] = useState("");
+
+  /**
+   * Cuanto dura un dia de planta. Sale de las franjas, no de un campo.
+   *
+   * Antes la estimacion usaba `modulos.horas_jornada`, una columna que
+   * se escribia a mano y decia 9; la planta trabaja 520 minutos, que son
+   * 8.67. Estimar los dias de una orden con una hora de mas por dia
+   * comprometia fechas de entrega que no daban.
+   */
+  const [minutosDia, setMinutosDia] = useState(0);
+
+  useEffect(() => {
+    let activo = true;
+    (async () => {
+      try {
+        const horario = await apiClient.get(endpoints.jornadaHorario);
+        // Si el dia de hoy no se trabaja (domingo), se toma el patron
+        // mas largo: la estimacion habla de dias laborales, no de hoy.
+        const minutos =
+          Number(horario?.del_dia?.minutos_totales) ||
+          Math.max(0, ...(horario?.patrones ?? []).map((p) => Number(p.minutos_totales) || 0));
+        if (activo) setMinutosDia(minutos);
+      } catch {
+        if (activo) setMinutosDia(0);
+      }
+    })();
+    return () => {
+      activo = false;
+    };
+  }, []);
 
   const setField = (campo, valor) => {
-    setForm((previo) => ({ ...previo, [campo]: valor }));
+    setForm((previo) => {
+      const siguiente = { ...previo, [campo]: valor };
+
+      // Al escoger el lote se propone su cantidad: es lo que el cliente
+      // mando, y reescribirla a mano era la equivocacion mas comun.
+      if (campo === "id_lote" && !previo.cantidad_programada) {
+        const lote = lotes.buscar(valor);
+        if (lote?.cantidad_programada) siguiente.cantidad_programada = lote.cantidad_programada;
+      }
+
+      return siguiente;
+    });
     setErrors((previo) => ({ ...previo, [campo]: "" }));
   };
 
   const reset = () => {
     setForm(emptyOrdenForm);
-    setDetalle([]);
     setErrors({});
-    setErrorDetalle("");
   };
 
-  // --- detalle_orden_produccion ----------------------------------------
-  const addLinea = () => setDetalle((previo) => [...previo, { ...emptyDetalleLinea }]);
+  const loteSeleccionado = lotes.buscar(form.id_lote);
 
-  const updateLinea = (indice, campo, valor) =>
-    setDetalle((previo) =>
-      previo.map((linea, i) => (i === indice ? { ...linea, [campo]: valor } : linea)),
-    );
+  /**
+   * Cuantas operarias suponer. Arranca en la capacidad tipica de la
+   * planta --la mediana de los modulos activos-- y la puede cambiar quien
+   * programa. Antes salia del modulo asignado a la orden; ese campo ya no
+   * existe porque la orden nace libre.
+   */
+  const capacidadTipica = useMemo(() => {
+    const capacidades = (modulos.items ?? [])
+      .map((modulo) => Number(modulo.capacidad_operarios) || 0)
+      .filter((valor) => valor > 0)
+      .sort((a, b) => a - b);
 
-  const removeLinea = (indice) => setDetalle((previo) => previo.filter((_, i) => i !== indice));
+    if (capacidades.length === 0) return 0;
+    return capacidades[Math.floor(capacidades.length / 2)];
+  }, [modulos.items]);
 
-  const totalDetalle = useMemo(
-    () => detalle.reduce((total, linea) => total + Number(linea.cantidad_programada || 0), 0),
-    [detalle],
-  );
+  const personas = Number(personasSupuestas) || capacidadTipica;
 
-  /** SAM de la ficha elegida, para mostrar la capacidad estimada. */
-  const fichaSeleccionada = fichas.buscar(form.id_ficha_tecnica);
-  const moduloSeleccionado = modulos.buscar(form.id_modulo);
-
+  /**
+   * Capacidad estimada con el SAM del lote y el tamano del modulo.
+   *
+   * Es la misma cuenta de la captura --(personas x minutos) / SAM-- pero
+   * con los minutos del dia completo. Sin horario no hay estimacion: es
+   * preferible no mostrarla a mostrarla con un numero inventado.
+   */
   const estimacion = useMemo(() => {
-    const sam = Number(fichaSeleccionada?.sam_pactado || 0);
-    const personas = Number(moduloSeleccionado?.capacidad_operarios || 0);
-    const horas = Number(moduloSeleccionado?.horas_jornada || 9);
+    const sam = Number(loteSeleccionado?.sam_pactado || 0);
     const cantidad = Number(form.cantidad_programada || 0);
 
-    if (sam <= 0 || personas <= 0 || cantidad <= 0) return null;
+    if (sam <= 0 || personas <= 0 || cantidad <= 0 || minutosDia <= 0) return null;
 
     const porHora = (personas * 60) / sam;
-    const porDia = porHora * horas;
+    const porDia = (personas * minutosDia) / sam;
 
     return {
       sam,
+      horasDia: Number((minutosDia / 60).toFixed(2)),
       unidadesPorHora: Number(porHora.toFixed(1)),
       unidadesPorDia: Math.round(porDia),
       diasEstimados: Math.ceil(cantidad / porDia),
     };
-  }, [fichaSeleccionada, moduloSeleccionado, form.cantidad_programada]);
+  }, [loteSeleccionado, personas, form.cantidad_programada, minutosDia]);
 
   const buildPayload = () => ({
     ...form,
-    id_pedido: aNumero(form.id_pedido),
     id_lote: aNumero(form.id_lote),
-    id_modulo: aNumero(form.id_modulo),
-    id_ficha_tecnica: aNumero(form.id_ficha_tecnica),
     cantidad_programada: Number(form.cantidad_programada || 0),
     valor_maquila_unidad: aNumero(form.valor_maquila_unidad),
     fecha_inicio_programada: form.fecha_inicio_programada || null,
     fecha_fin_programada: form.fecha_fin_programada || null,
     observaciones: form.observaciones || null,
-    detalle: detalle
-      .filter((linea) => linea.id_prenda)
-      .map((linea) => ({
-        id_prenda: Number(linea.id_prenda),
-        cantidad_programada: Number(linea.cantidad_programada || 0),
-        observaciones: linea.observaciones || null,
-      })),
   });
 
-  /** Reglas de `validations/ordenValidation.js`: cabecera y detalle. */
+  /** Reglas de `validations/ordenValidation.js`. */
   const validar = () => {
-    const { errores, errorDetalle: problemaDetalle } = validarOrden({
+    const { errores } = validarOrden({
       form,
-      detalle,
-      catalogos: {
-        loteOptions: lotes.options,
-        moduloOptions: modulos.options,
-        fichaOptions: fichas.options,
-        pedidoOptions: pedidos.options,
-      },
+      catalogos: { loteOptions: lotes.options },
     });
 
     setErrors(errores);
-    setErrorDetalle(problemaDetalle);
 
-    if (Object.keys(errores).length > 0 || problemaDetalle) {
-      toast.error(problemaDetalle || "Revisa los campos marcados antes de guardar");
+    if (Object.keys(errores).length > 0) {
+      toast.error("Revisa los campos marcados antes de guardar");
       return false;
     }
     return true;
@@ -200,22 +208,15 @@ export function useOrdenForm({ orderData } = {}) {
     form,
     setField,
     errors,
-    errorDetalle,
     validar,
     reset,
-    detalle,
-    addLinea,
-    updateLinea,
-    removeLinea,
-    totalDetalle,
     estimacion,
     guardando,
     guardar,
     buildPayload,
+    loteSeleccionado,
     loteOptions: lotes.options,
-    moduloOptions: modulos.options,
-    fichaOptions: fichas.options,
-    pedidoOptions: pedidos.options,
-    prendaOptions: prendas.options,
+    personasSupuestas: personas,
+    setPersonasSupuestas,
   };
 }

@@ -59,7 +59,7 @@ export function DetailModal({
           .map((seccion) => (
             <section key={seccion.titulo || "general"}>
               {seccion.titulo && (
-                <h3 className="mb-3 border-b border-gray-100 pb-2 text-xs font-semibold uppercase tracking-wider text-[#433A9B]">
+                <h3 className="mb-3 border-b border-gray-100 pb-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
                   {seccion.titulo}
                 </h3>
               )}

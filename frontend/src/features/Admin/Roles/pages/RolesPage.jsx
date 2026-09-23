@@ -73,7 +73,7 @@ export function RolesPage() {
         Limpiar busqueda y filtros
       </Button>
     ) : (
-      <Button onClick={roles.abrirCrear} className="bg-[#433A9B] text-white hover:bg-[#433A9B]/90">
+      <Button onClick={roles.abrirCrear} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
         <Plus className="mr-2 h-4 w-4" />
         Nuevo rol
       </Button>
@@ -98,7 +98,7 @@ export function RolesPage() {
       <PageHeader title="Roles y permisos" subtitle={`${roles.total} roles registrados`}>
         <Button
           onClick={roles.abrirCrear}
-          className="h-10 gap-2 rounded-xl bg-[#433A9B] px-5 text-white hover:bg-[#433A9B]/90"
+          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
         >
           <Plus className="h-4 w-4" />
           Nuevo rol
@@ -159,7 +159,7 @@ export function RolesPage() {
           footer={paginacion}
           onClick={roles.verDetalle}
           avatar={() => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#433A9B] to-[#5a4fb8] text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F4C3F] to-[#0F4C3F] text-white">
               <Shield className="h-4 w-4" />
             </div>
           )}

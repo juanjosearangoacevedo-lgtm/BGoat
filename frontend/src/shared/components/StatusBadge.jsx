@@ -13,14 +13,14 @@ const styles = {
 
   // lotes
   REGISTRADO: "bg-blue-100 text-blue-700",
-  EN_PROCESO: "bg-[#F39A3D]/15 text-[#b46a12]",
+  EN_PROCESO: "bg-[#D08E10]/15 text-[#b46a12]",
   FINALIZADO: "bg-green-100 text-green-700",
   CANCELADO: "bg-red-50 text-red-500",
 
   // pedidos
   APROBADO: "bg-blue-100 text-blue-700",
-  EN_PRODUCCION: "bg-[#F39A3D]/15 text-[#b46a12]",
-  DESPACHADO: "bg-indigo-100 text-indigo-700",
+  EN_PRODUCCION: "bg-[#D08E10]/15 text-[#b46a12]",
+  DESPACHADO: "bg-teal-100 text-teal-700",
   ENTREGADO: "bg-green-100 text-green-700",
 
   // ordenes de produccion
@@ -49,7 +49,7 @@ const styles = {
   // prioridad de la orden
   BAJA: "bg-gray-100 text-gray-600",
   MEDIA: "bg-blue-100 text-blue-700",
-  ALTA: "bg-[#F39A3D]/15 text-[#b46a12]",
+  ALTA: "bg-[#D08E10]/15 text-[#b46a12]",
   URGENTE: "bg-red-100 text-red-700",
 };
 

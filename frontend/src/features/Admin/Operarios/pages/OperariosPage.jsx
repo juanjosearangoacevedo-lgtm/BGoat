@@ -4,8 +4,13 @@ import { endpoints } from "@/shared/services/endpoints";
 import { formatFecha, nombreCompleto } from "@/shared/utils/formatters";
 import { crearOperarioEsquema } from "../validations/operarioValidation";
 
-/** Modulo Operarios -> tabla `operarios` (operarias, supervisoras y mecanicos). */
-const cargos = ["OPERARIO", "SUPERVISOR", "MECANICO", "OTRO"];
+/**
+ * Modulo Operarias -> tabla `operarios` (operarias y personal de planta).
+ *
+ * El cargo SUPERVISOR desaparecio: la jornada la configura la digitadora
+ * desde la app, no una supervisora asignada a cada modulo.
+ */
+const cargos = ["OPERARIO", "MECANICO", "OTRO"];
 
 export function OperariosPage() {
   return (

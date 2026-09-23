@@ -1,7 +1,7 @@
-import { Check, Factory } from "lucide-react";
-import { Button } from "@/shared/components/button";
+import { Factory } from "lucide-react";
 import { FormField } from "@/shared/components/FormField";
 import { Modal } from "@/shared/components/Modal";
+import { ModalAcciones } from "@/shared/components/ModalAcciones";
 import { moduloStatusOptions } from "../hooks/useModulosPage";
 
 /** Formulario de la tabla `modulos`. */
@@ -15,24 +15,18 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
       onClose={onClose}
       maxWidth="max-w-2xl"
       footer={
-        <>
-          <Button variant="outline" className="flex-1" onClick={onClose} disabled={guardando}>
-            Cancelar
-          </Button>
-          <Button
-            className="flex-1 bg-[#433A9B] text-white hover:bg-[#433A9B]/90"
-            onClick={onSave}
-            disabled={guardando}
-          >
-            <Check className="mr-2 h-4 w-4" />
-            {guardando ? "Guardando..." : editing ? "Guardar cambios" : "Crear modulo"}
-          </Button>
-        </>
+        <ModalAcciones
+          editing={editing}
+          guardando={guardando}
+          entidad="modulo"
+          onClose={onClose}
+          onSave={onSave}
+        />
       }
     >
       <div className="space-y-5">
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#433A9B]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
             Identificacion
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -74,9 +68,16 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#433A9B]">
-            Capacidad y metas
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+            Capacidad y regla de alerta
           </h3>
+
+          {/* Aqui se pedian tambien las horas de jornada, las horas
+              semanales y la eficiencia esperada. Las tres eran resultados
+              disfrazados de campo: las horas del dia las dan las franjas
+              (520 minutos entre semana, 440 el sabado) y la eficiencia se
+              mide contra la meta. Escritas a mano solo contradecian al
+              numero que el sistema calcula. */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               label="Capacidad de operarios"
@@ -99,37 +100,6 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
               onChange={(valor) => onChange("orden_visual", valor)}
             />
             <FormField
-              label="Horas de jornada"
-              type="number"
-              min={1}
-              max={24}
-              placeholder="9"
-              value={form.horas_jornada ?? ""}
-              error={errors.horas_jornada}
-              hint="Define el alto de la rejilla de captura."
-              onChange={(valor) => onChange("horas_jornada", valor)}
-            />
-            <FormField
-              label="Horas semanales"
-              type="number"
-              min={1}
-              max={168}
-              placeholder="44"
-              value={form.horas_semanales ?? ""}
-              error={errors.horas_semanales}
-              onChange={(valor) => onChange("horas_semanales", valor)}
-            />
-            <FormField
-              label="Eficiencia esperada (%)"
-              type="number"
-              min={1}
-              max={200}
-              placeholder="80"
-              value={form.eficiencia_esperada ?? ""}
-              error={errors.eficiencia_esperada}
-              onChange={(valor) => onChange("eficiencia_esperada", valor)}
-            />
-            <FormField
               label="Umbral de cumplimiento (%)"
               type="number"
               min={1}
@@ -137,7 +107,7 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
               placeholder="85"
               value={form.umbral_cumplimiento ?? ""}
               error={errors.umbral_cumplimiento}
-              hint="Por debajo del umbral se pide la causa."
+              hint="Por debajo del umbral se pide la incidencia."
               onChange={(valor) => onChange("umbral_cumplimiento", valor)}
             />
           </div>

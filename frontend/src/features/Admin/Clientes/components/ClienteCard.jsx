@@ -1,20 +1,20 @@
 import { AtSign, MapPin, Phone } from "lucide-react";
 import { RowActions, accionesEstandar } from "@/shared/components/RowActions";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import { documento, iniciales, nombreCliente } from "@/shared/utils/formatters";
+import { documento, iniciales } from "@/shared/utils/formatters";
 
 const avatarColors = [
-  "bg-[#433A9B]",
-  "bg-[#F39A3D]",
+  "bg-[#D08E10]",
+  "bg-[#D08E10]",
   "bg-teal-500",
   "bg-rose-500",
-  "bg-indigo-500",
+  "bg-[#24973A]",
   "bg-amber-500",
 ];
 
 /** Tarjeta de la tabla `clientes`. */
 export function ClienteCard({ cliente, index = 0, onDetalle, onEdit, onToggleEstado, onDelete }) {
-  const nombre = nombreCliente(cliente);
+  const nombre = cliente?.nombre;
 
   return (
     <div

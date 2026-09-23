@@ -60,7 +60,7 @@ export function FormField({
           onBlur={onBlur}
           aria-invalid={Boolean(error)}
           aria-describedby={idAyuda}
-          className={`h-10 w-full rounded-lg border bg-white px-3 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#433A9B]/30 disabled:bg-gray-50 ${
+          className={`h-10 w-full rounded-lg border bg-white px-3 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30 disabled:bg-gray-50 ${
             error ? claseError : "border-gray-200"
           }`}
         >
@@ -81,7 +81,7 @@ export function FormField({
           onBlur={onBlur}
           aria-invalid={Boolean(error)}
           aria-describedby={idAyuda}
-          className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#433A9B]/30 disabled:bg-gray-50 ${
+          className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30 disabled:bg-gray-50 ${
             error ? claseError : "border-gray-200"
           }`}
         />

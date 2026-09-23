@@ -35,7 +35,7 @@ export function Sidebar({ sidebar }) {
       />
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen flex-col bg-gradient-to-b from-[#433A9B] to-[#2d2566] text-white shadow-2xl transition-all duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 z-50 flex h-screen flex-col bg-gradient-to-b from-[#0F4C3F] to-[#0A3A2F] text-white shadow-2xl transition-all duration-300 ease-in-out ${
           colapsado ? "w-20" : "w-64"
         } ${movilAbierto ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
       >
@@ -92,7 +92,7 @@ export function Sidebar({ sidebar }) {
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 transition-all duration-200 ${
                     colapsado ? "justify-center" : ""
                   } ${
-                    active ? "bg-[#F39A3D] text-white shadow-lg" : "text-white/80 hover:bg-white/10 hover:text-white"
+                    active ? "bg-[#D08E10] text-white shadow-lg" : "text-white/80 hover:bg-white/10 hover:text-white"
                   }`}
                   type="button"
                 >
@@ -129,7 +129,7 @@ export function Sidebar({ sidebar }) {
                               onClick={() => handleChildClick(child.page)}
                               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 ${
                                 currentPage === child.page
-                                  ? "bg-[#F39A3D] text-white"
+                                  ? "bg-[#D08E10] text-white"
                                   : "text-white/70 hover:bg-white/10 hover:text-white"
                               }`}
                               type="button"

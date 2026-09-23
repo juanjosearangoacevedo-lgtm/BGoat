@@ -25,7 +25,7 @@ export function ViewToggle({ modo, onChange, opciones = [MODOS.TARJETAS, MODOS.L
             title={`Ver como ${definicion.label.toLowerCase()}`}
             aria-pressed={activo}
             className={`flex h-8 items-center gap-1.5 rounded-md px-2.5 text-xs font-medium transition-colors ${
-              activo ? "bg-[#433A9B] text-white shadow-sm" : "text-gray-500 hover:bg-gray-100"
+              activo ? "bg-[#0F4C3F] text-white shadow-sm" : "text-gray-500 hover:bg-gray-100"
             }`}
           >
             <Icono className="h-3.5 w-3.5" />

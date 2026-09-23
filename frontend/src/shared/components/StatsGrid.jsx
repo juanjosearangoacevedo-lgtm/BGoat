@@ -12,7 +12,7 @@ export function StatsGrid({ items = [], columns = 4 }) {
     <div className={`mb-6 grid gap-4 ${columnClasses[columns] || columnClasses[4]}`}>
       {items.map((item) => (
         <div key={item.label} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-          <div className="text-2xl font-bold" style={{ color: item.color || "#433A9B" }}>
+          <div className="text-2xl font-bold" style={{ color: item.color || "#0F4C3F" }}>
             {item.value}
           </div>
           <div className="mt-1 text-sm text-gray-500">{item.label}</div>

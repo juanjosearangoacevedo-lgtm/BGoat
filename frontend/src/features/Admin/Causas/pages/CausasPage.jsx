@@ -5,7 +5,7 @@ import { crearCausaEsquema } from "../validations/causaValidation";
 
 /**
  * Modulo Causas -> tabla `causas_desviacion`.
- * Es el catalogo que la supervisora ve como botones cuando una hora no
+ * Es el catalogo que la digitadora ve como botones cuando una hora no
  * alcanza la meta. `tipo` separa lo planeado, lo interno y lo del cliente.
  */
 const tipos = [
@@ -32,7 +32,7 @@ export function CausasPage() {
       nombreRegistro={(fila) => (fila?.nombre ? `la causa ${fila.nombre}` : "la causa")}
       emptyIcon={AlertTriangle}
       emptyTitle="No hay causas configuradas"
-      emptyDescription="Sin causas, la supervisora no puede explicar por que una hora quedo por debajo de la meta."
+      emptyDescription="Sin causas, la digitadora no puede explicar por que una hora quedo por debajo de la meta."
       ordenInicial={{ campo: "orden_visual", direccion: "asc" }}
       filtrosLista={[
         {
@@ -112,7 +112,7 @@ export function CausasPage() {
             { value: "0", label: "No" },
             { value: "1", label: "Si" },
           ],
-          hint: "Si la exige, la supervisora debe escribir el detalle.",
+          hint: "Si la exige, la digitadora debe escribir el detalle.",
         },
         {
           name: "orden_visual",

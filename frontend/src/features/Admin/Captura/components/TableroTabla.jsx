@@ -20,7 +20,7 @@ function Celda({ children, className = "", titulo }) {
  * El tablero del modulo: una fila por franja, las columnas de la hoja.
  *
  * Se muestran TODAS las franjas de la jornada, tambien las que nadie ha
- * capturado. Un hueco en el tablero es informacion —la supervisora se
+ * capturado. Un hueco en el tablero es informacion —la digitadora se
  * atraso o el modulo estuvo detenido— y esconderlo haria que el dia
  * pareciera completo cuando no lo esta.
  */
@@ -95,14 +95,14 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
                   <td className="whitespace-nowrap px-3 py-2 text-left font-medium text-gray-900">
                     {franja.etiqueta}
                     {r.nombre_causa && (
-                      <span className="ml-2 rounded-md bg-[#F39A3D]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#b46a12]">
+                      <span className="ml-2 rounded-md bg-[#D08E10]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#b46a12]">
                         {r.nombre_causa}
                       </span>
                     )}
                   </td>
 
                   <Celda
-                    className={franja.minutos === 60 ? "text-gray-400" : "font-semibold text-[#F39A3D]"}
+                    className={franja.minutos === 60 ? "text-gray-400" : "font-semibold text-[#D08E10]"}
                     titulo={franja.minutos === 60 ? undefined : "Franja mas corta: la meta baja igual"}
                   >
                     {franja.minutos}
@@ -160,7 +160,7 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
               <td className="px-3 py-3 text-left">
                 Total capturado
                 {pendientes > 0 && (
-                  <span className="ml-2 text-xs font-normal text-[#F39A3D]">
+                  <span className="ml-2 text-xs font-normal text-[#D08E10]">
                     {pendientes} {pendientes === 1 ? "franja" : "franjas"} sin capturar
                   </span>
                 )}

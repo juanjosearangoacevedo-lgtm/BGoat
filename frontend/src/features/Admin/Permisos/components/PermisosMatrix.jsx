@@ -10,7 +10,7 @@ import { DataTable } from "@/shared/components/DataTable";
  */
 function Marca({ concedido }) {
   return concedido ? (
-    <span className="mx-auto flex h-6 w-6 items-center justify-center rounded-md bg-[#433A9B] text-white">
+    <span className="mx-auto flex h-6 w-6 items-center justify-center rounded-md bg-[#0F4C3F] text-white">
       <Check className="h-3.5 w-3.5 stroke-[3]" />
     </span>
   ) : (
@@ -51,7 +51,7 @@ export function columnasPermisos({ roles = [], tiene }) {
       render: (permiso) => (
         <span
           className={`rounded-full px-2 py-1 text-xs font-medium ${
-            permiso.totalRoles > 0 ? "bg-[#433A9B]/10 text-[#433A9B]" : "bg-gray-100 text-gray-400"
+            permiso.totalRoles > 0 ? "bg-[#0F4C3F]/10 text-[#0F4C3F]" : "bg-gray-100 text-gray-400"
           }`}
         >
           {permiso.totalRoles}

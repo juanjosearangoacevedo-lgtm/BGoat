@@ -11,7 +11,7 @@ import { StatsGrid } from "@/shared/components/StatsGrid";
 import { TablePagination } from "@/shared/components/TablePagination";
 import { ViewToggle } from "@/shared/components/ViewToggle";
 import { MODOS, useViewMode } from "@/shared/hooks/useViewMode";
-import { documento, iniciales, nombreCliente } from "@/shared/utils/formatters";
+import { documento, iniciales } from "@/shared/utils/formatters";
 import { ClienteCard } from "../components/ClienteCard";
 import { ClienteDetalleModal } from "../components/ClienteDetalleModal";
 import { ClienteFormModal } from "../components/ClienteFormModal";
@@ -46,7 +46,7 @@ export function ClientesPage() {
     title: hayBusqueda ? "Sin resultados" : "No hay clientes cargados",
     description: hayBusqueda
       ? "Ningun cliente coincide con la busqueda o los filtros aplicados."
-      : "Registra el primer cliente para poder crear sus pedidos y lotes.",
+      : "Registra el primer cliente para poder cargarle lotes.",
     action: hayBusqueda ? (
       <Button
         variant="outline"
@@ -58,7 +58,7 @@ export function ClientesPage() {
         Limpiar busqueda y filtros
       </Button>
     ) : (
-      <Button onClick={clientes.openCreate} className="bg-[#433A9B] text-white hover:bg-[#433A9B]/90">
+      <Button onClick={clientes.openCreate} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
         <Plus className="mr-2 h-4 w-4" />
         Nuevo cliente
       </Button>
@@ -83,7 +83,7 @@ export function ClientesPage() {
       <PageHeader title="Clientes" subtitle={`${clientes.total} clientes registrados`}>
         <Button
           onClick={clientes.openCreate}
-          className="h-10 gap-2 rounded-xl bg-[#433A9B] px-5 text-white hover:bg-[#433A9B]/90"
+          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
         >
           <Plus className="h-4 w-4" />
           Nuevo cliente
@@ -101,8 +101,8 @@ export function ClientesPage() {
         items={[
           { label: "Total clientes", value: clientes.resumen.total },
           { label: "Activos", value: clientes.resumen.activos, color: "#10b981" },
-          { label: "Empresas", value: clientes.resumen.empresas, color: "#F39A3D" },
-          { label: "Personas", value: clientes.resumen.personas, color: "#6b7280" },
+          { label: "Con datos fiscales", value: clientes.resumen.conDatos, color: "#D08E10" },
+          { label: "Sin datos fiscales", value: clientes.resumen.sinDatos, color: "#6b7280" },
         ]}
       />
 
@@ -150,7 +150,7 @@ export function ClientesPage() {
           footer={paginacion}
           onClick={clientes.verDetalle}
           avatar={(cliente) => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#433A9B]/10 text-xs font-bold text-[#433A9B]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F4C3F]/10 text-xs font-bold text-[#0F4C3F]">
               {iniciales(cliente.nombre)}
             </div>
           )}
@@ -228,8 +228,8 @@ export function ClientesPage() {
         title={activando ? "Activar cliente?" : "Desactivar cliente?"}
         description={
           activando
-            ? `${nombreCliente(objetivoEstado)} volvera a aparecer al crear pedidos y lotes.`
-            : `${nombreCliente(objetivoEstado)} dejara de ofrecerse en los formularios, pero conserva su historia.`
+            ? `${objetivoEstado?.nombre} volvera a aparecer al crear lotes y al iniciar la jornada.`
+            : `${objetivoEstado?.nombre} dejara de ofrecerse en los formularios, pero conserva su historia.`
         }
         confirmLabel={activando ? "Activar" : "Desactivar"}
         loading={clientes.procesando}
@@ -240,7 +240,7 @@ export function ClientesPage() {
       <ConfirmDialog
         open={Boolean(clientes.deleteTarget)}
         title="Eliminar cliente?"
-        description={`Se eliminara ${nombreCliente(clientes.deleteTarget)}. Si tiene pedidos registrados, el sistema lo inactiva en lugar de borrarlo.`}
+        description={`Se eliminara ${clientes.deleteTarget?.nombre}. Si tiene lotes registrados, el sistema lo inactiva en lugar de borrarlo.`}
         loading={clientes.procesando}
         onCancel={() => clientes.setDeleteTarget(null)}
         onConfirm={() => clientes.eliminar(clientes.deleteTarget)}

@@ -1,15 +1,35 @@
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import { formatFechaHora, GUION } from "@/shared/utils/formatters";
+import { formatFecha, formatFechaHora, GUION } from "@/shared/utils/formatters";
 
-/** Datos de cabecera de la orden (vista `vw_avance_orden`). */
-export function OrdenInfoPanel({ orden, detalle = [] }) {
+/**
+ * Datos de cabecera de la orden (vista `vw_avance_orden`).
+ *
+ * Ya no muestra marca ni pedido: la marca se fusiono con el cliente y el
+ * pedido dejo de existir. Tampoco el detalle por prenda, porque la
+ * produccion se mide por lote.
+ */
+export function OrdenInfoPanel({ orden }) {
   const rows = [
     { label: "Lote", value: orden?.codigo_lote },
-    { label: "Modulo", value: orden?.codigo_modulo ? `${orden.codigo_modulo} · ${orden.nombre_modulo}` : null },
     { label: "Cliente", value: orden?.nombre_cliente },
-    { label: "Marca", value: orden?.nombre_marca },
+    { label: "Referencia", value: orden?.codigo_referencia },
+    {
+      // La orden no se asigna a un modulo: nace libre y la toma el que
+      // abre su jornada con ella. Mientras nadie la tome, esto dice
+      // "Libre" y no un guion, que se leeria como un dato faltante.
+      label: "Modulo",
+      value: orden?.codigo_modulo
+        ? `${orden.codigo_modulo} · ${orden.nombre_modulo}`
+        : "Libre - la toma el modulo que abra jornada con ella",
+    },
+    { label: "SAM pactado", value: orden?.sam_pactado ? `${orden.sam_pactado} min` : null },
     { label: "Pedido", value: orden?.numero_pedido },
-    { label: "SAM (min/unidad)", value: orden?.sam_minutos },
+    {
+      label: "Entrega del lote",
+      value: orden?.fecha_entrega_programada
+        ? formatFecha(orden.fecha_entrega_programada)
+        : null,
+    },
     { label: "Creada por", value: orden?.nombre_creador },
     { label: "Emision", value: orden ? formatFechaHora(orden.fecha_emision) : null },
   ];
@@ -28,22 +48,6 @@ export function OrdenInfoPanel({ orden, detalle = [] }) {
             <span className="truncate text-right font-medium text-gray-800">{row.value || GUION}</span>
           </div>
         ))}
-      </div>
-
-      <div className="mt-4 border-t border-gray-50 pt-4">
-        <p className="mb-2 text-xs text-gray-400">Prendas de la orden (detalle_orden_produccion)</p>
-        {detalle.length === 0 ? (
-          <p className="text-xs text-gray-400">Sin prendas registradas</p>
-        ) : (
-          <ul className="space-y-1.5">
-            {detalle.map((linea) => (
-              <li key={linea.id_detalle_orden ?? linea.id_prenda} className="flex justify-between text-xs">
-                <span className="truncate text-gray-600">{linea.prenda?.sku || linea.id_prenda}</span>
-                <span className="font-medium text-gray-800">{linea.cantidad_programada}</span>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
     </div>
   );

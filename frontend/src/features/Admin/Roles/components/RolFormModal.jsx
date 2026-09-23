@@ -1,7 +1,8 @@
-import { Check, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { FormField } from "@/shared/components/FormField";
 import { Modal } from "@/shared/components/Modal";
+import { ModalAcciones } from "@/shared/components/ModalAcciones";
 import { RolPermisosSelector } from "./RolPermisosSelector";
 import { rolEstados } from "../validations/rolValidation";
 
@@ -42,19 +43,14 @@ export function RolFormModal({
       onClose={onClose}
       maxWidth="max-w-3xl"
       footer={
-        <>
-          <Button variant="outline" className="flex-1" onClick={onClose} disabled={guardando}>
-            Cancelar
-          </Button>
-          <Button
-            className="flex-1 bg-[#433A9B] text-white hover:bg-[#433A9B]/90"
-            onClick={onSave}
-            disabled={guardando || cargandoPermisos}
-          >
-            <Check className="mr-2 h-4 w-4" />
-            {guardando ? "Guardando..." : editing ? "Guardar cambios" : "Crear rol"}
-          </Button>
-        </>
+        <ModalAcciones
+          editing={editing}
+          guardando={guardando}
+          entidad="rol"
+          deshabilitarGuardar={cargandoPermisos}
+          onClose={onClose}
+          onSave={onSave}
+        />
       }
     >
       <div className="space-y-5">
@@ -62,7 +58,7 @@ export function RolFormModal({
           <div className="sm:col-span-2">
             <FormField
               label="Nombre del rol"
-              placeholder="Supervisor de planta"
+              placeholder="Digitadora de planta"
               required
               autoFocus
               value={form.nombre ?? ""}

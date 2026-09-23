@@ -2,7 +2,7 @@ import { reglas } from "@/shared/validations";
 
 /**
  * Reglas del formulario de operario -> tabla `operarios`.
- * Es el personal de planta: operarias, supervisoras y mecanicos.
+ * Es el personal de planta: operarias y mecanicos.
  */
 export const operarioLimites = {
   codigo: { min: 2, max: 20 },
@@ -14,7 +14,7 @@ export const operarioLimites = {
 };
 
 export const operarioTiposDocumento = ["CC", "CE", "TI", "PASAPORTE", "OTRO"];
-export const operarioCargos = ["OPERARIO", "SUPERVISOR", "MECANICO", "OTRO"];
+export const operarioCargos = ["OPERARIO", "MECANICO", "OTRO"];
 export const operarioEstados = ["ACTIVO", "INACTIVO", "RETIRADO"];
 
 /** El pasaporte admite letras; los demas documentos del pais no. */

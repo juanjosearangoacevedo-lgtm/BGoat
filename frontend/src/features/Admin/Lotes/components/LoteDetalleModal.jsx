@@ -2,9 +2,30 @@ import { Package2 } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { DetailModal } from "@/shared/components/DetailModal";
 import { formatFecha, formatNumero, porcentaje } from "@/shared/utils/formatters";
+import { DesgloseTallaColor } from "./DesgloseTallaColor";
+import { FichaTecnicaLote } from "./FichaTecnicaLote";
 
-/** Detalle de un registro de la tabla `lotes`. */
-export function LoteDetalleModal({ lote, nombreMarca, onClose, onEditar }) {
+/**
+ * Detalle de un registro de la tabla `lotes`.
+ *
+ * Es tambien donde se sube la ficha tecnica: el detalle es el sitio al que
+ * se llega cuando alguien trae el papel y hay que adjuntarlo, sin tener
+ * que abrir el formulario completo de edicion.
+ */
+export function LoteDetalleModal({
+  lote,
+  nombreCliente,
+  subiendoFicha = false,
+  desglose = [],
+  guardandoDesglose = false,
+  tallaOptions = [],
+  colorOptions = [],
+  onSubirFicha,
+  onQuitarFicha,
+  onGuardarDesglose,
+  onClose,
+  onEditar,
+}) {
   const avance = lote ? porcentaje(lote.cantidad_recibida, lote.cantidad_programada) : 0;
 
   const secciones = lote
@@ -13,9 +34,69 @@ export function LoteDetalleModal({ lote, nombreMarca, onClose, onEditar }) {
           titulo: "Origen del lote",
           filas: [
             { label: "Codigo del lote", value: lote.codigo_lote },
-            { label: "Marca", value: lote.nombre_marca || nombreMarca?.(lote.id_marca) },
-            { label: "Pedido", value: lote.numero_pedido },
+            { label: "Numero de pedido", value: lote.numero_pedido },
+            { label: "Cliente", value: lote.nombre_cliente || nombreCliente?.(lote.id_cliente) },
+            { label: "Fecha del pedido", value: formatFecha(lote.fecha_pedido) },
+          ],
+        },
+        {
+          titulo: "Que se confecciona",
+          filas: [
             { label: "Referencia", value: lote.codigo_referencia },
+            { label: "Nombre de la referencia", value: lote.nombre_referencia },
+            { label: "Tipo de prenda", value: lote.nombre_tipo_prenda },
+            { label: "Material principal", value: lote.material_principal },
+          ],
+        },
+        {
+          titulo: "Acuerdo con el cliente",
+          filas: [
+            {
+              label: "SAM pactado",
+              value: Number(lote.sam_pactado)
+                ? `${lote.sam_pactado} minutos por prenda`
+                : "Sin SAM: no se puede iniciar la jornada",
+            },
+            { label: "Entrega programada", value: formatFecha(lote.fecha_entrega_programada) },
+            { label: "Entrega real", value: formatFecha(lote.fecha_entrega_real) },
+          ],
+        },
+        {
+          titulo: "Ficha tecnica",
+          filas: [
+            {
+              label: "",
+              ancho: "completo",
+              value: (
+                <FichaTecnicaLote
+                  lote={lote}
+                  compacto
+                  subiendo={subiendoFicha}
+                  onSubir={onSubirFicha}
+                  onQuitar={onQuitarFicha}
+                />
+              ),
+            },
+          ],
+        },
+        {
+          titulo: "Desglose por talla y color",
+          filas: [
+            {
+              label: "",
+              ancho: "completo",
+              value: (
+                <DesgloseTallaColor
+                  lote={lote}
+                  desglose={desglose}
+                  tallaOptions={tallaOptions}
+                  colorOptions={colorOptions}
+                  guardando={guardandoDesglose}
+                  cantidadProgramada={lote.cantidad_programada}
+                  onGuardar={onGuardarDesglose}
+                />
+              ),
+            },
           ],
         },
         {
@@ -30,7 +111,7 @@ export function LoteDetalleModal({ lote, nombreMarca, onClose, onEditar }) {
                 <div className="mt-1 flex items-center gap-3">
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
                     <div
-                      className="h-full rounded-full bg-[#433A9B] transition-all"
+                      className="h-full rounded-full bg-[#0F4C3F] transition-all"
                       style={{ width: `${avance}%` }}
                     />
                   </div>
@@ -67,7 +148,7 @@ export function LoteDetalleModal({ lote, nombreMarca, onClose, onEditar }) {
             Cerrar
           </Button>
           <Button
-            className="flex-1 bg-[#433A9B] text-white hover:bg-[#433A9B]/90"
+            className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
             onClick={() => onEditar?.(lote)}
           >
             Editar lote

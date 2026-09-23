@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 /**
  * Modo de visualizacion de un listado (tarjetas / lista / tabla).
  *
- * Se recuerda por modulo en localStorage: si la supervisora prefiere la tabla
+ * Se recuerda por modulo en localStorage: si la digitadora prefiere la tabla
  * en Clientes, la encuentra asi la proxima vez que entre.
  */
 export const MODOS = { TARJETAS: "tarjetas", LISTA: "lista", TABLA: "tabla" };

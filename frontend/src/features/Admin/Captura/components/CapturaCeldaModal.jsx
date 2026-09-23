@@ -3,12 +3,12 @@ import { Button } from "@/shared/components/button";
 import { formatMoneda } from "@/shared/utils/formatters";
 import { validarCaptura } from "../validations/capturaValidation";
 
-/** Contador grande: la supervisora captura de pie, sin teclado. */
-function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "morado" }) {
+/** Contador grande: la digitadora captura de pie, sin teclado. */
+function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca" }) {
   const numero = Number(valor || 0);
   const colores = {
-    morado: "text-[#433A9B]",
-    naranja: "text-[#F39A3D]",
+    marca: "text-[#0F4C3F]",
+    naranja: "text-[#D08E10]",
     rojo: "text-red-500",
   };
 
@@ -21,7 +21,7 @@ function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "morad
         <button
           type="button"
           onClick={() => onCambiar(Math.max(numero - paso, min))}
-          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#433A9B] hover:text-[#433A9B] active:scale-95"
+          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] active:scale-95"
           aria-label={`Restar ${etiqueta}`}
         >
           <Minus className="h-5 w-5" />
@@ -39,7 +39,7 @@ function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "morad
         <button
           type="button"
           onClick={() => onCambiar(numero + paso)}
-          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#433A9B] hover:text-[#433A9B] active:scale-95"
+          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] active:scale-95"
           aria-label={`Sumar ${etiqueta}`}
         >
           <Plus className="h-5 w-5" />
@@ -86,7 +86,7 @@ function MinutosPerdidos({ causas, valores, minutosFranja, total, excede, onCamb
                 type="button"
                 onClick={() => onCambiar(causa.id_causa, minutos - 5)}
                 disabled={minutos === 0}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 disabled:opacity-30 hover:border-[#433A9B] hover:text-[#433A9B]"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 disabled:opacity-30 hover:border-[#0F4C3F] hover:text-[#0F4C3F]"
                 aria-label={`Restar minutos de ${causa.nombre}`}
               >
                 <Minus className="h-3.5 w-3.5" />
@@ -100,14 +100,14 @@ function MinutosPerdidos({ causas, valores, minutosFranja, total, excede, onCamb
                 onChange={(evento) => onCambiar(causa.id_causa, evento.target.value)}
                 className={`h-8 w-14 rounded-lg border text-center text-sm outline-none ${
                   minutos > 0
-                    ? "border-[#F39A3D]/50 bg-[#F39A3D]/10 font-semibold text-[#b46a12]"
+                    ? "border-[#D08E10]/50 bg-[#D08E10]/10 font-semibold text-[#b46a12]"
                     : "border-gray-200 bg-white text-gray-400"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => onCambiar(causa.id_causa, minutos + 5)}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-[#433A9B] hover:text-[#433A9B]"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-[#0F4C3F] hover:text-[#0F4C3F]"
                 aria-label={`Sumar minutos de ${causa.nombre}`}
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -123,7 +123,7 @@ function MinutosPerdidos({ causas, valores, minutosFranja, total, excede, onCamb
 /**
  * Formulario de una celda de la rejilla.
  *
- * La supervisora toca unidades, personas, defectuosas y —si la franja
+ * La digitadora toca unidades, personas, defectuosas y —si la franja
  * quedo bajo el umbral— la causa. La meta, los pesos y el SAM real los
  * calcula el sistema con los minutos REALES de la franja, que no siempre
  * son 60.
@@ -165,13 +165,19 @@ export function CapturaCeldaModal({
             <h2 className="text-lg font-bold text-gray-900">
               {modulo.codigo} · {franja.etiqueta}
             </h2>
+            {/* Lo que la digitadora declaro al abrir la jornada. El precio
+                sale de la orden, que puede no existir todavia: sin ella hay
+                meta (el SAM viene del lote) pero no facturacion. */}
             <p className="mt-0.5 text-xs text-gray-500">
-              {modulo.orden
-                ? `${modulo.orden.numero_orden} · Ref. ${modulo.orden.codigo_referencia} · ` +
-                  `SAM ${calculo?.sam ?? "—"} min · ${formatMoneda(calculo?.precio ?? 0)}/und`
-                : "Sin orden asignada a este modulo"}
+              {modulo.jornada
+                ? `${modulo.jornada.nombre_cliente} · ${modulo.jornada.codigo_lote} · ` +
+                  `SAM ${calculo?.sam ?? "—"} min` +
+                  (calculo?.precio
+                    ? ` · ${formatMoneda(calculo.precio)}/und`
+                    : " · sin orden, no se factura")
+                : "Este modulo no tiene jornada configurada"}
             </p>
-            <p className="mt-0.5 text-xs font-medium text-[#433A9B]">
+            <p className="mt-0.5 text-xs font-medium text-[#0F4C3F]">
               Franja de {franja.minutos} minutos
               {franja.minutos !== 60 && (
                 <span className="ml-1 font-normal text-gray-400">
@@ -192,15 +198,15 @@ export function CapturaCeldaModal({
 
         <div className="flex-1 space-y-4 overflow-y-auto p-5">
           {/* Meta calculada por el sistema */}
-          <div className="grid grid-cols-3 gap-3 rounded-2xl bg-[#433A9B]/5 p-4 text-center">
+          <div className="grid grid-cols-3 gap-3 rounded-2xl bg-[#0F4C3F]/5 p-4 text-center">
             <div>
-              <p className="text-xs text-[#433A9B]/70">Meta</p>
-              <p className="text-2xl font-bold text-[#433A9B]">
+              <p className="text-xs text-[#0F4C3F]/70">Meta</p>
+              <p className="text-2xl font-bold text-[#0F4C3F]">
                 {Math.round(calculo?.meta ?? 0)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#433A9B]/70">Eficiencia</p>
+              <p className="text-xs text-[#0F4C3F]/70">Eficiencia</p>
               <p
                 className={`text-2xl font-bold ${
                   calculo?.bajoUmbral ? "text-[#b46a12]" : "text-green-600"
@@ -210,7 +216,7 @@ export function CapturaCeldaModal({
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#433A9B]/70">SAM real</p>
+              <p className="text-xs text-[#0F4C3F]/70">SAM real</p>
               <p className="text-2xl font-bold text-gray-700">{calculo?.samObservado ?? "—"}</p>
             </div>
           </div>
@@ -270,9 +276,9 @@ export function CapturaCeldaModal({
 
           {/* La causa principal se pide solo cuando la eficiencia cae */}
           {(calculo?.bajoUmbral || valores.id_causa) && (
-            <div className="rounded-2xl border border-[#F39A3D]/30 bg-[#F39A3D]/5 p-4">
+            <div className="rounded-2xl border border-[#D08E10]/30 bg-[#D08E10]/5 p-4">
               <div className="mb-3 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 flex-shrink-0 text-[#F39A3D]" />
+                <AlertTriangle className="h-4 w-4 flex-shrink-0 text-[#D08E10]" />
                 <p className="text-sm font-medium text-[#b46a12]">
                   {calculo?.bajoUmbral
                     ? `Por debajo del umbral (${calculo.umbral}%): indica que paso`
@@ -290,8 +296,8 @@ export function CapturaCeldaModal({
                       onClick={() => onCambiar("id_causa", activa ? "" : causa.id_causa)}
                       className={`rounded-xl border px-3 py-2 text-sm transition-all ${
                         activa
-                          ? "border-[#433A9B] bg-[#433A9B] text-white"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-[#433A9B]/50"
+                          ? "border-[#0F4C3F] bg-[#0F4C3F] text-white"
+                          : "border-gray-200 bg-white text-gray-600 hover:border-[#D08E10]/50"
                       }`}
                     >
                       {causa.nombre}
@@ -305,7 +311,7 @@ export function CapturaCeldaModal({
                   value={valores.nota || ""}
                   onChange={(evento) => onCambiar("nota", evento.target.value)}
                   placeholder="Explica brevemente que paso"
-                  className="mt-3 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-[#433A9B]"
+                  className="mt-3 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-[#0F4C3F]"
                 />
               )}
             </div>
@@ -324,7 +330,7 @@ export function CapturaCeldaModal({
             Cancelar
           </Button>
           <Button
-            className="h-12 flex-1 bg-[#433A9B] text-white hover:bg-[#433A9B]/90"
+            className="h-12 flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
             disabled={guardando || !validacion.valido}
             onClick={onGuardar}
           >

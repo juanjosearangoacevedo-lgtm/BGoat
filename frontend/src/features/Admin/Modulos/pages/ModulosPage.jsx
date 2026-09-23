@@ -10,7 +10,7 @@ import { RowActions, accionesEstandar } from "@/shared/components/RowActions";
 import { TablePagination } from "@/shared/components/TablePagination";
 import { ViewToggle } from "@/shared/components/ViewToggle";
 import { MODOS, useViewMode } from "@/shared/hooks/useViewMode";
-import { formatNumero } from "@/shared/utils/formatters";
+import { formatMoneda, formatNumero } from "@/shared/utils/formatters";
 import { ModuloCard } from "../components/ModuloCard";
 import { ModuloDetallePanel } from "../components/ModuloDetallePanel";
 import { ModuloFormModal } from "../components/ModuloFormModal";
@@ -57,7 +57,7 @@ export function ModulosPage() {
         Limpiar busqueda y filtros
       </Button>
     ) : (
-      <Button onClick={modulos.openCreate} className="bg-[#433A9B] text-white hover:bg-[#433A9B]/90">
+      <Button onClick={modulos.openCreate} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
         <Plus className="mr-2 h-4 w-4" />
         Nuevo modulo
       </Button>
@@ -82,7 +82,7 @@ export function ModulosPage() {
       <PageHeader title="Modulos y Empleados" subtitle="Tablero de control de la planta de produccion">
         <Button
           onClick={modulos.openCreate}
-          className="h-10 gap-2 rounded-xl bg-[#433A9B] px-5 text-white hover:bg-[#433A9B]/90"
+          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
         >
           <Plus className="h-4 w-4" />
           Nuevo modulo
@@ -141,7 +141,7 @@ export function ModulosPage() {
           footer={paginacion}
           onClick={modulos.setSelected}
           avatar={() => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#433A9B]/10 text-[#433A9B]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F4C3F]/10 text-[#0F4C3F]">
               <Factory className="h-4 w-4" />
             </div>
           )}
@@ -154,8 +154,14 @@ export function ModulosPage() {
                 modulo.capacidad_operarios || 0,
               )}`,
             },
-            { label: "Producido hoy", value: formatNumero(modulo.unidades_producidas) },
+            {
+              label: "Producido / meta",
+              value: `${formatNumero(modulo.unidades_producidas)} / ${formatNumero(
+                Math.round(Number(modulo.meta_dia || 0)),
+              )}`,
+            },
             { label: "Eficiencia", value: `${Math.round(Number(modulo.eficiencia || 0))}%` },
+            { label: "Facturacion", value: formatMoneda(modulo.facturacion_real) },
           ]}
           estado={(modulo) => modulo.estado}
           acciones={(modulo) => <RowActions acciones={accionesEstandar({ fila: modulo, ...manejadores })} />}
@@ -209,7 +215,11 @@ export function ModulosPage() {
         onSave={handleSave}
       />
 
-      <ModuloDetallePanel modulo={modulos.selected} onClose={() => modulos.setSelected(null)} />
+      <ModuloDetallePanel
+        modulo={modulos.selected}
+        jornada={modulos.jornadaSeleccionada}
+        onClose={() => modulos.setSelected(null)}
+      />
 
       <ConfirmDialog
         open={Boolean(objetivoEstado)}

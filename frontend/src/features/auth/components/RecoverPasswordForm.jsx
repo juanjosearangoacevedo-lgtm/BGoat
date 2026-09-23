@@ -6,6 +6,7 @@ import { Label } from "@/shared/components/label";
 export function RecoverPasswordForm({
   email,
   error,
+  enviando = false,
   onEmailChange,
   onNavigate,
   onSubmit,
@@ -36,14 +37,18 @@ export function RecoverPasswordForm({
           {error && <p className="text-xs text-red-500">{error}</p>}
         </div>
 
-        <Button type="submit" className="w-full h-12 bg-[#433A9B] hover:bg-[#433A9B]/90 text-white">
-          Enviar instrucciones
+        <Button
+          type="submit"
+          disabled={enviando}
+          className="w-full h-12 bg-[#D08E10] hover:bg-[#B67F14] text-white"
+        >
+          {enviando ? "Enviando..." : "Enviar instrucciones"}
         </Button>
 
         <button
           type="button"
           onClick={() => onNavigate("login")}
-          className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-[#433A9B] transition-colors"
+          className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-[#0F4C3F] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Volver al inicio de sesion

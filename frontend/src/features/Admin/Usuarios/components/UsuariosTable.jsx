@@ -16,7 +16,7 @@ export function columnasUsuarios({ roleName, onDetalle, onEdit, onToggleEstado, 
       sortValue: (usuario) => nombreCompleto(usuario),
       render: (usuario) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#433A9B] to-[#F39A3D] text-xs font-bold text-white">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F4C3F] to-[#0F4C3F] text-xs font-bold text-white">
             {iniciales(nombreCompleto(usuario))}
           </div>
           <div className="min-w-0">

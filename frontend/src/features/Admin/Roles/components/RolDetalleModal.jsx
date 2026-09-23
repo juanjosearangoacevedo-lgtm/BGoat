@@ -36,7 +36,7 @@ function PermisosPorModulo({ permisos = [] }) {
           {acciones.map((accion) => (
             <span
               key={accion}
-              className="rounded-full bg-[#433A9B]/10 px-2 py-0.5 text-xs font-medium text-[#433A9B]"
+              className="rounded-full bg-[#0F4C3F]/10 px-2 py-0.5 text-xs font-medium text-[#0F4C3F]"
             >
               {accion}
             </span>
@@ -88,7 +88,7 @@ export function RolDetalleModal({ rol, permisos = [], onClose, onEditar }) {
             Cerrar
           </Button>
           <Button
-            className="flex-1 bg-[#433A9B] text-white hover:bg-[#433A9B]/90"
+            className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
             onClick={() => onEditar?.(rol)}
           >
             Editar rol y permisos

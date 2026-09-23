@@ -6,7 +6,7 @@ import { Button } from "./button";
  * Confirmacion de una accion sensible.
  *
  * `tono` cambia el icono y el color del boton para que borrar no se vea igual
- * que activar: la supervisora distingue de un vistazo que va a pasar.
+ * que activar: la digitadora distingue de un vistazo que va a pasar.
  */
 const tonos = {
   peligro: {
@@ -29,9 +29,9 @@ const tonos = {
   },
   info: {
     icono: AlertTriangle,
-    circulo: "bg-[#433A9B]/10",
-    color: "text-[#433A9B]",
-    boton: "bg-[#433A9B] text-white hover:bg-[#433A9B]/90",
+    circulo: "bg-[#0F4C3F]/10",
+    color: "text-[#0F4C3F]",
+    boton: "bg-[#D08E10] text-white hover:bg-[#B67F14]",
   },
 };
 

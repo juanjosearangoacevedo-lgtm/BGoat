@@ -4,11 +4,11 @@ import { apiClient, withQuery } from "@/shared/services/apiClient";
 /**
  * Carga un catalogo del backend una sola vez y lo deja listo para un select.
  *
- *   const marcas = useCatalogo(endpoints.marcas, {
- *     valor: "id_marca",
+ *   const clientes = useCatalogo(endpoints.clientes, {
+ *     valor: "id_cliente",
  *     etiqueta: (fila) => fila.nombre,
  *   });
- *   -> marcas.options = [{ value, label }]
+ *   -> clientes.options = [{ value, label }]
  */
 export function useCatalogo(recurso, { valor, etiqueta, filtros = {} } = {}) {
   const [datos, setDatos] = useState([]);

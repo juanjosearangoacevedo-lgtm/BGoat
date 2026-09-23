@@ -48,7 +48,7 @@ export function OrdenesPage({ onNavigate }) {
     ) : (
       <Button
         onClick={() => onNavigate?.("create-order")}
-        className="bg-[#433A9B] text-white hover:bg-[#433A9B]/90"
+        className="bg-[#D08E10] text-white hover:bg-[#B67F14]"
       >
         <Plus className="mr-2 h-4 w-4" />
         Nueva orden
@@ -73,11 +73,11 @@ export function OrdenesPage({ onNavigate }) {
     <div className="p-4 md:p-8">
       <PageHeader
         title="Ordenes de Produccion"
-        subtitle="Asignacion de lotes a modulos y avance real de cada una"
+        subtitle="Lo que hay comprometido, quien lo tomo y como va"
       >
         <Button
           onClick={() => onNavigate?.("create-order")}
-          className="h-10 gap-2 rounded-xl bg-[#433A9B] px-5 text-white hover:bg-[#433A9B]/90"
+          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
         >
           <Plus className="h-4 w-4" />
           Nueva orden
@@ -94,7 +94,7 @@ export function OrdenesPage({ onNavigate }) {
         columns={4}
         items={[
           { label: "Total ordenes", value: ordenes.resumen.total },
-          { label: "En proceso", value: ordenes.resumen.enProceso, color: "#F39A3D" },
+          { label: "En proceso", value: ordenes.resumen.enProceso, color: "#D08E10" },
           { label: "Pendientes", value: ordenes.resumen.pendientes, color: "#eab308" },
           { label: "Finalizadas", value: ordenes.resumen.finalizadas, color: "#10b981" },
         ]}
@@ -146,7 +146,7 @@ export function OrdenesPage({ onNavigate }) {
           footer={paginacion}
           onClick={(orden) => onNavigate?.("order-detail", orden)}
           avatar={() => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#433A9B] to-[#5a4fb8] text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F4C3F] to-[#0F4C3F] text-white">
               <Package className="h-4 w-4" />
             </div>
           )}

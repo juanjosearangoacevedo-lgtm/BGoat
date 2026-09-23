@@ -64,7 +64,7 @@ export function ExportMenu({
             onClick={() => exportar(filtrados, "resultados en pantalla")}
             className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50"
           >
-            <FileSpreadsheet className="h-4 w-4 text-[#433A9B]" />
+            <FileSpreadsheet className="h-4 w-4 text-[#0F4C3F]" />
             <span className="flex-1">
               {hayFiltro ? "Resultados filtrados" : "Registros del listado"}
               <span className="block text-xs text-gray-400">{filtrados.length} filas · CSV</span>

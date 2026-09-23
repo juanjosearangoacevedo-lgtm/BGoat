@@ -1,13 +1,15 @@
 import { reglas, validarFormulario } from "@/shared/validations";
 
 /**
- * Reglas del formulario de orden de produccion.
+ * Reglas del formulario de orden de produccion -> tabla `ordenes_produccion`.
  *
- * `form`    -> tabla `ordenes_produccion`
- * `detalle` -> tabla `detalle_orden_produccion` (una fila por prenda)
+ * La orden es lo que aterriza un lote en un modulo: cuanto hay que sacar,
+ * para cuando y a que valor de maquila.
  *
- * La orden es lo que aterriza un lote en un modulo, asi que lote, modulo y
- * ficha son obligatorios: sin ficha no hay SAM y sin SAM no hay meta horaria.
+ * Ya no lleva ficha tecnica ni pedido: la ficha vive dentro del lote (con
+ * su SAM y su imagen) y el pedido dejo de existir. Tampoco lleva detalle
+ * por prenda, porque la produccion se mide por lote y no por talla y
+ * color, que es como se mide en planta.
  */
 export const ordenLimites = {
   numero: { min: 3, max: 30 },
@@ -19,30 +21,16 @@ export const ordenLimites = {
 export const ordenEstados = ["PENDIENTE", "EN_PROCESO", "PAUSADA", "FINALIZADA", "CANCELADA"];
 export const ordenPrioridades = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
 
-export function crearOrdenEsquema({
-  loteOptions = [],
-  moduloOptions = [],
-  fichaOptions = [],
-  pedidoOptions = [],
-} = {}) {
+export function crearOrdenEsquema({ loteOptions = [] } = {}) {
   return {
     numero_orden: [
       reglas.requerido("El numero de orden"),
       reglas.longitud({ ...ordenLimites.numero, etiqueta: "El numero de orden" }),
       reglas.sinCaracteresEspeciales("El numero de orden"),
     ],
-    id_pedido: [reglas.opcionValida(pedidoOptions, "El pedido seleccionado")],
     id_lote: [
       reglas.seleccionRequerida("El lote"),
       reglas.opcionValida(loteOptions, "El lote seleccionado"),
-    ],
-    id_modulo: [
-      reglas.seleccionRequerida("El modulo"),
-      reglas.opcionValida(moduloOptions, "El modulo seleccionado"),
-    ],
-    id_ficha_tecnica: [
-      reglas.seleccionRequerida("La ficha tecnica"),
-      reglas.opcionValida(fichaOptions, "La ficha tecnica seleccionada"),
     ],
     cantidad_programada: [
       reglas.requerido("La cantidad programada"),
@@ -72,37 +60,7 @@ export function crearOrdenEsquema({
   };
 }
 
-/**
- * Reglas del detalle por prenda.
- *
- * No se exige detalle: una orden puede crearse y repartirse despues. Pero si
- * hay lineas, cada una necesita prenda y cantidad, y la suma no puede pasarse
- * de la cantidad programada de la orden.
- */
-export function validarDetalle(detalle = [], cantidadProgramada = 0) {
-  const lineas = detalle.filter((linea) => linea.id_prenda || linea.cantidad_programada);
-  if (lineas.length === 0) return "";
-
-  const sinPrenda = lineas.some((linea) => !linea.id_prenda);
-  if (sinPrenda) return "Hay lineas de detalle sin prenda seleccionada";
-
-  const sinCantidad = lineas.some((linea) => Number(linea.cantidad_programada || 0) <= 0);
-  if (sinCantidad) return "Cada prenda del detalle necesita una cantidad mayor que cero";
-
-  const total = lineas.reduce((suma, linea) => suma + Number(linea.cantidad_programada || 0), 0);
-  const programada = Number(cantidadProgramada || 0);
-
-  if (programada > 0 && total > programada) {
-    return `El detalle suma ${total} unidades y la orden programa ${programada}`;
-  }
-
-  return "";
-}
-
-/** Valida la orden completa: cabecera y detalle en una sola pasada. */
-export function validarOrden({ form, detalle, catalogos }) {
-  const errores = validarFormulario(form, crearOrdenEsquema(catalogos));
-  const errorDetalle = validarDetalle(detalle, form?.cantidad_programada);
-
-  return { errores, errorDetalle };
+/** Valida la orden. */
+export function validarOrden({ form, catalogos }) {
+  return { errores: validarFormulario(form, crearOrdenEsquema(catalogos)) };
 }

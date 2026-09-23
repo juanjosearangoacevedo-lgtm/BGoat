@@ -5,13 +5,13 @@ import { StatusBadge } from "@/shared/components/StatusBadge";
 import { GUION } from "@/shared/utils/formatters";
 import { OrdenCurva } from "../components/OrdenCurva";
 import { OrdenInfoPanel } from "../components/OrdenInfoPanel";
-import { OrdenMateriales } from "../components/OrdenMateriales";
+import { OrdenJornadas } from "../components/OrdenJornadas";
 import { OrdenProgresoHero } from "../components/OrdenProgresoHero";
 import { OrdenRegistros } from "../components/OrdenRegistros";
 import { useOrdenDetalle } from "../hooks/useOrdenDetalle";
 
 export function OrdenDetallePage({ orderId, onNavigate }) {
-  const { orden, detalle, materiales, registros, curva, loading, error, progress } =
+  const { orden, registros, jornadas, curva, loading, error, progress } =
     useOrdenDetalle(orderId);
 
   return (
@@ -19,7 +19,7 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
       <div className="flex flex-wrap items-start gap-4">
         <button
           onClick={() => onNavigate?.("orders")}
-          className="mt-1 flex items-center gap-2 text-gray-500 transition-colors hover:text-[#433A9B]"
+          className="mt-1 flex items-center gap-2 text-gray-500 transition-colors hover:text-[#0F4C3F]"
           type="button"
           aria-label="Volver a ordenes"
         >
@@ -33,7 +33,7 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
           </div>
           <p className="mt-1 text-gray-600">
             {orden
-              ? `${orden.nombre_referencia || GUION} · ${orden.nombre_cliente || orden.nombre_marca || GUION}`
+              ? `${orden.nombre_referencia || GUION} · ${orden.nombre_cliente || GUION}`
               : "Cargando el detalle de la orden..."}
           </p>
         </div>
@@ -65,20 +65,22 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
               <div className="space-y-6 lg:col-span-2">
                 <OrdenCurva curva={curva} />
                 <OrdenRegistros registros={registros} />
-                <OrdenMateriales materiales={materiales} />
+                <OrdenJornadas jornadas={jornadas} />
               </div>
 
               <div className="space-y-6">
-                <OrdenInfoPanel orden={orden} detalle={detalle} />
+                <OrdenInfoPanel orden={orden} />
 
-                <div className="rounded-2xl border border-[#433A9B]/20 bg-[#433A9B]/5 p-5">
+                <div className="rounded-2xl border border-[#0F4C3F]/20 bg-[#0F4C3F]/5 p-5">
                   <div className="mb-3 flex items-center gap-3">
-                    <Shirt className="h-5 w-5 text-[#433A9B]" />
-                    <h3 className="font-bold text-[#433A9B]">Ficha Tecnica</h3>
+                    <Shirt className="h-5 w-5 text-[#0F4C3F]" />
+                    <h3 className="font-bold text-[#0F4C3F]">Lo que pactamos</h3>
                   </div>
-                  <p className="mb-1 text-sm text-gray-600">{orden.codigo_ficha || GUION}</p>
+                  <p className="mb-1 text-sm text-gray-600">
+                    {orden.nombre_referencia || orden.codigo_referencia || GUION}
+                  </p>
                   <p className="text-xs text-gray-400">
-                    Ref. {orden.codigo_referencia || GUION} · SAM pactado {orden.sam_pactado ?? GUION} min
+                    Lote {orden.codigo_lote || GUION} · SAM pactado {orden.sam_pactado ?? GUION} min
                   </p>
                   {orden.sam_observado && (
                     <p
@@ -96,7 +98,7 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
                   )}
                   <button
                     onClick={() => onNavigate?.("ficha-tecnica")}
-                    className="mt-3 text-xs font-medium text-[#433A9B] hover:underline"
+                    className="mt-3 text-xs font-medium text-[#0F4C3F] hover:underline"
                     type="button"
                   >
                     Ver ficha completa
