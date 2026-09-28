@@ -4,7 +4,6 @@ import '../../core/api_error.dart';
 import '../../core/fechas.dart';
 import '../../domain/entities/jornada_entity.dart';
 import '../../domain/entities/lote_entity.dart';
-import '../../domain/entities/orden_entity.dart';
 import '../../domain/repositories/jornada_repository.dart';
 
 /// El inicio de jornada: el primer paso del dia de la digitadora.
@@ -44,7 +43,7 @@ class JornadaProvider extends ChangeNotifier {
 
   bool get editando => enEdicion != null;
 
-  static const ultimoPaso = 3;
+  static const ultimoPaso = 2;
 
   // --- Lecturas derivadas ----------------------------------------------
 
@@ -64,18 +63,7 @@ class JornadaProvider extends ChangeNotifier {
     return null;
   }
 
-  OrdenEntity? get ordenElegida {
-    final lista = opciones?.ordenes ?? const <OrdenEntity>[];
-    for (final orden in lista) {
-      if (orden.id == idOrden) return orden;
-    }
-    return null;
-  }
-
   List<LoteEntity> get lotesDelCliente => opciones?.lotesDe(idCliente) ?? const [];
-
-  List<OrdenEntity> get ordenesDelLote =>
-      opciones?.ordenesDisponibles(idLote, idModulo) ?? const [];
 
   List<ModuloDelDiaEntity> get modulosAbiertos =>
       (opciones?.modulos ?? const <ModuloDelDiaEntity>[])
@@ -105,10 +93,6 @@ class JornadaProvider extends ChangeNotifier {
       case 1:
         return idLote != null && (loteElegido?.tieneSam ?? false);
       case 2:
-        // La orden es opcional: la jornada arranca sin ella y la facturacion
-        // queda en cero hasta que alguien la cree.
-        return true;
-      case 3:
         return cantidadOperarias >= 1;
       default:
         return false;
@@ -194,16 +178,15 @@ class JornadaProvider extends ChangeNotifier {
 
   void elegirLote(int? id) {
     idLote = id;
+    // La orden ya no se pregunta en el asistente: el backend le asigna la
+    // primera libre del lote sola al guardar (`resolverOrden`).
     idOrden = null;
-
-    // Con una sola orden disponible no tiene sentido preguntarlo: se escoge
-    // sola, igual que hace el backend cuando no se manda ninguna.
-    final disponibles = ordenesDelLote;
-    if (disponibles.length == 1) idOrden = disponibles.first.id;
-
     notifyListeners();
   }
 
+  /// Limpia la orden que el backend iba a asignar. Se usa cuando `guardar()`
+  /// devuelve 409 porque otro modulo se la llevo primero: al reintentar, el
+  /// backend resuelve una nueva libre (o ninguna) por su cuenta.
   void elegirOrden(int? id) {
     idOrden = id;
     notifyListeners();

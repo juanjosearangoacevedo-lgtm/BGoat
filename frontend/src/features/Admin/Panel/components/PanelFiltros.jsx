@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/select";
-import { periodOptions } from "../hooks/usePanelReportes";
+import { periodOptions } from "../hooks/usePanelIndicadoresReportes";
 
 function FilterSelect({ label, value, onChange, options = [], allLabel }) {
   return (
@@ -44,7 +44,7 @@ export function PanelFiltros({
   const esPersonalizado = filters.period === "personalizado";
 
   return (
-    <Card className="p-6">
+    <Card className="border-emerald-200 p-6">
       <div className="flex items-start gap-4">
         <Filter className="mt-8 h-5 w-5 flex-shrink-0 text-gray-500" />
         <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">

@@ -62,9 +62,9 @@ const SELECT_JORNADA_MODULO = `
   SELECT jm.id_jornada_modulo, jm.id_modulo, jm.fecha, jm.id_lote, jm.estado,
          jm.id_orden_produccion, jm.cantidad_operarias,
          l.codigo_lote, l.codigo_referencia, l.nombre_referencia,
-         l.sam_pactado, l.ruta_imagen, l.ruta_documento_pdf,
+         l.sam_pactado, l.valor_maquila_unidad, l.ruta_imagen, l.ruta_documento_pdf,
          c.id_cliente, c.nombre AS nombre_cliente,
-         o.numero_orden, o.valor_maquila_unidad
+         o.numero_orden
   FROM jornada_modulo jm
   JOIN lotes l ON l.id_lote = jm.id_lote
   JOIN clientes c ON c.id_cliente = l.id_cliente
@@ -403,7 +403,7 @@ capturaRouter.put(
 
     const perdidas = normalizarPerdidas(minutos_perdidos, franja.minutos);
 
-    // El SAM sale del lote y la tarifa de la orden: no se digitan.
+    // El SAM y la tarifa salen los dos del lote: no se digitan.
     const sam = suya.sam_pactado ?? null;
     const precio = suya.valor_maquila_unidad ?? null;
 

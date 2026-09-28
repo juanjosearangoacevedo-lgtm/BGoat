@@ -43,14 +43,17 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
   late final TextEditingController _defectuosas;
   late final TextEditingController _nota;
 
-  int? _idCausa;
-
   /// Los minutos perdidos, abiertos por causa. Es reemplazo y no suma: lo que
   /// quede en esta lista es lo que queda guardado.
   final Map<int, int> _perdidas = {};
 
   /// Se enciende cuando el backend rechaza el guardado por falta de incidencia.
   bool _resaltarIncidencia = false;
+
+  /// Si la digitadora esta corrigiendo las operarias de esta hora. Por
+  /// defecto se usa la de la jornada; solo se pide el numero cuando alguien
+  /// dice explicitamente que cambio.
+  bool _cambioPersonas = false;
 
   @override
   void initState() {
@@ -70,7 +73,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
           : '${celda.unidadesDefectuosas}',
     );
     _nota = TextEditingController(text: celda?.nota ?? '');
-    _idCausa = celda?.idCausa;
+    _cambioPersonas = celda != null && celda.personasPresentes != widget.modulo.personasSugeridas;
 
     for (final linea in celda?.detallePerdidas ?? const <MinutosPerdidosEntity>[]) {
       _perdidas[linea.idCausa] = linea.minutos;
@@ -114,11 +117,10 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
   int get _minutosPerdidos =>
       _perdidas.values.fold(0, (total, minutos) => total + minutos);
 
-  /// La causa que se va a mandar. Si ya explico con minutos donde se fue el
-  /// tiempo, se toma la que mas peso: es lo mismo que hace el backend, y asi
-  /// no se le pregunta dos veces.
+  /// La causa principal: la que mas minutos perdidos tiene. No se pregunta
+  /// aparte -- es lo mismo que calcula el backend al guardar, y pedirla dos
+  /// veces era la misma pregunta con otro nombre.
   int? get _causaEfectiva {
-    if (_idCausa != null) return _idCausa;
     if (_perdidas.isEmpty) return null;
 
     var mayor = _perdidas.entries.first;
@@ -168,7 +170,6 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
       personasPresentes: _personasN,
       unidadesProducidas: _producidasN,
       unidadesDefectuosas: _defectuosasN,
-      idCausa: _idCausa,
       nota: _nota.text.trim().isEmpty ? null : _nota.text.trim(),
       minutosPerdidos: _perdidas.entries
           .map((linea) => MinutosPerdidosEntity(idCausa: linea.key, minutos: linea.value))
@@ -254,8 +255,6 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
                 const SizedBox(height: 14),
                 _previaMeta(),
                 const SizedBox(height: 20),
-                _incidencia(provider.causas),
-                const SizedBox(height: 18),
                 _minutosPerdidosSeccion(provider.causas),
                 if (widget.celda != null) ...[
                   const SizedBox(height: 22),
@@ -329,31 +328,97 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
   }
 
   Widget _numeros() {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _campo(
-            control: _personas,
-            etiqueta: 'Operarias',
-            icono: Icons.groups_outlined,
-          ),
+        _campo(
+          control: _producidas,
+          etiqueta: 'Producidas',
+          icono: Icons.checkroom_outlined,
+          destacado: true,
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _campo(
-            control: _producidas,
-            etiqueta: 'Producidas',
-            icono: Icons.checkroom_outlined,
-            destacado: true,
-          ),
+        const SizedBox(height: 10),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: _personasCampo()),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _campo(
+                control: _defectuosas,
+                etiqueta: 'Defectuosas',
+                icono: Icons.report_outlined,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _campo(
-            control: _defectuosas,
-            etiqueta: 'Defectuosas',
-            icono: Icons.report_outlined,
+      ],
+    );
+  }
+
+  /// Las operarias de la hora. Por defecto muestra la cantidad de la jornada,
+  /// de solo lectura: es lo normal, y no hay que confirmarlo cada hora. Solo
+  /// se pide el numero cuando alguien dice explicitamente que cambio.
+  Widget _personasCampo() {
+    if (!_cambioPersonas) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 9),
+        decoration: BoxDecoration(
+          color: Paleta.fondo,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Paleta.borde),
+        ),
+        child: Column(
+          children: [
+            const Text(
+              'OPERARIAS',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Paleta.textoSuave,
+                letterSpacing: 0.4,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${widget.modulo.personasSugeridas}',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: Paleta.secundario,
+              ),
+            ),
+            const SizedBox(height: 2),
+            TextButton(
+              onPressed: () => setState(() {
+                _cambioPersonas = true;
+                _personas.text = '${widget.modulo.personasSugeridas}';
+              }),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                visualDensity: VisualDensity.compact,
+              ),
+              child: const Text('¿Cambio esta hora?', style: TextStyle(fontSize: 10.5)),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        _campo(control: _personas, etiqueta: 'Operarias', icono: Icons.groups_outlined),
+        TextButton(
+          onPressed: () => setState(() {
+            _cambioPersonas = false;
+            _personas.text = '${widget.modulo.personasSugeridas}';
+          }),
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: Size.zero,
+            visualDensity: VisualDensity.compact,
           ),
+          child: const Text('No, la de la jornada', style: TextStyle(fontSize: 10.5)),
         ),
       ],
     );
@@ -373,7 +438,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
       style: TextStyle(
         fontSize: destacado ? 26 : 20,
         fontWeight: FontWeight.w800,
-        color: destacado ? Paleta.morado : Paleta.texto,
+        color: destacado ? Paleta.primario : Paleta.texto,
       ),
       decoration: InputDecoration(
         labelText: etiqueta,
@@ -464,82 +529,26 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
     );
   }
 
-  Widget _incidencia(List<CausaEntity> causas) {
-    // Si ya explico con minutos donde se fue el tiempo, el backend toma la
-    // causa que mas peso y no vuelve a pedirla. La pantalla hace la misma
-    // cuenta para no exigir dos veces lo mismo.
-    final obligatoria = (_bajoUmbral && _causaEfectiva == null) || _resaltarIncidencia;
-    final causaElegida = _causa(_idCausa);
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        TituloSeccion(
-          obligatoria ? 'Que paso (obligatorio)' : 'Incidencia (opcional)',
-          detalle: obligatoria
-              ? 'Sin esto el sistema no puede decir en que se van los minutos.'
-              : null,
-          accion: _idCausa == null
-              ? null
-              : TextButton(
-                  onPressed: () => setState(() => _idCausa = null),
-                  child: const Text('Quitar'),
-                ),
-        ),
-        Wrap(
-          spacing: 7,
-          runSpacing: 7,
-          children: causas.map((causa) {
-            final activa = _idCausa == causa.id;
-
-            return ChoiceChip(
-              label: Text(causa.nombre),
-              selected: activa,
-              showCheckmark: false,
-              labelStyle: TextStyle(
-                fontSize: 12.5,
-                color: activa ? Colors.white : Paleta.texto,
-                fontWeight: activa ? FontWeight.w600 : FontWeight.normal,
-              ),
-              selectedColor: Paleta.morado,
-              backgroundColor: obligatoria && _idCausa == null
-                  ? Paleta.alerta.withValues(alpha: 0.1)
-                  : Paleta.fondo,
-              onSelected: (_) => setState(() => _idCausa = activa ? null : causa.id),
-            );
-          }).toList(),
-        ),
-        // Algunas incidencias exigen explicacion: el backend rechaza el
-        // guardado sin ella, asi que el campo aparece solo cuando toca.
-        if (causaElegida?.requiereNota ?? false) ...[
-          const SizedBox(height: 12),
-          TextField(
-            controller: _nota,
-            maxLines: 2,
-            decoration: InputDecoration(
-              labelText: 'Explique que paso',
-              helperText: '"${causaElegida!.nombre}" exige una nota',
-              alignLabelWithHint: true,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
   /// Los minutos que el modulo estuvo parado, abiertos por causa.
   ///
   /// Es lo que convierte "el modulo fue lento" en "se perdieron 20 minutos por
-  /// maquina", que es lo unico con lo que se puede hacer algo.
+  /// maquina", que es lo unico con lo que se puede hacer algo. La causa
+  /// principal no se pregunta aparte: sale sola de cual causa tiene mas
+  /// minutos aqui (`_causaEfectiva`), igual que la calcula el backend.
   Widget _minutosPerdidosSeccion(List<CausaEntity> causas) {
+    final obligatoria = (_bajoUmbral && _causaEfectiva == null) || _resaltarIncidencia;
+    final causaPrincipal = _causa(_causaEfectiva);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TituloSeccion(
-          'Minutos perdidos',
+          obligatoria ? 'Que paso (obligatorio)' : 'Minutos perdidos',
           detalle: _minutosPerdidos > 0
               ? '$_minutosPerdidos de ${widget.franja.minutos} minutos de la hora'
-              : 'Opcional. Cuanto tiempo estuvo parado el modulo y por que.',
+              : obligatoria
+                  ? 'Sin esto el sistema no puede decir en que se van los minutos.'
+                  : 'Opcional. Cuanto tiempo estuvo parado el modulo y por que.',
           accion: TextButton.icon(
             onPressed: () => _agregarPerdida(causas),
             icon: const Icon(Icons.add, size: 17),
@@ -547,9 +556,9 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
           ),
         ),
         if (_perdidas.isEmpty)
-          const Text(
+          Text(
             'Sin paradas registradas en esta hora.',
-            style: TextStyle(fontSize: 12, color: Paleta.textoSuave),
+            style: TextStyle(fontSize: 12, color: obligatoria ? Paleta.alerta : Paleta.textoSuave),
           )
         else
           ..._perdidas.entries.map((linea) {
@@ -592,6 +601,20 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
             style: const TextStyle(fontSize: 12, color: Paleta.error),
           ),
         ],
+        // Algunas incidencias exigen explicacion: el backend rechaza el
+        // guardado sin ella, asi que el campo aparece solo cuando toca.
+        if (causaPrincipal?.requiereNota ?? false) ...[
+          const SizedBox(height: 12),
+          TextField(
+            controller: _nota,
+            maxLines: 2,
+            decoration: InputDecoration(
+              labelText: 'Explique que paso',
+              helperText: '"${causaPrincipal!.nombre}" exige una nota',
+              alignLabelWithHint: true,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -601,6 +624,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
 
     var idCausa = causas.first.id;
     final minutos = TextEditingController();
+    var valorMinutos = 0;
 
     final resultado = await showDialog<bool>(
       context: context,
@@ -640,7 +664,13 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
               child: const Text('Cancelar'),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(dialogo, true),
+              // El valor se lee aqui, antes de cerrar el dialogo: leerlo
+              // despues de Navigator.pop corre contra la animacion de salida,
+              // que todavia necesita un cuadro con el controller vivo.
+              onPressed: () {
+                valorMinutos = int.tryParse(minutos.text) ?? 0;
+                Navigator.pop(dialogo, true);
+              },
               child: const Text('Agregar'),
             ),
           ],
@@ -648,13 +678,15 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
       ),
     );
 
-    final valor = int.tryParse(minutos.text) ?? 0;
-    minutos.dispose();
+    // Se destruye en el siguiente cuadro, ya con el dialogo fuera del arbol:
+    // destruirlo de inmediato tumbaba la animacion de cierre con "controller
+    // used after being disposed".
+    WidgetsBinding.instance.addPostFrameCallback((_) => minutos.dispose());
 
-    if (resultado == true && valor > 0) {
+    if (resultado == true && valorMinutos > 0) {
       // Se suma sobre la misma causa en vez de duplicarla: es lo mismo que
       // hace el backend al normalizar.
-      setState(() => _perdidas[idCausa] = (_perdidas[idCausa] ?? 0) + valor);
+      setState(() => _perdidas[idCausa] = (_perdidas[idCausa] ?? 0) + valorMinutos);
     }
   }
 

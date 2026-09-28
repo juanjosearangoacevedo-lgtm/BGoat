@@ -41,13 +41,9 @@ export const emptyLoteForm = {
   nombre_referencia: "",
   id_tipo_prenda: "",
   sam_pactado: "",
-  material_principal: "",
-  fecha_pedido: "",
+  valor_maquila_unidad: "",
   fecha_recepcion: "",
   fecha_entrega_programada: "",
-  fecha_entrega_real: "",
-  fecha_inicio: "",
-  fecha_finalizacion: "",
   cantidad_programada: "",
   cantidad_recibida: "",
   observaciones: "",
@@ -85,6 +81,9 @@ export function useLotesPage() {
   const [subiendoFicha, setSubiendoFicha] = useState(false);
   const [desglose, setDesglose] = useState([]);
   const [guardandoDesglose, setGuardandoDesglose] = useState(false);
+  // Mientras se crea el lote todavia no hay id para subir la ficha: el
+  // archivo se guarda aqui y se sube apenas el guardado devuelve el id.
+  const [archivosPendientes, setArchivosPendientes] = useState({ imagen: null, pdf: null });
 
   const crud = useCrudResource({
     recurso: endpoints.lotes,
@@ -98,6 +97,7 @@ export function useLotesPage() {
       id_cliente: aNumero(datos.id_cliente),
       id_tipo_prenda: aNumero(datos.id_tipo_prenda),
       sam_pactado: aNumero(datos.sam_pactado),
+      valor_maquila_unidad: aNumero(datos.valor_maquila_unidad),
       cantidad_programada: Number(datos.cantidad_programada || 0),
       cantidad_recibida: Number(datos.cantidad_recibida || 0),
     }),
@@ -184,12 +184,8 @@ export function useLotesPage() {
     (lote) => {
       crud.openEdit({
         ...lote,
-        fecha_pedido: aFechaInput(lote.fecha_pedido),
         fecha_recepcion: aFechaInput(lote.fecha_recepcion),
         fecha_entrega_programada: aFechaInput(lote.fecha_entrega_programada),
-        fecha_entrega_real: aFechaInput(lote.fecha_entrega_real),
-        fecha_inicio: aFechaInput(lote.fecha_inicio),
-        fecha_finalizacion: aFechaInput(lote.fecha_finalizacion),
       });
       cargarDesglose(lote.id_lote);
     },
@@ -198,6 +194,7 @@ export function useLotesPage() {
 
   const abrirCrear = useCallback(() => {
     setDesglose([]);
+    setArchivosPendientes({ imagen: null, pdf: null });
     crud.openCreate();
   }, [crud]);
 
@@ -257,6 +254,38 @@ export function useLotesPage() {
     [crud],
   );
 
+  const seleccionarArchivoPendiente = useCallback((tipo, archivo) => {
+    setArchivosPendientes((previo) => ({ ...previo, [tipo]: archivo }));
+  }, []);
+
+  const quitarArchivoPendiente = useCallback((tipo) => {
+    setArchivosPendientes((previo) => ({ ...previo, [tipo]: null }));
+  }, []);
+
+  /**
+   * Crea o guarda el lote y, si se acaba de crear, sube de una vez los
+   * archivos que quedaron pendientes -la revisadora no tiene que volver a
+   * abrir el lote para dejarlo con foto o PDF.
+   */
+  const guardarLote = useCallback(
+    async (extra) => {
+      const creando = !crud.editing;
+      const guardado = await crud.guardar(extra);
+      if (!guardado) return guardado;
+
+      if (creando) {
+        const archivos = Object.values(archivosPendientes).filter(Boolean);
+        for (const archivo of archivos) {
+          await subirFicha(guardado.id_lote, archivo);
+        }
+        setArchivosPendientes({ imagen: null, pdf: null });
+      }
+
+      return guardado;
+    },
+    [crud, archivosPendientes, subirFicha],
+  );
+
   /** Reemplaza el desglose completo del lote. Una lista vacia lo borra. */
   const guardarDesglose = useCallback(
     async (idLote, filas) => {
@@ -298,8 +327,12 @@ export function useLotesPage() {
     subirFicha,
     quitarFicha,
     subiendoFicha,
+    archivosPendientes,
+    seleccionarArchivoPendiente,
+    quitarArchivoPendiente,
     desglose,
     guardarDesglose,
     guardandoDesglose,
+    guardar: guardarLote,
   };
 }

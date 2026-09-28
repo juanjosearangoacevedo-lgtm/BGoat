@@ -149,7 +149,6 @@ Los nombres de tabla y columna nunca vienen del cliente: salen de
 | `GET /api/indicadores/estado-modulos` | Estado de planta del dia |
 | `GET /api/indicadores/causas` | Pareto del tiempo perdido |
 | `GET /api/indicadores/sam` | SAM pactado vs observado por referencia |
-| `GET /api/indicadores/produccion-cliente` | Produccion agrupada por cliente-marca |
 | `GET /api/indicadores/ordenes-riesgo` | Ordenes que no llegan a la fecha comprometida |
 | `GET /api/ordenes-produccion` | Listado con el avance real (vista `vw_avance_orden`) |
 

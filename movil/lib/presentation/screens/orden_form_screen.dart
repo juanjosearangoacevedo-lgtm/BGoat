@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/fechas.dart' as fechas;
@@ -15,9 +14,12 @@ import '../widgets/vistas_estado.dart';
 
 /// El formulario de una orden de produccion.
 ///
-/// No pide modulo: la orden nace libre y la toma el modulo que abre su jornada
-/// con ella. Tampoco pide ficha tecnica ni pedido --eso vive en el lote--. Lo
-/// unico que aporta al calculo de la hora es el valor de maquila.
+/// No pide modulo: la orden nace libre y la toma el modulo que abre su
+/// jornada con ella. Tampoco pide ficha tecnica, pedido, cantidad ni valor de
+/// maquila --todo eso vive en el lote, y un lote corre en una sola orden, asi
+/// que pedirlo otra vez aqui solo abria la puerta a que las cifras se
+/// desincronizaran--. El lote elegido se muestra abajo con su SAM y su valor
+/// de maquila, de solo lectura.
 class OrdenFormScreen extends StatefulWidget {
   final OrdenEntity? orden;
 
@@ -31,8 +33,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
   final _formulario = GlobalKey<FormState>();
 
   late final TextEditingController _numero;
-  late final TextEditingController _cantidad;
-  late final TextEditingController _valor;
   late final TextEditingController _observaciones;
 
   int? _idLote;
@@ -53,14 +53,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     final orden = widget.orden;
 
     _numero = TextEditingController(text: orden?.numeroOrden ?? '');
-    _cantidad = TextEditingController(
-      text: orden == null ? '' : '${orden.cantidadProgramada}',
-    );
-    _valor = TextEditingController(
-      text: orden?.valorMaquilaUnidad == null
-          ? ''
-          : orden!.valorMaquilaUnidad!.toStringAsFixed(0),
-    );
     _observaciones = TextEditingController(text: orden?.observaciones ?? '');
 
     _idLote = orden?.idLote;
@@ -77,8 +69,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
   @override
   void dispose() {
     _numero.dispose();
-    _cantidad.dispose();
-    _valor.dispose();
     _observaciones.dispose();
     super.dispose();
   }
@@ -103,8 +93,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     final solicitud = SolicitudOrden(
       numeroOrden: _numero.text.trim(),
       idLote: _idLote!,
-      cantidadProgramada: int.parse(_cantidad.text),
-      valorMaquilaUnidad: _valor.text.trim().isEmpty ? null : double.parse(_valor.text),
       prioridad: _prioridad,
       estado: _estado,
       fechaInicioProgramada: _fechaInicio,
@@ -245,47 +233,13 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
             if (lote != null) ...[
               const SizedBox(height: 12),
               _resumenLote(lote),
+            ] else ...[
+              const SizedBox(height: 6),
+              const _Nota(
+                'La cantidad y el valor de maquila los trae el lote: un lote '
+                'corre en una sola orden, asi que no se vuelven a digitar aqui.',
+              ),
             ],
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _cantidad,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: 'Cantidad *',
-                      prefixIcon: Icon(Icons.numbers),
-                    ),
-                    validator: (valor) {
-                      final numero = int.tryParse(valor ?? '');
-                      if (numero == null || numero <= 0) return 'Cantidad invalida';
-                      return null;
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextFormField(
-                    controller: _valor,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: const InputDecoration(
-                      labelText: 'Valor maquila',
-                      prefixIcon: Icon(Icons.payments_outlined),
-                      helperText: 'Por prenda',
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 6),
-            const _Nota(
-              'El valor de maquila es lo que el cliente paga por prenda. Con el, '
-              'cada hora se lee tambien en pesos. Sin el, la facturacion del '
-              'modulo queda en cero.',
-            ),
             const SizedBox(height: 16),
             Row(
               children: [
@@ -380,8 +334,9 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     );
   }
 
-  /// El lote trae el SAM, que es lo que fija la meta. Se muestra aqui porque
-  /// una orden sobre un lote sin SAM no se va a poder trabajar.
+  /// Lo que trae el lote: el SAM fija la meta y el valor de maquila la
+  /// facturacion. Se muestra de solo lectura porque una orden no los digita,
+  /// los hereda -- un lote corre en una sola orden.
   Widget _resumenLote(LoteEntity lote) {
     return Tarjeta(
       borde: lote.tieneSam ? null : Paleta.error,
@@ -393,8 +348,12 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
             Dato(
               etiqueta: 'SAM pactado',
               valor: lote.tieneSam ? sam(lote.samPactado) : 'Sin SAM',
-              color: lote.tieneSam ? Paleta.morado : Paleta.error,
+              color: lote.tieneSam ? Paleta.primario : Paleta.error,
             ),
+          ]),
+          const SizedBox(height: 12),
+          FilaDeDatos([
+            Dato(etiqueta: 'Valor de maquila', valor: pesos(lote.valorMaquilaUnidad)),
             Dato(etiqueta: 'Programado', valor: entero(lote.cantidadProgramada)),
           ]),
           if (!lote.tieneSam) ...[

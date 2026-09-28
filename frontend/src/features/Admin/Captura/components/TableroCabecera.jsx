@@ -9,7 +9,7 @@ function Dato({ etiqueta, valor, nota, tono = "gris" }) {
   };
 
   return (
-    <div className="rounded-xl border border-gray-100 bg-white px-4 py-3">
+    <div className="rounded-2xl border border-emerald-200 bg-white px-4 py-3">
       <p className="text-[11px] font-medium uppercase tracking-wide text-gray-400">{etiqueta}</p>
       <p className={`mt-1 truncate text-lg font-bold tabular-nums ${tonos[tono]}`} title={String(valor)}>
         {valor}

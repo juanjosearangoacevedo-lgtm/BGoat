@@ -1,7 +1,9 @@
-import { formatFecha, formatNumero } from "@/shared/utils/formatters";
+import { diasEntre, formatFecha, formatNumero } from "@/shared/utils/formatters";
 
 /** Avance de la orden segun `vw_avance_orden`. */
 export function OrdenProgresoHero({ orden, progress = 0 }) {
+  const dias = diasEntre(orden?.fecha_inicio_programada, orden?.fecha_fin_programada);
+
   return (
     <div className="rounded-2xl bg-gradient-to-r from-[#0F4C3F] to-[#1B6B55] p-6 text-white">
       <div className="mb-4 flex items-center justify-between">
@@ -26,7 +28,28 @@ export function OrdenProgresoHero({ orden, progress = 0 }) {
         <span>Inicio programado: {formatFecha(orden?.fecha_inicio_programada)}</span>
         <span>Defectuosas: {formatNumero(orden?.cantidad_defectuosa)}</span>
         <span>Fin programado: {formatFecha(orden?.fecha_fin_programada)}</span>
+        {dias && <span>Duracion: {dias} dia{dias === 1 ? "" : "s"}</span>}
       </div>
+
+      {/* `dias_atraso` sale sola de `jornada_modulo`: el ultimo dia que un
+          modulo trabajo esta orden, comparado con la fecha en que debia
+          estar lista. Solo se muestra si ya hubo algun dia de trabajo. */}
+      {orden?.ultimo_dia_trabajado && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-white/10 pt-3 text-xs">
+          <span className="text-white/60">
+            Ultimo dia trabajado: {formatFecha(orden.ultimo_dia_trabajado)}
+          </span>
+          {Number(orden.dias_atraso) > 0 ? (
+            <span className="rounded-full bg-[#D64545]/25 px-2.5 py-1 font-semibold text-white">
+              +{orden.dias_atraso} {Number(orden.dias_atraso) === 1 ? "dia" : "dias"} de atraso
+            </span>
+          ) : (
+            <span className="rounded-full bg-white/15 px-2.5 py-1 font-semibold text-white">
+              A tiempo
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

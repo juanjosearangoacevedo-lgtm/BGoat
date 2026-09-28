@@ -4,53 +4,51 @@
  * Recibe el valor tal como viaja en la base de datos (los ENUM de MySQL van en
  * MAYUSCULAS con guion bajo) y se encarga de mostrarlo legible.
  */
+/**
+ * Cuatro familias de color, las de la identidad de marca (verde, dorado,
+ * rojo, gris) en vez de un color distinto por estado. Un azul o un teal
+ * no significan nada en la paleta de BGoat, asi que cada estado se agrupa
+ * por lo que REALMENTE comunica: logrado, en curso, inicial o negativo.
+ */
 const styles = {
-  // Estados generales (clientes, marcas, roles, permisos, referencias, prendas)
-  ACTIVO: "bg-green-100 text-green-700",
-  INACTIVO: "bg-gray-100 text-gray-500",
-  BLOQUEADO: "bg-red-100 text-red-700",
-  RETIRADO: "bg-gray-100 text-gray-500",
+  // logrado / activo / completo -> sage (badge "Sistema en tiempo real")
+  ACTIVO: "bg-[#DCEAE1] text-[#1F5C45]",
+  ACTIVA: "bg-[#DCEAE1] text-[#1F5C45]",
+  FINALIZADO: "bg-[#DCEAE1] text-[#1F5C45]",
+  FINALIZADA: "bg-[#DCEAE1] text-[#1F5C45]",
+  ENTREGADO: "bg-[#DCEAE1] text-[#1F5C45]",
+  VIGENTE: "bg-[#DCEAE1] text-[#1F5C45]",
+  VALIDADO: "bg-[#DCEAE1] text-[#1F5C45]",
 
-  // lotes
-  REGISTRADO: "bg-blue-100 text-blue-700",
-  EN_PROCESO: "bg-[#D08E10]/15 text-[#b46a12]",
-  FINALIZADO: "bg-green-100 text-green-700",
-  CANCELADO: "bg-red-50 text-red-500",
+  // en curso / requiere atencion -> dorado
+  EN_PROCESO: "bg-[#D49A17]/15 text-[#A87508]",
+  EN_PRODUCCION: "bg-[#D49A17]/15 text-[#A87508]",
+  DESPACHADO: "bg-[#D49A17]/15 text-[#A87508]",
+  ALTA: "bg-[#D49A17]/15 text-[#A87508]",
+  MANTENIMIENTO: "bg-[#D49A17]/15 text-[#A87508]",
+  PAUSADA: "bg-[#D49A17]/15 text-[#A87508]",
 
-  // pedidos
-  APROBADO: "bg-blue-100 text-blue-700",
-  EN_PRODUCCION: "bg-[#D08E10]/15 text-[#b46a12]",
-  DESPACHADO: "bg-teal-100 text-teal-700",
-  ENTREGADO: "bg-green-100 text-green-700",
+  // inicial / bajo perfil -> gris
+  PENDIENTE: "bg-[#F6F8F7] text-[#5C6B64]",
+  REGISTRADO: "bg-[#F6F8F7] text-[#5C6B64]",
+  APROBADO: "bg-[#F6F8F7] text-[#5C6B64]",
+  PROGRAMADA: "bg-[#F6F8F7] text-[#5C6B64]",
+  BORRADOR: "bg-[#F6F8F7] text-[#5C6B64]",
+  MEDIA: "bg-[#F6F8F7] text-[#5C6B64]",
+  BAJA: "bg-[#F6F8F7] text-[#8B968F]",
 
-  // ordenes de produccion
-  PENDIENTE: "bg-yellow-100 text-yellow-700",
-  PAUSADA: "bg-orange-100 text-orange-700",
-  FINALIZADA: "bg-green-100 text-green-700",
-  CANCELADA: "bg-red-50 text-red-500",
+  // negativo -> rojo (exclusivo de error, nunca dorado)
+  BLOQUEADO: "bg-[#D64545]/15 text-[#D64545]",
+  CANCELADO: "bg-[#D64545]/10 text-[#D64545]",
+  CANCELADA: "bg-[#D64545]/10 text-[#D64545]",
+  ANULADO: "bg-[#D64545]/10 text-[#D64545]",
+  URGENTE: "bg-[#D64545]/15 text-[#D64545]",
 
-  // fichas tecnicas
-  BORRADOR: "bg-gray-100 text-gray-600",
-  VIGENTE: "bg-green-100 text-green-700",
-  OBSOLETA: "bg-gray-100 text-gray-500",
-  INACTIVA: "bg-gray-100 text-gray-500",
-
-  // modulos
-  MANTENIMIENTO: "bg-yellow-100 text-yellow-800",
-
-  // asignaciones de modulo
-  PROGRAMADA: "bg-blue-100 text-blue-700",
-  ACTIVA: "bg-green-100 text-green-700",
-
-  // producciones
-  VALIDADO: "bg-green-100 text-green-700",
-  ANULADO: "bg-red-50 text-red-500",
-
-  // prioridad de la orden
-  BAJA: "bg-gray-100 text-gray-600",
-  MEDIA: "bg-blue-100 text-blue-700",
-  ALTA: "bg-[#D08E10]/15 text-[#b46a12]",
-  URGENTE: "bg-red-100 text-red-700",
+  // inactivo / neutral -> gris
+  INACTIVO: "bg-[#F6F8F7] text-[#8B968F]",
+  INACTIVA: "bg-[#F6F8F7] text-[#8B968F]",
+  RETIRADO: "bg-[#F6F8F7] text-[#8B968F]",
+  OBSOLETA: "bg-[#F6F8F7] text-[#8B968F]",
 };
 
 /** Convierte EN_PROCESO -> "En proceso". */
@@ -66,7 +64,7 @@ export function StatusBadge({ status }) {
   if (!status) return null;
 
   const key = String(status).toUpperCase();
-  const style = styles[key] || "bg-gray-100 text-gray-600";
+  const style = styles[key] || "bg-[#F6F8F7] text-[#5C6B64]";
 
   return <span className={`rounded-full px-2 py-1 text-xs font-medium ${style}`}>{statusLabel(status)}</span>;
 }

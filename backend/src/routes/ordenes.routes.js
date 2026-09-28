@@ -15,16 +15,24 @@ export const ordenesRouter = Router();
  * los deduce de quien la tomo, pero no se pueden escribir desde aqui.
  *
  * Ya no lleva ficha tecnica ni pedido. La ficha vive dentro del lote
- * (con su SAM y su imagen) y el pedido dejo de existir; lo unico que la
- * orden aporta al calculo de la hora es `valor_maquila_unidad`.
+ * (con su SAM, su imagen y su valor de maquila) y el pedido dejo de
+ * existir; la orden ya no aporta nada al calculo de la hora, solo
+ * programa fechas, prioridad y estado sobre un lote que ya trae todo lo
+ * que hace falta para medir productividad y facturacion.
  *
  * Tampoco lleva detalle por prenda: la produccion se mide por lote, no
  * por talla y color, que es como se mide en planta.
+ *
+ * `cantidad_programada` y `valor_maquila_unidad` NO vienen en `CAMPOS`:
+ * un lote corre en una sola orden, asi que las dos ya estan en el lote
+ * (`cantidad_programada`, `valor_maquila_unidad`) y pedirlas otra vez
+ * aqui solo abria la puerta a que las cifras se desincronizaran. Las dos
+ * se copian del lote al crear la orden, no se digitan.
  */
 const CAMPOS = [
   "numero_orden", "id_lote",
-  "fecha_inicio_programada", "fecha_fin_programada", "cantidad_programada",
-  "valor_maquila_unidad", "prioridad", "estado", "observaciones",
+  "fecha_inicio_programada", "fecha_fin_programada",
+  "prioridad", "estado", "observaciones",
 ];
 
 const limpiar = (cuerpo = {}) => {
@@ -102,11 +110,18 @@ ordenesRouter.post(
   asyncHandler(async (req, res) => {
     const datos = limpiar(req.body);
 
-    const faltantes = ["numero_orden", "id_lote", "cantidad_programada"]
-      .filter((campo) => !datos[campo]);
+    const faltantes = ["numero_orden", "id_lote"].filter((campo) => !datos[campo]);
     if (faltantes.length > 0) {
       throw ApiError.badRequest(`Faltan campos obligatorios: ${faltantes.join(", ")}`);
     }
+
+    // La cantidad de la orden es la del lote: un lote corre en una sola
+    // orden, asi que no se le pide al usuario, se copia.
+    const lote = await queryOne("SELECT cantidad_programada FROM lotes WHERE id_lote = ?", [
+      datos.id_lote,
+    ]);
+    if (!lote) throw ApiError.badRequest("El lote seleccionado no existe");
+    datos.cantidad_programada = lote.cantidad_programada;
 
     // `creado_por` sale de la sesion, no del formulario.
     datos.creado_por = req.usuario.id_usuario;
@@ -155,6 +170,17 @@ ordenesRouter.put(
     if (!existente) throw ApiError.notFound();
 
     const datos = limpiar(req.body);
+
+    // Si la orden cambia de lote, la cantidad se resincroniza con el
+    // nuevo lote: sigue sin ser un dato que se digite.
+    if (datos.id_lote) {
+      const lote = await queryOne("SELECT cantidad_programada FROM lotes WHERE id_lote = ?", [
+        datos.id_lote,
+      ]);
+      if (!lote) throw ApiError.badRequest("El lote seleccionado no existe");
+      datos.cantidad_programada = lote.cantidad_programada;
+    }
+
     const columnas = Object.keys(datos);
 
     if (columnas.length > 0) {

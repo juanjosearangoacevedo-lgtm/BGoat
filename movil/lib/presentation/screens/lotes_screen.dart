@@ -16,9 +16,9 @@ import 'lote_form_screen.dart';
 
 /// Los lotes: la unica entidad del producto.
 ///
-/// Trae el folio del pedido, la referencia, el tipo de prenda, el SAM pactado,
-/// el material y su ficha tecnica. Antes eso eran cinco formularios para
-/// registrar un trabajo que llega en una sola hoja.
+/// Trae el folio del pedido, la referencia, el tipo de prenda, el SAM
+/// pactado, el valor de maquila y su ficha tecnica. Antes eso eran cinco
+/// formularios para registrar un trabajo que llega en una sola hoja.
 class LotesScreen extends StatefulWidget {
   const LotesScreen({super.key});
 
@@ -81,7 +81,7 @@ class _LotesScreenState extends State<LotesScreen> {
             controller: _buscador,
             decoration: InputDecoration(
               isDense: true,
-              hintText: 'Lote, referencia, pedido, material...',
+              hintText: 'Lote, referencia, pedido...',
               prefixIcon: const Icon(Icons.search, size: 20),
               suffixIcon: _buscador.text.isEmpty
                   ? null
@@ -138,7 +138,7 @@ class _LotesScreenState extends State<LotesScreen> {
     String texto, {
     required bool activo,
     required VoidCallback alTocar,
-    Color color = Paleta.morado,
+    Color color = Paleta.primario,
   }) {
     return GestureDetector(
       onTap: alTocar,
@@ -289,7 +289,7 @@ class _LotesScreenState extends State<LotesScreen> {
             Dato(
               etiqueta: 'SAM pactado',
               valor: lote.tieneSam ? sam(lote.samPactado) : 'Falta',
-              color: lote.tieneSam ? Paleta.morado : Paleta.alerta,
+              color: lote.tieneSam ? Paleta.primario : Paleta.alerta,
             ),
             Dato(etiqueta: 'Programado', valor: entero(lote.cantidadProgramada)),
             Dato(
@@ -412,7 +412,7 @@ class _HojaLote extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           Tarjeta(
-            borde: lote.tieneSam ? Paleta.morado : Paleta.error,
+            borde: lote.tieneSam ? Paleta.primario : Paleta.error,
             hijo: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -420,9 +420,17 @@ class _HojaLote extends StatelessWidget {
                   Dato(
                     etiqueta: 'SAM pactado',
                     valor: lote.tieneSam ? sam(lote.samPactado) : 'Sin SAM',
-                    color: lote.tieneSam ? Paleta.morado : Paleta.error,
+                    color: lote.tieneSam ? Paleta.primario : Paleta.error,
                     destacado: true,
                   ),
+                  Dato(
+                    etiqueta: 'Valor de maquila',
+                    valor: pesos(lote.valorMaquilaUnidad),
+                    destacado: true,
+                  ),
+                ]),
+                const SizedBox(height: 12),
+                FilaDeDatos([
                   Dato(
                     etiqueta: 'Programado',
                     valor: entero(lote.cantidadProgramada),
@@ -458,12 +466,15 @@ class _HojaLote extends StatelessWidget {
                 const TituloSeccion('El producto'),
                 FilaDeDatos([
                   Dato(etiqueta: 'Tipo de prenda', valor: lote.nombreTipoPrenda ?? '—'),
-                  Dato(etiqueta: 'Material', valor: lote.materialPrincipal ?? '—'),
+                  Dato(etiqueta: 'Pedido', valor: lote.numeroPedido ?? '—'),
                 ]),
                 const SizedBox(height: 12),
                 FilaDeDatos([
-                  Dato(etiqueta: 'Pedido', valor: lote.numeroPedido ?? '—'),
                   Dato(etiqueta: 'Referencia', valor: lote.codigoReferencia ?? '—'),
+                  Dato(
+                    etiqueta: 'Nombre referencia',
+                    valor: lote.nombreReferencia ?? '—',
+                  ),
                 ]),
               ],
             ),
@@ -480,16 +491,8 @@ class _HojaLote extends StatelessWidget {
                     valor: fechas.fechaCorta(lote.fechaRecepcion),
                   ),
                   Dato(
-                    etiqueta: 'Entrega',
+                    etiqueta: 'Entrega programada',
                     valor: fechas.fechaCorta(lote.fechaEntregaProgramada),
-                  ),
-                ]),
-                const SizedBox(height: 12),
-                FilaDeDatos([
-                  Dato(etiqueta: 'Inicio', valor: fechas.fechaCorta(lote.fechaInicio)),
-                  Dato(
-                    etiqueta: 'Finalizacion',
-                    valor: fechas.fechaCorta(lote.fechaFinalizacion),
                   ),
                 ]),
               ],

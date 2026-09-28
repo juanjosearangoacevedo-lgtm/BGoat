@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 
 /// La paleta de BGoat, la misma del panel web.
 ///
-/// Los valores salen de `frontend/src/shared/styles/theme.css`: el morado es el
-/// color del sistema, el naranja el de las acciones y el amarillo el del
-/// tablero. Los tres de estado (verde, ambar, rojo) son los que la pantalla usa
-/// para decir de un vistazo como va un modulo.
+/// Los valores salen literal de `frontend/src/shared/styles/theme.css`:
+/// `primario` es `--primary`, `primarioOscuro` es `--sidebar` (el verde mas
+/// oscuro de la barra lateral web, aqui hace de fondo del AppBar), `secundario`
+/// es `--secondary` y `terciario` es `--tertiary`. Los tres de estado (verde,
+/// ambar, rojo) son los que la pantalla usa para decir de un vistazo como va
+/// un modulo, y tambien coinciden con `--success`/`--warning`/`--destructive`.
 class Paleta {
-  static const morado = Color(0xFF433A9B);
-  static const moradoOscuro = Color(0xFF2D2566);
-  static const naranja = Color(0xFFF39A3D);
-  static const amarillo = Color(0xFFF3D33B);
+  static const primario = Color(0xFF0F4C3F);
+  static const primarioOscuro = Color(0xFF0A3A2F);
+  static const secundario = Color(0xFFD08E10);
+  static const terciario = Color(0xFFE3A81B);
 
   static const fondo = Color(0xFFFAFAFA);
   static const tarjeta = Color(0xFFFFFFFF);
@@ -53,7 +55,7 @@ class Paleta {
       case 'CERRADA':
       case 'FINALIZADA':
       case 'ENTREGADO':
-        return morado;
+        return primario;
       default:
         return textoSuave;
     }
@@ -65,7 +67,7 @@ class Paleta {
       case 'URGENTE':
         return error;
       case 'ALTA':
-        return naranja;
+        return secundario;
       case 'BAJA':
         return textoSuave;
       default:
@@ -76,9 +78,9 @@ class Paleta {
 
 ThemeData temaBGoat() {
   final base = ColorScheme.fromSeed(
-    seedColor: Paleta.morado,
-    primary: Paleta.morado,
-    secondary: Paleta.naranja,
+    seedColor: Paleta.primario,
+    primary: Paleta.primario,
+    secondary: Paleta.secundario,
     error: Paleta.error,
     surface: Paleta.tarjeta,
   );
@@ -88,7 +90,7 @@ ThemeData temaBGoat() {
     colorScheme: base,
     scaffoldBackgroundColor: Paleta.fondo,
     appBarTheme: const AppBarTheme(
-      backgroundColor: Paleta.morado,
+      backgroundColor: Paleta.primario,
       foregroundColor: Colors.white,
       elevation: 0,
       centerTitle: false,
@@ -115,7 +117,7 @@ ThemeData temaBGoat() {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Paleta.morado, width: 1.6),
+        borderSide: const BorderSide(color: Paleta.primario, width: 1.6),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
     ),

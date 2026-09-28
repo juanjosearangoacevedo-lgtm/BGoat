@@ -27,9 +27,10 @@ const SELECT_JORNADA = `
          m.codigo AS codigo_modulo, m.nombre AS nombre_modulo,
          m.capacidad_operarios, m.umbral_cumplimiento,
          l.codigo_lote, l.codigo_referencia, l.nombre_referencia,
-         l.sam_pactado, l.ruta_imagen, l.ruta_documento_pdf, l.cantidad_programada,
+         l.sam_pactado, l.valor_maquila_unidad, l.ruta_imagen, l.ruta_documento_pdf,
+         l.cantidad_programada,
          c.id_cliente, c.nombre AS nombre_cliente,
-         o.numero_orden, o.valor_maquila_unidad,
+         o.numero_orden,
          CONCAT(u.nombres, ' ', u.apellidos) AS nombre_digitadora
   FROM jornada_modulo jm
   JOIN modulos m ON m.id_modulo = jm.id_modulo
@@ -55,10 +56,11 @@ async function operariasDe(idJornada) {
 /**
  * La orden que cubre ese lote en ese modulo.
  *
- * La digitadora escoge cliente y lote, no orden: la orden es un dato
- * administrativo y de ella solo sale el valor de maquila. Si todavia no
- * existe, la jornada arranca igual --con la meta, que sale del SAM del
- * lote-- y la facturacion queda en cero hasta que alguien la cree.
+ * La digitadora escoge cliente y lote, no orden: la orden es puramente
+ * administrativa (fechas programadas, prioridad, estado) y es opcional
+ * para producir. El SAM y el valor de maquila ya vienen en el lote, asi
+ * que si todavia no hay orden la jornada arranca igual, con meta y
+ * facturacion completas desde la primera hora.
  *
  * La orden NO nombra modulo: nace libre y este es el unico sitio donde
  * un modulo la toma.
@@ -81,7 +83,7 @@ const SELECT_ORDEN_TOMADA = `
  */
 async function ordenesDisponiblesDelLote(idLote, idModulo) {
   return query(
-    `SELECT o.id_orden_produccion, o.numero_orden, o.valor_maquila_unidad,
+    `SELECT o.id_orden_produccion, o.numero_orden,
             o.prioridad, o.estado, o.cantidad_programada,
             tom.id_modulo AS tomada_por
      FROM ordenes_produccion o
@@ -246,7 +248,7 @@ jornadaRouter.get(
       ),
       query(
         `SELECT l.id_lote, l.id_cliente, l.codigo_lote, l.codigo_referencia,
-                l.nombre_referencia, l.sam_pactado, l.ruta_imagen,
+                l.nombre_referencia, l.sam_pactado, l.valor_maquila_unidad, l.ruta_imagen,
                 l.ruta_documento_pdf, l.cantidad_programada,
                 l.fecha_entrega_programada, l.estado
          FROM lotes l
@@ -265,7 +267,7 @@ jornadaRouter.get(
       // ella abre el asistente y le da a iniciar puede pasar un rato.
       query(
         `SELECT o.id_orden_produccion, o.numero_orden, o.id_lote, o.prioridad,
-                o.estado, o.cantidad_programada, o.valor_maquila_unidad,
+                o.estado, o.cantidad_programada,
                 o.fecha_fin_programada,
                 tom.id_modulo AS tomada_por, m.codigo AS codigo_modulo_tomador
          FROM ordenes_produccion o
@@ -453,11 +455,13 @@ jornadaRouter.post(
     });
 
     // El lote pasa a EN_PROCESO al arrancar: deja de ser algo que llego
-    // y pasa a ser algo que se esta haciendo.
+    // y pasa a ser algo que se esta haciendo. Cuando arranco de verdad
+    // ahora lo dice `ordenes_produccion.fecha_inicio_real` (se marca solo
+    // en la primera hora capturada, en captura.routes.js).
     await execute(
-      `UPDATE lotes SET estado = 'EN_PROCESO', fecha_inicio = COALESCE(fecha_inicio, ?)
+      `UPDATE lotes SET estado = 'EN_PROCESO'
        WHERE id_lote = ? AND estado IN ('REGISTRADO', 'APROBADO')`,
-      [fecha, id_lote],
+      [id_lote],
     );
 
     res.status(201).json(await jornadaCompleta(idJornada));

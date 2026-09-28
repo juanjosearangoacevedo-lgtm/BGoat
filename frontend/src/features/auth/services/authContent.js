@@ -2,9 +2,6 @@ import { Factory, Package } from "lucide-react";
 
 export const authLogo = "/image.png";
 
-/** Marca del login: el sistema entra por la puerta de God's Eyes S.A.S. */
-export const authMarca = "GOD'S EYES S.A.S";
-
 /** Fondo del login: la misma planta del hero, aqui desenfocada. */
 export const authFoto = "/planta-hero.webp";
 

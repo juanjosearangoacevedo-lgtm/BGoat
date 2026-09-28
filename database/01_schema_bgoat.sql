@@ -45,8 +45,11 @@
 --   `sam_pactado`          -> `lotes`. Viene en la ficha tecnica que el
 --                             cliente manda con el lote. Cada lote trae
 --                             la suya, por eso no hay catalogo de fichas.
---   `valor_maquila_unidad` -> `ordenes_produccion`. Lo que el cliente
---                             paga por prenda confeccionada.
+--   `valor_maquila_unidad` -> `lotes`. Lo que el cliente paga por prenda
+--                             confeccionada: viene en la misma ficha
+--                             tecnica que el SAM, y un lote corre en una
+--                             sola orden, asi que pedirlo en la orden
+--                             solo duplicaba el dato.
 --
 -- Las dos se copian al registro (`sam_aplicado`, `precio_aplicado`)
 -- para que renegociar manana no reescriba lo que ya paso.
@@ -298,15 +301,27 @@ CREATE TABLE IF NOT EXISTS `jornada_dia` (
 --
 --   Tambien absorbio a `pedidos`: para la empresa el pedido y el lote son
 --   la misma informacion de negocio, y tenerlos separados obligaba a
---   digitar dos veces el mismo compromiso. De ahi vienen `numero_pedido`
---   (el folio), `fecha_pedido` y las dos fechas de entrega.
+--   digitar dos veces el mismo compromiso. De ahi viene `numero_pedido`
+--   (el folio).
 --
 --   `estado` cubre el ciclo de vida completo, del registro a la entrega:
 --   es la union de los estados que tenian `lotes` y `pedidos` por
 --   separado.
 --
+--   Sin `material_principal`, `fecha_pedido` ni `fecha_entrega_real`: no
+--   los usaba ninguna vista, ruta ni pantalla mas alla del propio
+--   formulario. Las fechas que si hacen falta son `fecha_recepcion`
+--   (cuando llego la mercancia) y `fecha_entrega_programada` (el
+--   compromiso con el cliente); cuando empieza y termina la produccion
+--   vive en la orden (`fecha_inicio_programada` / `fecha_fin_programada`).
+--
 --   `sam_pactado` son los minutos que el cliente paga por prenda. Es la
 --   linea de rentabilidad y lo que fija la meta de cada hora.
+--
+--   `valor_maquila_unidad` es lo que el cliente paga por esa prenda, en
+--   pesos. Junto con el SAM arma la meta de facturacion de cada hora
+--   (`meta_hora x valor_maquila_unidad`), y es obligatorio: sin el la
+--   empresa mide unidades pero no sabe si el modulo genera plata.
 --
 --   `ruta_imagen` y `ruta_documento_pdf` apuntan a los archivos subidos
 --   (ver POST /api/lotes/:id/ficha). Van separados porque son dos cosas
@@ -322,15 +337,11 @@ CREATE TABLE IF NOT EXISTS `lotes` (
   `nombre_referencia` VARCHAR(120) DEFAULT NULL,
   `id_tipo_prenda` BIGINT DEFAULT NULL,
   `sam_pactado` DECIMAL(10,2) DEFAULT NULL,
-  `material_principal` VARCHAR(150) DEFAULT NULL,
+  `valor_maquila_unidad` DECIMAL(14,2) DEFAULT NULL,
   `ruta_imagen` VARCHAR(500) DEFAULT NULL,
   `ruta_documento_pdf` VARCHAR(500) DEFAULT NULL,
-  `fecha_pedido` DATE DEFAULT NULL,
   `fecha_recepcion` DATE NOT NULL,
   `fecha_entrega_programada` DATE DEFAULT NULL,
-  `fecha_entrega_real` DATE DEFAULT NULL,
-  `fecha_inicio` DATE DEFAULT NULL,
-  `fecha_finalizacion` DATE DEFAULT NULL,
   `cantidad_programada` INT NOT NULL DEFAULT '0',
   `cantidad_recibida` INT NOT NULL DEFAULT '0',
   `observaciones` VARCHAR(500) DEFAULT NULL,
@@ -354,7 +365,8 @@ CREATE TABLE IF NOT EXISTS `lotes` (
     FOREIGN KEY (`id_tipo_prenda`) REFERENCES `tipos_prenda` (`id_tipo_prenda`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `chk_lotes_cantidades` CHECK (`cantidad_programada` >= 0 AND `cantidad_recibida` >= 0),
-  CONSTRAINT `chk_lotes_sam` CHECK (`sam_pactado` IS NULL OR `sam_pactado` > 0)
+  CONSTRAINT `chk_lotes_sam` CHECK (`sam_pactado` IS NULL OR `sam_pactado` > 0),
+  CONSTRAINT `chk_lotes_valor_maquila` CHECK (`valor_maquila_unidad` IS NULL OR `valor_maquila_unidad` > 0)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
@@ -528,9 +540,8 @@ CREATE TABLE IF NOT EXISTS `sesiones_acceso` (
 --   modulo en el escritorio, dias antes, cuando quien sabe que modulo se
 --   desocupa es la planta el mismo dia.
 --
---   `valor_maquila_unidad` es lo que el cliente paga por prenda. Con el
---   `sam_pactado` del lote da la tarifa por minuto, que es la metrica
---   economica real de una maquila.
+--   Ya no lleva `valor_maquila_unidad`: vive en `lotes`, junto al SAM
+--   (ver la nota de "donde vive cada constante" al inicio del archivo).
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   `id_orden_produccion` BIGINT NOT NULL AUTO_INCREMENT,
@@ -542,7 +553,6 @@ CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   `fecha_inicio_real` DATE DEFAULT NULL,
   `fecha_fin_real` DATE DEFAULT NULL,
   `cantidad_programada` INT NOT NULL,
-  `valor_maquila_unidad` DECIMAL(14,2) DEFAULT NULL,
   `prioridad` ENUM('BAJA', 'MEDIA', 'ALTA', 'URGENTE') NOT NULL DEFAULT 'MEDIA',
   `estado` ENUM('PENDIENTE', 'EN_PROCESO', 'PAUSADA', 'FINALIZADA', 'CANCELADA') NOT NULL DEFAULT 'PENDIENTE',
   `observaciones` VARCHAR(500) DEFAULT NULL,
@@ -885,9 +895,8 @@ SELECT
          ELSE (r.personas_presentes * r.minutos_franja) / r.unidades_producidas
     END, 2)                                        AS sam_observado,
 
-  -- Dinero. `precio_aplicado` sale de
-  -- `ordenes_produccion.valor_maquila_unidad`: lo que el cliente paga
-  -- por prenda confeccionada.
+  -- Dinero. `precio_aplicado` sale de `lotes.valor_maquila_unidad`: lo
+  -- que el cliente paga por prenda confeccionada.
   ROUND(
     CASE WHEN COALESCE(r.sam_aplicado, 0) = 0 THEN 0
          ELSE (r.personas_presentes * r.minutos_franja) / r.sam_aplicado
@@ -1049,6 +1058,13 @@ GROUP BY v.fecha, v.hora_jornada;
 --
 --   El SAM pactado ahora sale del lote, no de una ficha tecnica: es el
 --   mismo dato, en el sitio donde la empresa lo recibe.
+--
+--   `dias_atraso` no pide nada nuevo: sale de `jornada_modulo`, que ya
+--   se llena sola cada dia que la revisadora abre jornada con esa orden.
+--   Es la diferencia entre el ultimo dia que HUBO jornada con la orden y
+--   la fecha en la que debia estar lista; si sigue trabajandose despues
+--   de esa fecha, el numero sube solo, dia a dia, sin que nadie marque
+--   nada como "finalizada" ni digite una fecha de cierre.
 -- ---------------------------------------------------------------------
 CREATE OR REPLACE VIEW `vw_avance_orden` AS
 SELECT
@@ -1063,7 +1079,6 @@ SELECT
   lot.sam_pactado                                  AS sam_pactado,
   lot.numero_pedido                                AS numero_pedido,
   lot.fecha_entrega_programada                     AS fecha_entrega_programada,
-  lot.fecha_entrega_real                           AS fecha_entrega_real,
   cli.id_cliente                                   AS id_cliente,
   cli.nombre                                       AS nombre_cliente,
   -- El modulo NO es un campo de la orden: es quien la tomo. Queda NULL
@@ -1090,20 +1105,24 @@ SELECT
     CASE WHEN COALESCE(p.unidades_producidas, 0) = 0 THEN NULL
          ELSE p.minutos_disponibles / p.unidades_producidas
     END, 2)                                        AS sam_observado,
-  o.valor_maquila_unidad                           AS valor_maquila_unidad,
+  lot.valor_maquila_unidad                         AS valor_maquila_unidad,
   ROUND(
     CASE WHEN COALESCE(lot.sam_pactado, 0) = 0 THEN NULL
-         ELSE o.valor_maquila_unidad / lot.sam_pactado
+         ELSE lot.valor_maquila_unidad / lot.sam_pactado
     END, 2)                                        AS tarifa_minuto_pactada,
   ROUND(
-    CASE WHEN COALESCE(p.unidades_producidas, 0) = 0 OR o.valor_maquila_unidad IS NULL THEN NULL
-         ELSE o.valor_maquila_unidad / (p.minutos_disponibles / p.unidades_producidas)
+    CASE WHEN COALESCE(p.unidades_producidas, 0) = 0 OR lot.valor_maquila_unidad IS NULL THEN NULL
+         ELSE lot.valor_maquila_unidad / (p.minutos_disponibles / p.unidades_producidas)
     END, 2)                                        AS tarifa_minuto_real,
   o.fecha_emision                                  AS fecha_emision,
   o.fecha_inicio_programada                        AS fecha_inicio_programada,
   o.fecha_fin_programada                           AS fecha_fin_programada,
   o.fecha_inicio_real                              AS fecha_inicio_real,
   o.fecha_fin_real                                 AS fecha_fin_real,
+  trab.ultimo_dia_trabajado                        AS ultimo_dia_trabajado,
+  CASE WHEN o.fecha_fin_programada IS NULL OR trab.ultimo_dia_trabajado IS NULL THEN NULL
+       ELSE GREATEST(DATEDIFF(trab.ultimo_dia_trabajado, o.fecha_fin_programada), 0)
+  END                                               AS dias_atraso,
   o.creado_por                                     AS creado_por,
   CONCAT(usr.nombres, ' ', usr.apellidos)          AS nombre_creador,
   o.observaciones                                  AS observaciones
@@ -1127,6 +1146,16 @@ LEFT JOIN (
   GROUP BY id_orden_produccion
 ) tom ON tom.id_orden_produccion = o.id_orden_produccion
 LEFT JOIN modulos mdl ON mdl.id_modulo = tom.id_modulo
+-- El ultimo dia que un modulo abrio jornada con esta orden. No es
+-- cuando se PRODUJO por ultima vez sino cuando se TRABAJO: un dia sin
+-- unidades (montaje, incidencia) igual cuenta como dia de atraso si la
+-- orden ya se paso de su fecha.
+LEFT JOIN (
+  SELECT id_orden_produccion, MAX(fecha) AS ultimo_dia_trabajado
+  FROM jornada_modulo
+  WHERE id_orden_produccion IS NOT NULL
+  GROUP BY id_orden_produccion
+) trab ON trab.id_orden_produccion = o.id_orden_produccion
 LEFT JOIN (
   SELECT
     id_orden_produccion,

@@ -45,10 +45,10 @@ De la jornada salen las dos constantes de la hora:
 | Dato | De dónde |
 | --- | --- |
 | `sam_pactado` | `lotes` — viene en la ficha técnica que el cliente manda con el lote |
-| `valor_maquila_unidad` | `ordenes_produccion` — lo que el cliente paga por prenda |
+| `valor_maquila_unidad` | `lotes` — lo que el cliente paga por prenda, en la misma ficha técnica que el SAM |
 
-Sin orden todavía hay meta (el SAM sale del lote); lo que no hay es
-facturación.
+Sin orden hay meta Y facturación (las dos salen del lote); la orden solo
+programa fechas, prioridad y estado.
 
 ---
 
@@ -258,18 +258,23 @@ perdido explica el hueco, no lo perdona.
 
 ### Órdenes → `ordenes_produccion`
 
-Asigna un lote a un módulo: cuánto hay que sacar, para cuándo y a qué valor de
-maquila. No lleva ficha técnica (vive en el lote) ni detalle por prenda: la
-producción se mide por lote, que es como se mide en planta.
+Programa un lote: para cuándo, con qué prioridad y estado. Cuánto hay que
+sacar y a qué valor de maquila ya están en el lote (`cantidad_programada`,
+`valor_maquila_unidad`, junto al SAM) — un lote corre en una sola orden, así
+que la orden no los vuelve a pedir, los hereda. Tampoco lleva ficha técnica
+(vive en el lote) ni detalle por prenda: la producción se mide por lote, que
+es como se mide en planta.
 
 `creado_por` no se pide en el formulario: lo pone el backend con el usuario de
-la sesión. `valor_maquila_unidad` dividido entre el SAM da la **tarifa por
-minuto**, la métrica económica real de una maquila.
+la sesión. `lotes.valor_maquila_unidad` dividido entre el SAM da la **tarifa
+por minuto**, la métrica económica real de una maquila.
 
 Ese mismo `valor_maquila_unidad` es el `$ / unidad` del tablero de pared: se
 copia a cada registro como `precio_aplicado` y de ahí salen la meta de
 facturación, la facturación real y el % entre las dos. Es lo que convierte
-"se perdieron 20 minutos" en "dejamos de facturar $180.000".
+"se perdieron 20 minutos" en "dejamos de facturar $180.000". Como vive en el
+lote y no en la orden, la facturación existe desde el primer día, sin
+esperar a que alguien cree una orden.
 
 ### Incidencias → `causas_desviacion`
 

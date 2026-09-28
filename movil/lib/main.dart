@@ -8,10 +8,12 @@ import 'data/repositories/captura_repository_imp.dart';
 import 'data/repositories/jornada_repository_imp.dart';
 import 'data/repositories/lotes_repository_imp.dart';
 import 'data/repositories/ordenes_repository_imp.dart';
+import 'data/repositories/resumen_repository_imp.dart';
 import 'presentation/providers/captura_provider.dart';
 import 'presentation/providers/jornada_provider.dart';
 import 'presentation/providers/lotes_provider.dart';
 import 'presentation/providers/ordenes_provider.dart';
+import 'presentation/providers/resumen_provider.dart';
 import 'presentation/providers/sesion_provider.dart';
 import 'presentation/providers/tablero_provider.dart';
 import 'presentation/screens/login_screen.dart';
@@ -59,6 +61,9 @@ class _BGoatAppState extends State<BGoatApp> {
 
         ChangeNotifierProvider(
           create: (_) => JornadaProvider(JornadaRepositoryImpl(_api)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ResumenProvider(ResumenRepositoryImpl(_api)),
         ),
 
         // La captura y el tablero usan el mismo repositorio pero llevan estado
@@ -115,7 +120,7 @@ class _Arranque extends StatelessWidget {
     final sesion = context.watch<SesionProvider>();
 
     return Scaffold(
-      backgroundColor: Paleta.moradoOscuro,
+      backgroundColor: Paleta.primarioOscuro,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -124,7 +129,7 @@ class _Arranque extends StatelessWidget {
               width: 66,
               height: 66,
               decoration: BoxDecoration(
-                color: Paleta.naranja,
+                color: Paleta.secundario,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: const Icon(

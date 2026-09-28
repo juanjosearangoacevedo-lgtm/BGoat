@@ -7,22 +7,24 @@ import '../../core/tema.dart';
 import '../../domain/entities/catalogo_entity.dart';
 import '../../domain/entities/jornada_entity.dart';
 import '../../domain/entities/lote_entity.dart';
-import '../../domain/entities/orden_entity.dart';
 import '../providers/jornada_provider.dart';
 import '../widgets/estado_chip.dart';
 import '../widgets/tarjetas.dart';
 import '../widgets/vistas_estado.dart';
 
-/// El asistente de inicio de jornada, en cuatro pasos.
+/// El asistente de inicio de jornada, en tres pasos.
 ///
 /// Sigue la rutina real: escoge el modulo, escoge cliente y lote --que trae la
-/// referencia y el SAM--, confirma la orden y declara cuantas operarias hay.
-/// Se parte en pasos porque la digitadora lo hace de pie, con el celular en la
-/// mano, y un formulario de veinte campos en esa posicion no se llena.
+/// referencia y el SAM-- y declara cuantas operarias hay. No pregunta por la
+/// orden: el backend le asigna la primera libre del lote sola (`resolverOrden`
+/// en `jornada.routes.js`), asi que preguntarlo aqui era un paso que no
+/// cambiaba el resultado. Se parte en pasos porque la digitadora lo hace de
+/// pie, con el celular en la mano, y un formulario de veinte campos en esa
+/// posicion no se llena.
 class AsistenteJornadaScreen extends StatelessWidget {
   const AsistenteJornadaScreen({super.key});
 
-  static const _titulos = ['Modulo', 'Trabajo', 'Orden', 'Operarias'];
+  static const _titulos = ['Modulo', 'Trabajo', 'Operarias'];
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +67,7 @@ class AsistenteJornadaScreen extends StatelessWidget {
                     height: 4,
                     decoration: BoxDecoration(
                       color: hecho || actual
-                          ? Paleta.naranja
+                          ? Paleta.secundario
                           : Colors.white.withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(999),
                     ),
@@ -94,8 +96,6 @@ class AsistenteJornadaScreen extends StatelessWidget {
         return _PasoModulo(provider: provider);
       case 1:
         return _PasoTrabajo(provider: provider);
-      case 2:
-        return _PasoOrden(provider: provider);
       default:
         return _PasoOperarias(provider: provider);
     }
@@ -153,8 +153,9 @@ class AsistenteJornadaScreen extends StatelessWidget {
     }
 
     // El 409 es la regla de negocio, no un error tecnico: otro modulo se llevo
-    // la orden mientras el asistente estaba abierto. Se explica y se deja
-    // volver al paso de la orden para escoger otra.
+    // la orden que el backend iba a asignar mientras el asistente estaba
+    // abierto. Se limpia y se deja reintentar: el backend vuelve a resolver
+    // sola la que quede libre, o ninguna si ya no hay.
     if (provider.conflicto != null) {
       await showDialog<void>(
         context: context,
@@ -162,16 +163,16 @@ class AsistenteJornadaScreen extends StatelessWidget {
           title: const Text('Esa orden ya la tomaron'),
           content: Text(
             '${provider.conflicto}\n\n'
-            'Una orden la trabaja un solo modulo. Escoja otra, o siga sin orden: '
-            'la meta se calcula igual con el SAM del lote.',
+            'Una orden la trabaja un solo modulo. Vuelva a intentar: la meta y '
+            'la facturacion se calculan igual con el SAM del lote.',
           ),
           actions: [
             FilledButton(
               onPressed: () {
+                provider.elegirOrden(null);
                 Navigator.pop(dialogo);
-                provider.irAPaso(2);
               },
-              child: const Text('Escoger otra'),
+              child: const Text('Entendido'),
             ),
           ],
         ),
@@ -234,21 +235,21 @@ class _PasoModulo extends StatelessWidget {
       opacity: habilitado ? 1 : 0.5,
       child: Tarjeta(
         alTocar: habilitado ? () => provider.elegirModulo(modulo.modulo.id) : null,
-        borde: elegido ? Paleta.morado : null,
+        borde: elegido ? Paleta.primario : null,
         hijo: Row(
           children: [
             Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: (elegido ? Paleta.morado : Paleta.textoSuave).withValues(alpha: 0.13),
+                color: (elegido ? Paleta.primario : Paleta.textoSuave).withValues(alpha: 0.13),
                 borderRadius: BorderRadius.circular(11),
               ),
               alignment: Alignment.center,
               child: Text(
                 modulo.modulo.codigo,
                 style: TextStyle(
-                  color: elegido ? Paleta.morado : Paleta.textoSuave,
+                  color: elegido ? Paleta.primario : Paleta.textoSuave,
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
                 ),
@@ -273,7 +274,7 @@ class _PasoModulo extends StatelessWidget {
                 ],
               ),
             ),
-            if (elegido) const Icon(Icons.check_circle, color: Paleta.morado),
+            if (elegido) const Icon(Icons.check_circle, color: Paleta.primario),
           ],
         ),
       ),
@@ -345,7 +346,7 @@ class _PasoTrabajo extends StatelessWidget {
       // el no hay meta que calcular. Se bloquea aqui para no hacerle perder el
       // viaje a la digitadora.
       alTocar: lote.tieneSam ? () => provider.elegirLote(lote.id) : null,
-      borde: elegido ? Paleta.morado : null,
+      borde: elegido ? Paleta.primario : null,
       hijo: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -382,7 +383,7 @@ class _PasoTrabajo extends StatelessWidget {
                   ],
                 ),
               ),
-              if (elegido) const Icon(Icons.check_circle, color: Paleta.morado),
+              if (elegido) const Icon(Icons.check_circle, color: Paleta.primario),
             ],
           ),
           const SizedBox(height: 11),
@@ -390,7 +391,7 @@ class _PasoTrabajo extends StatelessWidget {
             Dato(
               etiqueta: 'SAM pactado',
               valor: lote.tieneSam ? sam(lote.samPactado) : 'Sin SAM',
-              color: lote.tieneSam ? Paleta.morado : Paleta.error,
+              color: lote.tieneSam ? Paleta.primario : Paleta.error,
             ),
             Dato(
               etiqueta: 'Programado',
@@ -418,105 +419,7 @@ class _PasoTrabajo extends StatelessWidget {
 }
 
 // =====================================================================
-// Paso 3 — la orden
-// =====================================================================
-class _PasoOrden extends StatelessWidget {
-  final JornadaProvider provider;
-
-  const _PasoOrden({required this.provider});
-
-  @override
-  Widget build(BuildContext context) {
-    final disponibles = provider.ordenesDelLote;
-
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        const _Enunciado(
-          titulo: 'Con que orden',
-          detalle: 'De la orden sale el valor de maquila, que es lo que convierte '
-              'la produccion en pesos. Es opcional.',
-        ),
-        if (disponibles.isEmpty)
-          const _Nota(
-            'Este lote no tiene ordenes libres. La jornada arranca igual: la meta '
-            'sale del SAM del lote, y la facturacion queda en cero hasta que '
-            'alguien cree la orden.',
-          )
-        else
-          ...disponibles.map((orden) => Padding(
-                padding: const EdgeInsets.only(bottom: 9),
-                child: _opcionOrden(orden),
-              )),
-        const SizedBox(height: 10),
-        Tarjeta(
-          alTocar: () => provider.elegirOrden(null),
-          borde: provider.idOrden == null ? Paleta.morado : null,
-          hijo: Row(
-            children: [
-              Icon(
-                provider.idOrden == null
-                    ? Icons.radio_button_checked
-                    : Icons.radio_button_unchecked,
-                color: provider.idOrden == null ? Paleta.morado : Paleta.textoSuave,
-              ),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text(
-                  'Seguir sin orden',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _opcionOrden(OrdenEntity orden) {
-    final elegida = provider.idOrden == orden.id;
-
-    return Tarjeta(
-      alTocar: () => provider.elegirOrden(orden.id),
-      borde: elegida ? Paleta.morado : null,
-      hijo: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                elegida ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-                color: elegida ? Paleta.morado : Paleta.textoSuave,
-              ),
-              const SizedBox(width: 11),
-              Expanded(
-                child: Text(
-                  orden.numeroOrden,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-              PrioridadChip(orden.prioridad),
-            ],
-          ),
-          const SizedBox(height: 11),
-          FilaDeDatos([
-            Dato(
-              etiqueta: 'Valor maquila',
-              valor: pesos(orden.valorMaquilaUnidad),
-              color: Paleta.exito,
-            ),
-            Dato(etiqueta: 'Programado', valor: entero(orden.cantidadProgramada)),
-            Dato(etiqueta: 'Estado', valor: EstadoChip.legible(orden.estado)),
-          ]),
-        ],
-      ),
-    );
-  }
-}
-
-// =====================================================================
-// Paso 4 — las operarias
+// Paso 3 — las operarias
 // =====================================================================
 class _PasoOperarias extends StatelessWidget {
   final JornadaProvider provider;
@@ -602,7 +505,7 @@ class _PasoOperarias extends StatelessWidget {
     final meta = provider.metaEstimadaDia;
 
     return Tarjeta(
-      borde: Paleta.morado,
+      borde: Paleta.primario,
       hijo: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -616,7 +519,7 @@ class _PasoOperarias extends StatelessWidget {
             Dato(
               etiqueta: 'Meta del dia',
               valor: meta > 0 ? entero(meta) : '—',
-              color: Paleta.morado,
+              color: Paleta.primario,
               destacado: true,
             ),
             Dato(
@@ -644,13 +547,13 @@ class _PasoOperarias extends StatelessWidget {
           radius: 16,
           backgroundColor: asignada == null
               ? Paleta.borde
-              : Paleta.morado.withValues(alpha: 0.13),
+              : Paleta.primario.withValues(alpha: 0.13),
           child: Text(
             '${indice + 1}',
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700,
-              color: asignada == null ? Paleta.textoSuave : Paleta.morado,
+              color: asignada == null ? Paleta.textoSuave : Paleta.primario,
             ),
           ),
         ),

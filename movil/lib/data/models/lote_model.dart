@@ -13,16 +13,12 @@ class LoteModel extends LoteEntity {
     super.nombreReferencia,
     super.idTipoPrenda,
     super.nombreTipoPrenda,
-    super.materialPrincipal,
     super.samPactado,
+    super.valorMaquilaUnidad,
     super.cantidadProgramada,
     super.cantidadRecibida,
-    super.fechaPedido,
     super.fechaRecepcion,
     super.fechaEntregaProgramada,
-    super.fechaEntregaReal,
-    super.fechaInicio,
-    super.fechaFinalizacion,
     super.rutaImagen,
     super.rutaDocumentoPdf,
     required super.estado,
@@ -39,17 +35,13 @@ class LoteModel extends LoteEntity {
         nombreReferencia: aTextoNulo(json['nombre_referencia']),
         idTipoPrenda: aIntNulo(json['id_tipo_prenda']),
         nombreTipoPrenda: aTextoNulo(json['nombre_tipo_prenda']),
-        materialPrincipal: aTextoNulo(json['material_principal']),
         // DECIMAL: llega como texto ("0.850"), nunca como numero.
         samPactado: aDoubleNulo(json['sam_pactado']),
+        valorMaquilaUnidad: aDoubleNulo(json['valor_maquila_unidad']),
         cantidadProgramada: aIntNulo(json['cantidad_programada']),
         cantidadRecibida: aIntNulo(json['cantidad_recibida']),
-        fechaPedido: aFechaNula(json['fecha_pedido']),
         fechaRecepcion: aFechaNula(json['fecha_recepcion']),
         fechaEntregaProgramada: aFechaNula(json['fecha_entrega_programada']),
-        fechaEntregaReal: aFechaNula(json['fecha_entrega_real']),
-        fechaInicio: aFechaNula(json['fecha_inicio']),
-        fechaFinalizacion: aFechaNula(json['fecha_finalizacion']),
         rutaImagen: aTextoNulo(json['ruta_imagen']),
         rutaDocumentoPdf: aTextoNulo(json['ruta_documento_pdf']),
         estado: aTexto(json['estado'], 'REGISTRADO'),
@@ -76,7 +68,7 @@ class LoteModel extends LoteEntity {
     agregar('nombre_referencia', solicitud.nombreReferencia);
     agregar('id_tipo_prenda', solicitud.idTipoPrenda);
     agregar('sam_pactado', solicitud.samPactado);
-    agregar('material_principal', solicitud.materialPrincipal);
+    agregar('valor_maquila_unidad', solicitud.valorMaquilaUnidad);
     agregar('cantidad_programada', solicitud.cantidadProgramada);
     agregar('fecha_entrega_programada', solicitud.fechaEntregaProgramada);
     agregar('estado', solicitud.estado);

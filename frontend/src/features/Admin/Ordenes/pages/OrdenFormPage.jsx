@@ -1,6 +1,7 @@
 import { ArrowLeft, RefreshCcw, Save, X } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { FormField } from "@/shared/components/FormField";
+import { formatMoneda } from "@/shared/utils/formatters";
 import { OrdenFormSection } from "../components/OrdenFormSection";
 import { OrdenSelectField } from "../components/OrdenSelectField";
 import { useOrdenForm } from "../hooks/useOrdenForm";
@@ -9,9 +10,12 @@ import { ordenPrioridadOptions, ordenStatusOptions } from "../hooks/useOrdenesPa
 /**
  * Formulario de `ordenes_produccion`.
  *
- * Ya no pide ficha tecnica, pedido ni detalle por prenda: la ficha y el
- * SAM vienen dentro del lote, el pedido dejo de existir y la produccion
- * se mide por lote, no por talla y color.
+ * Ya no pide ficha tecnica, pedido ni detalle por prenda: la ficha, el
+ * SAM y el valor de maquila vienen dentro del lote, el pedido dejo de
+ * existir y la produccion se mide por lote, no por talla y color.
+ * Tampoco pide la cantidad programada: un lote corre en una sola orden,
+ * asi que es la del lote (se ve en "Lo que trae el lote") y el backend
+ * la copia al guardar.
  */
 export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
   const {
@@ -20,6 +24,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
     errors,
     reset,
     estimacion,
+    diasProgramados,
     guardando,
     guardar,
     loteSeleccionado,
@@ -70,12 +75,13 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
           />
         </OrdenFormSection>
 
-        {/* El SAM y la referencia salen del lote: se muestran para
-            confirmar que es el trabajo correcto, no para editarlos. */}
+        {/* El SAM, el valor de maquila y la referencia salen del lote: se
+            muestran para confirmar que es el trabajo correcto, no para
+            editarlos. */}
         {loteSeleccionado && (
           <div className="rounded-2xl border border-gray-200 bg-gray-50/60 p-5">
             <p className="mb-3 text-sm font-medium text-gray-700">Lo que trae el lote</p>
-            <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-3 lg:grid-cols-5">
               <div>
                 <p className="text-xs text-gray-500">Cliente</p>
                 <p className="font-medium text-gray-900">{loteSeleccionado.nombre_cliente}</p>
@@ -93,7 +99,17 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Cantidad del lote</p>
+                <p className="text-xs text-gray-500">Valor de maquila</p>
+                <p
+                  className={`font-medium ${loteSeleccionado.valor_maquila_unidad ? "text-gray-900" : "text-red-600"}`}
+                >
+                  {loteSeleccionado.valor_maquila_unidad
+                    ? formatMoneda(loteSeleccionado.valor_maquila_unidad)
+                    : "Falta"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">Cantidad programada</p>
                 <p className="font-medium text-gray-900">{loteSeleccionado.cantidad_programada}</p>
               </div>
             </div>
@@ -101,16 +117,6 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
         )}
 
         <OrdenFormSection title="Produccion" columns="md:grid-cols-3">
-          <FormField
-            label="Cantidad programada"
-            type="number"
-            min={1}
-            required
-            placeholder="0"
-            value={form.cantidad_programada}
-            error={errors.cantidad_programada}
-            onChange={(valor) => setField("cantidad_programada", valor)}
-          />
           <FormField
             label="Fecha de inicio programada"
             type="date"
@@ -125,6 +131,12 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             error={errors.fecha_fin_programada}
             onChange={(valor) => setField("fecha_fin_programada", valor)}
           />
+          <div>
+            <p className="mb-1.5 text-sm font-medium text-gray-700">Duracion programada</p>
+            <p className="flex h-10 items-center text-lg font-bold text-[#0F4C3F]">
+              {diasProgramados ? `${diasProgramados} dia${diasProgramados === 1 ? "" : "s"}` : "—"}
+            </p>
+          </div>
         </OrdenFormSection>
 
         {estimacion && (
@@ -190,16 +202,6 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             value={form.estado}
             onChange={(value) => setField("estado", value)}
             options={ordenStatusOptions}
-          />
-          <FormField
-            label="Valor de maquila por unidad"
-            type="number"
-            min={0}
-            step="0.01"
-            placeholder="0"
-            value={form.valor_maquila_unidad}
-            error={errors.valor_maquila_unidad}
-            onChange={(valor) => setField("valor_maquila_unidad", valor)}
           />
           <div className="md:col-span-2">
             <FormField

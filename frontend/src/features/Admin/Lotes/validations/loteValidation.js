@@ -4,8 +4,9 @@ import { reglas } from "@/shared/validations";
  * Reglas del formulario de lote -> tabla `lotes`.
  *
  * El lote llega del cliente y trae TODO lo del trabajo: el folio del
- * pedido y sus fechas, la referencia, el tipo de prenda, el SAM pactado,
- * la ficha tecnica y --opcionalmente-- el desglose por talla y color.
+ * pedido, la referencia, el tipo de prenda, el SAM pactado y el valor de
+ * maquila, la ficha tecnica y --opcionalmente-- el desglose por talla y
+ * color.
  *
  * Antes eso vivia en cinco tablas aparte (`pedidos`, `detalle_pedido`,
  * `referencias`, `fichas_tecnicas` y `prendas`) con su propia pantalla
@@ -13,17 +14,21 @@ import { reglas } from "@/shared/validations";
  * que recorrer cinco formularios, y tres de esos registros se usaban una
  * sola vez.
  *
- * La recepcion es un hecho ya ocurrido, y las fechas de inicio y
- * finalizacion van despues de ella.
+ * Sin material principal ni fecha de pedido: no los usaba ningun
+ * calculo, reporte ni pantalla mas alla de este formulario. Las fechas
+ * de cuando empieza y termina la produccion viven en la orden
+ * (`fecha_inicio_programada` / `fecha_fin_programada` de
+ * `ordenes_produccion`), no aqui: un lote corre en una sola orden, y
+ * tenerlas en los dos lados dejaba que se desincronizaran.
  */
 export const loteLimites = {
   codigo: { min: 3, max: 30 },
   pedido: { max: 50 },
   referencia: { max: 50 },
   nombreReferencia: { max: 120 },
-  material: { max: 150 },
   cantidad: { min: 0, max: 999999 },
   sam: { min: 0.01, max: 999 },
+  valorMaquila: { min: 0.01, max: 9999999 },
   observaciones: { max: 255 },
 };
 
@@ -74,9 +79,6 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
     codigo_referencia: [
       reglas.longitud({ ...loteLimites.referencia, etiqueta: "El codigo de referencia" }),
     ],
-    material_principal: [
-      reglas.longitud({ ...loteLimites.material, etiqueta: "El material principal" }),
-    ],
     nombre_referencia: [
       reglas.longitud({ ...loteLimites.nombreReferencia, etiqueta: "El nombre de la referencia" }),
     ],
@@ -86,28 +88,19 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
     sam_pactado: [
       reglas.numero({ ...loteLimites.sam, etiqueta: "El SAM pactado" }),
     ],
+    // El valor de maquila si es obligatorio: a diferencia del SAM, la
+    // empresa necesita ver desde el primer dia cuanto genera cada modulo
+    // en pesos, no solo en unidades o porcentaje.
+    valor_maquila_unidad: [
+      reglas.requerido("El valor de maquila"),
+      reglas.numero({ ...loteLimites.valorMaquila, etiqueta: "El valor de maquila" }),
+    ],
     fecha_recepcion: [
       reglas.requerido("La fecha de recepcion"),
       reglas.fecha({ etiqueta: "La fecha de recepcion" }),
       reglas.noFutura({ etiqueta: "La fecha de recepcion" }),
     ],
-    fecha_pedido: [
-      reglas.fecha({ etiqueta: "La fecha del pedido" }),
-      reglas.noFutura({ etiqueta: "La fecha del pedido" }),
-    ],
     fecha_entrega_programada: [reglas.fecha({ etiqueta: "La fecha de entrega programada" })],
-    fecha_entrega_real: [
-      reglas.fecha({ etiqueta: "La fecha de entrega real" }),
-      reglas.noFutura({ etiqueta: "La fecha de entrega real" }),
-    ],
-    fecha_inicio: [
-      reglas.fecha({ etiqueta: "La fecha de inicio" }),
-      reglas.posteriorA("fecha_recepcion", "La fecha de inicio", "la fecha de recepcion"),
-    ],
-    fecha_finalizacion: [
-      reglas.fecha({ etiqueta: "La fecha de finalizacion" }),
-      reglas.posteriorA("fecha_inicio", "La fecha de finalizacion"),
-    ],
     cantidad_programada: [
       reglas.entero({ etiqueta: "La cantidad programada" }),
       reglas.numero({ ...loteLimites.cantidad, etiqueta: "La cantidad programada" }),

@@ -71,7 +71,7 @@ class BarraFecha extends StatelessWidget {
                       _esHoy ? 'Hoy' : desdeTexto(fecha).year.toString(),
                       style: TextStyle(
                         fontSize: 12,
-                        color: _esHoy ? Paleta.morado : Paleta.textoSuave,
+                        color: _esHoy ? Paleta.primario : Paleta.textoSuave,
                         fontWeight: _esHoy ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),

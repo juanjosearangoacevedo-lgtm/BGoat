@@ -8,8 +8,12 @@ import { reglas, validarFormulario } from "@/shared/validations";
  *
  *   - las unidades y las defectuosas son enteros que no bajan de cero,
  *   - las defectuosas no pueden superar lo producido,
- *   - si la hora quedo bajo el umbral hay que decir por que,
- *   - si esa causa lo exige, hay que escribir la nota.
+ *   - si la hora quedo bajo el umbral hay que registrar minutos perdidos,
+ *   - si la causa con mas minutos lo exige, hay que escribir la nota.
+ *
+ * Ya no hay un selector de "causa principal" aparte: se preguntaba lo
+ * mismo dos veces. La causa principal ahora es, igual que en el backend,
+ * la de mas minutos dentro de lo que ya se cargo en minutos perdidos.
  */
 export const capturaLimites = {
   unidades: { min: 0, max: 99999 },
@@ -39,23 +43,18 @@ export const capturaEsquema = {
 };
 
 /**
- * Reglas que dependen del resultado de la hora y de la causa elegida.
- * `bajoUmbral` lo calcula la rejilla comparando lo producido con la meta.
+ * Reglas que dependen de la causa que quedo con mas minutos cargados.
+ * `causaPrincipal` es ese registro del catalogo (o null si todavia no se
+ * cargo ninguna), calculado igual que lo hace el backend.
  */
-export function crearCapturaEsquema({ bajoUmbral = false, causaSeleccionada = null } = {}) {
+export function crearCapturaEsquema({ causaPrincipal = null } = {}) {
   return {
     ...capturaEsquema,
-    id_causa: [
-      reglas.requeridoSi(
-        () => bajoUmbral,
-        "La hora quedo bajo la meta: selecciona la causa",
-      ),
-    ],
     nota: [
       ...capturaEsquema.nota,
       reglas.requeridoSi(
-        () => Boolean(causaSeleccionada?.requiere_nota),
-        "Esta causa necesita que escribas una nota",
+        () => Boolean(causaPrincipal?.requiere_nota),
+        "Esa causa necesita que escribas una nota",
       ),
     ],
   };
@@ -65,35 +64,36 @@ export function crearCapturaEsquema({ bajoUmbral = false, causaSeleccionada = nu
  * Devuelve `{ errores, mensaje }`: los errores por campo y el aviso que la
  * rejilla muestra bajo el boton de guardar.
  *
- * `excedePerdidos` cubre la unica regla que no es de un solo campo: los
- * minutos perdidos se reparten entre varias causas y lo que no puede
- * pasar es que la suma se salga de la franja. El backend la valida
- * igual; esto es para que la digitadora lo vea antes de guardar.
+ * Dos reglas no son de un solo campo, asi que se revisan aparte:
+ *   - si la hora quedo bajo el umbral, tiene que haber algo cargado en
+ *     minutos perdidos (ya no se pregunta la causa por separado),
+ *   - los minutos perdidos, sumados, no pueden salirse de la franja.
+ * El backend valida las dos igual; esto es para que la digitadora lo
+ * vea antes de guardar.
  */
 export function validarCaptura({
   valores,
   bajoUmbral,
-  causaSeleccionada,
+  causaPrincipal,
   excedePerdidos = false,
   minutosFranja = 60,
 }) {
-  const errores = validarFormulario(
-    valores,
-    crearCapturaEsquema({ bajoUmbral, causaSeleccionada }),
+  const errores = validarFormulario(valores, crearCapturaEsquema({ causaPrincipal }));
+
+  const hayMinutosPerdidos = Object.values(valores.minutos_perdidos || {}).some(
+    (minutos) => Number(minutos) > 0,
   );
 
   if (excedePerdidos) {
     errores.minutos_perdidos = `Los minutos perdidos no caben en una franja de ${minutosFranja} minutos`;
+  } else if (bajoUmbral && !hayMinutosPerdidos) {
+    errores.minutos_perdidos =
+      "La hora quedo bajo la meta: registra cuanto tiempo se perdio y por que";
   }
 
   return {
     errores,
-    mensaje:
-      errores.minutos_perdidos ||
-      errores.id_causa ||
-      errores.nota ||
-      errores.unidades_defectuosas ||
-      "",
+    mensaje: errores.minutos_perdidos || errores.nota || errores.unidades_defectuosas || "",
     valido: Object.keys(errores).length === 0,
   };
 }

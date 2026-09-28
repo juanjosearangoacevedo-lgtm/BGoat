@@ -183,10 +183,10 @@ class _AjustesScreenState extends State<AjustesScreen> {
 
     return Tarjeta(
       alTocar: () => _usar(detalle),
-      borde: activo ? Paleta.morado : null,
+      borde: activo ? Paleta.primario : null,
       hijo: Row(
         children: [
-          Icon(icono, color: activo ? Paleta.morado : Paleta.textoSuave),
+          Icon(icono, color: activo ? Paleta.primario : Paleta.textoSuave),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -206,7 +206,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
               ],
             ),
           ),
-          if (activo) const Icon(Icons.check_circle, color: Paleta.morado, size: 20),
+          if (activo) const Icon(Icons.check_circle, color: Paleta.primario, size: 20),
         ],
       ),
     );

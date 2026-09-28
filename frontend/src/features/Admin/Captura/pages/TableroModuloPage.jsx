@@ -15,7 +15,7 @@ function Indicador({ etiqueta, valor, nota, tono = "gris" }) {
   };
 
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm">
+    <div className="rounded-2xl border border-emerald-200 bg-white px-5 py-4">
       <p className="text-xs font-medium uppercase tracking-wide text-gray-400">{etiqueta}</p>
       <p className={`mt-1 text-2xl font-bold tabular-nums ${tonos[tono]}`}>{valor}</p>
       {nota && <p className="mt-0.5 text-xs text-gray-400">{nota}</p>}

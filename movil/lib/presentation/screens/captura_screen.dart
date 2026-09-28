@@ -211,7 +211,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
           const SizedBox(height: 13),
           BarraAvance(
             valor: rejilla.avance,
-            color: rejilla.avance >= 1 ? Paleta.exito : Paleta.morado,
+            color: rejilla.avance >= 1 ? Paleta.exito : Paleta.primario,
           ),
           const SizedBox(height: 7),
           Text(
@@ -567,7 +567,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
                   umbral: modulo.modulo.umbralCumplimiento,
                 )
               else if (puedeCapturar)
-                const Icon(Icons.add_circle_outline, color: Paleta.morado),
+                const Icon(Icons.add_circle_outline, color: Paleta.primario),
             ],
           ),
           if (celda != null && celda.tieneIncidencia) ...[

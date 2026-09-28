@@ -1,7 +1,7 @@
 import { Package2 } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { DetailModal } from "@/shared/components/DetailModal";
-import { formatFecha, formatNumero, porcentaje } from "@/shared/utils/formatters";
+import { formatFecha, formatMoneda, formatNumero, porcentaje } from "@/shared/utils/formatters";
 import { DesgloseTallaColor } from "./DesgloseTallaColor";
 import { FichaTecnicaLote } from "./FichaTecnicaLote";
 
@@ -36,7 +36,6 @@ export function LoteDetalleModal({
             { label: "Codigo del lote", value: lote.codigo_lote },
             { label: "Numero de pedido", value: lote.numero_pedido },
             { label: "Cliente", value: lote.nombre_cliente || nombreCliente?.(lote.id_cliente) },
-            { label: "Fecha del pedido", value: formatFecha(lote.fecha_pedido) },
           ],
         },
         {
@@ -45,7 +44,6 @@ export function LoteDetalleModal({
             { label: "Referencia", value: lote.codigo_referencia },
             { label: "Nombre de la referencia", value: lote.nombre_referencia },
             { label: "Tipo de prenda", value: lote.nombre_tipo_prenda },
-            { label: "Material principal", value: lote.material_principal },
           ],
         },
         {
@@ -57,8 +55,13 @@ export function LoteDetalleModal({
                 ? `${lote.sam_pactado} minutos por prenda`
                 : "Sin SAM: no se puede iniciar la jornada",
             },
+            {
+              label: "Valor de maquila",
+              value: Number(lote.valor_maquila_unidad)
+                ? `${formatMoneda(lote.valor_maquila_unidad)} / unidad`
+                : null,
+            },
             { label: "Entrega programada", value: formatFecha(lote.fecha_entrega_programada) },
-            { label: "Entrega real", value: formatFecha(lote.fecha_entrega_real) },
           ],
         },
         {
@@ -125,8 +128,6 @@ export function LoteDetalleModal({
           titulo: "Fechas y notas",
           filas: [
             { label: "Recepcion", value: formatFecha(lote.fecha_recepcion) },
-            { label: "Inicio", value: formatFecha(lote.fecha_inicio) },
-            { label: "Finalizacion", value: formatFecha(lote.fecha_finalizacion) },
             { label: "Observaciones", value: lote.observaciones, ancho: "completo" },
           ],
         },

@@ -107,7 +107,7 @@ class _OrdenesScreenState extends State<OrdenesScreen> {
                 _filtro(
                   'Libres (${provider.totalLibres})',
                   activo: provider.asignacion == 'LIBRE',
-                  color: Paleta.naranja,
+                  color: Paleta.secundario,
                   alTocar: () => provider.cambiarAsignacion('LIBRE'),
                 ),
                 const SizedBox(width: 7),
@@ -145,7 +145,7 @@ class _OrdenesScreenState extends State<OrdenesScreen> {
     String texto, {
     required bool activo,
     required VoidCallback alTocar,
-    Color color = Paleta.morado,
+    Color color = Paleta.primario,
   }) {
     return GestureDetector(
       onTap: alTocar,
@@ -234,7 +234,7 @@ class _OrdenesScreenState extends State<OrdenesScreen> {
               Expanded(
                 child: BarraAvance(
                   valor: orden.avanceNormalizado,
-                  color: orden.estaEnRiesgo ? Paleta.error : Paleta.morado,
+                  color: orden.estaEnRiesgo ? Paleta.error : Paleta.primario,
                 ),
               ),
               const SizedBox(width: 10),
@@ -258,7 +258,7 @@ class _OrdenesScreenState extends State<OrdenesScreen> {
             Dato(
               etiqueta: orden.estaLibre ? 'Modulo' : 'La tomo',
               valor: orden.codigoModulo ?? 'Libre',
-              color: orden.estaLibre ? Paleta.naranja : Paleta.exito,
+              color: orden.estaLibre ? Paleta.secundario : Paleta.exito,
               icono: orden.estaLibre ? Icons.lock_open : Icons.precision_manufacturing,
             ),
           ]),
@@ -392,12 +392,12 @@ class _HojaOrden extends StatelessWidget {
                   Dato(
                     etiqueta: 'Avance',
                     valor: porcentaje(orden.porcentajeAvance),
-                    color: Paleta.morado,
+                    color: Paleta.primario,
                     destacado: true,
                   ),
                 ]),
                 const SizedBox(height: 12),
-                BarraAvance(valor: orden.avanceNormalizado, color: Paleta.morado),
+                BarraAvance(valor: orden.avanceNormalizado, color: Paleta.primario),
               ],
             ),
           ),
@@ -463,7 +463,7 @@ class _HojaOrden extends StatelessWidget {
                   Dato(
                     etiqueta: 'Tarifa minuto real',
                     valor: pesos(orden.tarifaMinutoReal),
-                    color: Paleta.morado,
+                    color: Paleta.primario,
                   ),
                 ]),
               ],
@@ -491,7 +491,7 @@ class _HojaOrden extends StatelessWidget {
                   Dato(
                     etiqueta: 'Asignacion',
                     valor: orden.estaLibre ? 'Libre' : 'Tomada',
-                    color: orden.estaLibre ? Paleta.naranja : Paleta.exito,
+                    color: orden.estaLibre ? Paleta.secundario : Paleta.exito,
                   ),
                   Dato(
                     etiqueta: 'Modulo',

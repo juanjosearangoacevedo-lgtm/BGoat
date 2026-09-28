@@ -48,35 +48,39 @@ function filtrosExtra(req, alias = "") {
 }
 
 // =====================================================================
-// GET /indicadores/resumen  -> KPIs del dashboard
+// GET /indicadores/resumen  -> KPIs de Indicadores y Reportes
+//   Acepta los mismos ?periodo y ?id_modulo que productividad-modulo y
+//   tendencia, para que las tarjetas de arriba respondan al mismo filtro
+//   que el resto de la pantalla en vez de quedarse fijas en "hoy".
 // =====================================================================
 indicadoresRouter.get(
   "/resumen",
   requierePermiso("Panel", "VER"),
   asyncHandler(async (req, res) => {
-    const fecha = fechaValida(req.query.fecha) ? req.query.fecha : hoy();
+    const r = rango(req);
+    const f = condicionFecha(r);
+    const extra = filtrosExtra(req);
 
-    const dia = await queryOne(
+    const periodo = await queryOne(
       `SELECT
-         COALESCE(SUM(unidades_producidas), 0)   AS produccion_dia,
-         COALESCE(SUM(unidades_defectuosas), 0)  AS defectuosas_dia,
+         COALESCE(SUM(unidades_producidas), 0)   AS produccion_periodo,
+         COALESCE(SUM(unidades_defectuosas), 0)  AS defectuosas_periodo,
          COALESCE(SUM(minutos_disponibles), 0)   AS minutos_disponibles,
-         COALESCE(SUM(minutos_ganados), 0)       AS minutos_ganados,
-         COALESCE(MAX(personas_totales), 0)      AS operarios_activos
-       FROM vw_estado_planta_hora WHERE fecha = ?`,
-      [fecha],
-    );
-
-    const mes = await queryOne(
-      `SELECT
-         COALESCE(SUM(unidades_producidas), 0) AS produccion_mes,
-         COALESCE(SUM(minutos_disponibles), 0) AS minutos_disponibles,
-         COALESCE(SUM(minutos_ganados), 0)     AS minutos_ganados
+         COALESCE(SUM(minutos_ganados), 0)       AS minutos_ganados
        FROM vw_estado_modulo_dia
-       WHERE fecha BETWEEN DATE_FORMAT(?, '%Y-%m-01') AND ?`,
-      [fecha, fecha],
+       WHERE ${f.sql}${extra.sql}`,
+      [...f.params, ...extra.params],
     );
 
+    const meta = await queryOne(
+      `SELECT COALESCE(SUM(meta_hora), 0) AS meta_periodo
+       FROM vw_registro_horario
+       WHERE ${f.sql}${extra.sql}`,
+      [...f.params, ...extra.params],
+    );
+
+    // El conteo de ordenes es el estado actual de la planta, no una
+    // metrica del periodo: no tiene "ordenes en proceso de marzo".
     const ordenes = await queryOne(
       `SELECT
          SUM(estado = 'EN_PROCESO') AS ordenes_en_proceso,
@@ -85,38 +89,28 @@ indicadoresRouter.get(
        FROM ordenes_produccion`,
     );
 
-    const metaDia = await queryOne(
-      `SELECT COALESCE(SUM(meta_hora), 0) AS meta_dia
-       FROM vw_registro_horario WHERE fecha = ?`,
-      [fecha],
-    );
-
     const eficiencia =
-      dia.minutos_disponibles > 0 ? (dia.minutos_ganados * 100) / dia.minutos_disponibles : 0;
-    const eficienciaMes =
-      mes.minutos_disponibles > 0 ? (mes.minutos_ganados * 100) / mes.minutos_disponibles : 0;
+      periodo.minutos_disponibles > 0
+        ? (periodo.minutos_ganados * 100) / periodo.minutos_disponibles
+        : 0;
 
     res.json({
-      fecha,
-      produccion_dia: Number(dia.produccion_dia),
-      meta_dia: Math.round(Number(metaDia.meta_dia)),
-      operarios_activos: Number(dia.operarios_activos),
+      produccion_periodo: Number(periodo.produccion_periodo),
+      meta_periodo: Math.round(Number(meta.meta_periodo)),
       ordenes_en_proceso: Number(ordenes.ordenes_en_proceso || 0),
       ordenes_pendientes: Number(ordenes.ordenes_pendientes || 0),
       eficiencia: Number(eficiencia.toFixed(2)),
-      eficiencia_mes: Number(eficienciaMes.toFixed(2)),
-      produccion_mes: Number(mes.produccion_mes),
       porcentaje_defectos:
-        dia.produccion_dia > 0
-          ? Number(((dia.defectuosas_dia * 100) / dia.produccion_dia).toFixed(2))
+        periodo.produccion_periodo > 0
+          ? Number(((periodo.defectuosas_periodo * 100) / periodo.produccion_periodo).toFixed(2))
           : 0,
       minutos_por_prenda:
-        dia.produccion_dia > 0
-          ? Number((dia.minutos_disponibles / dia.produccion_dia).toFixed(2))
+        periodo.produccion_periodo > 0
+          ? Number((periodo.minutos_disponibles / periodo.produccion_periodo).toFixed(2))
           : 0,
       cumplimiento_meta:
-        Number(metaDia.meta_dia) > 0
-          ? Number(((dia.produccion_dia * 100) / Number(metaDia.meta_dia)).toFixed(2))
+        Number(meta.meta_periodo) > 0
+          ? Number(((periodo.produccion_periodo * 100) / Number(meta.meta_periodo)).toFixed(2))
           : 0,
     });
   }),
@@ -192,24 +186,6 @@ indicadoresRouter.get(
 );
 
 // =====================================================================
-// GET /indicadores/planta-hora  -> la foto de la planta hora por hora
-// =====================================================================
-indicadoresRouter.get(
-  "/planta-hora",
-  requierePermiso("Panel", "VER"),
-  asyncHandler(async (req, res) => {
-    const fecha = fechaValida(req.query.fecha) ? req.query.fecha : hoy();
-    res.json({
-      fecha,
-      datos: await query(
-        "SELECT * FROM vw_estado_planta_hora WHERE fecha = ? ORDER BY hora_jornada",
-        [fecha],
-      ),
-    });
-  }),
-);
-
-// =====================================================================
 // GET /indicadores/productividad-modulo
 // =====================================================================
 indicadoresRouter.get(
@@ -236,33 +212,6 @@ indicadoresRouter.get(
          GROUP BY id_modulo, codigo_modulo, nombre_modulo
          ORDER BY eficiencia DESC`,
         [...f.params, ...extra.params],
-      ),
-    });
-  }),
-);
-
-// =====================================================================
-// GET /indicadores/productividad-operario
-// =====================================================================
-indicadoresRouter.get(
-  "/productividad-operario",
-  requierePermiso("Panel", "VER"),
-  asyncHandler(async (req, res) => {
-    const r = rango(req);
-    const f = condicionFecha(r);
-
-    res.json({
-      datos: await query(
-        `SELECT id_operario, codigo_operario, nombre_operario, cargo,
-                SUM(horas_participadas)      AS horas_participadas,
-                ROUND(SUM(unidades_atribuidas), 1) AS total_producido,
-                ROUND(AVG(eficiencia_promedio), 2) AS eficiencia
-         FROM vw_productividad_operario
-         WHERE ${f.sql}
-         GROUP BY id_operario, codigo_operario, nombre_operario, cargo
-         ORDER BY total_producido DESC
-         LIMIT 15`,
-        f.params,
       ),
     });
   }),
@@ -370,21 +319,6 @@ indicadoresRouter.get(
 );
 
 // =====================================================================
-// GET /indicadores/lotes-estado  -> distribucion de lotes por estado
-// =====================================================================
-indicadoresRouter.get(
-  "/lotes-estado",
-  requierePermiso("Panel", "VER"),
-  asyncHandler(async (_req, res) => {
-    res.json({
-      datos: await query(
-        "SELECT estado, COUNT(*) AS total FROM lotes GROUP BY estado ORDER BY total DESC",
-      ),
-    });
-  }),
-);
-
-// =====================================================================
 // GET /indicadores/tendencia  -> serie diaria de produccion y eficiencia
 // =====================================================================
 indicadoresRouter.get(
@@ -406,27 +340,6 @@ indicadoresRouter.get(
          GROUP BY fecha
          ORDER BY fecha`,
         f.params,
-      ),
-    });
-  }),
-);
-
-// =====================================================================
-// GET /indicadores/produccion-cliente
-//   Antes era /produccion-marca. Con cliente y marca fusionados en una
-//   sola entidad, agrupar por las dos era contar lo mismo dos veces.
-// =====================================================================
-indicadoresRouter.get(
-  "/produccion-cliente",
-  requierePermiso("Panel", "VER"),
-  asyncHandler(async (_req, res) => {
-    res.json({
-      datos: await query(
-        `SELECT nombre_cliente, SUM(unidades_producidas) AS total_producido
-         FROM vw_avance_orden
-         WHERE unidades_producidas > 0
-         GROUP BY nombre_cliente
-         ORDER BY total_producido DESC`,
       ),
     });
   }),

@@ -35,7 +35,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
   late final TextEditingController _codigoReferencia;
   late final TextEditingController _nombreReferencia;
   late final TextEditingController _sam;
-  late final TextEditingController _material;
+  late final TextEditingController _valorMaquila;
   late final TextEditingController _cantidad;
   late final TextEditingController _observaciones;
 
@@ -64,7 +64,9 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     _sam = TextEditingController(
       text: lote?.samPactado == null ? '' : '${lote!.samPactado}',
     );
-    _material = TextEditingController(text: lote?.materialPrincipal ?? '');
+    _valorMaquila = TextEditingController(
+      text: lote?.valorMaquilaUnidad == null ? '' : '${lote!.valorMaquilaUnidad}',
+    );
     _cantidad = TextEditingController(
       text: lote?.cantidadProgramada == null ? '' : '${lote!.cantidadProgramada}',
     );
@@ -88,7 +90,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     _codigoReferencia.dispose();
     _nombreReferencia.dispose();
     _sam.dispose();
-    _material.dispose();
+    _valorMaquila.dispose();
     _cantidad.dispose();
     _observaciones.dispose();
     super.dispose();
@@ -115,7 +117,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       samPactado: _sam.text.trim().isEmpty
           ? null
           : double.tryParse(_sam.text.replaceAll(',', '.')),
-      materialPrincipal: _texto(_material),
+      valorMaquilaUnidad: double.tryParse(_valorMaquila.text.replaceAll(',', '.')),
       cantidadProgramada: int.tryParse(_cantidad.text),
       fechaEntregaProgramada: _fechaEntrega,
       estado: _estado,
@@ -301,19 +303,11 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                   .toList(),
               onChanged: (valor) => setState(() => _idTipoPrenda = valor),
             ),
-            const SizedBox(height: 14),
-            TextFormField(
-              controller: _material,
-              decoration: const InputDecoration(
-                labelText: 'Material principal',
-                prefixIcon: Icon(Icons.texture_outlined),
-              ),
-            ),
             const SizedBox(height: 22),
             const TituloSeccion(
               'Lo que se negocio',
-              detalle: 'El SAM es el centro del sistema: fija la meta y sirve '
-                  'para facturar.',
+              detalle: 'El SAM fija la meta y el valor de maquila la '
+                  'facturacion: los dos vienen de la ficha del cliente.',
             ),
             Row(
               children: [
@@ -342,17 +336,36 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: TextFormField(
-                    controller: _cantidad,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    controller: _valorMaquila,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                    ],
                     decoration: const InputDecoration(
-                      labelText: 'Cantidad',
-                      prefixIcon: Icon(Icons.numbers),
-                      helperText: 'Programada',
+                      labelText: 'Valor de maquila *',
+                      prefixIcon: Icon(Icons.payments_outlined),
+                      helperText: 'Pesos por prenda',
                     ),
+                    validator: (valor) {
+                      final texto = (valor ?? '').trim();
+                      if (texto.isEmpty) return 'Obligatorio';
+                      final numero = double.tryParse(texto.replaceAll(',', '.'));
+                      if (numero == null || numero <= 0) return 'Valor invalido';
+                      return null;
+                    },
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _cantidad,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              decoration: const InputDecoration(
+                labelText: 'Cantidad programada',
+                prefixIcon: Icon(Icons.numbers),
+              ),
             ),
             if (_sam.text.trim().isEmpty) ...[
               const SizedBox(height: 10),

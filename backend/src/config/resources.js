@@ -45,8 +45,8 @@ export const recursos = {
   },
 
   /**
-   * El lote es la unica entidad del producto: absorbio al pedido (folio y
-   * fechas), a la referencia, a la ficha tecnica (SAM, material, imagen y
+   * El lote es la unica entidad del producto: absorbio al pedido (folio),
+   * a la referencia, a la ficha tecnica (SAM, valor de maquila, imagen y
    * PDF) y al tipo de prenda. Antes eso eran cinco pantallas distintas
    * para registrar un solo trabajo que llega en una sola hoja.
    *
@@ -60,15 +60,14 @@ export const recursos = {
     permiso: "Lotes",
     campos: [
       "codigo_lote", "numero_pedido", "id_cliente", "codigo_referencia",
-      "nombre_referencia", "id_tipo_prenda", "sam_pactado", "material_principal",
-      "fecha_pedido", "fecha_recepcion", "fecha_entrega_programada",
-      "fecha_entrega_real", "fecha_inicio", "fecha_finalizacion",
+      "nombre_referencia", "id_tipo_prenda", "sam_pactado", "valor_maquila_unidad",
+      "fecha_recepcion", "fecha_entrega_programada",
       "cantidad_programada", "cantidad_recibida", "observaciones", "estado",
     ],
     obligatorios: ["codigo_lote", "id_cliente", "fecha_recepcion"],
     buscables: [
       "codigo_lote", "numero_pedido", "codigo_referencia", "nombre_referencia",
-      "material_principal", "observaciones",
+      "observaciones",
     ],
     filtros: ["estado", "id_cliente", "id_tipo_prenda", "fecha_recepcion"],
     orden: "fecha_recepcion DESC, codigo_lote DESC",

@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useCatalogo } from "@/shared/hooks/useCatalogo";
 import { apiClient } from "@/shared/services/apiClient";
 import { endpoints } from "@/shared/services/endpoints";
-import { aFechaInput } from "@/shared/utils/formatters";
+import { aFechaInput, diasEntre } from "@/shared/utils/formatters";
 import { validarOrden } from "../validations/ordenValidation";
 
 /**
@@ -13,6 +13,12 @@ import { validarOrden } from "../validations/ordenValidation";
  * en el lote, que es donde llega la ficha tecnica del cliente. Por eso la
  * estimacion de capacidad se calcula con el SAM del lote elegido.
  *
+ * `cantidad_programada` y `valor_maquila_unidad` tampoco se piden: un
+ * lote corre en una sola orden, asi que las dos son del lote
+ * (`loteSeleccionado.cantidad_programada` / `.valor_maquila_unidad`) y el
+ * backend copia la cantidad al guardar. Pedirlas aqui tambien abria la
+ * puerta a que las cifras se desincronizaran.
+ *
  * `creado_por` no se pide: lo pone el backend con el usuario de la sesion.
  */
 export const emptyOrdenForm = {
@@ -20,8 +26,6 @@ export const emptyOrdenForm = {
   id_lote: "",
   fecha_inicio_programada: "",
   fecha_fin_programada: "",
-  cantidad_programada: "",
-  valor_maquila_unidad: "",
   prioridad: "MEDIA",
   estado: "PENDIENTE",
   observaciones: "",
@@ -91,18 +95,7 @@ export function useOrdenForm({ orderData } = {}) {
   }, []);
 
   const setField = (campo, valor) => {
-    setForm((previo) => {
-      const siguiente = { ...previo, [campo]: valor };
-
-      // Al escoger el lote se propone su cantidad: es lo que el cliente
-      // mando, y reescribirla a mano era la equivocacion mas comun.
-      if (campo === "id_lote" && !previo.cantidad_programada) {
-        const lote = lotes.buscar(valor);
-        if (lote?.cantidad_programada) siguiente.cantidad_programada = lote.cantidad_programada;
-      }
-
-      return siguiente;
-    });
+    setForm((previo) => ({ ...previo, [campo]: valor }));
     setErrors((previo) => ({ ...previo, [campo]: "" }));
   };
 
@@ -140,7 +133,7 @@ export function useOrdenForm({ orderData } = {}) {
    */
   const estimacion = useMemo(() => {
     const sam = Number(loteSeleccionado?.sam_pactado || 0);
-    const cantidad = Number(form.cantidad_programada || 0);
+    const cantidad = Number(loteSeleccionado?.cantidad_programada || 0);
 
     if (sam <= 0 || personas <= 0 || cantidad <= 0 || minutosDia <= 0) return null;
 
@@ -154,13 +147,17 @@ export function useOrdenForm({ orderData } = {}) {
       unidadesPorDia: Math.round(porDia),
       diasEstimados: Math.ceil(cantidad / porDia),
     };
-  }, [loteSeleccionado, personas, form.cantidad_programada, minutosDia]);
+  }, [loteSeleccionado, personas, minutosDia]);
+
+  /** "Del ... al ... (N dias)" mientras se programa la orden. */
+  const diasProgramados = useMemo(
+    () => diasEntre(form.fecha_inicio_programada, form.fecha_fin_programada),
+    [form.fecha_inicio_programada, form.fecha_fin_programada],
+  );
 
   const buildPayload = () => ({
     ...form,
     id_lote: aNumero(form.id_lote),
-    cantidad_programada: Number(form.cantidad_programada || 0),
-    valor_maquila_unidad: aNumero(form.valor_maquila_unidad),
     fecha_inicio_programada: form.fecha_inicio_programada || null,
     fecha_fin_programada: form.fecha_fin_programada || null,
     observaciones: form.observaciones || null,
@@ -211,6 +208,7 @@ export function useOrdenForm({ orderData } = {}) {
     validar,
     reset,
     estimacion,
+    diasProgramados,
     guardando,
     guardar,
     buildPayload,

@@ -63,11 +63,15 @@ class JornadaEntity {
   final int? idCliente;
   final String? nombreCliente;
 
-  /// La orden que este modulo tomo. Puede ser null: la jornada arranca igual
-  /// --la meta sale del SAM del lote-- y la facturacion queda en cero hasta que
-  /// alguien cree la orden.
+  /// La orden que este modulo tomo. Puede ser null: la jornada arranca igual,
+  /// con meta y facturacion completas desde la primera hora -- las dos salen
+  /// del lote. Sin orden, la produccion solo queda sin contar en el avance de
+  /// una orden puntual.
   final int? idOrden;
   final String? numeroOrden;
+
+  /// Viene del lote (`valorMaquilaUnidad` en `LoteEntity`), no de la orden:
+  /// se muestra aqui porque la jornada ya trae el lote resuelto.
   final double? valorMaquilaUnidad;
 
   final int cantidadOperarias;
@@ -112,7 +116,10 @@ class JornadaEntity {
 
   int get operariasIdentificadas => puestos.where((p) => !p.esAnonima).length;
 
-  /// Sin orden no hay tarifa, y sin tarifa la facturacion del dia sale en cero.
+  /// El SAM y el valor de maquila salen del lote, no de la orden: la meta y
+  /// la facturacion se calculan igual sin ella. Lo unico que se pierde sin
+  /// orden es que la produccion no queda contada en el avance de ninguna
+  /// orden puntual.
   bool get sinOrden => idOrden == null;
 
   /// La meta del dia con los minutos que se le pasen, a partir del SAM pactado.
@@ -173,17 +180,6 @@ class OpcionesJornadaEntity {
   List<LoteEntity> lotesDe(int? idCliente) {
     if (idCliente == null) return const [];
     return lotes.where((l) => l.idCliente == idCliente).toList();
-  }
-
-  /// Las ordenes que ESE modulo puede tomar sobre ESE lote: las libres, mas la
-  /// que el mismo modulo ya tenia. Las de otro modulo no aparecen, porque una
-  /// orden la trabaja un solo modulo.
-  List<OrdenEntity> ordenesDisponibles(int? idLote, int? idModulo) {
-    if (idLote == null) return const [];
-    return ordenes
-        .where((o) => o.idLote == idLote)
-        .where((o) => o.idModulo == null || o.idModulo == idModulo)
-        .toList();
   }
 }
 

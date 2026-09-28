@@ -51,14 +51,10 @@ export const endpoints = {
   // --- Indicadores (vistas) --------------------------------------------
   resumen: "/indicadores/resumen",
   estadoModulos: "/indicadores/estado-modulos",       // vw_estado_modulo_dia
-  plantaHora: "/indicadores/planta-hora",             // vw_estado_planta_hora
   productividadModulo: "/indicadores/productividad-modulo",
-  productividadOperario: "/indicadores/productividad-operario",
   causasPareto: "/indicadores/causas",                // vw_perdidas_por_causa
   sam: "/indicadores/sam",                            // SAM pactado vs observado
   tendencia: "/indicadores/tendencia",
-  produccionCliente: "/indicadores/produccion-cliente",
-  lotesEstado: "/indicadores/lotes-estado",
   ordenesRiesgo: "/indicadores/ordenes-riesgo",
 };
 

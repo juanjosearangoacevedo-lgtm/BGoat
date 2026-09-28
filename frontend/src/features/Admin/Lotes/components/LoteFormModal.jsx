@@ -15,8 +15,10 @@ import { FichaTecnicaLote } from "./FichaTecnicaLote";
  * en que llega la hoja del cliente: de quien es, que es, que acordamos,
  * cuanto y para cuando.
  *
- * La ficha y el desglose solo aparecen al editar: suben archivos y filas
- * hijas, y las dos cosas necesitan que el lote ya exista en la base.
+ * La ficha se puede cargar desde el primer momento: los archivos se
+ * guardan en memoria y se suben apenas el lote se crea. El desglose por
+ * talla y color si solo aparece al editar, porque son filas hijas que
+ * necesitan que el lote ya exista en la base.
  */
 export function LoteFormModal({
   open,
@@ -29,10 +31,13 @@ export function LoteFormModal({
   tallaOptions = [],
   colorOptions = [],
   subiendoFicha = false,
+  archivosPendientes,
   desglose = [],
   guardandoDesglose = false,
   onSubirFicha,
   onQuitarFicha,
+  onSeleccionarArchivoPendiente,
+  onQuitarArchivoPendiente,
   onGuardarDesglose,
   onChange,
   onClose,
@@ -89,13 +94,6 @@ export function LoteFormModal({
               hint="El folio con el que el cliente lo pidio. Opcional."
               onChange={(valor) => onChange("numero_pedido", valor)}
             />
-            <FormField
-              label="Fecha del pedido"
-              type="date"
-              value={form.fecha_pedido ?? ""}
-              error={errors.fecha_pedido}
-              onChange={(valor) => onChange("fecha_pedido", valor)}
-            />
           </div>
         </section>
 
@@ -127,13 +125,6 @@ export function LoteFormModal({
               error={errors.id_tipo_prenda}
               onChange={(valor) => onChange("id_tipo_prenda", valor)}
             />
-            <FormField
-              label="Material principal"
-              placeholder="Algodon 30/1"
-              value={form.material_principal ?? ""}
-              error={errors.material_principal}
-              onChange={(valor) => onChange("material_principal", valor)}
-            />
           </div>
         </section>
 
@@ -154,6 +145,18 @@ export function LoteFormModal({
               onChange={(valor) => onChange("sam_pactado", valor)}
             />
             <FormField
+              label="Valor de maquila por unidad"
+              required
+              type="number"
+              step="0.01"
+              min={0}
+              placeholder="2600"
+              value={form.valor_maquila_unidad ?? ""}
+              error={errors.valor_maquila_unidad}
+              hint="Lo que paga el cliente por prenda. Con el SAM arma la meta de facturacion de cada hora."
+              onChange={(valor) => onChange("valor_maquila_unidad", valor)}
+            />
+            <FormField
               label="Cantidad programada"
               type="number"
               min={0}
@@ -167,15 +170,8 @@ export function LoteFormModal({
               type="date"
               value={form.fecha_entrega_programada ?? ""}
               error={errors.fecha_entrega_programada}
+              hint="El compromiso con el cliente: cuando debe estar terminada la produccion."
               onChange={(valor) => onChange("fecha_entrega_programada", valor)}
-            />
-            <FormField
-              label="Entrega real"
-              type="date"
-              value={form.fecha_entrega_real ?? ""}
-              error={errors.fecha_entrega_real}
-              hint="Se llena cuando el lote sale."
-              onChange={(valor) => onChange("fecha_entrega_real", valor)}
             />
           </div>
         </section>
@@ -191,6 +187,7 @@ export function LoteFormModal({
               required
               value={form.fecha_recepcion ?? ""}
               error={errors.fecha_recepcion}
+              hint="Cuando llego la mercancia a la planta -- no cuando se empieza a producir."
               onChange={(valor) => onChange("fecha_recepcion", valor)}
             />
             <FormField
@@ -203,20 +200,6 @@ export function LoteFormModal({
               onChange={(valor) => onChange("cantidad_recibida", valor)}
             />
             <FormField
-              label="Fecha de inicio"
-              type="date"
-              value={form.fecha_inicio ?? ""}
-              error={errors.fecha_inicio}
-              onChange={(valor) => onChange("fecha_inicio", valor)}
-            />
-            <FormField
-              label="Fecha de finalizacion"
-              type="date"
-              value={form.fecha_finalizacion ?? ""}
-              error={errors.fecha_finalizacion}
-              onChange={(valor) => onChange("fecha_finalizacion", valor)}
-            />
-            <FormField
               label="Estado"
               required
               value={form.estado ?? "REGISTRADO"}
@@ -227,28 +210,30 @@ export function LoteFormModal({
           </div>
         </section>
 
+        <FichaTecnicaLote
+          lote={editing}
+          subiendo={subiendoFicha}
+          onSubir={onSubirFicha}
+          onQuitar={onQuitarFicha}
+          pendientes={editing ? undefined : archivosPendientes}
+          onSeleccionarPendiente={onSeleccionarArchivoPendiente}
+          onQuitarPendiente={onQuitarArchivoPendiente}
+        />
+
         {editing ? (
-          <>
-            <FichaTecnicaLote
-              lote={editing}
-              subiendo={subiendoFicha}
-              onSubir={onSubirFicha}
-              onQuitar={onQuitarFicha}
-            />
-            <DesgloseTallaColor
-              lote={editing}
-              desglose={desglose}
-              tallaOptions={tallaOptions}
-              colorOptions={colorOptions}
-              guardando={guardandoDesglose}
-              cantidadProgramada={form.cantidad_programada}
-              onGuardar={onGuardarDesglose}
-            />
-          </>
+          <DesgloseTallaColor
+            lote={editing}
+            desglose={desglose}
+            tallaOptions={tallaOptions}
+            colorOptions={colorOptions}
+            guardando={guardandoDesglose}
+            cantidadProgramada={form.cantidad_programada}
+            onGuardar={onGuardarDesglose}
+          />
         ) : (
           <p className="rounded-2xl border border-dashed border-gray-200 p-4 text-sm text-gray-500">
-            La ficha tecnica y el desglose por talla y color se agregan despues de crear el lote,
-            desde su detalle o volviendo a este formulario.
+            El desglose por talla y color se agrega despues de crear el lote, desde su detalle o
+            volviendo a este formulario.
           </p>
         )}
 

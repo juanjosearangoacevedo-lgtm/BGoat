@@ -69,30 +69,28 @@ INSERT IGNORE INTO `operarios`
 -- Lotes
 --
 --   Cada lote trae todo lo del producto: el folio del pedido, la
---   referencia, el tipo de prenda, el SAM pactado y su ficha tecnica.
---   `ruta_imagen` y `ruta_documento_pdf` quedan vacias porque los
---   archivos se suben desde la pantalla del lote.
+--   referencia, el tipo de prenda, el SAM pactado, el valor de maquila
+--   y su ficha tecnica. `ruta_imagen` y `ruta_documento_pdf` quedan
+--   vacias porque los archivos se suben desde la pantalla del lote.
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `lotes`
   (`codigo_lote`, `numero_pedido`, `id_cliente`, `codigo_referencia`, `nombre_referencia`,
-   `id_tipo_prenda`, `sam_pactado`, `material_principal`,
-   `fecha_pedido`, `fecha_recepcion`, `fecha_entrega_programada`, `fecha_inicio`,
+   `id_tipo_prenda`, `sam_pactado`, `valor_maquila_unidad`,
+   `fecha_recepcion`, `fecha_entrega_programada`,
    `cantidad_programada`, `cantidad_recibida`, `estado`, `observaciones`)
 SELECT v.codigo, v.pedido, c.id_cliente, v.ref, v.nombre_ref,
-       tp.id_tipo_prenda, v.sam, v.material,
-       DATE_SUB(CURDATE(), INTERVAL v.pedido_dias DAY),
+       tp.id_tipo_prenda, v.sam, v.precio,
        DATE_SUB(CURDATE(), INTERVAL v.recibido DAY),
        DATE_ADD(CURDATE(), INTERVAL v.entrega DAY),
-       DATE_SUB(CURDATE(), INTERVAL v.inicio DAY),
        v.cantidad, v.cantidad, v.estado, v.nota
 FROM (
-  SELECT 'LOT-9703-01'  AS codigo, 'PED-2026-001' AS pedido, 'GEF'          AS cliente, '9703'   AS ref, 'Camiseta cuello redondo' AS nombre_ref, 'Camiseta'      AS tipo, 6.50 AS sam, 'Algodon 30/1'        AS material,  1200 AS cantidad, 10 AS pedido_dias, 3 AS recibido, 12 AS entrega, 0 AS inicio, 'EN_PROCESO' AS estado, 'Camiseta basica en algodon' AS nota UNION ALL
-  SELECT 'LOT-9812-01',           'PED-2026-002',           'GEF',                      '9812',           'Boxer algodon',                       'Ropa interior',        4.20,       'Algodon elastizado',           12000,             14,              5,              20,             4,          'EN_PROCESO',          'Boxer masculino elasticado' UNION ALL
-  SELECT 'LOT-PB450-01',          'PED-2026-003',           'Punto Blanco',             'PB-450',         'Camiseta interior',                   'Ropa interior',        5.80,       'Algodon peinado',               6000,             12,              5,              15,             4,          'EN_PROCESO',          'Camiseta interior cuello V' UNION ALL
-  SELECT 'LOT-BF220-01',          'PED-2026-004',           'Baby Fresh',               'BF-220',         'Conjunto bebe',                       'Sudadera',             9.40,       'Algodon perchado',              3500,             12,              5,               9,             4,          'EN_PROCESO',          'Conjunto dos piezas' UNION ALL
+  SELECT 'LOT-9703-01'  AS codigo, 'PED-2026-001' AS pedido, 'GEF'          AS cliente, '9703'   AS ref, 'Camiseta cuello redondo' AS nombre_ref, 'Camiseta'      AS tipo, 6.50 AS sam, 2800.00 AS precio, 'Algodon 30/1'        AS material,  1200 AS cantidad, 10 AS pedido_dias, 3 AS recibido, 12 AS entrega, 0 AS inicio, 'EN_PROCESO' AS estado, 'Camiseta basica en algodon' AS nota UNION ALL
+  SELECT 'LOT-9812-01',           'PED-2026-002',           'GEF',                      '9812',           'Boxer algodon',                       'Ropa interior',        4.20,       1900.00,          'Algodon elastizado',           12000,             14,              5,              20,             4,          'EN_PROCESO',          'Boxer masculino elasticado' UNION ALL
+  SELECT 'LOT-PB450-01',          'PED-2026-003',           'Punto Blanco',             'PB-450',         'Camiseta interior',                   'Ropa interior',        5.80,       2400.00,          'Algodon peinado',               6000,             12,              5,              15,             4,          'EN_PROCESO',          'Camiseta interior cuello V' UNION ALL
+  SELECT 'LOT-BF220-01',          'PED-2026-004',           'Baby Fresh',               'BF-220',         'Conjunto bebe',                       'Sudadera',             9.40,       3900.00,          'Algodon perchado',              3500,             12,              5,               9,             4,          'EN_PROCESO',          'Conjunto dos piezas' UNION ALL
   -- Recien llegado y sin empezar: su orden se queda LIBRE, esperando a
   -- que un modulo la tome. Es el estado nuevo que hay que poder ver.
-  SELECT 'LOT-AC330-01',          'PED-2026-005',           'Arturo Calle',             'AC-330',         'Camisa manga larga',                  'Camisa',               8.10,       'Popelina algodon',              2400,              5,              1,              18,             0,          'REGISTRADO',          'Llego ayer, sin asignar a ningun modulo'
+  SELECT 'LOT-AC330-01',          'PED-2026-005',           'Arturo Calle',             'AC-330',         'Camisa manga larga',                  'Camisa',               8.10,       4100.00,          'Popelina algodon',              2400,              5,              1,              18,             0,          'REGISTRADO',          'Llego ayer, sin asignar a ningun modulo'
 ) v
 JOIN `clientes` c ON c.nombre = v.cliente
 LEFT JOIN `tipos_prenda` tp ON tp.nombre = v.tipo;
@@ -117,24 +115,25 @@ JOIN `colores` co ON co.nombre = v.color;
 
 -- ---------------------------------------------------------------------
 -- Ordenes de produccion
---   Asignan cada lote a un modulo con su valor de maquila.
+--   Asignan cada lote a un modulo. El valor de maquila ya no va aqui:
+--   vive en el lote (ver arriba), junto al SAM.
 -- ---------------------------------------------------------------------
 -- La orden ya no nombra modulo: nace libre. Las cuatro primeras las toma
 -- un modulo mas abajo, al abrir su jornada; OP-2026-0005 se queda libre a
 -- proposito, para que se vea el estado LIBRE en el tablero de ordenes.
 INSERT IGNORE INTO `ordenes_produccion`
   (`numero_orden`, `id_lote`, `fecha_inicio_programada`, `fecha_fin_programada`,
-   `cantidad_programada`, `valor_maquila_unidad`, `prioridad`, `estado`, `creado_por`)
+   `cantidad_programada`, `prioridad`, `estado`, `creado_por`)
 SELECT v.numero, l.id_lote,
        DATE_SUB(CURDATE(), INTERVAL v.desde DAY),
        DATE_ADD(CURDATE(), INTERVAL v.dias DAY),
-       l.cantidad_programada, v.valor, v.prioridad, v.estado, u.id_usuario
+       l.cantidad_programada, v.prioridad, v.estado, u.id_usuario
 FROM (
-  SELECT 'OP-2026-0001' AS numero, 'LOT-9703-01'  AS lote, 2800.00 AS valor, 'ALTA'    AS prioridad, 0 AS desde, 10 AS dias, 'EN_PROCESO' AS estado UNION ALL
-  SELECT 'OP-2026-0002',           'LOT-9812-01',          1900.00,          'MEDIA',               4,           8,          'EN_PROCESO' UNION ALL
-  SELECT 'OP-2026-0003',           'LOT-PB450-01',         2400.00,          'ALTA',                4,           3,          'EN_PROCESO' UNION ALL
-  SELECT 'OP-2026-0004',           'LOT-BF220-01',         3900.00,          'URGENTE',             4,           2,          'EN_PROCESO' UNION ALL
-  SELECT 'OP-2026-0005',           'LOT-AC330-01',         4100.00,          'MEDIA',               0,          12,          'PENDIENTE'
+  SELECT 'OP-2026-0001' AS numero, 'LOT-9703-01'  AS lote, 'ALTA'    AS prioridad, 0 AS desde, 10 AS dias, 'EN_PROCESO' AS estado UNION ALL
+  SELECT 'OP-2026-0002',           'LOT-9812-01',          'MEDIA',               4,           8,          'EN_PROCESO' UNION ALL
+  SELECT 'OP-2026-0003',           'LOT-PB450-01',         'ALTA',                4,           3,          'EN_PROCESO' UNION ALL
+  SELECT 'OP-2026-0004',           'LOT-BF220-01',         'URGENTE',             4,           2,          'EN_PROCESO' UNION ALL
+  SELECT 'OP-2026-0005',           'LOT-AC330-01',         'MEDIA',               0,          12,          'PENDIENTE'
 ) v
 JOIN `lotes` l ON l.codigo_lote = v.lote
 JOIN `usuarios` u ON u.correo = 'admin@bgoat.com';
@@ -207,7 +206,7 @@ INSERT IGNORE INTO `registros_horarios`
 SELECT jm.id_jornada_modulo, jm.id_modulo, jm.fecha, v.hora,
        COALESCE(jf.minutos, 60),
        jm.id_lote, jm.id_orden_produccion, v.personas, v.producidas,
-       v.defectuosas, l.sam_pactado, o.valor_maquila_unidad, c.id_causa, v.nota, u.id_usuario
+       v.defectuosas, l.sam_pactado, l.valor_maquila_unidad, c.id_causa, v.nota, u.id_usuario
 FROM (
   SELECT 1 AS hora, 3 AS personas, 0 AS producidas, 0 AS defectuosas, 'MONTAJE'     AS causa, 'Montaje del modulo para la referencia 9703' AS nota UNION ALL
   SELECT 2,          3,             0,               0,                'MONTAJE',         'Montaje del modulo para la referencia 9703' UNION ALL
@@ -219,7 +218,6 @@ FROM (
 JOIN `jornada_modulo` jm ON jm.fecha = CURDATE()
 JOIN `modulos` m ON m.id_modulo = jm.id_modulo AND m.codigo = 'MOD-02'
 JOIN `lotes` l ON l.id_lote = jm.id_lote
-JOIN `ordenes_produccion` o ON o.id_orden_produccion = jm.id_orden_produccion
 JOIN `usuarios` u ON u.correo = 'admin@bgoat.com'
 JOIN `causas_desviacion` c ON c.codigo = v.causa
 LEFT JOIN `jornada_dia` jd ON jd.dia_semana = WEEKDAY(jm.fecha) + 1
@@ -253,7 +251,7 @@ SELECT jm.id_jornada_modulo, jm.id_modulo, jm.fecha, h.hora,
          ROUND((jm.cantidad_operarias * COALESCE(jf.minutos, 60) / l.sam_pactado)
                * IF(jm.fecha = CURDATE(), cfg.factor_hoy, cfg.factor)) - (h.hora MOD 3), 0),
        (h.hora MOD 4 = 0),
-       l.sam_pactado, o.valor_maquila_unidad, u.id_usuario
+       l.sam_pactado, l.valor_maquila_unidad, u.id_usuario
 FROM (
   SELECT 'MOD-01' AS modulo, 0.88 AS factor, 0.91 AS factor_hoy UNION ALL
   SELECT 'MOD-03',           0.79,           0.74 UNION ALL
@@ -262,7 +260,6 @@ FROM (
 JOIN `modulos` m ON m.codigo = cfg.modulo
 JOIN `jornada_modulo` jm ON jm.id_modulo = m.id_modulo
 JOIN `lotes` l ON l.id_lote = jm.id_lote
-JOIN `ordenes_produccion` o ON o.id_orden_produccion = jm.id_orden_produccion
 JOIN `usuarios` u ON u.correo = 'admin@bgoat.com'
 JOIN (
   SELECT 1 AS hora UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL

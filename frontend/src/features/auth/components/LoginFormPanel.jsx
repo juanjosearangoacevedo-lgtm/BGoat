@@ -1,6 +1,5 @@
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Checkbox } from "@/shared/components/checkbox";
-import { authMarca } from "../services/authContent";
 import { AuthBrand } from "./AuthBrand";
 
 /**
@@ -31,16 +30,28 @@ export function LoginFormPanel({
     "h-[56px] w-full rounded-[14px] border border-white/70 bg-white/92 pl-[52px] pr-4 text-[15px] text-[#16232B] shadow-[0_2px_10px_-4px_rgba(14,38,32,0.25)] outline-none transition placeholder:text-[#93A0A7] focus:border-[#D08E10] focus:ring-4 focus:ring-[#D08E10]/20";
 
   return (
-    <div
-      className={`fuente-bgoat w-full max-w-[520px] rounded-[26px] border border-white/60 p-6 shadow-[0_34px_90px_-24px_rgba(6,24,19,0.62)] backdrop-blur-xl sm:p-10 ${
-        dark ? "bg-white/74" : "bg-white/84"
-      }`}
-    >
-      <div className="flex flex-col items-center text-center">
-        <AuthBrand logo="image" nombre={authMarca} orientacion="vertical" />
+    <div className="relative w-full max-w-[520px]">
+      {/* Resplandor detras del logo: los mismos colores del arcoiris del
+          ojo de God's Eyes, como si el logo lo emitiera. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 top-[-14px] h-[165px] w-[220px] -translate-x-1/2 rounded-full opacity-90 blur-[26px]"
+        style={{
+          background:
+            "conic-gradient(from 90deg, #E14F8A, #F2994A, #F2C94C, #6FCF97, #2F80ED, #9B51E0, #E14F8A)",
+        }}
+      />
 
-        <h1 className="mt-4 text-[27px] font-bold leading-tight text-[#12263B] sm:text-[31px]">
-          Bienvenido de nuevo
+      <div
+        className={`fuente-bgoat relative w-full rounded-[26px] border border-white/60 p-6 shadow-[0_34px_90px_-24px_rgba(6,24,19,0.62)] backdrop-blur-xl sm:p-10 ${
+          dark ? "bg-white/74" : "bg-white/84"
+        }`}
+      >
+        <div className="flex flex-col items-center text-center">
+          <AuthBrand logo="image" nombre={null} orientacion="vertical" />
+
+        <h1 className="fuente-bienvenida mt-4 text-[29px] font-bold leading-tight text-[#12263B] sm:text-[33px]">
+          Bienvenido
         </h1>
         <p className="mt-1.5 text-[15px] text-[#55636E]">
           Ingresa tus credenciales para acceder al sistema
@@ -158,9 +169,10 @@ export function LoginFormPanel({
         <span className="h-px flex-1 bg-[#C9D1CE]" />
       </div>
 
-      <p className="mt-4 text-center text-[11.5px] leading-relaxed text-[#55636E] sm:text-[12px]">
-        Al iniciar sesión, aceptas nuestros Términos de Servicio y Política de Privacidad
-      </p>
+        <p className="mt-4 text-center text-[11.5px] leading-relaxed text-[#55636E] sm:text-[12px]">
+          Al iniciar sesión, aceptas nuestros Términos de Servicio y Política de Privacidad
+        </p>
+      </div>
     </div>
   );
 }

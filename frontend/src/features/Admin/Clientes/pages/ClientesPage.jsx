@@ -98,6 +98,7 @@ export function ClientesPage() {
 
       <StatsGrid
         columns={4}
+        variant="sutil"
         items={[
           { label: "Total clientes", value: clientes.resumen.total },
           { label: "Activos", value: clientes.resumen.activos, color: "#10b981" },

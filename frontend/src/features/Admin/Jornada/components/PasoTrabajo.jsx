@@ -163,6 +163,14 @@ export function PasoTrabajo({
                 </dd>
               </div>
               <div>
+                <dt className="text-xs text-gray-500">Valor de maquila</dt>
+                <dd className="font-semibold text-[#0F4C3F]">
+                  {loteSeleccionado.valor_maquila_unidad
+                    ? `${formatMoneda(loteSeleccionado.valor_maquila_unidad)} / und`
+                    : "Falta"}
+                </dd>
+              </div>
+              <div>
                 <dt className="text-xs text-gray-500">Cantidad</dt>
                 <dd className="font-medium text-gray-900">
                   {formatNumero(loteSeleccionado.cantidad_programada)}
@@ -179,12 +187,7 @@ export function PasoTrabajo({
               {ordenSeleccionada && (
                 <div className="col-span-2">
                   <dt className="text-xs text-gray-500">Orden que va a tomar</dt>
-                  <dd className="font-medium text-gray-900">
-                    {ordenSeleccionada.numero_orden}
-                    {ordenSeleccionada.valor_maquila_unidad
-                      ? ` · ${formatMoneda(ordenSeleccionada.valor_maquila_unidad)} / und`
-                      : ""}
-                  </dd>
+                  <dd className="font-medium text-gray-900">{ordenSeleccionada.numero_orden}</dd>
                 </div>
               )}
             </dl>
@@ -197,6 +200,17 @@ export function PasoTrabajo({
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               Este lote no tiene SAM pactado. Sin el no se puede calcular la meta de la hora:
               completalo en Planta &gt; Lotes antes de iniciar.
+            </p>
+          )}
+
+          {/* Sin valor de maquila la meta sigue funcionando, pero la
+              facturacion del modulo queda en cero: la empresa pierde el
+              dato de cuanta plata genera esa hora, no solo el porcentaje. */}
+          {loteSeleccionado.sam_pactado && !loteSeleccionado.valor_maquila_unidad && (
+            <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              Este lote no tiene valor de maquila. La meta funciona igual, pero la facturacion del
+              modulo quedara en cero: completalo en Planta &gt; Lotes.
             </p>
           )}
 

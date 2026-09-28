@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../core/fechas.dart';
 import '../../core/tema.dart';
 import '../providers/captura_provider.dart';
+import '../providers/jornada_provider.dart';
+import '../providers/resumen_provider.dart';
 import '../providers/sesion_provider.dart';
 import '../widgets/tarjetas.dart';
 import 'ajustes_screen.dart';
@@ -33,6 +35,8 @@ class _MenuScreenState extends State<MenuScreen> {
     // vencidas estan sin registrar, y es lo primero que hay que saber.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CapturaProvider>().refrescarPendientes();
+      context.read<ResumenProvider>().cargar();
+      context.read<JornadaProvider>().cargar();
     });
   }
 
@@ -40,16 +44,26 @@ class _MenuScreenState extends State<MenuScreen> {
   Widget build(BuildContext context) {
     final sesion = context.watch<SesionProvider>();
     final captura = context.watch<CapturaProvider>();
+    final resumen = context.watch<ResumenProvider>();
+    final jornada = context.watch<JornadaProvider>();
     final usuario = sesion.usuario;
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => context.read<CapturaProvider>().refrescarPendientes(),
+          onRefresh: () async {
+            await Future.wait([
+              context.read<CapturaProvider>().refrescarPendientes(),
+              context.read<ResumenProvider>().cargar(),
+              context.read<JornadaProvider>().cargar(),
+            ]);
+          },
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 28),
             children: [
               _encabezado(sesion, usuario?.nombres ?? ''),
+              const SizedBox(height: 18),
+              _resumenDia(resumen, jornada),
               const SizedBox(height: 18),
               if (captura.totalPendientes > 0) ...[
                 _avisoPendientes(captura.totalPendientes),
@@ -63,7 +77,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 icono: Icons.assignment_outlined,
                 titulo: 'Ordenes de produccion',
                 detalle: 'El compromiso sobre un lote. Nace libre y espera modulo.',
-                color: Paleta.morado,
+                color: Paleta.primario,
                 permiso: sesion.puede('Ordenes', 'VER'),
                 destino: const OrdenesScreen(),
               ),
@@ -72,7 +86,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 icono: Icons.play_circle_outline,
                 titulo: 'Inicio de jornada',
                 detalle: 'Modulo, operarias y lote. Sin esto no se puede capturar.',
-                color: Paleta.naranja,
+                color: Paleta.secundario,
                 permiso: sesion.puede('Jornada', 'VER'),
                 destino: const JornadaScreen(),
               ),
@@ -101,7 +115,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 icono: Icons.inventory_2_outlined,
                 titulo: 'Lotes',
                 detalle: 'El producto: referencia, SAM pactado y ficha tecnica.',
-                color: Paleta.amarillo,
+                color: Paleta.terciario,
                 permiso: sesion.puede('Lotes', 'VER'),
                 destino: const LotesScreen(),
               ),
@@ -119,7 +133,7 @@ class _MenuScreenState extends State<MenuScreen> {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: Paleta.morado,
+            color: Paleta.primario,
             borderRadius: BorderRadius.circular(12),
           ),
           alignment: Alignment.center,
@@ -162,6 +176,79 @@ class _MenuScreenState extends State<MenuScreen> {
           tooltip: 'Cerrar sesion',
         ),
       ],
+    );
+  }
+
+  /// El resumen del dia: los mismos KPIs de la pestana "Resumen" del Panel
+  /// web (`/indicadores/resumen?periodo=hoy`), mas "Jornadas en uso" que sale
+  /// del mismo catalogo que ya carga la pantalla de Inicio de Jornada -- no
+  /// hace falta pedirselo aparte al backend.
+  Widget _resumenDia(ResumenProvider resumen, JornadaProvider jornada) {
+    if (!context.read<SesionProvider>().puede('Panel', 'VER')) {
+      return const SizedBox.shrink();
+    }
+
+    final datos = resumen.resumen;
+    final totalModulos = jornada.modulosAbiertos.length + jornada.modulosLibres.length;
+    final jornadasEnUso =
+        totalModulos == 0 ? null : (jornada.modulosAbiertos.length * 100) ~/ totalModulos;
+
+    return Tarjeta(
+      hijo: Column(
+        children: [
+          FilaDeDatos([
+            Dato(
+              etiqueta: 'Produccion diaria',
+              valor: datos == null ? '—' : '${datos.produccionPeriodo}',
+              color: Paleta.primario,
+              destacado: true,
+            ),
+            Dato(
+              etiqueta: 'Eficiencia',
+              valor: datos == null ? '—' : '${datos.eficiencia.round()}%',
+              color: Paleta.exito,
+              destacado: true,
+            ),
+          ]),
+          const SizedBox(height: 12),
+          FilaDeDatos([
+            Dato(
+              etiqueta: 'Cumpl. de meta',
+              valor: datos == null ? '—' : '${datos.cumplimientoMeta.round()}%',
+              color: Paleta.secundario,
+              destacado: true,
+            ),
+            Dato(
+              etiqueta: 'Jornadas en uso',
+              valor: jornadasEnUso == null ? '—' : '$jornadasEnUso%',
+              color: Paleta.terciario,
+              destacado: true,
+            ),
+          ]),
+          const SizedBox(height: 14),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              '% de defectos',
+              style: TextStyle(
+                fontSize: 11,
+                color: Paleta.textoSuave,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          BarraAvance(
+            valor: (datos?.porcentajeDefectos ?? 0) / 100,
+            color: Paleta.error,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            datos == null ? '—' : '${datos.porcentajeDefectos.toStringAsFixed(1)}% de la produccion',
+            style: const TextStyle(fontSize: 11, color: Paleta.textoSuave),
+          ),
+        ],
+      ),
     );
   }
 

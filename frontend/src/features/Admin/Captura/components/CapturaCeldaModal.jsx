@@ -1,10 +1,17 @@
-import { AlertTriangle, Check, Minus, Plus, Timer, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, Check, Timer, X } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { formatMoneda } from "@/shared/utils/formatters";
 import { validarCaptura } from "../validations/capturaValidation";
 
-/** Contador grande: la digitadora captura de pie, sin teclado. */
-function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca" }) {
+/**
+ * Contador grande. Por defecto tiene +/- para ajustes chicos (personas,
+ * defectuosas), pero para numeros que pueden ser grandes (unidades
+ * producidas puede pasar de 80 en una hora) se puede pedir `soloTeclado`:
+ * ahi se quitan los botones y el numero se ve como un campo de verdad, no
+ * como texto plano, para que sea obvio que se puede escribir directo.
+ */
+function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca", soloTeclado = false, autoFocus = false }) {
   const numero = Number(valor || 0);
   const colores = {
     marca: "text-[#0F4C3F]",
@@ -14,37 +21,85 @@ function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
-      <p className="mb-2 text-center text-xs font-medium uppercase tracking-wide text-gray-500">
-        {etiqueta}
-      </p>
-      <div className="flex items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={() => onCambiar(Math.max(numero - paso, min))}
-          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] active:scale-95"
-          aria-label={`Restar ${etiqueta}`}
-        >
-          <Minus className="h-5 w-5" />
-        </button>
-
+      {etiqueta && (
+        <p className="mb-2 text-center text-xs font-medium uppercase tracking-wide text-gray-500">
+          {etiqueta}
+        </p>
+      )}
+      {soloTeclado ? (
         <input
           type="number"
           inputMode="numeric"
+          autoFocus={autoFocus}
           value={numero}
           min={min}
           onChange={(evento) => onCambiar(Math.max(Number(evento.target.value || 0), min))}
-          className={`w-full min-w-0 rounded-xl border border-transparent bg-transparent text-center text-3xl font-bold outline-none focus:border-gray-200 focus:bg-white ${colores[tono]}`}
+          onFocus={(evento) => evento.target.select()}
+          className={`w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-center text-3xl font-bold outline-none focus:border-[#0F4C3F] ${colores[tono]}`}
         />
+      ) : (
+        <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => onCambiar(Math.max(numero - paso, min))}
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] active:scale-95"
+            aria-label={`Restar ${etiqueta || "cantidad"}`}
+          >
+            <span className="text-xl leading-none">−</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => onCambiar(numero + paso)}
-          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] active:scale-95"
-          aria-label={`Sumar ${etiqueta}`}
-        >
-          <Plus className="h-5 w-5" />
-        </button>
-      </div>
+          <input
+            type="number"
+            inputMode="numeric"
+            value={numero}
+            min={min}
+            onChange={(evento) => onCambiar(Math.max(Number(evento.target.value || 0), min))}
+            onFocus={(evento) => evento.target.select()}
+            className={`w-full min-w-0 rounded-xl border border-transparent bg-transparent text-center text-3xl font-bold outline-none focus:border-gray-200 focus:bg-white ${colores[tono]}`}
+          />
+
+          <button
+            type="button"
+            onClick={() => onCambiar(numero + paso)}
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] active:scale-95"
+            aria-label={`Sumar ${etiqueta || "cantidad"}`}
+          >
+            <span className="text-xl leading-none">+</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Cuantas personas hay en la franja.
+ *
+ * El numero ya llega precargado con lo que se declaro al iniciar la
+ * jornada: la mayoria de las horas no cambia. Por eso se muestra fijo, y
+ * solo se vuelve editable si la digitadora dice que esta hora sí cambio
+ * -alguien se ausento, entro un refuerzo, etc.
+ */
+function PersonasFranja({ sugeridas, valor, cambio, onCambio, onCambiar }) {
+  return (
+    <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+      <p className="mb-2 text-center text-xs font-medium uppercase tracking-wide text-gray-500">
+        Personas
+      </p>
+
+      {cambio ? (
+        <Contador valor={valor} onCambiar={onCambiar} tono="naranja" min={0} autoFocus />
+      ) : (
+        <p className="text-center text-3xl font-bold text-[#D08E10]">{Number(sugeridas || 0)}</p>
+      )}
+
+      <button
+        type="button"
+        onClick={() => onCambio(!cambio)}
+        className="mt-2 w-full text-center text-xs font-medium text-[#0F4C3F] underline underline-offset-2"
+      >
+        {cambio ? "No, dejar la de la jornada" : "¿Cambio la cantidad esta hora?"}
+      </button>
     </div>
   );
 }
@@ -53,8 +108,8 @@ function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca
  * Minutos que el modulo estuvo parado, abiertos por causa.
  *
  * El tablero de pared trae tres columnas fijas (maquina, calidad,
- * montaje); aqui son las causas del catalogo, en pasos de 5 minutos
- * porque nadie cronometra una parada al segundo.
+ * montaje); aqui son las causas del catalogo. Es un numero que se escribe,
+ * no que se cuenta a clics: 45 minutos son 9 toques al +.
  */
 function MinutosPerdidos({ causas, valores, minutosFranja, total, excede, onCambiar }) {
   return (
@@ -82,36 +137,22 @@ function MinutosPerdidos({ causas, valores, minutosFranja, total, excede, onCamb
               >
                 {causa.nombre}
               </span>
-              <button
-                type="button"
-                onClick={() => onCambiar(causa.id_causa, minutos - 5)}
-                disabled={minutos === 0}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 disabled:opacity-30 hover:border-[#0F4C3F] hover:text-[#0F4C3F]"
-                aria-label={`Restar minutos de ${causa.nombre}`}
-              >
-                <Minus className="h-3.5 w-3.5" />
-              </button>
               <input
                 type="number"
                 inputMode="numeric"
                 value={minutos}
                 min={0}
                 max={minutosFranja}
+                placeholder="0"
+                onFocus={(evento) => evento.target.select()}
                 onChange={(evento) => onCambiar(causa.id_causa, evento.target.value)}
-                className={`h-8 w-14 rounded-lg border text-center text-sm outline-none ${
+                className={`h-9 w-16 rounded-lg border text-center text-sm font-semibold outline-none focus:border-[#0F4C3F] ${
                   minutos > 0
-                    ? "border-[#D08E10]/50 bg-[#D08E10]/10 font-semibold text-[#b46a12]"
+                    ? "border-[#D08E10]/50 bg-[#D08E10]/10 text-[#b46a12]"
                     : "border-gray-200 bg-white text-gray-400"
                 }`}
               />
-              <button
-                type="button"
-                onClick={() => onCambiar(causa.id_causa, minutos + 5)}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-[#0F4C3F] hover:text-[#0F4C3F]"
-                aria-label={`Sumar minutos de ${causa.nombre}`}
-              >
-                <Plus className="h-3.5 w-3.5" />
-              </button>
+              <span className="w-6 flex-shrink-0 text-xs text-gray-400">min</span>
             </div>
           );
         })}
@@ -124,9 +165,14 @@ function MinutosPerdidos({ causas, valores, minutosFranja, total, excede, onCamb
  * Formulario de una celda de la rejilla.
  *
  * La digitadora toca unidades, personas, defectuosas y —si la franja
- * quedo bajo el umbral— la causa. La meta, los pesos y el SAM real los
- * calcula el sistema con los minutos REALES de la franja, que no siempre
- * son 60.
+ * quedo bajo el umbral— cuanto tiempo se perdio y por que. La meta, los
+ * pesos y el SAM real los calcula el sistema con los minutos REALES de la
+ * franja, que no siempre son 60.
+ *
+ * Ya no hay un selector de "causa principal" separado: la causa que
+ * cuenta es la de mas minutos dentro de lo que se cargo abajo, igual que
+ * lo calcula el backend. Preguntarla aparte era responder lo mismo dos
+ * veces.
  */
 export function CapturaCeldaModal({
   celda,
@@ -138,23 +184,46 @@ export function CapturaCeldaModal({
   onCerrar,
   onGuardar,
 }) {
+  const [personasCambio, setPersonasCambio] = useState(false);
+
+  // Se reinicia solo cuando se abre una celda distinta, no en cada
+  // digitado: si no, cada tecla borraria la eleccion de "si cambio".
+  const claveCelda = celda ? `${celda.modulo.id_modulo}-${celda.franja.orden_franja}` : null;
+  useEffect(() => {
+    if (!celda) return;
+    const sugeridas = Number(celda.modulo.personas_sugeridas || 0);
+    const actual = Number(celda.valores.personas_presentes || 0);
+    setPersonasCambio(Boolean(celda.existente) && actual !== sugeridas);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claveCelda]);
+
   if (!celda) return null;
 
   const { modulo, franja, valores, existente } = celda;
-  const causaSeleccionada = causas.find(
-    (causa) => String(causa.id_causa) === String(valores.id_causa),
+
+  // La causa que cuenta es la de mas minutos ya cargados, igual que en el
+  // backend: no se le pregunta a la digitadora si ya lo dijo con numeros.
+  const entradasPerdidos = Object.entries(valores.minutos_perdidos || {}).filter(
+    ([, minutos]) => Number(minutos) > 0,
   );
-  // Reglas en `validations/capturaValidation.js`: la celda no se guarda si la
-  // franja quedo bajo la meta sin causa, si esa causa exige nota, si las
-  // defectuosas superan lo producido, o si los minutos perdidos no caben
-  // en la franja.
+  const idCausaPrincipal = entradasPerdidos.length
+    ? entradasPerdidos.reduce((mayor, actual) => (actual[1] > mayor[1] ? actual : mayor))[0]
+    : null;
+  const causaPrincipal =
+    causas.find((causa) => String(causa.id_causa) === String(idCausaPrincipal)) || null;
+
   const validacion = validarCaptura({
     valores,
     bajoUmbral: calculo?.bajoUmbral,
-    causaSeleccionada,
+    causaPrincipal,
     excedePerdidos: calculo?.excedePerdidos,
     minutosFranja: calculo?.minutosFranja,
   });
+
+  const handleCambioPersonas = (cambia) => {
+    setPersonasCambio(cambia);
+    if (!cambia) onCambiar("personas_presentes", Number(modulo.personas_sugeridas || 0));
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center">
@@ -238,14 +307,16 @@ export function CapturaCeldaModal({
             etiqueta="Unidades producidas"
             valor={valores.unidades_producidas}
             onCambiar={(valor) => onCambiar("unidades_producidas", valor)}
+            soloTeclado
           />
 
           <div className="grid grid-cols-2 gap-3">
-            <Contador
-              etiqueta="Personas"
+            <PersonasFranja
+              sugeridas={modulo.personas_sugeridas}
               valor={valores.personas_presentes}
+              cambio={personasCambio}
+              onCambio={handleCambioPersonas}
               onCambiar={(valor) => onCambiar("personas_presentes", valor)}
-              tono="naranja"
             />
             <Contador
               etiqueta="Defectuosas"
@@ -254,6 +325,16 @@ export function CapturaCeldaModal({
               tono="rojo"
             />
           </div>
+
+          {/* El aviso solo apunta a lo de abajo: ya no hay un selector de
+              causa aparte que responda la misma pregunta dos veces. */}
+          {calculo?.bajoUmbral && entradasPerdidos.length === 0 && (
+            <p className="flex items-start gap-2 rounded-xl border border-[#D08E10]/30 bg-[#D08E10]/5 px-3 py-2.5 text-xs text-[#b46a12]">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+              La hora quedo por debajo del umbral ({calculo.umbral}%): registra abajo cuanto tiempo
+              se perdio y por que.
+            </p>
+          )}
 
           <MinutosPerdidos
             causas={causas}
@@ -274,46 +355,19 @@ export function CapturaCeldaModal({
             </p>
           )}
 
-          {/* La causa principal se pide solo cuando la eficiencia cae */}
-          {(calculo?.bajoUmbral || valores.id_causa) && (
+          {/* La nota solo aparece si la causa con mas minutos la exige. */}
+          {(causaPrincipal?.requiere_nota || valores.nota) && (
             <div className="rounded-2xl border border-[#D08E10]/30 bg-[#D08E10]/5 p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 flex-shrink-0 text-[#D08E10]" />
-                <p className="text-sm font-medium text-[#b46a12]">
-                  {calculo?.bajoUmbral
-                    ? `Por debajo del umbral (${calculo.umbral}%): indica que paso`
-                    : "Causa registrada"}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {causas.map((causa) => {
-                  const activa = String(valores.id_causa) === String(causa.id_causa);
-                  return (
-                    <button
-                      key={causa.id_causa}
-                      type="button"
-                      onClick={() => onCambiar("id_causa", activa ? "" : causa.id_causa)}
-                      className={`rounded-xl border px-3 py-2 text-sm transition-all ${
-                        activa
-                          ? "border-[#0F4C3F] bg-[#0F4C3F] text-white"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-[#D08E10]/50"
-                      }`}
-                    >
-                      {causa.nombre}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {causaSeleccionada?.requiere_nota && (
-                <input
-                  value={valores.nota || ""}
-                  onChange={(evento) => onCambiar("nota", evento.target.value)}
-                  placeholder="Explica brevemente que paso"
-                  className="mt-3 h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-[#0F4C3F]"
-                />
-              )}
+              <p className="mb-2 flex items-center gap-2 text-sm font-medium text-[#b46a12]">
+                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+                {causaPrincipal ? `${causaPrincipal.nombre}: explica que paso` : "Explica que paso"}
+              </p>
+              <input
+                value={valores.nota || ""}
+                onChange={(evento) => onCambiar("nota", evento.target.value)}
+                placeholder="Explica brevemente que paso"
+                className="h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-[#0F4C3F]"
+              />
             </div>
           )}
 

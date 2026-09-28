@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, LogOut, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
+import { ArrowRightToLine, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, X } from "lucide-react";
 
 /**
  * Menu lateral del panel.
@@ -7,6 +7,10 @@ import { ChevronDown, ChevronRight, LogOut, PanelLeftClose, PanelLeftOpen, X } f
  * iconos (el contenido principal gana ancho) y flotante sobre el contenido en
  * pantallas pequenas. El estado lo maneja `useAdminSidebar` desde el layout,
  * para que el `<main>` sepa a que ancho ajustarse.
+ *
+ * Paleta ajustada (propuesta 4): fondo blanco, no un bloque de color --
+ * el verde y el dorado quedan para el item activo y el logo, como en el
+ * mockup de referencia.
  */
 export function Sidebar({ sidebar }) {
   const {
@@ -35,7 +39,7 @@ export function Sidebar({ sidebar }) {
       />
 
       <aside
-        className={`fixed left-0 top-0 z-50 flex h-screen flex-col bg-gradient-to-b from-[#0F4C3F] to-[#0A3A2F] text-white shadow-2xl transition-all duration-300 ease-in-out ${
+        className={`fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-[#E4E9E6] bg-white text-[#12201B] shadow-2xl transition-all duration-300 ease-in-out ${
           colapsado ? "w-20" : "w-64"
         } ${movilAbierto ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
       >
@@ -43,24 +47,26 @@ export function Sidebar({ sidebar }) {
             si no el boton de expandir queda fuera del ancho y no hay forma de
             volver a abrir el menu. */}
         <div
-          className={`flex flex-shrink-0 border-b border-white/10 p-4 ${
+          className={`flex flex-shrink-0 border-b border-[#E4E9E6] p-4 ${
             colapsado ? "flex-col items-center gap-2" : "items-center gap-2"
           }`}
         >
-          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white/15 text-sm font-black tracking-tight">
-            GE
-          </div>
+          <img
+            src="/image.png"
+            alt="God's Eyes SAS"
+            className="h-10 w-10 flex-shrink-0 rounded-full object-cover"
+          />
 
           {!colapsado && (
             <div className="min-w-0 flex-1 overflow-hidden">
-              <h1 className="truncate text-base font-bold tracking-tight">GOD&apos;S EYES SAS</h1>
-              <p className="truncate text-xs text-white/70">Sistema de Gestion</p>
+              <h1 className="truncate text-base font-bold tracking-tight text-[#12201B]">GOD&apos;S EYES SAS</h1>
+              <p className="truncate text-xs text-[#5C6B64]">Sistema de Gestion</p>
             </div>
           )}
 
           <button
             onClick={cerrarMovil}
-            className="rounded-lg p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white lg:hidden"
+            className="rounded-lg p-2 text-[#5C6B64] transition-colors hover:bg-[#F6F8F7] hover:text-[#12201B] lg:hidden"
             type="button"
             aria-label="Cerrar menu"
           >
@@ -69,12 +75,12 @@ export function Sidebar({ sidebar }) {
 
           <button
             onClick={alternarColapso}
-            className="hidden rounded-lg p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white lg:block"
+            className="hidden rounded-lg p-2 text-[#5C6B64] transition-colors hover:bg-[#F6F8F7] hover:text-[#12201B] lg:block"
             type="button"
             title={colapsado ? "Expandir menu" : "Contraer menu"}
             aria-label={colapsado ? "Expandir menu" : "Contraer menu"}
           >
-            {colapsado ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+            {colapsado ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
           </button>
         </div>
 
@@ -92,7 +98,9 @@ export function Sidebar({ sidebar }) {
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 transition-all duration-200 ${
                     colapsado ? "justify-center" : ""
                   } ${
-                    active ? "bg-[#D08E10] text-white shadow-lg" : "text-white/80 hover:bg-white/10 hover:text-white"
+                    active
+                      ? "bg-[#DCEAE1] text-[#1F5C45]"
+                      : "text-[#5C6B64] hover:bg-[#F6F8F7] hover:text-[#12201B]"
                   }`}
                   type="button"
                 >
@@ -119,7 +127,7 @@ export function Sidebar({ sidebar }) {
                     }`}
                   >
                     <div className="overflow-hidden">
-                      <div className="ml-3 mt-1 space-y-0.5 border-l border-white/20 pl-3">
+                      <div className="ml-3 mt-1 space-y-0.5 border-l border-[#E4E9E6] pl-3">
                         {item.children.map((child) => {
                           const ChildIcon = child.icon;
 
@@ -129,8 +137,8 @@ export function Sidebar({ sidebar }) {
                               onClick={() => handleChildClick(child.page)}
                               className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200 ${
                                 currentPage === child.page
-                                  ? "bg-[#D08E10] text-white"
-                                  : "text-white/70 hover:bg-white/10 hover:text-white"
+                                  ? "bg-[#DCEAE1] text-[#1F5C45]"
+                                  : "text-[#5C6B64] hover:bg-[#F6F8F7] hover:text-[#12201B]"
                               }`}
                               type="button"
                             >
@@ -148,16 +156,16 @@ export function Sidebar({ sidebar }) {
           })}
         </nav>
 
-        <div className="flex-shrink-0 border-t border-white/10 p-3">
+        <div className="flex-shrink-0 border-t border-[#E4E9E6] p-3">
           <button
             onClick={handleLogout}
             title={colapsado ? "Cerrar sesion" : undefined}
-            className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-white/80 transition-all hover:bg-red-500/20 hover:text-red-300 ${
+            className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-[#5C6B64] transition-all hover:bg-[#D64545]/10 hover:text-[#D64545] ${
               colapsado ? "justify-center" : ""
             }`}
             type="button"
           >
-            <LogOut className="h-4 w-4 flex-shrink-0" />
+            <ArrowRightToLine className="h-4 w-4 flex-shrink-0" />
             {!colapsado && <span className="truncate text-sm font-medium">Cerrar Sesion</span>}
           </button>
         </div>

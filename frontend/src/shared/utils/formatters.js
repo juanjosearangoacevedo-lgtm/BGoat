@@ -94,4 +94,18 @@ export function porcentaje(parte, total) {
   return Math.min(Math.round((Number(parte || 0) / divisor) * 100), 100);
 }
 
+/**
+ * Dias entre dos fechas (DATE de MySQL, "aaaa-mm-dd"), contando el
+ * primero y el ultimo: del lunes al lunes son 1 dia, del lunes al
+ * martes son 2. `null` si falta alguna fecha o el rango es invalido.
+ */
+export function diasEntre(inicio, fin) {
+  if (!inicio || !fin) return null;
+  const desde = new Date(`${String(inicio).slice(0, 10)}T00:00:00`);
+  const hasta = new Date(`${String(fin).slice(0, 10)}T00:00:00`);
+  if (Number.isNaN(desde.getTime()) || Number.isNaN(hasta.getTime())) return null;
+  const dias = Math.round((hasta - desde) / 86400000) + 1;
+  return dias > 0 ? dias : null;
+}
+
 export { GUION };

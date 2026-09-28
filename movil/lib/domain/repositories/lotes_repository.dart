@@ -15,8 +15,9 @@ class FiltroLotes {
 /// Lo que la pantalla manda al crear o editar un lote.
 ///
 /// El lote es la unica entidad del producto: trae el folio del pedido, la
-/// referencia, el SAM pactado y el material. `rutaImagen` y `rutaDocumentoPdf`
-/// no estan aqui a proposito: no se digitan, las escribe la subida de la ficha.
+/// referencia, el SAM pactado y el valor de maquila. `rutaImagen` y
+/// `rutaDocumentoPdf` no estan aqui a proposito: no se digitan, las escribe
+/// la subida de la ficha.
 class SolicitudLote {
   final String codigoLote;
   final int idCliente;
@@ -26,7 +27,7 @@ class SolicitudLote {
   final String? nombreReferencia;
   final int? idTipoPrenda;
   final double? samPactado;
-  final String? materialPrincipal;
+  final double? valorMaquilaUnidad;
   final int? cantidadProgramada;
   final String? fechaEntregaProgramada;
   final String? estado;
@@ -41,7 +42,7 @@ class SolicitudLote {
     this.nombreReferencia,
     this.idTipoPrenda,
     this.samPactado,
-    this.materialPrincipal,
+    this.valorMaquilaUnidad,
     this.cantidadProgramada,
     this.fechaEntregaProgramada,
     this.estado,

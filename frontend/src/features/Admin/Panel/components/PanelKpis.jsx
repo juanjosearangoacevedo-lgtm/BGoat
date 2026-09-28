@@ -1,98 +1,58 @@
-import {
-  AlertTriangle,
-  Calendar,
-  Clock,
-  Package,
-  Target,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { AlertTriangle, Clock, Package, Target, TrendingUp } from "lucide-react";
 
 /**
  * Las tarjetas de KPI del panel.
  *
- * Antes habia dos componentes para esto --`KPICards` del Dashboard e
- * `IndicadoresKpis`-- con su propio catalogo cada uno. Los cuatro
- * indicadores de Indicadores eran un subconjunto exacto de los ocho del
- * Dashboard: el mismo numero pintado de dos formas distintas, y dos
- * sitios que corregir cuando cambiaba una definicion.
- *
- * Ahora el catalogo es uno solo y cada pestana escoge que claves muestra.
+ * Antes habia tres pantallas para esto --Dashboard, Indicadores y
+ * Reportes-- cada una con su propio catalogo. Ahora es un solo catalogo
+ * y la pestana Indicadores y Reportes escoge que claves muestra, todas
+ * calculadas sobre el mismo periodo y modulo que el resto de la pantalla.
  */
 export const KPIS = {
-  produccion_dia: {
-    titulo: "Produccion del dia",
+  produccion_periodo: {
+    titulo: "Produccion del periodo",
     unidad: "unidades",
     icono: Package,
-    color: "#D08E10",
-  },
-  operarios_activos: {
-    titulo: "Operarias en planta",
-    unidad: "personas",
-    icono: Users,
-    color: "#D08E10",
-  },
-  ordenes_en_proceso: {
-    titulo: "Ordenes en proceso",
-    unidad: "activas",
-    icono: Clock,
-    color: "#E3A81B",
+    color: "#D49A17",
   },
   eficiencia: {
     titulo: "Eficiencia",
     unidad: "% de minutos aprovechados",
     icono: Target,
-    color: "#10b981",
+    color: "#22A447",
     sufijo: "%",
   },
   cumplimiento_meta: {
     titulo: "Cumplimiento de meta",
-    unidad: "% de la meta del dia",
+    unidad: "% de la meta del periodo",
     icono: TrendingUp,
-    color: "#7AB396",
+    color: "#2F8068",
     sufijo: "%",
-  },
-  produccion_mes: {
-    titulo: "Producido en el mes",
-    unidad: "unidades",
-    icono: Calendar,
-    color: "#24973A",
   },
   porcentaje_defectos: {
     titulo: "Tasa de defectos",
     unidad: "sobre lo producido",
     icono: AlertTriangle,
-    color: "#ef4444",
+    color: "#D64545",
     sufijo: "%",
   },
   minutos_por_prenda: {
     titulo: "SAM real promedio",
     unidad: "minutos por prenda",
     icono: Clock,
-    color: "#f59e0b",
+    color: "#A87508",
   },
 };
 
-/** Las ocho del resumen y las cuatro de indicadores, en su orden. */
-export const KPIS_RESUMEN = [
-  "produccion_dia",
-  "operarios_activos",
-  "ordenes_en_proceso",
+export const KPIS_INDICADORES_REPORTES = [
   "eficiencia",
-  "cumplimiento_meta",
-  "produccion_mes",
+  "produccion_periodo",
   "porcentaje_defectos",
+  "cumplimiento_meta",
   "minutos_por_prenda",
 ];
 
-export const KPIS_INDICADORES = [
-  "eficiencia",
-  "produccion_dia",
-  "porcentaje_defectos",
-  "cumplimiento_meta",
-];
-
-export function PanelKpis({ valores = {}, claves = KPIS_RESUMEN, conIcono = true }) {
+export function PanelKpis({ valores = {}, claves = KPIS_INDICADORES_REPORTES, conIcono = true }) {
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
       {claves.map((clave) => {
@@ -109,17 +69,14 @@ export function PanelKpis({ valores = {}, claves = KPIS_RESUMEN, conIcono = true
             : `${Number(valor).toLocaleString("es-CO")}${kpi.sufijo || ""}`;
 
         return (
-          <div
-            key={clave}
-            className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-          >
+          <div key={clave} className="rounded-2xl border border-emerald-200 bg-white p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-gray-600">{kpi.titulo}</p>
+                <p className="text-sm text-[#5C6B64]">{kpi.titulo}</p>
                 <p className="mt-1 text-3xl font-bold" style={{ color: kpi.color }}>
                   {texto}
                 </p>
-                <p className="mt-1 text-xs text-gray-400">{kpi.unidad}</p>
+                <p className="mt-1 text-xs text-[#8B968F]">{kpi.unidad}</p>
               </div>
 
               {conIcono && (

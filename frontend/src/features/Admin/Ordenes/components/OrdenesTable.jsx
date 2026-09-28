@@ -76,6 +76,35 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       exportar: (orden) => `${Number(orden.porcentaje_avance || 0)}%`,
     },
     {
+      key: "dias_atraso",
+      header: "Entrega",
+      sortable: true,
+      // `dias_atraso` sale sola de `jornada_modulo`: el ultimo dia que un
+      // modulo trabajo esta orden, comparado con la fecha en que debia
+      // estar lista. Nadie la digita ni la cierra a mano.
+      render: (orden) => {
+        if (orden.dias_atraso === null || orden.dias_atraso === undefined) {
+          return <span className="text-gray-300">{GUION}</span>;
+        }
+        const dias = Number(orden.dias_atraso);
+        return dias > 0 ? (
+          <span className="whitespace-nowrap rounded-full bg-[#D64545]/15 px-2.5 py-1 text-xs font-medium text-[#D64545]">
+            +{dias} {dias === 1 ? "dia" : "dias"} tarde
+          </span>
+        ) : (
+          <span className="whitespace-nowrap rounded-full bg-[#DCEAE1] px-2.5 py-1 text-xs font-medium text-[#1F5C45]">
+            A tiempo
+          </span>
+        );
+      },
+      exportar: (orden) =>
+        orden.dias_atraso === null || orden.dias_atraso === undefined
+          ? ""
+          : Number(orden.dias_atraso) > 0
+            ? `+${orden.dias_atraso} dias tarde`
+            : "A tiempo",
+    },
+    {
       key: "prioridad",
       header: "Prioridad",
       sortable: true,

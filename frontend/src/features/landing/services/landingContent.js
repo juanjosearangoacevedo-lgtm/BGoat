@@ -27,7 +27,7 @@ import {
 // texto secundario #33423E | franja #F6F8F7
 
 /** Foto de planta del hero, recortada del prototipo. */
-export const plantaFoto = "/planta-hero.webp";
+export const plantaFoto = "/planta-hero.jpg";
 
 /** Logotipo completo (hexagono + BGoat ERP + bajada). */
 export const bgoatLogo = "/bgoat-erp-logo.webp";
@@ -56,23 +56,23 @@ export const heroTexto =
 export const heroIndicadores = [
   { icon: TrendingUp, valor: "+35%", texto: "Aumento en eficiencia" },
   { icon: Users, valor: "500+", texto: "Empresas confían" },
-  { icon: Clock, valor: "24/7", texto: "Soporte técnico" },
   { icon: Leaf, valor: null, texto: "Producción sostenible" },
 ];
 
 /**
- * La ficha que flota sobre la foto: una hora de un modulo y el acumulado
- * de la planta. Son los mismos numeros del prototipo.
+ * Modulos de muestra para la ficha animada del hero: cada uno anima sus
+ * unidades desde un arranque bajo hasta `unidadesFinal`. No son datos
+ * reales de produccion --la landing es publica, sin sesion-- solo
+ * ilustran como el sistema lee la planta en vivo.
  */
-export const heroFicha = {
-  modulo: "MOD-01",
-  hora: "11:03 am",
-  unidades: 156,
-  meta: 171,
-  avance: 91,
-  eficiencia: "79,1%",
-  eficienciaTexto: ["Eficiencia", "de la planta"],
-};
+export const heroModulosDemo = [
+  { modulo: "MOD-01", meta: 171, unidadesFinal: 156 },
+  { modulo: "MOD-04", meta: 160, unidadesFinal: 152 },
+  { modulo: "MOD-02", meta: 140, unidadesFinal: 96 },
+  { modulo: "MOD-06", meta: 185, unidadesFinal: 178 },
+  { modulo: "MOD-03", meta: 150, unidadesFinal: 121 },
+  { modulo: "MOD-05", meta: 165, unidadesFinal: 158 },
+];
 
 export const heroFrase = ["Tejemos", "oportunidades"];
 

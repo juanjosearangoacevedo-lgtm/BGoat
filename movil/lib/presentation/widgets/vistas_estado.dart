@@ -119,7 +119,7 @@ void avisar(BuildContext context, String mensaje, {bool esError = false}) {
     ..showSnackBar(
       SnackBar(
         content: Text(mensaje),
-        backgroundColor: esError ? Paleta.error : Paleta.moradoOscuro,
+        backgroundColor: esError ? Paleta.error : Paleta.primarioOscuro,
         duration: Duration(seconds: esError ? 5 : 3),
       ),
     );

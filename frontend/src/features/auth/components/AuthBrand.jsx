@@ -4,9 +4,8 @@ import { authLogo } from "../services/authContent";
 /**
  * Marca de las pantallas de acceso.
  *
- * El login entra con el logo y el nombre de God's Eyes S.A.S., en
- * columna y centrado; registro y recuperacion siguen con la marca del
- * producto en fila, como estaban.
+ * El login entra solo con el logo, en columna y centrado; registro y
+ * recuperacion siguen con la marca del producto en fila, como estaban.
  */
 export function AuthBrand({
   logo = "gradient",
@@ -33,15 +32,17 @@ export function AuthBrand({
           <Package className="h-7 w-7 text-white" />
         </div>
       )}
-      <span
-        className={
-          vertical
-            ? "mt-3 text-[22px] font-bold tracking-tight text-[#16232B] sm:text-[26px]"
-            : `text-2xl font-bold ${textColor}`
-        }
-      >
-        {nombre}
-      </span>
+      {nombre && (
+        <span
+          className={
+            vertical
+              ? "mt-3 text-[22px] font-bold tracking-tight text-[#16232B] sm:text-[26px]"
+              : `text-2xl font-bold ${textColor}`
+          }
+        >
+          {nombre}
+        </span>
+      )}
     </div>
   );
 }

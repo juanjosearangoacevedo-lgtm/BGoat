@@ -58,7 +58,6 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
           personas_presentes: existente?.personas_presentes ?? modulo.personas_sugeridas ?? 0,
           unidades_producidas: existente?.unidades_producidas ?? 0,
           unidades_defectuosas: existente?.unidades_defectuosas ?? 0,
-          id_causa: existente?.id_causa ?? "",
           nota: existente?.nota ?? "",
           // { [id_causa]: minutos } — el detalle de por que se paro el modulo.
           minutos_perdidos: Object.fromEntries(
@@ -106,7 +105,6 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
         fecha,
         hora_jornada: celdaActiva.franja.orden_franja,
         ...valores,
-        id_causa: valores.id_causa || null,
         nota: valores.nota || null,
         minutos_perdidos: Object.entries(minutos_perdidos).map(([id_causa, minutos]) => ({
           id_causa: Number(id_causa),

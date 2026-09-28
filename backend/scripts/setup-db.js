@@ -28,6 +28,9 @@ const archivos = [
   "00_migracion_flujo_jornada.sql",
   "00b_migracion_modulos_calculados.sql",
   "00c_migracion_ordenes_libres.sql",
+  "00d_migracion_lote_fechas_muertas.sql",
+  "00e_migracion_lote_valor_maquila.sql",
+  "00f_migracion_lote_campos_muertos.sql",
   "01_schema_bgoat.sql",
   "02_seed_bgoat.sql",
 ];

@@ -109,7 +109,7 @@ class _TableroScreenState extends State<TableroScreen> {
 
   Widget _opcionModulo(ModuloCapturaEntity modulo) {
     final resumen = modulo.resumen;
-    final color = modulo.tieneJornada ? Paleta.morado : Paleta.textoSuave;
+    final color = modulo.tieneJornada ? Paleta.primario : Paleta.textoSuave;
 
     return Tarjeta(
       alTocar: () => context.read<TableroProvider>().cargar(modulo.modulo.id),
@@ -293,7 +293,7 @@ class _TableroScreenState extends State<TableroScreen> {
             Dato(
               etiqueta: 'Meta del dia',
               valor: decimal(cabecera.metaDia, 0),
-              color: Paleta.morado,
+              color: Paleta.primario,
               destacado: true,
             ),
             Dato(
@@ -304,7 +304,7 @@ class _TableroScreenState extends State<TableroScreen> {
           const SizedBox(height: 13),
           BarraAvance(
             valor: tablero.avanceContraMeta,
-            color: tablero.avanceContraMeta >= 1 ? Paleta.exito : Paleta.morado,
+            color: tablero.avanceContraMeta >= 1 ? Paleta.exito : Paleta.primario,
           ),
           const SizedBox(height: 7),
           Text(
@@ -504,7 +504,7 @@ class _TableroScreenState extends State<TableroScreen> {
 
   Widget _totales(TableroEntity tablero, TotalesDiaEntity totales) {
     return Tarjeta(
-      borde: Paleta.morado,
+      borde: Paleta.primario,
       hijo: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -657,7 +657,7 @@ class _TableroScreenState extends State<TableroScreen> {
                 decoration: BoxDecoration(
                   color: puesto.esAnonima
                       ? Paleta.fondo
-                      : Paleta.morado.withValues(alpha: 0.1),
+                      : Paleta.primario.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
                     color: puesto.esAnonima ? Paleta.borde : Colors.transparent,
@@ -667,7 +667,7 @@ class _TableroScreenState extends State<TableroScreen> {
                   puesto.esAnonima ? 'Puesto ${puesto.numero}' : puesto.nombreMostrado,
                   style: TextStyle(
                     fontSize: 12,
-                    color: puesto.esAnonima ? Paleta.textoSuave : Paleta.morado,
+                    color: puesto.esAnonima ? Paleta.textoSuave : Paleta.primario,
                     fontStyle: puesto.esAnonima ? FontStyle.italic : FontStyle.normal,
                     fontWeight: puesto.esAnonima ? FontWeight.normal : FontWeight.w600,
                   ),

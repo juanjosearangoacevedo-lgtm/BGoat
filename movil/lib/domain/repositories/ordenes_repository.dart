@@ -30,13 +30,13 @@ class FiltroOrdenes {
 /// Lo que la pantalla manda al crear o editar una orden.
 ///
 /// NO lleva modulo: la orden nace libre y la toma el modulo que abre su
-/// jornada con ella. Tampoco lleva ficha tecnica ni pedido --eso vive en el
-/// lote--. Lo unico que aporta al calculo de la hora es el valor de maquila.
+/// jornada con ella. Tampoco lleva ficha tecnica, pedido, cantidad ni valor
+/// de maquila --eso vive en el lote--: un lote corre en una sola orden, asi
+/// que la cantidad y el valor se copian del lote al crear la orden, nunca
+/// se digitan aqui.
 class SolicitudOrden {
   final String numeroOrden;
   final int idLote;
-  final int cantidadProgramada;
-  final double? valorMaquilaUnidad;
   final String? prioridad;
   final String? estado;
   final String? fechaInicioProgramada;
@@ -46,8 +46,6 @@ class SolicitudOrden {
   const SolicitudOrden({
     required this.numeroOrden,
     required this.idLote,
-    required this.cantidadProgramada,
-    this.valorMaquilaUnidad,
     this.prioridad,
     this.estado,
     this.fechaInicioProgramada,

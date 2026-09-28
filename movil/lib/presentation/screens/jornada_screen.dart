@@ -347,8 +347,9 @@ class _HojaJornada extends StatelessWidget {
           if (jornada.sinOrden) ...[
             const SizedBox(height: 10),
             _aviso(
-              'Sin orden, la facturacion del dia queda en cero. La meta si se '
-              'calcula, porque sale del SAM del lote.',
+              'Sin orden. La meta y la facturacion se calculan igual, porque '
+              'salen del SAM y el valor de maquila del lote. Solo falta '
+              'sumar esta produccion al avance de una orden puntual.',
             ),
           ],
           const SizedBox(height: 18),
@@ -364,13 +365,13 @@ class _HojaJornada extends StatelessWidget {
                   radius: 15,
                   backgroundColor: puesto.esAnonima
                       ? Paleta.borde
-                      : Paleta.morado.withValues(alpha: 0.13),
+                      : Paleta.primario.withValues(alpha: 0.13),
                   child: Text(
                     '${puesto.numero}',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: puesto.esAnonima ? Paleta.textoSuave : Paleta.morado,
+                      color: puesto.esAnonima ? Paleta.textoSuave : Paleta.primario,
                     ),
                   ),
                 ),
@@ -426,7 +427,7 @@ class _HojaJornada extends StatelessWidget {
             const SizedBox(height: 10),
             if (jornada.estaAbierta)
               FilledButton.icon(
-                style: FilledButton.styleFrom(backgroundColor: Paleta.moradoOscuro),
+                style: FilledButton.styleFrom(backgroundColor: Paleta.primarioOscuro),
                 onPressed: () => _cerrar(context),
                 icon: const Icon(Icons.lock_outline),
                 label: const Text('Cerrar la jornada'),

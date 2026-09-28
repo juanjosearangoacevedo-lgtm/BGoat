@@ -1,13 +1,14 @@
 /// El lote: la unica entidad del producto.
 ///
-/// Absorbio al pedido (folio y fechas), a la referencia, a la ficha tecnica
-/// (SAM, material, imagen y PDF) y al tipo de prenda. Antes eso eran cinco
-/// pantallas distintas para registrar un solo trabajo que llega en una sola
-/// hoja de papel.
+/// Absorbio al pedido (folio y fecha de entrega), a la referencia, a la
+/// ficha tecnica (SAM, valor de maquila, imagen y PDF) y al tipo de prenda.
+/// Antes eso eran cinco pantallas distintas para registrar un solo trabajo
+/// que llega en una sola hoja de papel.
 ///
-/// El dato que manda es `samPactado`: son los minutos que el cliente paga por
-/// prenda, negociados con el. De ahi sale la meta de cada hora, y sin el no se
-/// puede abrir una jornada.
+/// Los dos datos que mandan son `samPactado` y `valorMaquilaUnidad`: los
+/// minutos y los pesos que el cliente paga por prenda, negociados con el. De
+/// ahi salen la meta y la facturacion de cada hora, y sin el SAM no se puede
+/// abrir una jornada.
 class LoteEntity {
   final int id;
   final String codigoLote;
@@ -20,20 +21,20 @@ class LoteEntity {
   final String? nombreReferencia;
   final int? idTipoPrenda;
   final String? nombreTipoPrenda;
-  final String? materialPrincipal;
 
   /// Minutos pactados por prenda. Es el centro del sistema.
   final double? samPactado;
 
+  /// Lo que el cliente paga por prenda confeccionada. Junto con el SAM arma
+  /// la meta de facturacion de cada hora; sin el, la produccion se mide en
+  /// unidades pero la plata que genera un modulo queda en cero.
+  final double? valorMaquilaUnidad;
+
   final int? cantidadProgramada;
   final int? cantidadRecibida;
 
-  final String? fechaPedido;
   final String? fechaRecepcion;
   final String? fechaEntregaProgramada;
-  final String? fechaEntregaReal;
-  final String? fechaInicio;
-  final String? fechaFinalizacion;
 
   /// La ficha tecnica, tal como la guarda la base: una ruta relativa como
   /// `/uploads/fichas/xxx.jpg`. La foto se reconoce de un vistazo al escoger el
@@ -54,16 +55,12 @@ class LoteEntity {
     this.nombreReferencia,
     this.idTipoPrenda,
     this.nombreTipoPrenda,
-    this.materialPrincipal,
     this.samPactado,
+    this.valorMaquilaUnidad,
     this.cantidadProgramada,
     this.cantidadRecibida,
-    this.fechaPedido,
     this.fechaRecepcion,
     this.fechaEntregaProgramada,
-    this.fechaEntregaReal,
-    this.fechaInicio,
-    this.fechaFinalizacion,
     this.rutaImagen,
     this.rutaDocumentoPdf,
     required this.estado,

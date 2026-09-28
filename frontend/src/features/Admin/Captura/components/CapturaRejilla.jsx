@@ -3,7 +3,7 @@ import { formatNumero } from "@/shared/utils/formatters";
 
 /** Color de la celda segun el cumplimiento contra el umbral del modulo. */
 function tonoCelda(celda, umbral) {
-  if (!celda) return "border-dashed border-gray-200 bg-gray-50 text-gray-300 hover:border-[#0F4C3F]/40";
+  if (!celda) return "border-dashed border-emerald-300 bg-white text-emerald-400 hover:border-emerald-500 hover:text-emerald-500";
 
   const cumplimiento = Number(celda.cumplimiento || 0);
   if (celda.unidades_producidas === 0) return "border-red-200 bg-red-50 text-red-600";

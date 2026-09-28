@@ -4,10 +4,13 @@ import { useCatalogo } from "@/shared/hooks/useCatalogo";
 import { endpoints } from "@/shared/services/endpoints";
 
 /**
- * Modulo Reportes y Dashboards.
+ * Pestana Indicadores y Reportes (fusion de las dos que eran antes).
  *
- * Los filtros viajan al backend con los nombres de columna reales:
- * `id_modulo`, `periodo` y el rango de fechas.
+ * Un solo filtro de periodo + modulo gobierna todo lo que se ve: los
+ * KPIs, la tendencia, el resumen por modulo, el Pareto de causas y el
+ * SAM. Antes cada pestana tenia su propio filtro y su propia copia de la
+ * tendencia y del resumen de KPIs, mostrando el mismo numero dos veces
+ * bajo dos nombres distintos.
  */
 export const periodOptions = [
   { value: "hoy", label: "Hoy" },
@@ -17,15 +20,7 @@ export const periodOptions = [
   { value: "personalizado", label: "Personalizado" },
 ];
 
-export const summaryDefinitions = [
-  { key: "eficiencia", label: "Eficiencia", color: "#D08E10", sufijo: "%" },
-  { key: "minutos_por_prenda", label: "SAM Real", color: "#D08E10", sufijo: " min" },
-  { key: "produccion_mes", label: "Produccion del Mes", color: "#D08E10" },
-  { key: "porcentaje_defectos", label: "Tasa de Defectos", color: "#dc2626", sufijo: "%" },
-  { key: "cumplimiento_meta", label: "Cumplimiento", color: "#0891b2", sufijo: "%" },
-];
-
-export function usePanelReportes() {
+export function usePanelIndicadoresReportes() {
   const [period, setPeriod] = useState("mes");
   const [idModulo, setIdModulo] = useState("all");
   const [fechaInicio, setFechaInicio] = useState("");
@@ -33,13 +28,14 @@ export function usePanelReportes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [kpis, setKpis] = useState({});
+  const [modules, setModules] = useState([]);
+  const [sam, setSam] = useState([]);
+  const [totalMinutosPerdidos, setTotalMinutosPerdidos] = useState(0);
   const [charts, setCharts] = useState({
-    productividadPorModulo: [],
-    topOperarios: [],
-    produccionPorCliente: [],
     tendencia: [],
+    causas: [],
   });
-  const [summary, setSummary] = useState({});
 
   const modulos = useCatalogo(endpoints.modulos, {
     valor: "id_modulo",
@@ -66,23 +62,24 @@ export function usePanelReportes() {
       setLoading(true);
       setError(null);
       try {
-        const [porModulo, porOperario, clientes, tendencia, resumen] = await Promise.all([
+        const [resumen, porModulo, causas, tendencia, samData] = await Promise.all([
+          apiClient.get(withQuery(endpoints.resumen, parametros)),
           apiClient.get(withQuery(endpoints.productividadModulo, parametros)),
-          apiClient.get(withQuery(endpoints.productividadOperario, parametros)),
-          apiClient.get(endpoints.produccionCliente),
+          apiClient.get(withQuery(endpoints.causasPareto, parametros)),
           apiClient.get(withQuery(endpoints.tendencia, parametros)),
-          apiClient.get(endpoints.resumen),
+          apiClient.get(endpoints.sam),
         ]);
 
         if (!activo) return;
 
+        setKpis(resumen || {});
+        setModules(porModulo?.datos ?? []);
+        setSam(samData?.datos ?? []);
+        setTotalMinutosPerdidos(causas?.total_minutos_perdidos ?? 0);
         setCharts({
-          productividadPorModulo: porModulo?.datos ?? [],
-          topOperarios: porOperario?.datos ?? [],
-          produccionPorCliente: clientes?.datos ?? [],
           tendencia: tendencia?.datos ?? [],
+          causas: causas?.datos ?? [],
         });
-        setSummary(resumen || {});
       } catch (problema) {
         if (activo) setError(problema.message);
       } finally {
@@ -104,7 +101,10 @@ export function usePanelReportes() {
     setFechaInicio,
     setFechaFin,
     moduloOptions: modulos.options,
+    kpis,
+    modules,
+    sam,
+    totalMinutosPerdidos,
     charts,
-    summary,
   };
 }

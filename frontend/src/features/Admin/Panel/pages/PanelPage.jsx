@@ -1,21 +1,18 @@
 import { useState } from "react";
-import { BarChart3, Download, FileDown, Gauge, LayoutDashboard } from "lucide-react";
+import { Download, FileDown, Gauge, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/shared/components/button";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { exportarCSV } from "@/shared/utils/exportar";
-import { GraficosIncidencias } from "../components/GraficosIncidencias";
-import { OrdenesRiesgo } from "../components/OrdenesRiesgo";
+import { EficienciaModulos } from "../components/EficienciaModulos";
 import { PanelFiltros } from "../components/PanelFiltros";
-import { PanelGraficos } from "../components/PanelGraficos";
 import { PanelHero } from "../components/PanelHero";
-import { KPIS_INDICADORES, PanelKpis } from "../components/PanelKpis";
-import { PanelResumen } from "../components/PanelResumen";
-import { ProductionTable } from "../components/ProductionTable";
+import { KPIS_INDICADORES_REPORTES, PanelKpis } from "../components/PanelKpis";
 import { ResumenModulos } from "../components/ResumenModulos";
+import { TablaCausas } from "../components/TablaCausas";
 import { TablaSam } from "../components/TablaSam";
-import { usePanelIndicadores, dateFilters } from "../hooks/usePanelIndicadores";
-import { usePanelReportes } from "../hooks/usePanelReportes";
+import { TendenciaEficienciaChart, TendenciaUnidadesChart } from "../components/TendenciaChart";
+import { usePanelIndicadoresReportes } from "../hooks/usePanelIndicadoresReportes";
 import { usePanelResumen } from "../hooks/usePanelResumen";
 
 /**
@@ -23,18 +20,21 @@ import { usePanelResumen } from "../hooks/usePanelResumen";
  *
  * Reemplaza a Dashboard, Indicadores y Reportes, que eran tres entradas
  * de menu distintas leyendo las mismas vistas (`vw_estado_modulo_dia`,
- * `vw_estado_planta_hora`, `vw_avance_orden`, `vw_perdidas_por_causa`) y
- * respondiendo a la misma pregunta con tres pantallas. Aqui son tres
- * pestanas de una sola.
+ * `vw_avance_orden`, `vw_perdidas_por_causa`) y respondiendo a la misma
+ * pregunta con tres pantallas.
  *
- * Cada pestana monta su hook solo cuando esta activa: las tres piden
- * cosas distintas al servidor y traerlas todas de entrada seria pagar
- * tres veces por lo que casi siempre se mira una.
+ * Indicadores y Reportes terminaron siendo la misma pregunta dos veces
+ * --el mismo resumen de KPIs, la misma tendencia, la misma produccion
+ * por modulo-- bajo dos filtros de fecha independientes que ademas no
+ * movian las tarjetas de arriba. Se fusionaron en una sola pestana con
+ * un filtro compartido; lo unico que tenia cada una y la otra no
+ * (Pareto de causas y SAM real de Indicadores; exportar de Reportes) se
+ * quedo, sin repetirse. "Top operarias" y "Produccion por cliente" se
+ * quitaron: el cliente del sistema no necesita ese desglose.
  */
 const PESTANAS = [
   { clave: "resumen", label: "Resumen", icono: LayoutDashboard },
-  { clave: "indicadores", label: "Indicadores", icono: Gauge },
-  { clave: "reportes", label: "Reportes", icono: BarChart3 },
+  { clave: "indicadores-reportes", label: "Indicadores y Reportes", icono: Gauge },
 ];
 
 /**
@@ -56,69 +56,25 @@ const columnasModulo = [
 function Aviso({ mensaje }) {
   if (!mensaje) return null;
   return (
-    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+    <div className="rounded-2xl border border-[#D64545]/25 bg-[#D64545]/10 p-4 text-sm text-[#D64545]">
       {mensaje}
     </div>
   );
 }
 
 function PestanaResumen({ onNavigate }) {
-  const { summary, metrics, production, charts, loading, error, ordenesRiesgo } = usePanelResumen();
+  const { summary, production, loading, error } = usePanelResumen();
 
   return (
     <div className="space-y-8">
-      <PanelHero summary={summary} onNavigate={onNavigate} />
+      <PanelHero summary={summary} modules={production} onNavigate={onNavigate} />
       <Aviso mensaje={error} />
-      <PanelKpis valores={metrics} />
-      <ProductionTable rows={production} loading={loading} />
-      <OrdenesRiesgo ordenes={ordenesRiesgo} onNavigate={onNavigate} />
-      <PanelGraficos charts={charts} tituloTendencia="Tendencia de eficiencia del mes" />
+      <EficienciaModulos modules={production} loading={loading} onNavigate={onNavigate} />
     </div>
   );
 }
 
-function PestanaIndicadores() {
-  const {
-    dateFilter,
-    setDateFilter,
-    kpis,
-    charts,
-    modules,
-    sam,
-    totalMinutosPerdidos,
-    loading,
-    error,
-  } = usePanelIndicadores();
-
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
-        {dateFilters.map((filtro) => (
-          <button
-            key={filtro.value}
-            onClick={() => setDateFilter(filtro.value)}
-            className={`rounded-xl px-4 py-2 text-sm font-medium transition-all ${
-              dateFilter === filtro.value
-                ? "bg-[#0F4C3F] text-white shadow-sm"
-                : "border border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-            }`}
-            type="button"
-          >
-            {filtro.label}
-          </button>
-        ))}
-      </div>
-
-      <Aviso mensaje={error} />
-      <PanelKpis valores={kpis} claves={KPIS_INDICADORES} conIcono={false} />
-      <GraficosIncidencias charts={charts} totalMinutosPerdidos={totalMinutosPerdidos} />
-      <ResumenModulos modules={modules} loading={loading} />
-      <TablaSam datos={sam} loading={loading} />
-    </div>
-  );
-}
-
-function PestanaReportes() {
+function PestanaIndicadoresReportes() {
   const {
     filters,
     setPeriod,
@@ -126,12 +82,16 @@ function PestanaReportes() {
     setFechaInicio,
     setFechaFin,
     moduloOptions,
+    kpis,
+    modules,
+    sam,
+    totalMinutosPerdidos,
     charts,
-    summary,
+    loading,
     error,
-  } = usePanelReportes();
+  } = usePanelIndicadoresReportes();
 
-  const filas = charts.productividadPorModulo || [];
+  const filas = modules || [];
 
   /** Excel abre el CSV directamente; no hace falta una libreria extra. */
   const exportarExcel = () => {
@@ -173,8 +133,6 @@ function PestanaReportes() {
         </Button>
       </div>
 
-      <Aviso mensaje={error} />
-
       <PanelFiltros
         filters={filters}
         moduloOptions={moduloOptions}
@@ -184,8 +142,24 @@ function PestanaReportes() {
         onFechaFin={setFechaFin}
       />
 
-      <PanelGraficos charts={charts} tituloTendencia="Tendencia del periodo" />
-      <PanelResumen summary={summary} />
+      <Aviso mensaje={error} />
+
+      <PanelKpis valores={kpis} claves={KPIS_INDICADORES_REPORTES} conIcono={false} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <TendenciaEficienciaChart data={charts.tendencia} />
+        <TendenciaUnidadesChart data={charts.tendencia} />
+      </div>
+
+      <ResumenModulos modules={modules} loading={loading} />
+
+      <TablaCausas
+        datos={charts.causas}
+        totalMinutosPerdidos={totalMinutosPerdidos}
+        loading={loading}
+      />
+
+      <TablaSam datos={sam} loading={loading} />
     </div>
   );
 }
@@ -199,7 +173,7 @@ export function PanelPage({ onNavigate }) {
         title="Panel"
         subtitle="Como va la planta: resumen del dia, indicadores y reportes"
       >
-        <nav className="flex gap-1 rounded-xl border border-gray-200 bg-white p-1 no-print">
+        <nav className="flex gap-1 rounded-xl border border-[#E4E9E6] bg-white p-1 no-print">
           {PESTANAS.map((entrada) => {
             const Icono = entrada.icono;
             const activa = pestana === entrada.clave;
@@ -210,7 +184,7 @@ export function PanelPage({ onNavigate }) {
                 type="button"
                 onClick={() => setPestana(entrada.clave)}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  activa ? "bg-[#0F4C3F] text-white" : "text-gray-600 hover:bg-gray-50"
+                  activa ? "bg-[#D49A17] text-white" : "text-[#5C6B64] hover:bg-[#F6F8F7]"
                 }`}
               >
                 <Icono className="h-4 w-4" />
@@ -222,8 +196,7 @@ export function PanelPage({ onNavigate }) {
       </PageHeader>
 
       {pestana === "resumen" && <PestanaResumen onNavigate={onNavigate} />}
-      {pestana === "indicadores" && <PestanaIndicadores />}
-      {pestana === "reportes" && <PestanaReportes />}
+      {pestana === "indicadores-reportes" && <PestanaIndicadoresReportes />}
     </div>
   );
 }

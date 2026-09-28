@@ -111,6 +111,7 @@ export function LotesPage() {
 
       <StatsGrid
         columns={5}
+        variant="sutil"
         items={[
           { label: "Total lotes", value: lotes.resumen.total },
           { label: "En proceso", value: lotes.resumen.enProceso, color: "#D08E10" },
@@ -205,10 +206,13 @@ export function LotesPage() {
         tallaOptions={lotes.tallaOptions}
         colorOptions={lotes.colorOptions}
         subiendoFicha={lotes.subiendoFicha}
+        archivosPendientes={lotes.archivosPendientes}
         desglose={lotes.desglose}
         guardandoDesglose={lotes.guardandoDesglose}
         onSubirFicha={lotes.subirFicha}
         onQuitarFicha={lotes.quitarFicha}
+        onSeleccionarArchivoPendiente={lotes.seleccionarArchivoPendiente}
+        onQuitarArchivoPendiente={lotes.quitarArchivoPendiente}
         onGuardarDesglose={lotes.guardarDesglose}
         onChange={lotes.setField}
         onClose={lotes.closeModal}

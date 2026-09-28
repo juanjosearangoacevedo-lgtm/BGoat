@@ -7,11 +7,21 @@ const columnClasses = {
   5: "grid-cols-2 lg:grid-cols-5",
 };
 
-export function StatsGrid({ items = [], columns = 4 }) {
+// "sutil" es para paginas de catalogo (Lotes, Clientes) donde la caja es de
+// apoyo, no el dato principal de la pantalla como en Ordenes.
+const borde = {
+  verde: "border-2 border-emerald-400",
+  sutil: "border border-emerald-200",
+};
+
+export function StatsGrid({ items = [], columns = 4, variant = "verde" }) {
   return (
     <div className={`mb-6 grid gap-4 ${columnClasses[columns] || columnClasses[4]}`}>
       {items.map((item) => (
-        <div key={item.label} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+        <div
+          key={item.label}
+          className={`rounded-2xl bg-white p-4 ${borde[variant] || borde.verde}`}
+        >
           <div className="text-2xl font-bold" style={{ color: item.color || "#0F4C3F" }}>
             {item.value}
           </div>
