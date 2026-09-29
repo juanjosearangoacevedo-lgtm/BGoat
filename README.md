@@ -71,6 +71,7 @@ disponibles, solo no recibe atribución individual de producción.
 | [`database/`](database) | Migración, esquema MySQL 8, catálogos base, datos de demostración y el mapeo con el frontend |
 | [`backend/`](backend) | API en Node + Express + MySQL — ver [README](backend/README.md) |
 | [`frontend/`](frontend) | Panel web en React + Vite + Tailwind — ver [README](frontend/README.md) |
+| [`movil/`](movil) | App móvil en Flutter para planta — ver [README](movil/README.md) |
 
 ---
 
