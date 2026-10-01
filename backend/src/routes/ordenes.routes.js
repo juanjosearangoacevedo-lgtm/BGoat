@@ -28,12 +28,36 @@ export const ordenesRouter = Router();
  * (`cantidad_programada`, `valor_maquila_unidad`) y pedirlas otra vez
  * aqui solo abria la puerta a que las cifras se desincronizaran. Las dos
  * se copian del lote al crear la orden, no se digitan.
+ *
+ * `numero_orden` tampoco viene en `CAMPOS`: no tiene sentido pedirle a
+ * quien esta creando la orden que invente un consecutivo sin duplicarse
+ * con el resto de la planta. Lo genera `generarNumeroOrden()` al crear.
  */
 const CAMPOS = [
-  "numero_orden", "id_lote",
+  "id_lote",
   "fecha_inicio_programada", "fecha_fin_programada",
   "prioridad", "estado", "observaciones",
 ];
+
+/**
+ * El siguiente consecutivo del año: OP-2026-0001, OP-2026-0002...
+ *
+ * Busca el ultimo de este año por orden alfabetico (equivale al numerico
+ * porque el sufijo siempre tiene el mismo ancho) y le suma uno. Arranca en
+ * 1 el primer dia del año, porque el LIKE no encuentra nada del año nuevo.
+ */
+async function generarNumeroOrden() {
+  const anio = new Date().getFullYear();
+  const prefijo = `OP-${anio}-`;
+  const ultima = await queryOne(
+    `SELECT numero_orden FROM ordenes_produccion
+      WHERE numero_orden LIKE ?
+      ORDER BY numero_orden DESC LIMIT 1`,
+    [`${prefijo}%`],
+  );
+  const siguiente = ultima ? Number(ultima.numero_orden.slice(prefijo.length)) + 1 : 1;
+  return `${prefijo}${String(siguiente).padStart(4, "0")}`;
+}
 
 const limpiar = (cuerpo = {}) => {
   const datos = {};
@@ -110,7 +134,7 @@ ordenesRouter.post(
   asyncHandler(async (req, res) => {
     const datos = limpiar(req.body);
 
-    const faltantes = ["numero_orden", "id_lote"].filter((campo) => !datos[campo]);
+    const faltantes = ["id_lote"].filter((campo) => !datos[campo]);
     if (faltantes.length > 0) {
       throw ApiError.badRequest(`Faltan campos obligatorios: ${faltantes.join(", ")}`);
     }
@@ -126,12 +150,25 @@ ordenesRouter.post(
     // `creado_por` sale de la sesion, no del formulario.
     datos.creado_por = req.usuario.id_usuario;
 
-    const columnas = Object.keys(datos);
-    const resultado = await execute(
-      `INSERT INTO ordenes_produccion (${columnas.join(", ")})
-       VALUES (${columnas.map(() => "?").join(", ")})`,
-      columnas.map((columna) => datos[columna]),
-    );
+    // Reintenta si dos personas crearon una orden en el mismo instante y
+    // ambas calcularon el mismo consecutivo: el UNIQUE INDEX rechaza la
+    // segunda, y aqui se le genera uno nuevo en vez de fallarle al usuario.
+    let resultado;
+    for (let intento = 0; ; intento++) {
+      datos.numero_orden = await generarNumeroOrden();
+      const columnas = Object.keys(datos);
+      try {
+        resultado = await execute(
+          `INSERT INTO ordenes_produccion (${columnas.join(", ")})
+           VALUES (${columnas.map(() => "?").join(", ")})`,
+          columnas.map((columna) => datos[columna]),
+        );
+        break;
+      } catch (error) {
+        if (error.code === "ER_DUP_ENTRY" && intento < 2) continue;
+        throw error;
+      }
+    }
 
     // Si hay UNA sola jornada abierta corriendo ese lote sin orden, la
     // orden recien creada es la que le faltaba para poder facturar y se

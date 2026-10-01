@@ -88,12 +88,12 @@ class OrdenModel extends OrdenEntity {
   /// El cuerpo del POST y del PUT.
   ///
   /// `creado_por` no va: lo pone el backend desde la sesion, no el formulario.
-  /// El modulo tampoco: la orden no lo nombra. `cantidad_programada` y
-  /// `valor_maquila_unidad` tampoco: el backend los copia del lote, y
-  /// mandarlos aqui no haria nada -- el backend los descarta.
+  /// El modulo tampoco: la orden no lo nombra. `numero_orden`,
+  /// `cantidad_programada` y `valor_maquila_unidad` tampoco: el backend los
+  /// genera o los copia del lote, y mandarlos aqui no haria nada -- el
+  /// backend los descarta.
   static Map<String, dynamic> aJson(SolicitudOrden solicitud) {
     final cuerpo = <String, dynamic>{
-      'numero_orden': solicitud.numeroOrden,
       'id_lote': solicitud.idLote,
     };
 

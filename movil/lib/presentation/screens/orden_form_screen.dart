@@ -19,7 +19,8 @@ import '../widgets/vistas_estado.dart';
 /// maquila --todo eso vive en el lote, y un lote corre en una sola orden, asi
 /// que pedirlo otra vez aqui solo abria la puerta a que las cifras se
 /// desincronizaran--. El lote elegido se muestra abajo con su SAM y su valor
-/// de maquila, de solo lectura.
+/// de maquila, de solo lectura. Tampoco pide el numero de orden: lo genera
+/// el backend (`OP-2026-0001`...) para que no se repita entre digitadoras.
 class OrdenFormScreen extends StatefulWidget {
   final OrdenEntity? orden;
 
@@ -32,7 +33,6 @@ class OrdenFormScreen extends StatefulWidget {
 class _OrdenFormScreenState extends State<OrdenFormScreen> {
   final _formulario = GlobalKey<FormState>();
 
-  late final TextEditingController _numero;
   late final TextEditingController _observaciones;
 
   int? _idLote;
@@ -52,7 +52,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
 
     final orden = widget.orden;
 
-    _numero = TextEditingController(text: orden?.numeroOrden ?? '');
     _observaciones = TextEditingController(text: orden?.observaciones ?? '');
 
     _idLote = orden?.idLote;
@@ -68,7 +67,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
 
   @override
   void dispose() {
-    _numero.dispose();
     _observaciones.dispose();
     super.dispose();
   }
@@ -91,7 +89,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     final provider = context.read<OrdenesProvider>();
 
     final solicitud = SolicitudOrden(
-      numeroOrden: _numero.text.trim(),
       idLote: _idLote!,
       prioridad: _prioridad,
       estado: _estado,
@@ -183,7 +180,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_editando ? 'Editar orden' : 'Nueva orden'),
+        title: Text(_editando ? 'Editar ${widget.orden!.numeroOrden}' : 'Nueva orden'),
         actions: [
           if (_editando && puedeEliminar)
             IconButton(
@@ -198,18 +195,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
-            TextFormField(
-              controller: _numero,
-              textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                labelText: 'Numero de orden *',
-                prefixIcon: Icon(Icons.tag),
-                hintText: 'OP-2026-001',
-              ),
-              validator: (valor) =>
-                  (valor ?? '').trim().isEmpty ? 'El numero es obligatorio' : null,
-            ),
-            const SizedBox(height: 14),
             DropdownButtonFormField<int>(
               initialValue: _idLote,
               isExpanded: true,

@@ -15,7 +15,9 @@ import { ordenPrioridadOptions, ordenStatusOptions } from "../hooks/useOrdenesPa
  * existir y la produccion se mide por lote, no por talla y color.
  * Tampoco pide la cantidad programada: un lote corre en una sola orden,
  * asi que es la del lote (se ve en "Lo que trae el lote") y el backend
- * la copia al guardar.
+ * la copia al guardar. Tampoco pide el numero de orden: lo genera el
+ * backend al crear (`OP-2026-0001`...), para que no se repita entre
+ * quienes esten creando ordenes al mismo tiempo.
  */
 export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
   const {
@@ -47,7 +49,9 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
           Volver a Ordenes
         </Button>
         <h1 className="text-3xl font-bold text-gray-900">
-          {isEdit ? "Editar Orden de Produccion" : "Nueva Orden de Produccion"}
+          {isEdit
+            ? `Editar Orden ${orderData?.numero_orden ?? ""}`
+            : "Nueva Orden de Produccion"}
         </h1>
         <p className="mt-1 text-gray-600">
           {isEdit ? "Modifica los datos de la orden existente" : "Completa los datos para crear una nueva orden"}
@@ -56,14 +60,6 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <OrdenFormSection title="Informacion General">
-          <FormField
-            label="Numero de orden"
-            required
-            placeholder="OP-0000"
-            value={form.numero_orden}
-            error={errors.numero_orden}
-            onChange={(valor) => setField("numero_orden", valor)}
-          />
           <OrdenSelectField
             label="Lote"
             placeholder="Seleccionar lote"

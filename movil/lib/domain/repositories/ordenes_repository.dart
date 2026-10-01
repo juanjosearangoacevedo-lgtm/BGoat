@@ -33,9 +33,8 @@ class FiltroOrdenes {
 /// jornada con ella. Tampoco lleva ficha tecnica, pedido, cantidad ni valor
 /// de maquila --eso vive en el lote--: un lote corre en una sola orden, asi
 /// que la cantidad y el valor se copian del lote al crear la orden, nunca
-/// se digitan aqui.
+/// se digitan aqui. Tampoco lleva numero de orden: lo genera el backend.
 class SolicitudOrden {
-  final String numeroOrden;
   final int idLote;
   final String? prioridad;
   final String? estado;
@@ -44,7 +43,6 @@ class SolicitudOrden {
   final String? observaciones;
 
   const SolicitudOrden({
-    required this.numeroOrden,
     required this.idLote,
     this.prioridad,
     this.estado,

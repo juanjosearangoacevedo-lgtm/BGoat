@@ -20,9 +20,9 @@ import { validarOrden } from "../validations/ordenValidation";
  * puerta a que las cifras se desincronizaran.
  *
  * `creado_por` no se pide: lo pone el backend con el usuario de la sesion.
+ * `numero_orden` tampoco: lo genera el backend al crear (`OP-2026-0001`...).
  */
 export const emptyOrdenForm = {
-  numero_orden: "",
   id_lote: "",
   fecha_inicio_programada: "",
   fecha_fin_programada: "",

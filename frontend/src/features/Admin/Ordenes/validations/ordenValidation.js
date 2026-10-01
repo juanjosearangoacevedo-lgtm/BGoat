@@ -14,7 +14,6 @@ import { reglas, validarFormulario } from "@/shared/validations";
  * mide en planta.
  */
 export const ordenLimites = {
-  numero: { min: 3, max: 30 },
   observaciones: { max: 255 },
 };
 
@@ -23,11 +22,6 @@ export const ordenPrioridades = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
 
 export function crearOrdenEsquema({ loteOptions = [] } = {}) {
   return {
-    numero_orden: [
-      reglas.requerido("El numero de orden"),
-      reglas.longitud({ ...ordenLimites.numero, etiqueta: "El numero de orden" }),
-      reglas.sinCaracteresEspeciales("El numero de orden"),
-    ],
     id_lote: [
       reglas.seleccionRequerida("El lote"),
       reglas.opcionValida(loteOptions, "El lote seleccionado"),
