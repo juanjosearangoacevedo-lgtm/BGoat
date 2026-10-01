@@ -17,7 +17,11 @@ export const ordenLimites = {
   observaciones: { max: 255 },
 };
 
-export const ordenEstados = ["PENDIENTE", "EN_PROCESO", "PAUSADA", "FINALIZADA", "CANCELADA"];
+// Los tres que puede traer una orden. Finalizado no esta en
+// `ordenEstadosSeleccionables`: lo pone el sistema solo al completarse la
+// cantidad programada (ver `captura.routes.js`), nadie lo escoge a mano.
+export const ordenEstados = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
+export const ordenEstadosSeleccionables = ["PENDIENTE", "EN_PROCESO"];
 export const ordenPrioridades = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
 
 export function crearOrdenEsquema({ loteOptions = [] } = {}) {

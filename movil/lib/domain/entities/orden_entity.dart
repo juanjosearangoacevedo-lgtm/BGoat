@@ -108,7 +108,7 @@ class OrdenEntity {
   bool get estaEnRiesgo {
     if (fechaFinProgramada == null) return false;
     if (unidadesRestantes <= 0) return false;
-    if (const ['FINALIZADA', 'CANCELADA'].contains(estado)) return false;
+    if (estado == 'FINALIZADO') return false;
     final limite = DateTime.tryParse(fechaFinProgramada!.substring(0, 10));
     if (limite == null) return false;
     return limite.isBefore(DateTime.now());

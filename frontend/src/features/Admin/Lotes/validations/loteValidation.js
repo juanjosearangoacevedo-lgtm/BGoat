@@ -33,20 +33,12 @@ export const loteLimites = {
 };
 
 /**
- * El ciclo de vida completo del lote. Los cinco primeros venian de
- * `lotes` y los tres del medio de `pedidos`: al fusionarse las dos
- * tablas, el estado tambien se fusiono.
+ * El ciclo de vida del lote, solo para mostrarlo (badge, filtro): ya no
+ * se escoge en el formulario. Pendiente es donde nace, En proceso lo
+ * pone el backend al abrir jornada, y Finalizado lo pone solo al
+ * completarse la cantidad programada de su orden.
  */
-export const loteEstados = [
-  "REGISTRADO",
-  "APROBADO",
-  "EN_PROCESO",
-  "DESPACHADO",
-  "ENTREGADO",
-  "FINALIZADO",
-  "CANCELADO",
-  "INACTIVO",
-];
+export const loteEstados = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
 
 export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = [] } = {}) {
   return {
@@ -110,6 +102,5 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
       reglas.numero({ ...loteLimites.cantidad, etiqueta: "La cantidad recibida" }),
     ],
     observaciones: [reglas.longitud({ ...loteLimites.observaciones, etiqueta: "Las observaciones" })],
-    estado: [reglas.seleccionRequerida("El estado"), reglas.opcionValida(loteEstados, "El estado")],
   };
 }

@@ -85,7 +85,7 @@ indicadoresRouter.get(
       `SELECT
          SUM(estado = 'EN_PROCESO') AS ordenes_en_proceso,
          SUM(estado = 'PENDIENTE')  AS ordenes_pendientes,
-         SUM(estado = 'FINALIZADA') AS ordenes_finalizadas
+         SUM(estado = 'FINALIZADO') AS ordenes_finalizadas
        FROM ordenes_produccion`,
     );
 

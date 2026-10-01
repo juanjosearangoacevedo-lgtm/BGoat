@@ -5,7 +5,6 @@ import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { Modal } from "@/shared/components/Modal";
 import { ModalAcciones } from "@/shared/components/ModalAcciones";
-import { loteStatusOptions } from "../hooks/useLotesPage";
 import { CalculadoraSamModal } from "./CalculadoraSamModal";
 import { DesgloseTallaColor } from "./DesgloseTallaColor";
 import { FichaTecnicaLote } from "./FichaTecnicaLote";
@@ -199,7 +198,7 @@ export function LoteFormModal({
 
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
-            Recepcion y avance
+            Recepcion
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
@@ -219,14 +218,6 @@ export function LoteFormModal({
               value={form.cantidad_recibida ?? ""}
               error={errors.cantidad_recibida}
               onChange={(valor) => onChange("cantidad_recibida", valor)}
-            />
-            <FormField
-              label="Estado"
-              required
-              value={form.estado ?? "REGISTRADO"}
-              options={loteStatusOptions}
-              error={errors.estado}
-              onChange={(valor) => onChange("estado", valor)}
             />
           </div>
         </section>

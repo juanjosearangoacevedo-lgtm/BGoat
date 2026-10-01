@@ -42,15 +42,10 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
 
   int? _idCliente;
   int? _idTipoPrenda;
-  String _estado = 'REGISTRADO';
   late String _fechaRecepcion;
   String? _fechaEntrega;
 
   bool get _editando => widget.lote != null;
-
-  static const _estados = [
-    'REGISTRADO', 'APROBADO', 'EN_PROCESO', 'FINALIZADO', 'ENTREGADO', 'INACTIVO',
-  ];
 
   @override
   void initState() {
@@ -75,7 +70,6 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
 
     _idCliente = lote?.idCliente;
     _idTipoPrenda = lote?.idTipoPrenda;
-    _estado = lote?.estado ?? 'REGISTRADO';
     _fechaRecepcion = lote?.fechaRecepcion ?? fechas.hoy();
     _fechaEntrega = lote?.fechaEntregaProgramada;
 
@@ -121,7 +115,6 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       valorMaquilaUnidad: double.tryParse(_valorMaquila.text.replaceAll(',', '.')),
       cantidadProgramada: int.tryParse(_cantidad.text),
       fechaEntregaProgramada: _fechaEntrega,
-      estado: _estado,
       observaciones: _texto(_observaciones),
     );
 
@@ -152,7 +145,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       builder: (dialogo) => AlertDialog(
         title: const Text('Inactivar el lote'),
         content: Text(
-          '${lote.codigoLote} pasa a INACTIVO. No se borra: conserva lo que ya '
+          '${lote.codigoLote} deja de ofrecerse. No se borra: conserva lo que ya '
           'se produjo con el.',
         ),
         actions: [
@@ -413,7 +406,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
               ),
             ],
             const SizedBox(height: 22),
-            const TituloSeccion('Fechas y estado'),
+            const TituloSeccion('Fechas'),
             Row(
               children: [
                 Expanded(
@@ -424,19 +417,6 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                   child: _campoFecha('Entrega', _fechaEntrega, false),
                 ),
               ],
-            ),
-            const SizedBox(height: 14),
-            DropdownButtonFormField<String>(
-              initialValue: _estado,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: 'Estado'),
-              items: _estados
-                  .map((valor) => DropdownMenuItem(
-                        value: valor,
-                        child: Text(valor.replaceAll('_', ' ').toLowerCase()),
-                      ))
-                  .toList(),
-              onChanged: (valor) => setState(() => _estado = valor ?? 'REGISTRADO'),
             ),
             const SizedBox(height: 14),
             TextFormField(

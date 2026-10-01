@@ -45,6 +45,11 @@ class LoteEntity {
   final String? observaciones;
   final String estado;
 
+  /// Si el lote se sigue ofreciendo. Independiente de `estado`: un lote
+  /// puede estar Finalizado y seguir activo, o inactivo en cualquier
+  /// estado de produccion.
+  final bool activo;
+
   const LoteEntity({
     required this.id,
     required this.codigoLote,
@@ -65,6 +70,7 @@ class LoteEntity {
     this.rutaDocumentoPdf,
     required this.estado,
     this.observaciones,
+    this.activo = true,
   });
 
   /// Sin SAM no hay meta. La pantalla lo marca antes de que la digitadora
@@ -79,9 +85,9 @@ class LoteEntity {
     return referencia == null ? codigoLote : '$codigoLote · $referencia';
   }
 
-  /// Solo estos tres estados se pueden producir.
+  /// Solo un lote activo y sin terminar se puede producir.
   bool get disponibleParaProducir =>
-      const ['REGISTRADO', 'APROBADO', 'EN_PROCESO'].contains(estado);
+      activo && const ['PENDIENTE', 'EN_PROCESO'].contains(estado);
 }
 
 /// Una fila del desglose por talla y color de un lote.

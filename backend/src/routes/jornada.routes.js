@@ -88,9 +88,9 @@ async function ordenesDisponiblesDelLote(idLote, idModulo) {
             tom.id_modulo AS tomada_por
      FROM ordenes_produccion o
      ${SELECT_ORDEN_TOMADA}
-     WHERE o.id_lote = ? AND o.estado NOT IN ('CANCELADA', 'FINALIZADA')
+     WHERE o.id_lote = ? AND o.estado <> 'FINALIZADO'
        AND (tom.id_modulo IS NULL OR tom.id_modulo = ?)
-     ORDER BY FIELD(o.estado, 'EN_PROCESO', 'PENDIENTE', 'PAUSADA'), o.fecha_emision ASC`,
+     ORDER BY FIELD(o.estado, 'EN_PROCESO', 'PENDIENTE'), o.fecha_emision ASC`,
     [idLote, idModulo],
   );
 }
@@ -241,7 +241,7 @@ jornadaRouter.get(
         `SELECT c.id_cliente, c.nombre, COUNT(l.id_lote) AS lotes_disponibles
          FROM clientes c
          JOIN lotes l ON l.id_cliente = c.id_cliente
-                     AND l.estado IN ('REGISTRADO', 'APROBADO', 'EN_PROCESO')
+                     AND l.activo = 1 AND l.estado IN ('PENDIENTE', 'EN_PROCESO')
          WHERE c.estado = 'ACTIVO'
          GROUP BY c.id_cliente, c.nombre
          ORDER BY c.nombre ASC`,
@@ -252,7 +252,7 @@ jornadaRouter.get(
                 l.ruta_documento_pdf, l.cantidad_programada,
                 l.fecha_entrega_programada, l.estado
          FROM lotes l
-         WHERE l.estado IN ('REGISTRADO', 'APROBADO', 'EN_PROCESO')
+         WHERE l.activo = 1 AND l.estado IN ('PENDIENTE', 'EN_PROCESO')
          ORDER BY l.fecha_recepcion DESC, l.codigo_lote ASC`,
       ),
       query(
@@ -273,8 +273,8 @@ jornadaRouter.get(
          FROM ordenes_produccion o
          ${SELECT_ORDEN_TOMADA}
          LEFT JOIN modulos m ON m.id_modulo = tom.id_modulo
-         WHERE o.estado NOT IN ('CANCELADA', 'FINALIZADA')
-         ORDER BY FIELD(o.estado, 'EN_PROCESO', 'PENDIENTE', 'PAUSADA'), o.fecha_emision ASC`,
+         WHERE o.estado <> 'FINALIZADO'
+         ORDER BY FIELD(o.estado, 'EN_PROCESO', 'PENDIENTE'), o.fecha_emision ASC`,
       ),
     ]);
 
@@ -406,11 +406,11 @@ jornadaRouter.post(
     }
 
     const lote = await queryOne(
-      "SELECT id_lote, codigo_lote, sam_pactado, estado FROM lotes WHERE id_lote = ?",
+      "SELECT id_lote, codigo_lote, sam_pactado, estado, activo FROM lotes WHERE id_lote = ?",
       [id_lote],
     );
     if (!lote) throw ApiError.notFound("El lote no existe");
-    if (!["REGISTRADO", "APROBADO", "EN_PROCESO"].includes(lote.estado)) {
+    if (!lote.activo || !["PENDIENTE", "EN_PROCESO"].includes(lote.estado)) {
       throw ApiError.badRequest(`El lote ${lote.codigo_lote} ya no esta disponible para producir`);
     }
 
@@ -460,7 +460,7 @@ jornadaRouter.post(
     // en la primera hora capturada, en captura.routes.js).
     await execute(
       `UPDATE lotes SET estado = 'EN_PROCESO'
-       WHERE id_lote = ? AND estado IN ('REGISTRADO', 'APROBADO')`,
+       WHERE id_lote = ? AND estado = 'PENDIENTE'`,
       [id_lote],
     );
 

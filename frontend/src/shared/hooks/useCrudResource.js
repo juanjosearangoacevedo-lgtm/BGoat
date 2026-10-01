@@ -34,6 +34,10 @@ export function useCrudResource({
   transformarPayload = null,
   porPagina = POR_PAGINA_MAXIMO,
   nombreRegistro = null,
+  // La columna que `cambiarEstado` lee y escribe. Todas las tablas usan
+  // "estado" menos `lotes`, que separa su avance de produccion (estado)
+  // de si sigue ofreciendose (activo).
+  campoEstado = CAMPO_ESTADO,
 } = {}) {
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
@@ -193,20 +197,21 @@ export function useCrudResource({
       const id = item?.[idField];
       if (!id) return false;
 
-      const activo = String(item[CAMPO_ESTADO] || "").toUpperCase().startsWith("ACTIV");
-      const destino = nuevoEstado || (activo ? "INACTIVO" : "ACTIVO");
+      const activo = String(item[campoEstado] || "").toUpperCase().startsWith("ACTIV");
+      // `??` y no `||`: un destino "desactivar" valido puede ser `0` o
+      // `false`, y esos son falsy pero no "sin especificar".
+      const destino = nuevoEstado ?? (activo ? "INACTIVO" : "ACTIVO");
+      const activando = destino === 1 || destino === true || String(destino).toUpperCase().startsWith("ACTIV");
 
       setProcesando(true);
       try {
-        await apiClient.put(`${recurso}/${id}`, { ...item, [CAMPO_ESTADO]: destino });
+        await apiClient.put(`${recurso}/${id}`, { ...item, [campoEstado]: destino });
 
         // La fila se refresca al instante y luego se confirma con el backend.
         setItems((previo) =>
-          previo.map((fila) => (fila[idField] === id ? { ...fila, [CAMPO_ESTADO]: destino } : fila)),
+          previo.map((fila) => (fila[idField] === id ? { ...fila, [campoEstado]: destino } : fila)),
         );
-        toast.success(
-          destino.startsWith("ACTIV") ? `Se activo ${nombreDe(item)}` : `Se desactivo ${nombreDe(item)}`,
-        );
+        toast.success(activando ? `Se activo ${nombreDe(item)}` : `Se desactivo ${nombreDe(item)}`);
         await cargar();
         return true;
       } catch (problema) {
@@ -217,7 +222,7 @@ export function useCrudResource({
         setEstadoTarget(null);
       }
     },
-    [cargar, idField, recurso, nombreDe],
+    [cargar, idField, recurso, nombreDe, campoEstado],
   );
 
   /** Elimina (o inactiva, segun la regla del backend). */

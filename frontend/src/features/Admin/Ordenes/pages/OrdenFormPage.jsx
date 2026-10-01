@@ -1,11 +1,18 @@
 import { ArrowLeft, RefreshCcw, Save, X } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { FormField } from "@/shared/components/FormField";
+import { StatusBadge } from "@/shared/components/StatusBadge";
 import { formatMoneda } from "@/shared/utils/formatters";
 import { OrdenFormSection } from "../components/OrdenFormSection";
 import { OrdenSelectField } from "../components/OrdenSelectField";
 import { useOrdenForm } from "../hooks/useOrdenForm";
 import { ordenPrioridadOptions, ordenStatusOptions } from "../hooks/useOrdenesPage";
+
+// Finalizado no se escoge: lo pone el sistema solo al completarse la
+// cantidad programada. El select solo ofrece lo que si es una decision.
+const ordenEstadoSeleccionableOptions = ordenStatusOptions.filter(
+  (opcion) => opcion.value !== "FINALIZADO",
+);
 
 /**
  * Formulario de `ordenes_produccion`.
@@ -191,14 +198,26 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             onChange={(value) => setField("prioridad", value)}
             options={ordenPrioridadOptions}
           />
-          <OrdenSelectField
-            label="Estado"
-            required
-            placeholder="Seleccionar estado"
-            value={form.estado}
-            onChange={(value) => setField("estado", value)}
-            options={ordenStatusOptions}
-          />
+          {form.estado === "FINALIZADO" ? (
+            <div>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Estado</p>
+              <div className="flex h-10 items-center gap-2">
+                <StatusBadge status="FINALIZADO" />
+                <span className="text-xs text-gray-400">
+                  Se completo solo al alcanzar la cantidad programada.
+                </span>
+              </div>
+            </div>
+          ) : (
+            <OrdenSelectField
+              label="Estado"
+              required
+              placeholder="Seleccionar estado"
+              value={form.estado}
+              onChange={(value) => setField("estado", value)}
+              options={ordenEstadoSeleccionableOptions}
+            />
+          )}
           <div className="md:col-span-2">
             <FormField
               label="Observaciones"

@@ -9,6 +9,7 @@ import '../../domain/entities/orden_entity.dart';
 import '../../domain/repositories/ordenes_repository.dart';
 import '../providers/ordenes_provider.dart';
 import '../providers/sesion_provider.dart';
+import '../widgets/estado_chip.dart';
 import '../widgets/tarjetas.dart';
 import '../widgets/vistas_estado.dart';
 
@@ -44,7 +45,9 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
   bool get _editando => widget.orden != null;
 
   static const _prioridades = ['BAJA', 'MEDIA', 'ALTA', 'URGENTE'];
-  static const _estados = ['PENDIENTE', 'EN_PROCESO', 'PAUSADA', 'FINALIZADA', 'CANCELADA'];
+  // Finalizado no esta aqui: lo pone el sistema solo al completarse la
+  // cantidad programada (ver `captura.routes.js`), nadie lo escoge a mano.
+  static const _estados = ['PENDIENTE', 'EN_PROCESO'];
 
   @override
   void initState() {
@@ -244,21 +247,38 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _estado,
-                    isExpanded: true,
-                    decoration: const InputDecoration(labelText: 'Estado'),
-                    items: _estados
-                        .map((valor) => DropdownMenuItem(
-                              value: valor,
-                              child: Text(
-                                valor.replaceAll('_', ' ').toLowerCase(),
-                                overflow: TextOverflow.ellipsis,
+                  child: _estado == 'FINALIZADO'
+                      ? InputDecorator(
+                          decoration: const InputDecoration(labelText: 'Estado'),
+                          child: Row(
+                            children: [
+                              const EstadoChip('FINALIZADO'),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Se completo solo',
+                                  style: const TextStyle(fontSize: 11, color: Paleta.textoSuave),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ))
-                        .toList(),
-                    onChanged: (valor) => setState(() => _estado = valor ?? 'PENDIENTE'),
-                  ),
+                            ],
+                          ),
+                        )
+                      : DropdownButtonFormField<String>(
+                          initialValue: _estado,
+                          isExpanded: true,
+                          decoration: const InputDecoration(labelText: 'Estado'),
+                          items: _estados
+                              .map((valor) => DropdownMenuItem(
+                                    value: valor,
+                                    child: Text(
+                                      valor.replaceAll('_', ' ').toLowerCase(),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ))
+                              .toList(),
+                          onChanged: (valor) => setState(() => _estado = valor ?? 'PENDIENTE'),
+                        ),
                 ),
               ],
             ),

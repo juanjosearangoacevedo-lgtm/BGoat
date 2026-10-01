@@ -345,9 +345,13 @@ CREATE TABLE IF NOT EXISTS `lotes` (
   `cantidad_programada` INT NOT NULL DEFAULT '0',
   `cantidad_recibida` INT NOT NULL DEFAULT '0',
   `observaciones` VARCHAR(500) DEFAULT NULL,
-  `estado` ENUM('REGISTRADO', 'APROBADO', 'EN_PROCESO', 'DESPACHADO',
-                'ENTREGADO', 'FINALIZADO', 'CANCELADO', 'INACTIVO')
-           NOT NULL DEFAULT 'REGISTRADO',
+  -- Solo tres valores: Pendiente y En proceso los mueve una persona o el
+  -- primer registro de produccion; Finalizado NO se escoge, lo pone solo
+  -- `captura.routes.js` cuando lo producido alcanza la cantidad
+  -- programada de la orden. "Borrado" es la columna `activo` de abajo,
+  -- no un cuarto estado: son dos preguntas distintas.
+  `estado` ENUM('PENDIENTE', 'EN_PROCESO', 'FINALIZADO') NOT NULL DEFAULT 'PENDIENTE',
+  `activo` TINYINT(1) NOT NULL DEFAULT 1,
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_lote`),
   UNIQUE INDEX `uq_lotes_codigo` (`codigo_lote`),
@@ -554,7 +558,10 @@ CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   `fecha_fin_real` DATE DEFAULT NULL,
   `cantidad_programada` INT NOT NULL,
   `prioridad` ENUM('BAJA', 'MEDIA', 'ALTA', 'URGENTE') NOT NULL DEFAULT 'MEDIA',
-  `estado` ENUM('PENDIENTE', 'EN_PROCESO', 'PAUSADA', 'FINALIZADA', 'CANCELADA') NOT NULL DEFAULT 'PENDIENTE',
+  -- Igual que en `lotes.estado`: Pendiente/En proceso son manuales,
+  -- Finalizado lo pone solo `captura.routes.js` al completarse la
+  -- cantidad programada. Ya no existe Pausada ni Cancelada.
+  `estado` ENUM('PENDIENTE', 'EN_PROCESO', 'FINALIZADO') NOT NULL DEFAULT 'PENDIENTE',
   `observaciones` VARCHAR(500) DEFAULT NULL,
   `creado_por` BIGINT NOT NULL,
   PRIMARY KEY (`id_orden_produccion`),

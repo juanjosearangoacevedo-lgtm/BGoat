@@ -54,6 +54,7 @@ class Paleta {
         return error;
       case 'CERRADA':
       case 'FINALIZADA':
+      case 'FINALIZADO':
       case 'ENTREGADO':
         return primario;
       default:

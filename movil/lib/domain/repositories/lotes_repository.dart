@@ -30,7 +30,6 @@ class SolicitudLote {
   final double? valorMaquilaUnidad;
   final int? cantidadProgramada;
   final String? fechaEntregaProgramada;
-  final String? estado;
   final String? observaciones;
 
   const SolicitudLote({
@@ -45,7 +44,6 @@ class SolicitudLote {
     this.valorMaquilaUnidad,
     this.cantidadProgramada,
     this.fechaEntregaProgramada,
-    this.estado,
     this.observaciones,
   });
 }

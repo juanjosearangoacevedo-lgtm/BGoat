@@ -47,7 +47,6 @@ export const emptyLoteForm = {
   cantidad_programada: "",
   cantidad_recibida: "",
   observaciones: "",
-  estado: "REGISTRADO",
 };
 
 const aNumero = (valor) =>
@@ -89,6 +88,10 @@ export function useLotesPage() {
     recurso: endpoints.lotes,
     idField: "id_lote",
     emptyForm: emptyLoteForm,
+    // El lote separa su avance de produccion (`estado`, ya no se digita)
+    // de si sigue ofreciendose (`activo`): el interruptor de la tabla
+    // cambia esta ultima.
+    campoEstado: "activo",
     nombreRegistro: (lote) => (lote?.codigo_lote ? `el lote ${lote.codigo_lote}` : "el lote"),
     esquema: ({ items, editing }) =>
       crearLoteEsquema({ lista: items, editing, clienteOptions: clientes.options }),
@@ -155,7 +158,7 @@ export function useLotesPage() {
     return {
       total: crud.items.length,
       enProceso: contar("EN_PROCESO"),
-      entregados: contar("ENTREGADO") + contar("FINALIZADO"),
+      entregados: contar("FINALIZADO"),
       sinSam: crud.items.filter((lote) => !Number(lote.sam_pactado)).length,
       unidades: crud.items.reduce((suma, lote) => suma + Number(lote.cantidad_programada || 0), 0),
     };

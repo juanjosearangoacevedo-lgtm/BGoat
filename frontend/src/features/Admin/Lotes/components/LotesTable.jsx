@@ -7,9 +7,9 @@ import { formatFecha, formatNumero, GUION } from "@/shared/utils/formatters";
  * Columnas del listado de la tabla `lotes`.
  * Las comparte la tabla, el modo lista y la exportacion a CSV.
  *
- * El estado de un lote es su avance (REGISTRADO, EN_PROCESO, FINALIZADO,
- * CANCELADO) mas INACTIVO, asi que "activo" es todo lo que no esta
- * inactivo: no sirve el ACTIV* que usa el resto del panel.
+ * `estado` (Pendiente, En proceso, Finalizado) y `activo` (si se sigue
+ * ofreciendo) son columnas independientes: el interruptor de la fila
+ * cambia `activo`, no `estado`.
  */
 export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado, onDelete } = {}) {
   return [
@@ -134,7 +134,7 @@ export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado
             onEdit,
             onToggleEstado,
             onDelete,
-            activo: String(lote.estado).toUpperCase() !== "INACTIVO",
+            activo: Boolean(Number(lote.activo ?? 1)),
           })}
         />
       ),

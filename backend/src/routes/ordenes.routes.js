@@ -201,12 +201,22 @@ ordenesRouter.put(
   requierePermiso("Ordenes", "EDITAR"),
   asyncHandler(async (req, res) => {
     const existente = await queryOne(
-      "SELECT id_orden_produccion FROM ordenes_produccion WHERE id_orden_produccion = ?",
+      "SELECT id_orden_produccion, estado FROM ordenes_produccion WHERE id_orden_produccion = ?",
       [req.params.id],
     );
     if (!existente) throw ApiError.notFound();
 
     const datos = limpiar(req.body);
+
+    // Finalizado no se escoge a mano: lo pone el sistema solo cuando lo
+    // producido alcanza la cantidad programada (captura.routes.js). Si ya
+    // estaba Finalizado se deja pasar (el formulario reenvia el estado
+    // actual al guardar otros campos), pero no se puede ENTRAR a mano.
+    if (datos.estado === "FINALIZADO" && existente.estado !== "FINALIZADO") {
+      throw ApiError.badRequest(
+        "El estado Finalizado lo asigna el sistema al completarse la cantidad programada; no se puede escoger a mano.",
+      );
+    }
 
     // Si la orden cambia de lote, la cantidad se resincroniza con el
     // nuevo lote: sigue sin ser un dato que se digite.
@@ -246,10 +256,12 @@ ordenesRouter.delete(
     );
 
     // Regla del alcance: no se elimina una orden con produccion registrada.
+    // Esa historia no se puede borrar, y la orden tampoco se puede marcar
+    // Finalizada a mano para "cerrarla": Finalizado es automatico.
     if (conProduccion.total > 0) {
       throw ApiError.conflict(
-        `No se puede eliminar: la orden tiene ${conProduccion.total} registro(s) de produccion. ` +
-          "Cancelela en lugar de eliminarla.",
+        `No se puede eliminar: la orden tiene ${conProduccion.total} registro(s) de produccion, ` +
+          "y esa historia no se borra.",
       );
     }
 
@@ -259,7 +271,7 @@ ordenesRouter.delete(
     );
     if (enJornada.total > 0) {
       throw ApiError.conflict(
-        "No se puede eliminar: hay jornadas configuradas con esta orden. Cancelela en lugar de eliminarla.",
+        "No se puede eliminar: hay jornadas configuradas con esta orden.",
       );
     }
 

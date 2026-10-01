@@ -500,6 +500,36 @@ capturaRouter.put(
          WHERE id_orden_produccion = ?`,
         [fecha, suya.id_orden_produccion],
       );
+
+      // Finalizado no es una fecha: es la ultima unidad. Cuando lo
+      // acumulado en registros_horarios alcanza la cantidad programada,
+      // la orden (y el lote que corre sobre ella) quedan Finalizado solo,
+      // sin que nadie digite nada. Mismo acumulado que ya usa
+      // `vw_avance_orden` para `unidades_producidas`.
+      const avance = await queryOne(
+        `SELECT o.cantidad_programada, o.id_lote,
+                COALESCE(SUM(r.unidades_producidas), 0) AS producidas
+         FROM ordenes_produccion o
+         LEFT JOIN registros_horarios r
+           ON r.id_orden_produccion = o.id_orden_produccion AND r.estado <> 'ANULADO'
+         WHERE o.id_orden_produccion = ?
+         GROUP BY o.id_orden_produccion, o.cantidad_programada, o.id_lote`,
+        [suya.id_orden_produccion],
+      );
+
+      if (avance && avance.producidas >= avance.cantidad_programada) {
+        await execute(
+          `UPDATE ordenes_produccion
+           SET estado = 'FINALIZADO', fecha_fin_real = COALESCE(fecha_fin_real, ?)
+           WHERE id_orden_produccion = ? AND estado <> 'FINALIZADO'`,
+          [fecha, suya.id_orden_produccion],
+        );
+        await execute(
+          `UPDATE lotes SET estado = 'FINALIZADO'
+           WHERE id_lote = ? AND estado <> 'FINALIZADO'`,
+          [avance.id_lote],
+        );
+      }
     }
 
     const final = await queryOne("SELECT * FROM vw_registro_horario WHERE id_registro = ?", [

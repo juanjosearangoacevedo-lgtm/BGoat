@@ -58,18 +58,23 @@ export const recursos = {
     tabla: "lotes",
     pk: "id_lote",
     permiso: "Lotes",
+    // `estado` NO esta aqui: ya no se digita. Pendiente es donde nace,
+    // En proceso lo pone el backend al abrir jornada, y Finalizado lo
+    // pone solo al completarse la cantidad programada (ver
+    // `captura.routes.js`). `activo` si es editable: es el apagado del
+    // lote, una pregunta aparte de en que va su produccion.
     campos: [
       "codigo_lote", "numero_pedido", "id_cliente", "codigo_referencia",
       "nombre_referencia", "id_tipo_prenda", "sam_pactado", "valor_maquila_unidad",
       "fecha_recepcion", "fecha_entrega_programada",
-      "cantidad_programada", "cantidad_recibida", "observaciones", "estado",
+      "cantidad_programada", "cantidad_recibida", "observaciones", "activo",
     ],
     obligatorios: ["codigo_lote", "id_cliente", "fecha_recepcion"],
     buscables: [
       "codigo_lote", "numero_pedido", "codigo_referencia", "nombre_referencia",
       "observaciones",
     ],
-    filtros: ["estado", "id_cliente", "id_tipo_prenda", "fecha_recepcion"],
+    filtros: ["estado", "activo", "id_cliente", "id_tipo_prenda", "fecha_recepcion"],
     orden: "fecha_recepcion DESC, codigo_lote DESC",
     vista: `
       SELECT l.*, c.nombre AS nombre_cliente, tp.nombre AS nombre_tipo_prenda
@@ -78,7 +83,7 @@ export const recursos = {
       LEFT JOIN tipos_prenda tp ON tp.id_tipo_prenda = l.id_tipo_prenda
     `,
     alias: "l",
-    softDelete: { columna: "estado", valor: "INACTIVO" },
+    softDelete: { columna: "activo", valor: 0 },
   },
 
   /**

@@ -23,6 +23,7 @@ class LoteModel extends LoteEntity {
     super.rutaDocumentoPdf,
     required super.estado,
     super.observaciones,
+    super.activo,
   });
 
   factory LoteModel.fromJson(Map<String, dynamic> json) => LoteModel(
@@ -44,8 +45,9 @@ class LoteModel extends LoteEntity {
         fechaEntregaProgramada: aFechaNula(json['fecha_entrega_programada']),
         rutaImagen: aTextoNulo(json['ruta_imagen']),
         rutaDocumentoPdf: aTextoNulo(json['ruta_documento_pdf']),
-        estado: aTexto(json['estado'], 'REGISTRADO'),
+        estado: aTexto(json['estado'], 'PENDIENTE'),
         observaciones: aTextoNulo(json['observaciones']),
+        activo: json.containsKey('activo') ? aBool(json['activo']) : true,
       );
 
   /// El cuerpo del POST y del PUT.
@@ -71,7 +73,6 @@ class LoteModel extends LoteEntity {
     agregar('valor_maquila_unidad', solicitud.valorMaquilaUnidad);
     agregar('cantidad_programada', solicitud.cantidadProgramada);
     agregar('fecha_entrega_programada', solicitud.fechaEntregaProgramada);
-    agregar('estado', solicitud.estado);
     agregar('observaciones', solicitud.observaciones);
 
     return cuerpo;

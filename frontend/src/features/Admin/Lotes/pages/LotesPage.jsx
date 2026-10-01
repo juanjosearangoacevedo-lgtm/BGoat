@@ -17,12 +17,12 @@ import { LotesTable, columnasLotes } from "../components/LotesTable";
 import { useLotesPage } from "../hooks/useLotesPage";
 
 /**
- * `lotes.estado` no es ACTIVO/INACTIVO sino el avance del lote
- * (REGISTRADO, EN_PROCESO, FINALIZADO, CANCELADO) mas INACTIVO. Por eso el
- * interruptor no alterna contra "ACTIVO": desactivar lleva a INACTIVO y
- * reactivar devuelve el lote a REGISTRADO, que es donde vuelve a empezar.
+ * `lotes.activo` es independiente de `lotes.estado`: el estado dice en que
+ * va la produccion (Pendiente, En proceso, Finalizado) y ya no se escoge a
+ * mano; `activo` es si el lote se sigue ofreciendo, y es lo unico que este
+ * interruptor cambia.
  */
-const estaInactivo = (lote) => String(lote?.estado || "").toUpperCase() === "INACTIVO";
+const estaInactivo = (lote) => !Number(lote?.activo ?? 1);
 
 export function LotesPage() {
   const lotes = useLotesPage();
@@ -115,7 +115,7 @@ export function LotesPage() {
         items={[
           { label: "Total lotes", value: lotes.resumen.total },
           { label: "En proceso", value: lotes.resumen.enProceso, color: "#D08E10" },
-          { label: "Entregados", value: lotes.resumen.entregados, color: "#10b981" },
+          { label: "Finalizados", value: lotes.resumen.entregados, color: "#10b981" },
           { label: "Sin SAM pactado", value: lotes.resumen.sinSam, color: "#ef4444" },
           { label: "Unidades programadas", value: formatNumero(lotes.resumen.unidades), color: "#6b7280" },
         ]}
@@ -243,13 +243,13 @@ export function LotesPage() {
         title={activando ? "Reactivar lote?" : "Desactivar lote?"}
         description={
           activando
-            ? `El lote ${objetivoEstado?.codigo_lote} vuelve a estado Registrado y podra usarse en ordenes de produccion.`
+            ? `El lote ${objetivoEstado?.codigo_lote} vuelve a ofrecerse y podra usarse en ordenes de produccion.`
             : `El lote ${objetivoEstado?.codigo_lote} dejara de ofrecerse al crear ordenes, pero conserva su historia.`
         }
         confirmLabel={activando ? "Reactivar" : "Desactivar"}
         loading={lotes.procesando}
         onCancel={() => lotes.setEstadoTarget(null)}
-        onConfirm={() => lotes.cambiarEstado(objetivoEstado, activando ? "REGISTRADO" : "INACTIVO")}
+        onConfirm={() => lotes.cambiarEstado(objetivoEstado, activando ? 1 : 0)}
       />
 
       <ConfirmDialog

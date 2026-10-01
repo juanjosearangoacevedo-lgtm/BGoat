@@ -9,7 +9,7 @@ import { endpoints } from "@/shared/services/endpoints";
  * Listado de ordenes -> vista `vw_avance_orden` (tabla `ordenes_produccion`
  * mas lote, modulo, cliente, referencia y el avance real calculado).
  */
-export const ordenStatuses = ["PENDIENTE", "EN_PROCESO", "PAUSADA", "FINALIZADA", "CANCELADA"];
+export const ordenStatuses = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
 export const ordenPrioridades = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
 
 /** Los ENUM viajan en mayusculas a la base; en pantalla se ven legibles. */
@@ -100,7 +100,7 @@ export function useOrdenesPage() {
       total: crud.items.length,
       enProceso: contar("EN_PROCESO"),
       pendientes: contar("PENDIENTE"),
-      finalizadas: contar("FINALIZADA"),
+      finalizadas: contar("FINALIZADO"),
     };
   }, [crud.items]);
 

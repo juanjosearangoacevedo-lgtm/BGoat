@@ -90,7 +90,7 @@ FROM (
   SELECT 'LOT-BF220-01',          'PED-2026-004',           'Baby Fresh',               'BF-220',         'Conjunto bebe',                       'Sudadera',             9.40,       3900.00,          'Algodon perchado',              3500,             12,              5,               9,             4,          'EN_PROCESO',          'Conjunto dos piezas' UNION ALL
   -- Recien llegado y sin empezar: su orden se queda LIBRE, esperando a
   -- que un modulo la tome. Es el estado nuevo que hay que poder ver.
-  SELECT 'LOT-AC330-01',          'PED-2026-005',           'Arturo Calle',             'AC-330',         'Camisa manga larga',                  'Camisa',               8.10,       4100.00,          'Popelina algodon',              2400,              5,              1,              18,             0,          'REGISTRADO',          'Llego ayer, sin asignar a ningun modulo'
+  SELECT 'LOT-AC330-01',          'PED-2026-005',           'Arturo Calle',             'AC-330',         'Camisa manga larga',                  'Camisa',               8.10,       4100.00,          'Popelina algodon',              2400,              5,              1,              18,             0,          'PENDIENTE',          'Llego ayer, sin asignar a ningun modulo'
 ) v
 JOIN `clientes` c ON c.nombre = v.cliente
 LEFT JOIN `tipos_prenda` tp ON tp.nombre = v.tipo;
