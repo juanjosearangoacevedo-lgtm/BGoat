@@ -99,6 +99,20 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       return;
     }
 
+    // El codigo de lote ya no es obligatorio por si solo: con codigo de
+    // referencia o nombre de referencia alcanza para identificar el lote.
+    final sinIdentificacion = _codigo.text.trim().isEmpty &&
+        _codigoReferencia.text.trim().isEmpty &&
+        _nombreReferencia.text.trim().isEmpty;
+    if (sinIdentificacion) {
+      avisar(
+        context,
+        'Escriba al menos el codigo de lote, el codigo de referencia o el nombre de la referencia',
+        esError: true,
+      );
+      return;
+    }
+
     final provider = context.read<LotesProvider>();
 
     final solicitud = SolicitudLote(
@@ -238,12 +252,11 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
               controller: _codigo,
               textCapitalization: TextCapitalization.characters,
               decoration: const InputDecoration(
-                labelText: 'Codigo del lote *',
+                labelText: 'Codigo del lote',
                 prefixIcon: Icon(Icons.qr_code),
                 hintText: 'LT-2026-001',
+                helperText: 'Si lo deja vacio pero hay referencia, se genera uno solo.',
               ),
-              validator: (valor) =>
-                  (valor ?? '').trim().isEmpty ? 'El codigo es obligatorio' : null,
             ),
             const SizedBox(height: 14),
             DropdownButtonFormField<int>(

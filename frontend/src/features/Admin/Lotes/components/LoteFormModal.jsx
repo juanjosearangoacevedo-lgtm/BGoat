@@ -74,12 +74,11 @@ export function LoteFormModal({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               label="Codigo de lote"
-              required
               autoFocus
               placeholder="LOT-0000"
               value={form.codigo_lote ?? ""}
               error={errors.codigo_lote}
-              hint="No puede repetirse."
+              hint="Si lo dejas vacio pero hay referencia, se genera uno solo."
               onChange={(valor) => onChange("codigo_lote", valor)}
             />
             <FormField

@@ -1,3 +1,6 @@
+import { queryOne } from "./db.js";
+import { ApiError } from "../lib/http.js";
+
 /**
  * Definicion declarativa de los recursos CRUD.
  *
@@ -12,6 +15,7 @@
  *   orden       -> ORDER BY por defecto
  *   vista       -> vista o SELECT enriquecido para el listado (opcional)
  *   softDelete  -> si se inactiva en vez de borrar, y con que columna/valor
+ *   antesDeGuardar -> hook async opcional, ver `lib/crud.js`
  *
  * `crudFactory` construye el router a partir de esto, de modo que agregar
  * un recurso no implique escribir un archivo nuevo.
@@ -20,6 +24,26 @@
  * las ordenes, los usuarios, los roles y los indicadores tienen su
  * archivo en `routes/`.
  */
+/**
+ * El siguiente codigo autogenerado del año: LT-2026-0001, LT-2026-0002...
+ *
+ * Solo se usa cuando el lote se identifica por codigo de referencia o
+ * nombre de referencia y no trajo codigo de lote propio: el cliente no
+ * siempre lo da, y la digitadora no tendria por que inventarselo.
+ */
+async function generarCodigoLote() {
+  const anio = new Date().getFullYear();
+  const prefijo = `LT-${anio}-`;
+  const ultimo = await queryOne(
+    `SELECT codigo_lote FROM lotes
+      WHERE codigo_lote LIKE ?
+      ORDER BY codigo_lote DESC LIMIT 1`,
+    [`${prefijo}%`],
+  );
+  const siguiente = ultimo ? Number(ultimo.codigo_lote.slice(prefijo.length)) + 1 : 1;
+  return `${prefijo}${String(siguiente).padStart(4, "0")}`;
+}
+
 export const recursos = {
   /**
    * Cliente-marca: para quien se confecciona.
@@ -69,7 +93,26 @@ export const recursos = {
       "fecha_recepcion", "fecha_entrega_programada",
       "cantidad_programada", "cantidad_recibida", "observaciones", "activo",
     ],
-    obligatorios: ["codigo_lote", "id_cliente", "fecha_recepcion"],
+    // `codigo_lote` ya no esta aqui: el lote queda identificado con
+    // cualquiera de los tres (codigo de lote, codigo de referencia o
+    // nombre de referencia), segun lo que traiga la hoja del cliente.
+    // El propio `antesDeGuardar` exige que exista al menos uno.
+    obligatorios: ["id_cliente", "fecha_recepcion"],
+    // El cliente puede identificar el lote por cualquiera de los tres;
+    // si solo dio referencia o nombre, se le genera un codigo de lote
+    // para que el sistema (indices, exportaciones) siga teniendo uno.
+    antesDeGuardar: async (datos) => {
+      const tieneAlguno = datos.codigo_lote || datos.codigo_referencia || datos.nombre_referencia;
+      if (!tieneAlguno) {
+        throw ApiError.badRequest(
+          "Hace falta al menos uno: codigo de lote, codigo de referencia o nombre de referencia.",
+        );
+      }
+      if (!datos.codigo_lote) {
+        datos.codigo_lote = await generarCodigoLote();
+      }
+      return datos;
+    },
     buscables: [
       "codigo_lote", "numero_pedido", "codigo_referencia", "nombre_referencia",
       "observaciones",

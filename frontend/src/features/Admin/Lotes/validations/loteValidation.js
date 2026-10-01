@@ -1,4 +1,4 @@
-import { reglas } from "@/shared/validations";
+import { estaVacio, reglas } from "@/shared/validations";
 
 /**
  * Reglas del formulario de lote -> tabla `lotes`.
@@ -40,10 +40,24 @@ export const loteLimites = {
  */
 export const loteEstados = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
 
+/**
+ * El lote no exige codigo de lote por si solo: con que traiga codigo de
+ * referencia o nombre de referencia alcanza para identificarlo (asi lo
+ * aclaro German). Si ninguno de los tres llega, el backend tampoco deja
+ * guardar -- esto solo le ahorra el viaje al servidor.
+ */
+function identificacionLote(_valor, form = {}) {
+  const tieneAlguno =
+    !estaVacio(form.codigo_lote) || !estaVacio(form.codigo_referencia) || !estaVacio(form.nombre_referencia);
+  return tieneAlguno
+    ? ""
+    : "Hace falta al menos uno: codigo de lote, codigo de referencia o nombre de referencia.";
+}
+
 export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = [] } = {}) {
   return {
     codigo_lote: [
-      reglas.requerido("El codigo del lote"),
+      identificacionLote,
       reglas.longitud({ ...loteLimites.codigo, etiqueta: "El codigo del lote" }),
       reglas.sinCaracteresEspeciales("El codigo del lote"),
       reglas.unico({

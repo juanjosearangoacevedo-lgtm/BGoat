@@ -39,6 +39,11 @@ export function crudRouter(definicion) {
   const {
     tabla, pk, permiso, campos, obligatorios = [], buscables = [],
     filtros = [], orden = null, vista = null, alias = null, softDelete = null,
+    // Hook opcional: `async (datos) => datos`. Corre antes de crear o
+    // actualizar, con los datos ya limpios. Sirve para generar un valor
+    // o validar una regla que cruza varios campos (ninguna de las dos
+    // cosas caben en `obligatorios`, que solo mira un campo a la vez).
+    antesDeGuardar = null,
   } = definicion;
 
   const router = Router();
@@ -97,7 +102,8 @@ export function crudRouter(definicion) {
     "/",
     requierePermiso(permiso, "CREAR"),
     asyncHandler(async (req, res) => {
-      const datos = limpiarCuerpo(req.body, campos);
+      let datos = limpiarCuerpo(req.body, campos);
+      if (antesDeGuardar) datos = await antesDeGuardar(datos);
 
       const faltantes = obligatorios.filter(
         (campo) => datos[campo] === undefined || datos[campo] === null,
@@ -128,7 +134,8 @@ export function crudRouter(definicion) {
     "/:id",
     requierePermiso(permiso, "EDITAR"),
     asyncHandler(async (req, res) => {
-      const datos = limpiarCuerpo(req.body, campos);
+      let datos = limpiarCuerpo(req.body, campos);
+      if (antesDeGuardar) datos = await antesDeGuardar(datos);
       const columnas = Object.keys(datos);
       if (columnas.length === 0) throw ApiError.badRequest("No se enviaron datos");
 
