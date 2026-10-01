@@ -19,7 +19,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
       open={open}
       icon={Building2}
       title={editing ? `Editar cliente: ${editing?.nombre}` : "Nuevo cliente"}
-      description="Solo el nombre es obligatorio. Los datos fiscales se pueden completar despues."
+      description="El nombre y la razon social son obligatorios. El resto de los datos fiscales se pueden completar despues."
       onClose={onClose}
       maxWidth="max-w-2xl"
       footer={
@@ -72,12 +72,13 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
 
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
-            Datos fiscales (opcionales)
+            Datos fiscales
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <FormField
                 label="Razon social"
+                required
                 placeholder="Crystal S.A.S."
                 value={form.razon_social ?? ""}
                 error={errors.razon_social}

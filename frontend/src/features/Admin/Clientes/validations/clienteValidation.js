@@ -38,7 +38,12 @@ export function crearClienteEsquema({ lista = [], editing = null } = {}) {
       }),
     ],
     descripcion: [reglas.longitud({ ...clienteLimites.descripcion, etiqueta: "La descripcion" })],
-    razon_social: [reglas.longitud({ ...clienteLimites.razonSocial, etiqueta: "La razon social" })],
+    // Los clientes de hoy son de prueba; cuando la empresa empiece a
+    // cargar los suyos, la razon social ya no puede faltar.
+    razon_social: [
+      reglas.requerido("La razon social"),
+      reglas.longitud({ ...clienteLimites.razonSocial, etiqueta: "La razon social" }),
+    ],
     tipo_documento: [
       reglas.seleccionRequerida("El tipo de documento"),
       reglas.opcionValida(clienteTiposDocumento, "El tipo de documento"),
