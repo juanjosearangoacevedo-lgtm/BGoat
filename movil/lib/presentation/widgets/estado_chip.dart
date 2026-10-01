@@ -46,21 +46,18 @@ class EstadoChip extends StatelessWidget {
   }
 }
 
-/// La etiqueta de prioridad de una orden.
+/// La etiqueta de prioridad de una orden: ya no es BAJA/MEDIA/ALTA/URGENTE,
+/// es la posicion de la orden en la cola global (la mas vieja es la
+/// numero mas baja), asignada sola al crearla.
 class PrioridadChip extends StatelessWidget {
-  final String? prioridad;
+  final int? prioridad;
 
   const PrioridadChip(this.prioridad, {super.key});
 
   @override
   Widget build(BuildContext context) {
     if (prioridad == null) return const SizedBox.shrink();
-
-    return EstadoChip(
-      prioridad,
-      color: Paleta.porPrioridad(prioridad),
-      icono: prioridad?.toUpperCase() == 'URGENTE' ? Icons.priority_high : null,
-    );
+    return EstadoChip('#$prioridad', color: Paleta.primario);
   }
 }
 

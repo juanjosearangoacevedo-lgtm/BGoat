@@ -62,19 +62,6 @@ class Paleta {
     }
   }
 
-  /// El color de una prioridad de orden.
-  static Color porPrioridad(String? prioridad) {
-    switch (prioridad?.toUpperCase()) {
-      case 'URGENTE':
-        return error;
-      case 'ALTA':
-        return secundario;
-      case 'BAJA':
-        return textoSuave;
-      default:
-        return info;
-    }
-  }
 }
 
 ThemeData temaBGoat() {

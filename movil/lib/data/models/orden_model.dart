@@ -46,7 +46,7 @@ class OrdenModel extends OrdenEntity {
         id: aInt(json['id_orden_produccion']),
         numeroOrden: aTexto(json['numero_orden']),
         estado: aTexto(json['estado'], 'PENDIENTE'),
-        prioridad: aTextoNulo(json['prioridad']),
+        prioridad: aIntNulo(json['prioridad']),
         idLote: aInt(json['id_lote']),
         codigoLote: aTextoNulo(json['codigo_lote']),
         codigoReferencia: aTextoNulo(json['codigo_referencia']),
@@ -101,7 +101,6 @@ class OrdenModel extends OrdenEntity {
       if (valor != null) cuerpo[clave] = valor;
     }
 
-    agregar('prioridad', solicitud.prioridad);
     agregar('estado', solicitud.estado);
     agregar('fecha_inicio_programada', solicitud.fechaInicioProgramada);
     agregar('fecha_fin_programada', solicitud.fechaFinProgramada);

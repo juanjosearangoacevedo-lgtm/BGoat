@@ -10,17 +10,11 @@ import { endpoints } from "@/shared/services/endpoints";
  * mas lote, modulo, cliente, referencia y el avance real calculado).
  */
 export const ordenStatuses = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
-export const ordenPrioridades = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
 
 /** Los ENUM viajan en mayusculas a la base; en pantalla se ven legibles. */
 export const ordenStatusOptions = ordenStatuses.map((estado) => ({
   value: estado,
   label: statusLabel(estado),
-}));
-
-export const ordenPrioridadOptions = ordenPrioridades.map((prioridad) => ({
-  value: prioridad,
-  label: statusLabel(prioridad),
 }));
 
 export function useOrdenesPage() {
@@ -42,12 +36,6 @@ export function useOrdenesPage() {
         label: "Estado",
         etiquetaTodos: "Todos los estados",
         opciones: ordenStatusOptions,
-      },
-      {
-        clave: "prioridad",
-        label: "Prioridad",
-        etiquetaTodos: "Todas las prioridades",
-        opciones: ordenPrioridadOptions,
       },
       {
         clave: "id_modulo",

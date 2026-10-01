@@ -32,11 +32,15 @@ export const ordenesRouter = Router();
  * `numero_orden` tampoco viene en `CAMPOS`: no tiene sentido pedirle a
  * quien esta creando la orden que invente un consecutivo sin duplicarse
  * con el resto de la planta. Lo genera `generarNumeroOrden()` al crear.
+ *
+ * `prioridad` tampoco: ya no es BAJA/MEDIA/ALTA/URGENTE a elegir, es la
+ * posicion en la cola global (la orden mas vieja es la numero mas baja).
+ * La asigna `siguientePrioridad()` al crear, y no se vuelve a tocar.
  */
 const CAMPOS = [
   "id_lote",
   "fecha_inicio_programada", "fecha_fin_programada",
-  "prioridad", "estado", "observaciones",
+  "estado", "observaciones",
 ];
 
 /**
@@ -57,6 +61,12 @@ async function generarNumeroOrden() {
   );
   const siguiente = ultima ? Number(ultima.numero_orden.slice(prefijo.length)) + 1 : 1;
   return `${prefijo}${String(siguiente).padStart(4, "0")}`;
+}
+
+/** La siguiente posicion de la cola global: el consecutivo mas alto mas uno. */
+async function siguientePrioridad() {
+  const ultima = await queryOne("SELECT COALESCE(MAX(prioridad), 0) AS maxima FROM ordenes_produccion");
+  return Number(ultima.maxima) + 1;
 }
 
 const limpiar = (cuerpo = {}) => {
@@ -149,6 +159,7 @@ ordenesRouter.post(
 
     // `creado_por` sale de la sesion, no del formulario.
     datos.creado_por = req.usuario.id_usuario;
+    datos.prioridad = await siguientePrioridad();
 
     // Reintenta si dos personas crearon una orden en el mismo instante y
     // ambas calcularon el mismo consecutivo: el UNIQUE INDEX rechaza la

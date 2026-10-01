@@ -6,7 +6,7 @@ import { formatMoneda } from "@/shared/utils/formatters";
 import { OrdenFormSection } from "../components/OrdenFormSection";
 import { OrdenSelectField } from "../components/OrdenSelectField";
 import { useOrdenForm } from "../hooks/useOrdenForm";
-import { ordenPrioridadOptions, ordenStatusOptions } from "../hooks/useOrdenesPage";
+import { ordenStatusOptions } from "../hooks/useOrdenesPage";
 
 // Finalizado no se escoge: lo pone el sistema solo al completarse la
 // cantidad programada. El select solo ofrece lo que si es una decision.
@@ -190,14 +190,24 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
         )}
 
         <OrdenFormSection title="Configuracion" columns="md:grid-cols-2">
-          <OrdenSelectField
-            label="Prioridad"
-            required
-            placeholder="Seleccionar prioridad"
-            value={form.prioridad}
-            onChange={(value) => setField("prioridad", value)}
-            options={ordenPrioridadOptions}
-          />
+          {isEdit && orderData?.prioridad ? (
+            <div>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Prioridad</p>
+              <div className="flex h-10 items-center gap-2">
+                <span className="rounded-full bg-[#0F4C3F]/10 px-3 py-1 text-sm font-semibold text-[#0F4C3F]">
+                  #{orderData.prioridad}
+                </span>
+                <span className="text-xs text-gray-400">en la cola global, no se edita</span>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Prioridad</p>
+              <p className="flex h-10 items-center text-xs text-gray-400">
+                Se asigna sola al guardar: la orden mas vieja va primero.
+              </p>
+            </div>
+          )}
           {form.estado === "FINALIZADO" ? (
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">Estado</p>

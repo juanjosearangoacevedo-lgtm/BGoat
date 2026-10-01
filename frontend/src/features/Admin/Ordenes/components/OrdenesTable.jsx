@@ -3,6 +3,7 @@ import { Progress } from "@/shared/components/progress";
 import { RowActions, accionesEstandar } from "@/shared/components/RowActions";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { formatFecha, formatNumero, GUION } from "@/shared/utils/formatters";
+import { PrioridadBadge } from "./PrioridadBadge";
 
 /**
  * Columnas del listado de la vista `vw_avance_orden`.
@@ -108,7 +109,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       key: "prioridad",
       header: "Prioridad",
       sortable: true,
-      render: (orden) => <StatusBadge status={orden.prioridad} />,
+      render: (orden) => <PrioridadBadge prioridad={orden.prioridad} />,
       exportar: (orden) => orden.prioridad,
     },
     {

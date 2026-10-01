@@ -8,6 +8,7 @@ import { OrdenInfoPanel } from "../components/OrdenInfoPanel";
 import { OrdenJornadas } from "../components/OrdenJornadas";
 import { OrdenProgresoHero } from "../components/OrdenProgresoHero";
 import { OrdenRegistros } from "../components/OrdenRegistros";
+import { PrioridadBadge } from "../components/PrioridadBadge";
 import { useOrdenDetalle } from "../hooks/useOrdenDetalle";
 
 export function OrdenDetallePage({ orderId, onNavigate }) {
@@ -29,7 +30,7 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-bold text-gray-900">{orden?.numero_orden || "Orden"}</h1>
             <StatusBadge status={orden?.estado} />
-            <StatusBadge status={orden?.prioridad} />
+            <PrioridadBadge prioridad={orden?.prioridad} />
           </div>
           <p className="mt-1 text-gray-600">
             {orden

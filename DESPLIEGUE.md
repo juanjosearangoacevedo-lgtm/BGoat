@@ -80,10 +80,10 @@ ssh bitemo 'cd /opt/bgoat && ./backup.sh'
 ```
 
 ```bash
-ssh bitemo 'set -e; cd /opt/bgoat && set -a && . ./.env && set +a && export MYSQL_PWD="$DB_ROOT_PASSWORD" && for f in 00_migracion_flujo_jornada 00b_migracion_modulos_calculados 00c_migracion_ordenes_libres 00d_migracion_lote_fechas_muertas 00e_migracion_lote_valor_maquila 00f_migracion_lote_campos_muertos 00g_migracion_estados_tres 01_schema_bgoat 02_seed_bgoat; do echo "==> $f"; docker compose exec -T -e MYSQL_PWD db mysql -u root bgoat < database/$f.sql; done'
+ssh bitemo 'set -e; cd /opt/bgoat && set -a && . ./.env && set +a && export MYSQL_PWD="$DB_ROOT_PASSWORD" && for f in 00_migracion_flujo_jornada 00b_migracion_modulos_calculados 00c_migracion_ordenes_libres 00d_migracion_lote_fechas_muertas 00e_migracion_lote_valor_maquila 00f_migracion_lote_campos_muertos 00g_migracion_estados_tres 00h_migracion_prioridad_consecutivo 01_schema_bgoat 02_seed_bgoat; do echo "==> $f"; docker compose exec -T -e MYSQL_PWD db mysql -u root bgoat < database/$f.sql; done'
 ```
 
-Los nueve en ese orden (el mismo de `backend/scripts/setup-db.js`): las
+Los diez en ese orden (el mismo de `backend/scripts/setup-db.js`): las
 migraciones preparan las columnas, el esquema recrea las vistas sobre ellas y el
 seed repone los catalogos. Cada migracion corre una sola vez --queda anotada en
 la tabla `migraciones`-- y es inofensiva si ya se aplico.

@@ -22,7 +22,6 @@ export const ordenLimites = {
 // cantidad programada (ver `captura.routes.js`), nadie lo escoge a mano.
 export const ordenEstados = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
 export const ordenEstadosSeleccionables = ["PENDIENTE", "EN_PROCESO"];
-export const ordenPrioridades = ["BAJA", "MEDIA", "ALTA", "URGENTE"];
 
 export function crearOrdenEsquema({ loteOptions = [] } = {}) {
   return {
@@ -37,10 +36,6 @@ export function crearOrdenEsquema({ loteOptions = [] } = {}) {
     fecha_fin_programada: [
       reglas.fecha({ etiqueta: "La fecha de fin programada" }),
       reglas.posteriorA("fecha_inicio_programada", "La fecha de fin programada"),
-    ],
-    prioridad: [
-      reglas.seleccionRequerida("La prioridad"),
-      reglas.opcionValida(ordenPrioridades, "La prioridad"),
     ],
     estado: [reglas.seleccionRequerida("El estado"), reglas.opcionValida(ordenEstados, "El estado")],
     observaciones: [

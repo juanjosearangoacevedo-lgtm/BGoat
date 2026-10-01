@@ -108,12 +108,10 @@ export function PasoTrabajo({
             className="h-12 w-full rounded-xl border border-gray-200 bg-white px-3 text-base outline-none focus:border-[#0F4C3F]"
           >
             <option value="">Seleccionar orden</option>
-            {ordenes.map((orden) => (
+            {ordenes.map((orden, indice) => (
               <option key={orden.id_orden_produccion} value={orden.id_orden_produccion}>
                 {orden.numero_orden} - {formatNumero(orden.cantidad_programada)} und
-                {orden.prioridad === "URGENTE" || orden.prioridad === "ALTA"
-                  ? ` (${orden.prioridad.toLowerCase()})`
-                  : ""}
+                {indice === 0 ? " (primera en la cola)" : ""}
               </option>
             ))}
           </select>

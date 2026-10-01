@@ -37,14 +37,12 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
   late final TextEditingController _observaciones;
 
   int? _idLote;
-  String _prioridad = 'MEDIA';
   String _estado = 'PENDIENTE';
   String? _fechaInicio;
   String? _fechaFin;
 
   bool get _editando => widget.orden != null;
 
-  static const _prioridades = ['BAJA', 'MEDIA', 'ALTA', 'URGENTE'];
   // Finalizado no esta aqui: lo pone el sistema solo al completarse la
   // cantidad programada (ver `captura.routes.js`), nadie lo escoge a mano.
   static const _estados = ['PENDIENTE', 'EN_PROCESO'];
@@ -58,7 +56,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     _observaciones = TextEditingController(text: orden?.observaciones ?? '');
 
     _idLote = orden?.idLote;
-    _prioridad = orden?.prioridad ?? 'MEDIA';
     _estado = orden?.estado ?? 'PENDIENTE';
     _fechaInicio = orden?.fechaInicioProgramada;
     _fechaFin = orden?.fechaFinProgramada;
@@ -93,7 +90,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
 
     final solicitud = SolicitudOrden(
       idLote: _idLote!,
-      prioridad: _prioridad,
       estado: _estado,
       fechaInicioProgramada: _fechaInicio,
       fechaFinProgramada: _fechaFin,
@@ -232,17 +228,26 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
             Row(
               children: [
                 Expanded(
-                  child: DropdownButtonFormField<String>(
-                    initialValue: _prioridad,
-                    isExpanded: true,
+                  child: InputDecorator(
                     decoration: const InputDecoration(labelText: 'Prioridad'),
-                    items: _prioridades
-                        .map((valor) => DropdownMenuItem(
-                              value: valor,
-                              child: Text(valor[0] + valor.substring(1).toLowerCase()),
-                            ))
-                        .toList(),
-                    onChanged: (valor) => setState(() => _prioridad = valor ?? 'MEDIA'),
+                    child: widget.orden?.prioridad != null
+                        ? Row(
+                            children: [
+                              PrioridadChip(widget.orden!.prioridad),
+                              const SizedBox(width: 8),
+                              const Expanded(
+                                child: Text(
+                                  'en la cola, no se edita',
+                                  style: TextStyle(fontSize: 11, color: Paleta.textoSuave),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          )
+                        : const Text(
+                            'Se asigna sola al guardar',
+                            style: TextStyle(fontSize: 12, color: Paleta.textoSuave),
+                          ),
                   ),
                 ),
                 const SizedBox(width: 10),

@@ -90,7 +90,7 @@ async function ordenesDisponiblesDelLote(idLote, idModulo) {
      ${SELECT_ORDEN_TOMADA}
      WHERE o.id_lote = ? AND o.estado <> 'FINALIZADO'
        AND (tom.id_modulo IS NULL OR tom.id_modulo = ?)
-     ORDER BY FIELD(o.estado, 'EN_PROCESO', 'PENDIENTE'), o.fecha_emision ASC`,
+     ORDER BY FIELD(o.estado, 'EN_PROCESO', 'PENDIENTE'), o.prioridad ASC`,
     [idLote, idModulo],
   );
 }
@@ -274,7 +274,7 @@ jornadaRouter.get(
          ${SELECT_ORDEN_TOMADA}
          LEFT JOIN modulos m ON m.id_modulo = tom.id_modulo
          WHERE o.estado <> 'FINALIZADO'
-         ORDER BY FIELD(o.estado, 'EN_PROCESO', 'PENDIENTE'), o.fecha_emision ASC`,
+         ORDER BY FIELD(o.estado, 'EN_PROCESO', 'PENDIENTE'), o.prioridad ASC`,
       ),
     ]);
 

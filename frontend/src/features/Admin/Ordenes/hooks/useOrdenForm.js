@@ -26,7 +26,6 @@ export const emptyOrdenForm = {
   id_lote: "",
   fecha_inicio_programada: "",
   fecha_fin_programada: "",
-  prioridad: "MEDIA",
   estado: "PENDIENTE",
   observaciones: "",
 };

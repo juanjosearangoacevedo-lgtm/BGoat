@@ -7,7 +7,7 @@ import '../entities/orden_entity.dart';
 class FiltroOrdenes {
   final String? buscar;
   final String? estado;
-  final String? prioridad;
+  final int? prioridad;
   final String? asignacion;
   final int? idCliente;
   final int? idLote;
@@ -33,10 +33,10 @@ class FiltroOrdenes {
 /// jornada con ella. Tampoco lleva ficha tecnica, pedido, cantidad ni valor
 /// de maquila --eso vive en el lote--: un lote corre en una sola orden, asi
 /// que la cantidad y el valor se copian del lote al crear la orden, nunca
-/// se digitan aqui. Tampoco lleva numero de orden: lo genera el backend.
+/// se digitan aqui. Tampoco lleva numero de orden ni prioridad: el backend
+/// los genera (la prioridad es la posicion en la cola global, no se edita).
 class SolicitudOrden {
   final int idLote;
-  final String? prioridad;
   final String? estado;
   final String? fechaInicioProgramada;
   final String? fechaFinProgramada;
@@ -44,7 +44,6 @@ class SolicitudOrden {
 
   const SolicitudOrden({
     required this.idLote,
-    this.prioridad,
     this.estado,
     this.fechaInicioProgramada,
     this.fechaFinProgramada,

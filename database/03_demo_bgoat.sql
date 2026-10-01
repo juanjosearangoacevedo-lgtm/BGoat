@@ -129,11 +129,11 @@ SELECT v.numero, l.id_lote,
        DATE_ADD(CURDATE(), INTERVAL v.dias DAY),
        l.cantidad_programada, v.prioridad, v.estado, u.id_usuario
 FROM (
-  SELECT 'OP-2026-0001' AS numero, 'LOT-9703-01'  AS lote, 'ALTA'    AS prioridad, 0 AS desde, 10 AS dias, 'EN_PROCESO' AS estado UNION ALL
-  SELECT 'OP-2026-0002',           'LOT-9812-01',          'MEDIA',               4,           8,          'EN_PROCESO' UNION ALL
-  SELECT 'OP-2026-0003',           'LOT-PB450-01',         'ALTA',                4,           3,          'EN_PROCESO' UNION ALL
-  SELECT 'OP-2026-0004',           'LOT-BF220-01',         'URGENTE',             4,           2,          'EN_PROCESO' UNION ALL
-  SELECT 'OP-2026-0005',           'LOT-AC330-01',         'MEDIA',               0,          12,          'PENDIENTE'
+  SELECT 'OP-2026-0001' AS numero, 'LOT-9703-01'  AS lote, 1 AS prioridad, 0 AS desde, 10 AS dias, 'EN_PROCESO' AS estado UNION ALL
+  SELECT 'OP-2026-0002',           'LOT-9812-01',          2,            4,           8,          'EN_PROCESO' UNION ALL
+  SELECT 'OP-2026-0003',           'LOT-PB450-01',         3,            4,           3,          'EN_PROCESO' UNION ALL
+  SELECT 'OP-2026-0004',           'LOT-BF220-01',         4,            4,           2,          'EN_PROCESO' UNION ALL
+  SELECT 'OP-2026-0005',           'LOT-AC330-01',         5,            0,          12,          'PENDIENTE'
 ) v
 JOIN `lotes` l ON l.codigo_lote = v.lote
 JOIN `usuarios` u ON u.correo = 'admin@bgoat.com';

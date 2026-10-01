@@ -1,5 +1,5 @@
-import { StatusBadge } from "@/shared/components/StatusBadge";
 import { formatFecha, formatFechaHora, GUION } from "@/shared/utils/formatters";
+import { PrioridadBadge } from "./PrioridadBadge";
 
 /**
  * Datos de cabecera de la orden (vista `vw_avance_orden`).
@@ -38,7 +38,7 @@ export function OrdenInfoPanel({ orden }) {
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-bold text-gray-900">Informacion General</h3>
-        <StatusBadge status={orden?.prioridad} />
+        <PrioridadBadge prioridad={orden?.prioridad} />
       </div>
 
       <div className="space-y-3">

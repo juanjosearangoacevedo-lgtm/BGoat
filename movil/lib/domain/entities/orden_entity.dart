@@ -14,7 +14,10 @@ class OrdenEntity {
   final int id;
   final String numeroOrden;
   final String estado;
-  final String? prioridad;
+
+  /// Posicion en la cola global: la asigna el backend al crear, no se
+  /// edita. El numero mas bajo es la orden mas vieja esperando turno.
+  final int? prioridad;
 
   final int idLote;
   final String? codigoLote;

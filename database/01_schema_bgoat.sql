@@ -557,7 +557,10 @@ CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   `fecha_inicio_real` DATE DEFAULT NULL,
   `fecha_fin_real` DATE DEFAULT NULL,
   `cantidad_programada` INT NOT NULL,
-  `prioridad` ENUM('BAJA', 'MEDIA', 'ALTA', 'URGENTE') NOT NULL DEFAULT 'MEDIA',
+  -- Ya no es BAJA/MEDIA/ALTA/URGENTE a elegir: es el consecutivo global
+  -- de la cola, lo asigna el backend al crear (ver `ordenes.routes.js`).
+  -- El numero mas bajo es la orden mas vieja esperando turno.
+  `prioridad` INT NOT NULL DEFAULT 1,
   -- Igual que en `lotes.estado`: Pendiente/En proceso son manuales,
   -- Finalizado lo pone solo `captura.routes.js` al completarse la
   -- cantidad programada. Ya no existe Pausada ni Cancelada.
@@ -569,6 +572,7 @@ CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   INDEX `fk_orden_lote` (`id_lote`),
   INDEX `fk_orden_creador` (`creado_por`),
   INDEX `idx_orden_estado_fecha` (`estado`, `fecha_emision`),
+  INDEX `idx_orden_prioridad` (`prioridad`),
   CONSTRAINT `fk_orden_creador`
     FOREIGN KEY (`creado_por`) REFERENCES `usuarios` (`id_usuario`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
