@@ -15,11 +15,14 @@ import 'lotes_screen.dart';
 import 'ordenes_screen.dart';
 import 'tablero_screen.dart';
 
-/// El menu principal: los cinco modulos, en el orden en que ocurre el dia.
+/// El menu principal: los cinco modulos, en el orden en que se necesitan.
 ///
-/// La orden existe suelta, un modulo la toma al abrir su jornada, se registra
-/// cada hora y se mira el tablero. Ese orden no es decorativo: es la rutina de
-/// la digitadora, y la pantalla la respeta.
+/// Cada modulo exige que el anterior ya exista: el lote pide un cliente (eso
+/// vive en el panel web), la orden pide un lote, la jornada pide un lote (y
+/// toma la orden sola), y una hora solo se registra si su modulo tiene
+/// jornada abierta. Por eso Lotes va de primero y no de ultimo: es la base de
+/// toda la cadena, no un catalogo aparte. Ese orden no es decorativo: es la
+/// rutina real de la digitadora, y la pantalla la respeta.
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
@@ -70,6 +73,19 @@ class _MenuScreenState extends State<MenuScreen> {
                 const SizedBox(height: 18),
               ],
               const TituloSeccion(
+                'Planta',
+                detalle: 'Lo primero: sin lote no hay orden ni jornada.',
+              ),
+              _opcion(
+                icono: Icons.inventory_2_outlined,
+                titulo: 'Lotes',
+                detalle: 'El producto: referencia, SAM pactado y ficha tecnica.',
+                color: Paleta.terciario,
+                permiso: sesion.puede('Lotes', 'VER'),
+                destino: const LotesScreen(),
+              ),
+              const SizedBox(height: 22),
+              const TituloSeccion(
                 'Produccion',
                 detalle: 'En el orden en que ocurre el dia',
               ),
@@ -108,16 +124,6 @@ class _MenuScreenState extends State<MenuScreen> {
                 color: Paleta.info,
                 permiso: sesion.puede('Captura', 'VER'),
                 destino: const TableroScreen(),
-              ),
-              const SizedBox(height: 22),
-              const TituloSeccion('Planta'),
-              _opcion(
-                icono: Icons.inventory_2_outlined,
-                titulo: 'Lotes',
-                detalle: 'El producto: referencia, SAM pactado y ficha tecnica.',
-                color: Paleta.terciario,
-                permiso: sesion.puede('Lotes', 'VER'),
-                destino: const LotesScreen(),
               ),
             ],
           ),
