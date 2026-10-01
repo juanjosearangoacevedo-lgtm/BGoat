@@ -1,8 +1,12 @@
-import { Package2 } from "lucide-react";
+import { useState } from "react";
+import { Calculator, Package2 } from "lucide-react";
 import { FormField } from "@/shared/components/FormField";
+import { Input } from "@/shared/components/input";
+import { Label } from "@/shared/components/label";
 import { Modal } from "@/shared/components/Modal";
 import { ModalAcciones } from "@/shared/components/ModalAcciones";
 import { loteStatusOptions } from "../hooks/useLotesPage";
+import { CalculadoraSamModal } from "./CalculadoraSamModal";
 import { DesgloseTallaColor } from "./DesgloseTallaColor";
 import { FichaTecnicaLote } from "./FichaTecnicaLote";
 
@@ -43,6 +47,8 @@ export function LoteFormModal({
   onClose,
   onSave,
 }) {
+  const [mostrarCalculadora, setMostrarCalculadora] = useState(false);
+
   return (
     <Modal
       open={open}
@@ -133,17 +139,32 @@ export function LoteFormModal({
             Acuerdo con el cliente
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField
-              label="SAM pactado (minutos por prenda)"
-              type="number"
-              step="0.01"
-              min={0}
-              placeholder="6.50"
-              value={form.sam_pactado ?? ""}
-              error={errors.sam_pactado}
-              hint="Sin el SAM no se puede iniciar la jornada: es lo que fija la meta de cada hora."
-              onChange={(valor) => onChange("sam_pactado", valor)}
-            />
+            <div className="space-y-1">
+              <div className="flex items-center justify-between gap-2">
+                <Label>SAM (acuerdo con el cliente)</Label>
+                <button
+                  type="button"
+                  onClick={() => setMostrarCalculadora(true)}
+                  className="flex flex-shrink-0 items-center gap-1 rounded-lg border border-emerald-200 px-2 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50"
+                >
+                  <Calculator className="h-3.5 w-3.5" />
+                  Calcular
+                </button>
+              </div>
+              <Input
+                type="number"
+                step="0.01"
+                min={0}
+                placeholder="6.50"
+                value={form.sam_pactado ?? ""}
+                onChange={(event) => onChange("sam_pactado", event.target.value)}
+                className={errors.sam_pactado ? "border-red-400 focus-visible:ring-red-300" : ""}
+              />
+              <p className={`text-xs ${errors.sam_pactado ? "text-red-500" : "text-gray-400"}`}>
+                {errors.sam_pactado ??
+                  "Sin el SAM no se puede iniciar la jornada: es lo que fija la meta de cada hora."}
+              </p>
+            </div>
             <FormField
               label="Valor de maquila por unidad"
               required
@@ -246,6 +267,16 @@ export function LoteFormModal({
           onChange={(valor) => onChange("observaciones", valor)}
         />
       </div>
+
+      <CalculadoraSamModal
+        open={mostrarCalculadora}
+        precioInicial={form.valor_maquila_unidad}
+        onClose={() => setMostrarCalculadora(false)}
+        onUsar={(sam) => {
+          onChange("sam_pactado", sam);
+          setMostrarCalculadora(false);
+        }}
+      />
     </Modal>
   );
 }

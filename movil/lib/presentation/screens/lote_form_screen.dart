@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/conversiones.dart';
 import '../../core/fechas.dart' as fechas;
+import '../../core/formato.dart';
 import '../../core/tema.dart';
 import '../../domain/entities/lote_entity.dart';
 import '../../domain/repositories/lotes_repository.dart';
@@ -180,6 +181,21 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     }
   }
 
+  Future<void> _abrirCalculadoraSam() async {
+    final resultado = await showModalBottomSheet<double>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Paleta.tarjeta,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (_) => _CalculadoraSamHoja(precioInicial: _valorMaquila.text),
+    );
+
+    if (resultado == null || !mounted) return;
+    setState(() => _sam.text = decimal(resultado, 2));
+  }
+
   Future<void> _escogerFecha(bool esRecepcion) async {
     final actual = esRecepcion ? _fechaRecepcion : _fechaEntrega;
 
@@ -318,10 +334,15 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                     inputFormatters: [
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
                     ],
-                    decoration: const InputDecoration(
-                      labelText: 'SAM pactado',
-                      prefixIcon: Icon(Icons.timer_outlined),
+                    decoration: InputDecoration(
+                      labelText: 'SAM (acuerdo)',
+                      prefixIcon: const Icon(Icons.timer_outlined),
                       helperText: 'Minutos por prenda',
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.calculate_outlined, color: Paleta.primario),
+                        tooltip: 'Calcular desde el precio',
+                        onPressed: _abrirCalculadoraSam,
+                      ),
                     ),
                     validator: (valor) {
                       final texto = (valor ?? '').trim();
@@ -468,6 +489,208 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
             fontSize: 14,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Como Gods Eyes SAS determina el SAM a partir del precio pactado con el
+/// cliente (documento "Proyecto SENA-GODS EYES Septiembre 2026.xlsx"): se
+/// descuenta la retefuente, el precio neto se convierte a minutos con el
+/// valor del minuto de la empresa, y se le resta lo que ya toma terminacion
+/// y empaque -- lo que queda es el SAM del modulo de confeccion.
+///
+/// Las dos constantes de la empresa quedan fijas aqui por ahora; si German
+/// necesita ajustarlas seguido, se vuelven un parametro editable aparte.
+class _CalculadoraSamHoja extends StatefulWidget {
+  final String precioInicial;
+
+  const _CalculadoraSamHoja({required this.precioInicial});
+
+  @override
+  State<_CalculadoraSamHoja> createState() => _CalculadoraSamHojaState();
+}
+
+class _CalculadoraSamHojaState extends State<_CalculadoraSamHoja> {
+  static const _retefuentePct = 0.07;
+  static const _valorMinutoEmpresa = 660.0;
+  static const _minutosTerminacionEmpaque = 1.23;
+
+  late final TextEditingController _precio;
+
+  @override
+  void initState() {
+    super.initState();
+    _precio = TextEditingController(text: widget.precioInicial);
+  }
+
+  @override
+  void dispose() {
+    _precio.dispose();
+    super.dispose();
+  }
+
+  double get _precioN => double.tryParse(_precio.text.replaceAll(',', '.')) ?? 0;
+  double get _retefuente => _precioN * _retefuentePct;
+  double get _precioReal => _precioN - _retefuente;
+  double get _minutosReales => _precioReal / _valorMinutoEmpresa;
+  double get _samSugerido =>
+      (_minutosReales - _minutosTerminacionEmpaque).clamp(0, double.infinity);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(18, 10, 18, 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Paleta.borde,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              'SAM: acuerdo con el cliente',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 3),
+            const Text(
+              'El SAM sale del precio pactado, no se inventa aparte.',
+              style: TextStyle(fontSize: 12, color: Paleta.textoSuave),
+            ),
+            const SizedBox(height: 18),
+            TextField(
+              controller: _precio,
+              autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+              decoration: const InputDecoration(
+                labelText: 'Precio pactado con el cliente',
+                prefixIcon: Icon(Icons.payments_outlined),
+                helperText: 'Pesos por unidad',
+              ),
+              onChanged: (_) => setState(() {}),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Paleta.fondo,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFA7F3D0)),
+              ),
+              child: Column(
+                children: [
+                  _filaCalculo('Retefuente (7%)', '− ${pesos(_retefuente)}'),
+                  _filaCalculo('Precio real', pesos(_precioReal)),
+                  _filaCalculo(
+                    "÷ Valor minuto God's Eyes (${pesos(_valorMinutoEmpresa)})",
+                    '${_minutosReales.toStringAsFixed(2)} min',
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6),
+                    child: Divider(height: 1),
+                  ),
+                  _filaCalculo(
+                    '− Terminacion y empaque',
+                    '${_minutosTerminacionEmpaque.toStringAsFixed(2)} min',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAF3DE),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF97C459), width: 2),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'SAM sugerido',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF27500A),
+                        ),
+                      ),
+                      Text(
+                        'calculado del precio, editable despues',
+                        style: TextStyle(fontSize: 10, color: Color(0xFF3B6D11)),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '${_samSugerido.toStringAsFixed(2)} min',
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF173404),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancelar'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  flex: 2,
+                  child: FilledButton(
+                    onPressed:
+                        _precioN > 0 ? () => Navigator.pop(context, _samSugerido) : null,
+                    child: const Text('Usar este SAM'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _filaCalculo(String etiqueta, String valor) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              etiqueta,
+              style: const TextStyle(fontSize: 12.5, color: Paleta.textoSuave),
+            ),
+          ),
+          Text(
+            valor,
+            style: const TextStyle(
+              fontSize: 12.5,
+              color: Paleta.textoSuave,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
