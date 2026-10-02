@@ -8,7 +8,9 @@ import {
   Lock,
   Package,
   Package2,
+  Palette,
   PlayCircle,
+  Ruler,
   Shield,
   Table2,
   Tag,
@@ -54,6 +56,8 @@ export const adminMenuItems = [
     label: "Planta",
     children: [
       { icon: Package2, label: "Lotes", page: "lotes", permiso: "Lotes" },
+      { icon: Ruler, label: "Tallas", page: "tallas", permiso: "Lotes" },
+      { icon: Palette, label: "Colores", page: "colores", permiso: "Lotes" },
       { icon: Tag, label: "Clientes", page: "clients", permiso: "Clientes" },
       { icon: Users, label: "Operarias", page: "operarios", permiso: "Operarios" },
       { icon: AlertTriangle, label: "Incidencias", page: "causas", permiso: "Causas" },

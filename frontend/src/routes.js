@@ -11,6 +11,8 @@ import { RolesPage } from "@/features/Admin/Roles/pages/RolesPage";
 import { PermisosPage } from "@/features/Admin/Permisos/pages/PermisosPage";
 import { ClientesPage } from "@/features/Admin/Clientes/pages/ClientesPage";
 import { LotesPage } from "@/features/Admin/Lotes/pages/LotesPage";
+import { TallasPage } from "@/features/Admin/Tallas/pages/TallasPage";
+import { ColoresPage } from "@/features/Admin/Colores/pages/ColoresPage";
 import { OperariosPage } from "@/features/Admin/Operarios/pages/OperariosPage";
 import { ModulosPage } from "@/features/Admin/Modulos/pages/ModulosPage";
 import { CausasPage } from "@/features/Admin/Causas/pages/CausasPage";
@@ -59,6 +61,8 @@ export const adminRoutes = {
 
   // Planta
   lotes: { component: LotesPage },
+  tallas: { component: TallasPage },
+  colores: { component: ColoresPage },
   clients: { component: ClientesPage },
   operarios: { component: OperariosPage },
   causas: { component: CausasPage },

@@ -222,9 +222,17 @@ JOIN (
 -- opcional). Antes colgaban del modulo Prendas, que era el SKU armado
 -- con los tres; ese SKU desaparecio, los catalogos no.
 -- ---------------------------------------------------------------------
+-- Las tres familias que maneja la empresa, mezcladas en un solo catalogo
+-- (German: adulto XS-5XL, numerica 26-42, infantil 1T-5T y 2-14). La
+-- digitadora escoge a mano la que corresponda a la prenda del lote; no
+-- hay filtro automatico por cliente ni por tipo de prenda.
 INSERT IGNORE INTO `tallas` (`nombre`, `orden_visual`) VALUES
   ('XS', 1), ('S', 2), ('M', 3), ('L', 4), ('XL', 5), ('XXL', 6),
-  ('6', 10), ('8', 11), ('10', 12), ('12', 13), ('14', 14), ('16', 15);
+  ('3XL', 7), ('4XL', 8), ('5XL', 9),
+  ('26', 20), ('28', 21), ('30', 22), ('32', 23), ('34', 24),
+  ('36', 25), ('38', 26), ('40', 27), ('42', 28),
+  ('1T', 40), ('2T', 41), ('3T', 42), ('4T', 43), ('5T', 44),
+  ('6', 50), ('8', 51), ('10', 52), ('12', 53), ('14', 54), ('16', 55);
 
 INSERT IGNORE INTO `colores` (`nombre`, `codigo_hex`) VALUES
   ('Negro',  '#000000'),

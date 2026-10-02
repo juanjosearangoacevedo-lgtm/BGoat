@@ -406,7 +406,7 @@ jornadaRouter.post(
     }
 
     const lote = await queryOne(
-      "SELECT id_lote, codigo_lote, sam_pactado, estado, activo FROM lotes WHERE id_lote = ?",
+      "SELECT id_lote, codigo_lote, sam_pactado, estado, activo, cantidad_programada FROM lotes WHERE id_lote = ?",
       [id_lote],
     );
     if (!lote) throw ApiError.notFound("El lote no existe");
@@ -420,6 +420,22 @@ jornadaRouter.post(
       throw ApiError.badRequest(
         `El lote ${lote.codigo_lote} no tiene SAM pactado: sin el no se puede calcular la meta de la hora`,
         { campo: "sam_pactado", id_lote: lote.id_lote },
+      );
+    }
+
+    // El desglose por talla y color se puede dejar a medias mientras el
+    // lote solo esta registrado -a veces la hoja del cliente no lo trae
+    // el primer dia-, pero para empezar a producir ya tiene que sumar
+    // exacto: es lo que despues reporta la revisadora por prenda.
+    const desglose = await queryOne(
+      "SELECT COALESCE(SUM(cantidad), 0) AS suma FROM lote_detalle_talla_color WHERE id_lote = ?",
+      [id_lote],
+    );
+    if (Number(desglose.suma) !== Number(lote.cantidad_programada)) {
+      throw ApiError.badRequest(
+        `El desglose por talla y color del lote ${lote.codigo_lote} suma ${desglose.suma} y debe sumar ` +
+          `exactamente ${lote.cantidad_programada} para poder iniciar jornada.`,
+        { campo: "desglose", id_lote: lote.id_lote },
       );
     }
 

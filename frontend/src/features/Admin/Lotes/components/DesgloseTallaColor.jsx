@@ -6,11 +6,12 @@ import { formatNumero } from "@/shared/utils/formatters";
 /**
  * Desglose del lote por talla y color -> tabla `lote_detalle_talla_color`.
  *
- * Va COLAPSADO por defecto y es opcional a proposito: el negocio todavia
- * no decide si lo va a usar, y a veces la hoja del cliente no lo trae.
- * Dejarlo vacio no bloquea el guardado del lote --la produccion se mide
- * por lote, no por talla-- y abrirlo cerrado mantiene el formulario
- * corto para el caso normal.
+ * Va COLAPSADO por defecto: a veces la hoja del cliente no trae el
+ * detalle el primer dia, asi que guardar el lote sin desglose todavia
+ * no bloquea nada aqui. Lo que si exige el backend es que, para poder
+ * iniciar jornada con este lote, la suma termine siendo EXACTA a la
+ * cantidad programada -- es lo que despues reporta la revisadora por
+ * prenda, y el tablero de jornada avisa claro si falta.
  *
  * Reemplaza a `prendas`, que armaba un SKU con talla + color + tipo y
  * obligaba a crear un registro por combinacion antes de poder usarla.
@@ -60,6 +61,8 @@ export function DesgloseTallaColor({
   const suma = filas.reduce((total, fila) => total + Number(fila.cantidad || 0), 0);
   const programada = Number(cantidadProgramada || 0);
   const excede = programada > 0 && suma > programada;
+  const completo = programada > 0 && suma === programada;
+  const faltan = programada > 0 && suma < programada ? programada - suma : 0;
 
   return (
     <div className="rounded-2xl border border-gray-200">
@@ -71,12 +74,25 @@ export function DesgloseTallaColor({
         <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
           {abierto ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           Desglose por talla y color
-          <span className="font-normal normal-case tracking-normal text-gray-400">(opcional)</span>
         </span>
-        <span className="text-xs text-gray-500">
+        <span
+          className={`text-xs font-medium ${
+            completo
+              ? "text-emerald-600"
+              : excede
+                ? "text-red-600"
+                : filas.length === 0
+                  ? "text-gray-500"
+                  : "text-[#D08E10]"
+          }`}
+        >
           {filas.length === 0
-            ? "Sin desglose"
-            : `${filas.length} filas · ${formatNumero(suma)} unidades`}
+            ? "Sin desglose: no se puede iniciar jornada"
+            : completo
+              ? `Completo · ${formatNumero(suma)} unidades`
+              : excede
+                ? `Se paso por ${formatNumero(suma - programada)}`
+                : `Faltan ${formatNumero(faltan)} de ${formatNumero(programada)}`}
         </span>
       </button>
 
@@ -84,8 +100,8 @@ export function DesgloseTallaColor({
         <div className="space-y-3 border-t border-gray-100 p-4">
           {filas.length === 0 && (
             <p className="text-sm text-gray-400">
-              Todavia no hay desglose. El lote se produce igual: esto solo sirve para saber
-              despues cuantas unidades salieron de cada talla.
+              Todavia no hay desglose. Se puede guardar el lote sin el, pero no se va a poder
+              iniciar jornada hasta que sume exactamente la cantidad programada.
             </p>
           )}
 
