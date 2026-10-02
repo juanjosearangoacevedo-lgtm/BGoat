@@ -248,6 +248,34 @@ lotesRouter.put(
       throw ApiError.badRequest("Hay talla y color repetidos en el desglose");
     }
 
+    // Lo que ya se capturo en produccion no se puede deshacer editando el
+    // lote despues: si una talla y color ya tiene horas capturadas, la
+    // nueva cantidad no puede quedar por debajo (ni desaparecer del todo).
+    const capturado = await query(
+      `SELECT rd.id_talla, rd.id_color, SUM(rd.cantidad) AS capturado
+       FROM registro_detalle_talla_color rd
+       JOIN registros_horarios r ON r.id_registro = rd.id_registro
+       WHERE r.id_lote = ? AND r.estado <> 'ANULADO'
+       GROUP BY rd.id_talla, rd.id_color`,
+      [lote.id_lote],
+    );
+
+    for (const fila of capturado) {
+      const nueva = lineas.find(
+        (linea) =>
+          String(linea.id_talla ?? "") === String(fila.id_talla ?? "") &&
+          String(linea.id_color ?? "") === String(fila.id_color ?? ""),
+      );
+      const cantidadNueva = nueva?.cantidad ?? 0;
+      if (cantidadNueva < Number(fila.capturado)) {
+        throw ApiError.badRequest(
+          `Esa talla y color ya tiene ${fila.capturado} unidades capturadas en produccion: ` +
+            "no se puede bajar de ahi ni quitar la fila",
+          { id_talla: fila.id_talla, id_color: fila.id_color, capturado: Number(fila.capturado) },
+        );
+      }
+    }
+
     const suma = lineas.reduce((total, linea) => total + (linea.cantidad ?? 0), 0);
     if (Number(lote.cantidad_programada) > 0 && suma > Number(lote.cantidad_programada)) {
       throw ApiError.badRequest(
