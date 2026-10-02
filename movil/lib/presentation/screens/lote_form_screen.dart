@@ -37,13 +37,11 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
   late final TextEditingController _nombreReferencia;
   late final TextEditingController _sam;
   late final TextEditingController _valorMaquila;
-  late final TextEditingController _cantidad;
   late final TextEditingController _observaciones;
 
   int? _idCliente;
   int? _idTipoPrenda;
   late String _fechaRecepcion;
-  String? _fechaEntrega;
 
   bool get _editando => widget.lote != null;
 
@@ -63,15 +61,11 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     _valorMaquila = TextEditingController(
       text: lote?.valorMaquilaUnidad == null ? '' : '${lote!.valorMaquilaUnidad}',
     );
-    _cantidad = TextEditingController(
-      text: lote?.cantidadProgramada == null ? '' : '${lote!.cantidadProgramada}',
-    );
     _observaciones = TextEditingController(text: lote?.observaciones ?? '');
 
     _idCliente = lote?.idCliente;
     _idTipoPrenda = lote?.idTipoPrenda;
     _fechaRecepcion = lote?.fechaRecepcion ?? fechas.hoy();
-    _fechaEntrega = lote?.fechaEntregaProgramada;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<LotesProvider>().cargarCatalogos();
@@ -86,7 +80,6 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     _nombreReferencia.dispose();
     _sam.dispose();
     _valorMaquila.dispose();
-    _cantidad.dispose();
     _observaciones.dispose();
     super.dispose();
   }
@@ -127,8 +120,6 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
           ? null
           : double.tryParse(_sam.text.replaceAll(',', '.')),
       valorMaquilaUnidad: double.tryParse(_valorMaquila.text.replaceAll(',', '.')),
-      cantidadProgramada: int.tryParse(_cantidad.text),
-      fechaEntregaProgramada: _fechaEntrega,
       observaciones: _texto(_observaciones),
     );
 
@@ -203,26 +194,21 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     setState(() => _sam.text = decimal(resultado, 2));
   }
 
-  Future<void> _escogerFecha(bool esRecepcion) async {
-    final actual = esRecepcion ? _fechaRecepcion : _fechaEntrega;
-
+  /// La unica fecha que se escoge a mano: cuando llego la mercancia. La
+  /// entrega ya no se pide aqui -se calcula sola en el panel web, cuando
+  /// se crea una orden de produccion para este lote.
+  Future<void> _escogerFechaRecepcion() async {
     final elegida = await showDatePicker(
       context: context,
-      initialDate: actual == null ? DateTime.now() : fechas.desdeTexto(actual),
+      initialDate: fechas.desdeTexto(_fechaRecepcion),
       firstDate: DateTime(2024),
       lastDate: DateTime(2030),
-      helpText: esRecepcion ? 'Fecha de recepcion' : 'Entrega programada',
+      helpText: 'Fecha de recepcion',
     );
 
     if (elegida == null) return;
 
-    setState(() {
-      if (esRecepcion) {
-        _fechaRecepcion = fechas.comoTexto(elegida);
-      } else {
-        _fechaEntrega = fechas.comoTexto(elegida);
-      }
-    });
+    setState(() => _fechaRecepcion = fechas.comoTexto(elegida));
   }
 
   @override
@@ -385,15 +371,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            TextFormField(
-              controller: _cantidad,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(
-                labelText: 'Cantidad programada',
-                prefixIcon: Icon(Icons.numbers),
-              ),
-            ),
+            _CantidadProgramadaInfo(cantidad: widget.lote?.cantidadProgramada),
             if (_sam.text.trim().isEmpty) ...[
               const SizedBox(height: 10),
               Container(
@@ -422,13 +400,9 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
             const TituloSeccion('Fechas'),
             Row(
               children: [
-                Expanded(
-                  child: _campoFecha('Recepcion *', _fechaRecepcion, true),
-                ),
+                Expanded(child: _campoFechaRecepcion()),
                 const SizedBox(width: 10),
-                Expanded(
-                  child: _campoFecha('Entrega', _fechaEntrega, false),
-                ),
+                Expanded(child: _campoEntregaSoloLectura()),
               ],
             ),
             const SizedBox(height: 14),
@@ -466,21 +440,34 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     );
   }
 
-  Widget _campoFecha(String etiqueta, String? valor, bool esRecepcion) {
+  Widget _campoFechaRecepcion() {
     return InkWell(
-      onTap: () => _escogerFecha(esRecepcion),
+      onTap: _escogerFechaRecepcion,
       borderRadius: BorderRadius.circular(12),
       child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: etiqueta,
-          prefixIcon: const Icon(Icons.event_outlined, size: 19),
+        decoration: const InputDecoration(
+          labelText: 'Recepcion *',
+          prefixIcon: Icon(Icons.event_outlined, size: 19),
         ),
-        child: Text(
-          valor == null ? 'Sin fecha' : fechas.fechaCorta(valor),
-          style: TextStyle(
-            color: valor == null ? Paleta.textoSuave : Paleta.texto,
-            fontSize: 14,
-          ),
+        child: Text(fechas.fechaCorta(_fechaRecepcion), style: const TextStyle(fontSize: 14)),
+      ),
+    );
+  }
+
+  /// Ya no se escoge: se calcula sola cuando se crea una orden de produccion
+  /// para este lote (SAM + eficiencia esperada + dias no laborales).
+  Widget _campoEntregaSoloLectura() {
+    final valor = widget.lote?.fechaEntregaProgramada;
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: 'Entrega',
+        prefixIcon: Icon(Icons.event_available_outlined, size: 19),
+      ),
+      child: Text(
+        valor == null ? 'Aun no definida' : fechas.fechaCorta(valor),
+        style: TextStyle(
+          color: valor == null ? Paleta.textoSuave : Paleta.texto,
+          fontSize: 14,
         ),
       ),
     );
@@ -681,6 +668,47 @@ class _CalculadoraSamHojaState extends State<_CalculadoraSamHoja> {
               fontSize: 12.5,
               color: Paleta.textoSuave,
               fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// La cantidad programada ya no se digita: es la suma del desglose por
+/// talla y color, que se arma desde el panel web (el mismo recuadro de
+/// "Agregar fila" que ya existe en Nuevo lote de la pantalla de escritorio).
+/// Aqui solo se muestra de solo lectura, igual que la ficha tecnica.
+class _CantidadProgramadaInfo extends StatelessWidget {
+  final int? cantidad;
+
+  const _CantidadProgramadaInfo({required this.cantidad});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tarjeta(
+      hijo: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.numbers, size: 18, color: Paleta.textoSuave),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  cantidad == null ? 'Cantidad programada: sin definir' : 'Cantidad programada: $cantidad',
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 3),
+                const Text(
+                  'Se arma desde el panel web agregando filas de talla, color y '
+                  'cantidad: es la suma de esas filas, no un numero que se digite '
+                  'aqui. Sin eso, ningun modulo va a poder abrir jornada con este lote.',
+                  style: TextStyle(fontSize: 11.5, color: Paleta.textoSuave, height: 1.4),
+                ),
+              ],
             ),
           ),
         ],

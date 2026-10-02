@@ -17,7 +17,10 @@ class FiltroLotes {
 /// El lote es la unica entidad del producto: trae el folio del pedido, la
 /// referencia, el SAM pactado y el valor de maquila. `rutaImagen` y
 /// `rutaDocumentoPdf` no estan aqui a proposito: no se digitan, las escribe
-/// la subida de la ficha.
+/// la subida de la ficha. `cantidadProgramada` y `fechaEntregaProgramada`
+/// tampoco: la cantidad es la suma del desglose por talla y color, y la
+/// entrega se calcula sola cuando se crea una orden sobre el lote -las dos
+/// se arman desde el panel web, igual que la ficha tecnica.
 class SolicitudLote {
   final String codigoLote;
   final int idCliente;
@@ -28,8 +31,6 @@ class SolicitudLote {
   final int? idTipoPrenda;
   final double? samPactado;
   final double? valorMaquilaUnidad;
-  final int? cantidadProgramada;
-  final String? fechaEntregaProgramada;
   final String? observaciones;
 
   const SolicitudLote({
@@ -42,8 +43,6 @@ class SolicitudLote {
     this.idTipoPrenda,
     this.samPactado,
     this.valorMaquilaUnidad,
-    this.cantidadProgramada,
-    this.fechaEntregaProgramada,
     this.observaciones,
   });
 }

@@ -71,8 +71,6 @@ class LoteModel extends LoteEntity {
     agregar('id_tipo_prenda', solicitud.idTipoPrenda);
     agregar('sam_pactado', solicitud.samPactado);
     agregar('valor_maquila_unidad', solicitud.valorMaquilaUnidad);
-    agregar('cantidad_programada', solicitud.cantidadProgramada);
-    agregar('fecha_entrega_programada', solicitud.fechaEntregaProgramada);
     agregar('observaciones', solicitud.observaciones);
 
     return cuerpo;
