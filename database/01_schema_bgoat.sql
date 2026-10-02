@@ -557,6 +557,11 @@ CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   `fecha_inicio_real` DATE DEFAULT NULL,
   `fecha_fin_real` DATE DEFAULT NULL,
   `cantidad_programada` INT NOT NULL,
+  -- El supuesto de planeacion que German ajusta a mano por pedido (si el
+  -- modulo ya hizo esa referencia, si la gente es experta...) para poder
+  -- estimar cuando estaria listo. No es la eficiencia real -esa se mide
+  -- sola en los indicadores- y puede quedar vacio o cambiar dia a dia.
+  `eficiencia_esperada` DECIMAL(5,2) DEFAULT NULL,
   -- Ya no es BAJA/MEDIA/ALTA/URGENTE a elegir: es el consecutivo global
   -- de la cola, lo asigna el backend al crear (ver `ordenes.routes.js`).
   -- El numero mas bajo es la orden mas vieja esperando turno.
@@ -579,7 +584,23 @@ CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   CONSTRAINT `fk_orden_lote`
     FOREIGN KEY (`id_lote`) REFERENCES `lotes` (`id_lote`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `chk_orden_cantidad` CHECK (`cantidad_programada` > 0)
+  CONSTRAINT `chk_orden_cantidad` CHECK (`cantidad_programada` > 0),
+  CONSTRAINT `chk_orden_eficiencia_esperada`
+    CHECK (`eficiencia_esperada` IS NULL OR (`eficiencia_esperada` > 0 AND `eficiencia_esperada` <= 100))
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- ---------------------------------------------------------------------
+-- Tabla `dias_no_laborales`
+--   El calendario de festivos y cierres. Antes el sistema solo sabia que
+--   domingo no se trabaja (por la ausencia de fila en `jornada_dia`); un
+--   25 de diciembre que cayera martes se contaba como dia normal. Esta
+--   tabla son fechas sueltas que se restan del calculo de dias habiles
+--   al estimar cuando estaria lista una orden.
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dias_no_laborales` (
+  `fecha` DATE NOT NULL,
+  `descripcion` VARCHAR(100) DEFAULT NULL,
+  PRIMARY KEY (`fecha`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- =====================================================================
@@ -1100,6 +1121,7 @@ SELECT
   CASE WHEN tom.id_modulo IS NULL THEN 'LIBRE' ELSE 'TOMADA' END AS asignacion,
   tom.tomada_el                                    AS tomada_el,
   o.cantidad_programada                            AS cantidad_programada,
+  o.eficiencia_esperada                            AS eficiencia_esperada,
   COALESCE(p.unidades_producidas, 0)               AS unidades_producidas,
   COALESCE(p.unidades_defectuosas, 0)              AS unidades_defectuosas,
   GREATEST(o.cantidad_programada - COALESCE(p.unidades_producidas, 0), 0) AS unidades_restantes,

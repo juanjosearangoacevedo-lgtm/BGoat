@@ -3,7 +3,8 @@ import { toast } from "sonner";
 import { useCatalogo } from "@/shared/hooks/useCatalogo";
 import { apiClient } from "@/shared/services/apiClient";
 import { endpoints } from "@/shared/services/endpoints";
-import { aFechaInput, diasEntre } from "@/shared/utils/formatters";
+import { aFechaInput, diasEntre, hoyLocal } from "@/shared/utils/formatters";
+import { calcularFechaEstimada } from "../utils/estimacionFecha";
 import { validarOrden } from "../validations/ordenValidation";
 
 /**
@@ -26,6 +27,7 @@ export const emptyOrdenForm = {
   id_lote: "",
   fecha_inicio_programada: "",
   fecha_fin_programada: "",
+  eficiencia_esperada: "",
   estado: "PENDIENTE",
   observaciones: "",
 };
@@ -72,6 +74,13 @@ export function useOrdenForm({ orderData } = {}) {
    * comprometia fechas de entrega que no daban.
    */
   const [minutosDia, setMinutosDia] = useState(0);
+  // Los mismos patrones, guardados completos (con `dias` y
+  // `minutos_totales` de cada uno) para poder recorrer fechas reales en
+  // `calcularFechaEstimada`, no solo sacar el numero mas largo del mes.
+  const [patrones, setPatrones] = useState([]);
+  // Festivos y cierres que se restan de ese recorrido (tabla
+  // `dias_no_laborales`, administrada desde su propia pantalla).
+  const [festivos, setFestivos] = useState([]);
 
   useEffect(() => {
     let activo = true;
@@ -83,9 +92,23 @@ export function useOrdenForm({ orderData } = {}) {
         const minutos =
           Number(horario?.del_dia?.minutos_totales) ||
           Math.max(0, ...(horario?.patrones ?? []).map((p) => Number(p.minutos_totales) || 0));
-        if (activo) setMinutosDia(minutos);
+        if (activo) {
+          setMinutosDia(minutos);
+          setPatrones(horario?.patrones ?? []);
+        }
       } catch {
-        if (activo) setMinutosDia(0);
+        if (activo) {
+          setMinutosDia(0);
+          setPatrones([]);
+        }
+      }
+    })();
+    (async () => {
+      try {
+        const respuesta = await apiClient.get(endpoints.diasNoLaborales);
+        if (activo) setFestivos((respuesta?.datos ?? []).map((fila) => aFechaInput(fila.fecha)));
+      } catch {
+        if (activo) setFestivos([]);
       }
     })();
     return () => {
@@ -112,14 +135,14 @@ export function useOrdenForm({ orderData } = {}) {
    * existe porque la orden nace libre.
    */
   const capacidadTipica = useMemo(() => {
-    const capacidades = (modulos.items ?? [])
+    const capacidades = (modulos.datos ?? [])
       .map((modulo) => Number(modulo.capacidad_operarios) || 0)
       .filter((valor) => valor > 0)
       .sort((a, b) => a - b);
 
     if (capacidades.length === 0) return 0;
     return capacidades[Math.floor(capacidades.length / 2)];
-  }, [modulos.items]);
+  }, [modulos.datos]);
 
   const personas = Number(personasSupuestas) || capacidadTipica;
 
@@ -154,11 +177,43 @@ export function useOrdenForm({ orderData } = {}) {
     [form.fecha_inicio_programada, form.fecha_fin_programada],
   );
 
+  /**
+   * La fecha en que estaria lista la orden segun el supuesto de
+   * eficiencia esperada, recorriendo dias de calendario reales (salta
+   * domingos y festivos) en vez de dividir contra el mes mas largo.
+   *
+   * Es solo una sugerencia: "Fecha de fin programada" la sigue
+   * escribiendo quien programa, esto no la llena solo.
+   */
+  const fechaEstimadaEntrega = useMemo(() => {
+    const sam = Number(loteSeleccionado?.sam_pactado || 0);
+    const cantidad = Number(loteSeleccionado?.cantidad_programada || 0);
+    const eficiencia = Number(form.eficiencia_esperada || 0);
+
+    return calcularFechaEstimada({
+      fechaInicioISO: form.fecha_inicio_programada || hoyLocal(),
+      cantidad,
+      sam,
+      personas,
+      eficienciaEsperadaPct: eficiencia,
+      patrones,
+      festivos,
+    });
+  }, [loteSeleccionado, personas, form.eficiencia_esperada, form.fecha_inicio_programada, patrones, festivos]);
+
+  /** Si la estimacion cae despues de lo que el lote le prometio al cliente. */
+  const entregaLoteEnRiesgo = Boolean(
+    fechaEstimadaEntrega &&
+      loteSeleccionado?.fecha_entrega_programada &&
+      fechaEstimadaEntrega > aFechaInput(loteSeleccionado.fecha_entrega_programada),
+  );
+
   const buildPayload = () => ({
     ...form,
     id_lote: aNumero(form.id_lote),
     fecha_inicio_programada: form.fecha_inicio_programada || null,
     fecha_fin_programada: form.fecha_fin_programada || null,
+    eficiencia_esperada: aNumero(form.eficiencia_esperada),
     observaciones: form.observaciones || null,
   });
 
@@ -208,6 +263,8 @@ export function useOrdenForm({ orderData } = {}) {
     reset,
     estimacion,
     diasProgramados,
+    fechaEstimadaEntrega,
+    entregaLoteEnRiesgo,
     guardando,
     guardar,
     buildPayload,

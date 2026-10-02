@@ -220,4 +220,22 @@ export const recursos = {
     orden: "orden_visual ASC, nombre ASC",
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
+
+  /**
+   * Calendario de festivos y cierres -> tabla `dias_no_laborales`.
+   *
+   * Antes el sistema solo sabia que domingo no se trabaja (por la
+   * ausencia de fila en `jornada_dia`); esto son fechas sueltas que se
+   * restan al estimar cuando estaria lista una orden. La llave es la
+   * propia fecha: no tiene sentido repetir el mismo dia dos veces.
+   */
+  "dias-no-laborales": {
+    tabla: "dias_no_laborales",
+    pk: "fecha",
+    permiso: "Ordenes",
+    campos: ["fecha", "descripcion"],
+    obligatorios: ["fecha"],
+    buscables: ["descripcion"],
+    orden: "fecha ASC",
+  },
 };

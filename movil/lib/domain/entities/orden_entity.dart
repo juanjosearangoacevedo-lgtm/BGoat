@@ -39,6 +39,11 @@ class OrdenEntity {
   final String? tomadaEl;
 
   final int cantidadProgramada;
+
+  /// El supuesto de planeacion que German ajusta a mano por pedido (no
+  /// la eficiencia real, que se mide sola). Puede quedar vacio.
+  final double? eficienciaEsperada;
+
   final int unidadesProducidas;
   final int unidadesDefectuosas;
   final int unidadesRestantes;
@@ -83,6 +88,7 @@ class OrdenEntity {
     required this.asignacion,
     this.tomadaEl,
     required this.cantidadProgramada,
+    this.eficienciaEsperada,
     required this.unidadesProducidas,
     required this.unidadesDefectuosas,
     required this.unidadesRestantes,

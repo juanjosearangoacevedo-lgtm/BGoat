@@ -40,6 +40,11 @@ class SolicitudOrden {
   final String? estado;
   final String? fechaInicioProgramada;
   final String? fechaFinProgramada;
+
+  /// El supuesto de planeacion que German ajusta a mano, no la eficiencia
+  /// real (esa se mide sola en los indicadores).
+  final double? eficienciaEsperada;
+
   final String? observaciones;
 
   const SolicitudOrden({
@@ -47,6 +52,7 @@ class SolicitudOrden {
     this.estado,
     this.fechaInicioProgramada,
     this.fechaFinProgramada,
+    this.eficienciaEsperada,
     this.observaciones,
   });
 }

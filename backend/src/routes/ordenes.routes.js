@@ -36,10 +36,16 @@ export const ordenesRouter = Router();
  * `prioridad` tampoco: ya no es BAJA/MEDIA/ALTA/URGENTE a elegir, es la
  * posicion en la cola global (la orden mas vieja es la numero mas baja).
  * La asigna `siguientePrioridad()` al crear, y no se vuelve a tocar.
+ *
+ * `eficiencia_esperada` si viene en `CAMPOS` y si se edita libremente:
+ * es un supuesto de planeacion (que tan bien le va a ir al modulo que
+ * la tome), no una eficiencia declarada de forma fija. El frontend la
+ * usa para estimar una fecha de entrega; la eficiencia real se sigue
+ * midiendo sola en los indicadores, esto nunca la reemplaza.
  */
 const CAMPOS = [
   "id_lote",
-  "fecha_inicio_programada", "fecha_fin_programada",
+  "fecha_inicio_programada", "fecha_fin_programada", "eficiencia_esperada",
   "estado", "observaciones",
 ];
 

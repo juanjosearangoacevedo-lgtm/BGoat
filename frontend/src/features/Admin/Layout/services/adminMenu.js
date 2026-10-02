@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   Building2,
+  CalendarOff,
   ClipboardCheck,
   Cog,
   Factory,
@@ -49,6 +50,12 @@ export const adminMenuItems = [
       { icon: ClipboardCheck, label: "Registrar produccion", page: "captura", permiso: "Captura" },
       { icon: Table2, label: "Tablero por modulo", page: "tablero-modulo", permiso: "Captura" },
       { icon: UserCog, label: "Modulos", page: "modulos", permiso: "Modulos" },
+      {
+        icon: CalendarOff,
+        label: "Dias no laborales",
+        page: "dias-no-laborales",
+        permiso: "Ordenes",
+      },
     ],
   },
   {

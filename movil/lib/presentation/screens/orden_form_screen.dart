@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/fechas.dart' as fechas;
@@ -35,6 +36,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
   final _formulario = GlobalKey<FormState>();
 
   late final TextEditingController _observaciones;
+  late final TextEditingController _eficienciaEsperada;
 
   int? _idLote;
   String _estado = 'PENDIENTE';
@@ -54,6 +56,9 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     final orden = widget.orden;
 
     _observaciones = TextEditingController(text: orden?.observaciones ?? '');
+    _eficienciaEsperada = TextEditingController(
+      text: orden?.eficienciaEsperada == null ? '' : decimal(orden!.eficienciaEsperada, 2),
+    );
 
     _idLote = orden?.idLote;
     _estado = orden?.estado ?? 'PENDIENTE';
@@ -68,6 +73,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
   @override
   void dispose() {
     _observaciones.dispose();
+    _eficienciaEsperada.dispose();
     super.dispose();
   }
 
@@ -93,6 +99,9 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
       estado: _estado,
       fechaInicioProgramada: _fechaInicio,
       fechaFinProgramada: _fechaFin,
+      eficienciaEsperada: _eficienciaEsperada.text.trim().isEmpty
+          ? null
+          : double.tryParse(_eficienciaEsperada.text.replaceAll(',', '.')),
       observaciones:
           _observaciones.text.trim().isEmpty ? null : _observaciones.text.trim(),
     );
@@ -294,6 +303,17 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
                 const SizedBox(width: 10),
                 Expanded(child: _campoFecha('Entrega programada', _fechaFin, false)),
               ],
+            ),
+            const SizedBox(height: 14),
+            TextFormField(
+              controller: _eficienciaEsperada,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
+              decoration: const InputDecoration(
+                labelText: 'Eficiencia esperada (%)',
+                prefixIcon: Icon(Icons.insights_outlined),
+                helperText: 'Supuesto de planeacion, no la eficiencia real. Se puede dejar vacio.',
+              ),
             ),
             const SizedBox(height: 14),
             TextFormField(

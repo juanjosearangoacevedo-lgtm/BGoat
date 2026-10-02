@@ -15,6 +15,7 @@ import { reglas, validarFormulario } from "@/shared/validations";
  */
 export const ordenLimites = {
   observaciones: { max: 255 },
+  eficienciaEsperada: { min: 1, max: 100 },
 };
 
 // Los tres que puede traer una orden. Finalizado no esta en
@@ -36,6 +37,11 @@ export function crearOrdenEsquema({ loteOptions = [] } = {}) {
     fecha_fin_programada: [
       reglas.fecha({ etiqueta: "La fecha de fin programada" }),
       reglas.posteriorA("fecha_inicio_programada", "La fecha de fin programada"),
+    ],
+    // Supuesto de planeacion, no una eficiencia declarada de forma fija:
+    // German lo ajusta a mano por pedido y puede dejarlo vacio.
+    eficiencia_esperada: [
+      reglas.numero({ ...ordenLimites.eficienciaEsperada, etiqueta: "La eficiencia esperada" }),
     ],
     estado: [reglas.seleccionRequerida("El estado"), reglas.opcionValida(ordenEstados, "El estado")],
     observaciones: [

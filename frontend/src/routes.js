@@ -19,6 +19,7 @@ import { CausasPage } from "@/features/Admin/Causas/pages/CausasPage";
 import { OrdenesPage } from "@/features/Admin/Ordenes/pages/OrdenesPage";
 import { OrdenFormPage } from "@/features/Admin/Ordenes/pages/OrdenFormPage";
 import { OrdenDetallePage } from "@/features/Admin/Ordenes/pages/OrdenDetallePage";
+import { DiasNoLaboralesPage } from "@/features/Admin/DiasNoLaborales/pages/DiasNoLaboralesPage";
 
 /**
  * Registro de rutas del proyecto.
@@ -58,6 +59,7 @@ export const adminRoutes = {
     props: (data) => ({ modulo: data?.modulo ?? data, fecha: data?.fecha }),
   },
   modulos: { component: ModulosPage },
+  "dias-no-laborales": { component: DiasNoLaboralesPage },
 
   // Planta
   lotes: { component: LotesPage },

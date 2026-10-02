@@ -33,10 +33,20 @@ export function iniciales(texto = "") {
     .toUpperCase();
 }
 
-/** DATE / DATETIME de MySQL -> dd/mm/aaaa. */
+/**
+ * DATE / DATETIME de MySQL -> dd/mm/aaaa.
+ *
+ * Un DATE puro ("2026-01-01", sin hora) lo interpreta JS como medianoche
+ * UTC; en Colombia (UTC-5) eso cae el dia anterior a partir de las 7pm
+ * hora local, asi que un festivo del 1 de enero se veia 31 de diciembre.
+ * Por eso, si no trae hora, se le pone una explicita (medianoche LOCAL,
+ * no UTC) antes de construir el `Date`.
+ */
 export function formatFecha(valor) {
   if (!valor) return GUION;
-  const fecha = new Date(String(valor).replace(" ", "T"));
+  const texto = String(valor);
+  const conHora = texto.includes(" ") || texto.includes("T") ? texto.replace(" ", "T") : `${texto}T00:00:00`;
+  const fecha = new Date(conHora);
   if (Number.isNaN(fecha.getTime())) return String(valor);
   return fecha.toLocaleDateString("es-CO", { day: "2-digit", month: "2-digit", year: "numeric" });
 }

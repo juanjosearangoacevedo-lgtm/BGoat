@@ -33,6 +33,7 @@ const archivos = [
   "00f_migracion_lote_campos_muertos.sql",
   "00g_migracion_estados_tres.sql",
   "00h_migracion_prioridad_consecutivo.sql",
+  "00i_migracion_eficiencia_y_festivos.sql",
   "01_schema_bgoat.sql",
   "02_seed_bgoat.sql",
 ];

@@ -273,3 +273,30 @@ SELECT
   'admin@bgoat.com', '3219023372',
   '$2a$10$M/YuAycaYTixt9pWqxnlOumqK/qYQ0XhWmFdMHFT4Mt08eNIYzo9.', 'ACTIVO'
 FROM `roles` r WHERE r.nombre = 'Administrador';
+
+-- ---------------------------------------------------------------------
+-- Festivos de Colombia 2026 -> tabla `dias_no_laborales`
+--
+-- Se restan del calculo de dias habiles al estimar cuando estaria lista
+-- una orden. De aqui en adelante se administran desde la pantalla
+-- "Dias no laborales" (Produccion), no hay que volver a tocar la base.
+-- ---------------------------------------------------------------------
+INSERT IGNORE INTO `dias_no_laborales` (`fecha`, `descripcion`) VALUES
+  ('2026-01-01', 'Año Nuevo'),
+  ('2026-01-12', 'Dia de los Reyes Magos'),
+  ('2026-03-23', 'Dia de San Jose'),
+  ('2026-04-02', 'Jueves Santo'),
+  ('2026-04-03', 'Viernes Santo'),
+  ('2026-05-01', 'Dia del Trabajo'),
+  ('2026-05-18', 'Dia de la Ascension'),
+  ('2026-06-08', 'Corpus Christi'),
+  ('2026-06-15', 'Sagrado Corazon'),
+  ('2026-06-29', 'San Pedro y San Pablo'),
+  ('2026-07-20', 'Dia de la Independencia'),
+  ('2026-08-07', 'Batalla de Boyaca'),
+  ('2026-08-17', 'La Asuncion de la Virgen'),
+  ('2026-10-12', 'Dia de la Raza'),
+  ('2026-11-02', 'Dia de Todos los Santos'),
+  ('2026-11-16', 'Independencia de Cartagena'),
+  ('2026-12-08', 'Dia de la Inmaculada Concepcion'),
+  ('2026-12-25', 'Navidad');

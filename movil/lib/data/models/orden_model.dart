@@ -24,6 +24,7 @@ class OrdenModel extends OrdenEntity {
     required super.asignacion,
     super.tomadaEl,
     required super.cantidadProgramada,
+    super.eficienciaEsperada,
     required super.unidadesProducidas,
     required super.unidadesDefectuosas,
     required super.unidadesRestantes,
@@ -67,6 +68,7 @@ class OrdenModel extends OrdenEntity {
         ),
         tomadaEl: aFechaNula(json['tomada_el']),
         cantidadProgramada: aInt(json['cantidad_programada']),
+        eficienciaEsperada: aDoubleNulo(json['eficiencia_esperada']),
         unidadesProducidas: aInt(json['unidades_producidas']),
         unidadesDefectuosas: aInt(json['unidades_defectuosas']),
         unidadesRestantes: aInt(json['unidades_restantes']),
@@ -104,6 +106,7 @@ class OrdenModel extends OrdenEntity {
     agregar('estado', solicitud.estado);
     agregar('fecha_inicio_programada', solicitud.fechaInicioProgramada);
     agregar('fecha_fin_programada', solicitud.fechaFinProgramada);
+    agregar('eficiencia_esperada', solicitud.eficienciaEsperada);
     agregar('observaciones', solicitud.observaciones);
 
     return cuerpo;

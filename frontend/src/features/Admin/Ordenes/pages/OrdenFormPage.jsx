@@ -1,8 +1,8 @@
-import { ArrowLeft, RefreshCcw, Save, X } from "lucide-react";
+import { AlertTriangle, ArrowLeft, RefreshCcw, Save, X } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { FormField } from "@/shared/components/FormField";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import { formatMoneda } from "@/shared/utils/formatters";
+import { formatFecha, formatMoneda } from "@/shared/utils/formatters";
 import { OrdenFormSection } from "../components/OrdenFormSection";
 import { OrdenSelectField } from "../components/OrdenSelectField";
 import { useOrdenForm } from "../hooks/useOrdenForm";
@@ -34,6 +34,8 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
     reset,
     estimacion,
     diasProgramados,
+    fechaEstimadaEntrega,
+    entregaLoteEnRiesgo,
     guardando,
     guardar,
     loteSeleccionado,
@@ -186,6 +188,49 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
               para comprometer la fecha de entrega con un dato y no con una intuicion. Que modulo
               la tome se decide despues, al abrir la jornada.
             </p>
+
+            <div className="mt-4 border-t border-[#0F4C3F]/10 pt-4">
+              <div className="flex flex-wrap items-end gap-4">
+                <div className="w-48">
+                  <FormField
+                    label="Eficiencia esperada (%)"
+                    type="number"
+                    min={1}
+                    max={100}
+                    placeholder="65"
+                    value={form.eficiencia_esperada}
+                    error={errors.eficiencia_esperada}
+                    hint="Segun experiencia del modulo. Se puede ajustar dia a dia."
+                    onChange={(valor) => setField("eficiencia_esperada", valor)}
+                  />
+                </div>
+
+                {fechaEstimadaEntrega && (
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500">Con estos supuestos, estaria listo el</p>
+                    <p
+                      className={`text-lg font-bold ${entregaLoteEnRiesgo ? "text-red-600" : "text-[#0F4C3F]"}`}
+                    >
+                      {formatFecha(fechaEstimadaEntrega)}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {entregaLoteEnRiesgo && (
+                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-600">
+                  <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                  Esto es despues de la entrega que el lote le prometio al cliente (
+                  {formatFecha(loteSeleccionado.fecha_entrega_programada)}).
+                </p>
+              )}
+
+              <p className="mt-2 text-xs text-gray-400">
+                Cuenta dia por dia, saltando domingos y festivos (de la pantalla "Dias no
+                laborales"). Es solo una referencia: "Fecha de fin programada" arriba se sigue
+                escribiendo a mano.
+              </p>
+            </div>
           </div>
         )}
 

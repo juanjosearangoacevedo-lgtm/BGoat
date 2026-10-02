@@ -42,6 +42,7 @@ export const endpoints = {
   causas: "/causas",                     // tabla causas_desviacion (incidencias)
   ordenes: "/ordenes-produccion",
   curvaOrden: "/ordenes-produccion/:id/curva",
+  diasNoLaborales: "/dias-no-laborales", // tabla dias_no_laborales: festivos y cierres
 
   // --- Captura horaria (el nucleo) -------------------------------------
   captura: "/captura",                   // tabla registros_horarios
