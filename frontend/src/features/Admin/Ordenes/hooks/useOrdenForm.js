@@ -25,10 +25,7 @@ import { validarOrden } from "../validations/ordenValidation";
  */
 export const emptyOrdenForm = {
   id_lote: "",
-  fecha_inicio_programada: "",
-  fecha_fin_programada: "",
   eficiencia_esperada: "",
-  estado: "PENDIENTE",
   observaciones: "",
 };
 
@@ -41,8 +38,6 @@ function toFormValues(orderData) {
   return {
     ...orderData,
     id_lote: orderData.id_lote ?? "",
-    fecha_inicio_programada: aFechaInput(orderData.fecha_inicio_programada),
-    fecha_fin_programada: aFechaInput(orderData.fecha_fin_programada),
   };
 }
 
@@ -171,10 +166,13 @@ export function useOrdenForm({ orderData } = {}) {
     };
   }, [loteSeleccionado, personas, minutosDia]);
 
-  /** "Del ... al ... (N dias)" mientras se programa la orden. */
-  const diasProgramados = useMemo(
-    () => diasEntre(form.fecha_inicio_programada, form.fecha_fin_programada),
-    [form.fecha_inicio_programada, form.fecha_fin_programada],
+  /**
+   * Fecha de inicio: ya no se digita, es la fecha en que llego el lote a
+   * la planta. Sin lote elegido no hay fecha que mostrar todavia.
+   */
+  const fechaInicioProgramada = useMemo(
+    () => (loteSeleccionado?.fecha_recepcion ? aFechaInput(loteSeleccionado.fecha_recepcion) : ""),
+    [loteSeleccionado],
   );
 
   /**
@@ -182,8 +180,10 @@ export function useOrdenForm({ orderData } = {}) {
    * eficiencia esperada, recorriendo dias de calendario reales (salta
    * domingos y festivos) en vez de dividir contra el mes mas largo.
    *
-   * Es solo una sugerencia: "Fecha de fin programada" la sigue
-   * escribiendo quien programa, esto no la llena solo.
+   * Ya no es una sugerencia aparte: es el valor real de
+   * "fecha_fin_programada" -tampoco se digita-, y se copia al lote como
+   * su "entrega programada" al guardar (`sincronizarEntregaLote` en
+   * `ordenes.routes.js`).
    */
   const fechaEstimadaEntrega = useMemo(() => {
     const sam = Number(loteSeleccionado?.sam_pactado || 0);
@@ -191,7 +191,7 @@ export function useOrdenForm({ orderData } = {}) {
     const eficiencia = Number(form.eficiencia_esperada || 0);
 
     return calcularFechaEstimada({
-      fechaInicioISO: form.fecha_inicio_programada || hoyLocal(),
+      fechaInicioISO: fechaInicioProgramada || hoyLocal(),
       cantidad,
       sam,
       personas,
@@ -199,7 +199,13 @@ export function useOrdenForm({ orderData } = {}) {
       patrones,
       festivos,
     });
-  }, [loteSeleccionado, personas, form.eficiencia_esperada, form.fecha_inicio_programada, patrones, festivos]);
+  }, [loteSeleccionado, personas, form.eficiencia_esperada, fechaInicioProgramada, patrones, festivos]);
+
+  /** "Del ... al ... (N dias)" con las fechas ya resueltas. */
+  const diasProgramados = useMemo(
+    () => diasEntre(fechaInicioProgramada, fechaEstimadaEntrega),
+    [fechaInicioProgramada, fechaEstimadaEntrega],
+  );
 
   /** Si la estimacion cae despues de lo que el lote le prometio al cliente. */
   const entregaLoteEnRiesgo = Boolean(
@@ -211,8 +217,8 @@ export function useOrdenForm({ orderData } = {}) {
   const buildPayload = () => ({
     ...form,
     id_lote: aNumero(form.id_lote),
-    fecha_inicio_programada: form.fecha_inicio_programada || null,
-    fecha_fin_programada: form.fecha_fin_programada || null,
+    fecha_inicio_programada: fechaInicioProgramada || null,
+    fecha_fin_programada: fechaEstimadaEntrega || null,
     eficiencia_esperada: aNumero(form.eficiencia_esperada),
     observaciones: form.observaciones || null,
   });
@@ -263,6 +269,7 @@ export function useOrdenForm({ orderData } = {}) {
     reset,
     estimacion,
     diasProgramados,
+    fechaInicioProgramada,
     fechaEstimadaEntrega,
     entregaLoteEnRiesgo,
     guardando,

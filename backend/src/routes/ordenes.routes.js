@@ -42,12 +42,35 @@ export const ordenesRouter = Router();
  * la tome), no una eficiencia declarada de forma fija. El frontend la
  * usa para estimar una fecha de entrega; la eficiencia real se sigue
  * midiendo sola en los indicadores, esto nunca la reemplaza.
+ *
+ * `estado` tampoco viene en `CAMPOS`: ya no se escoge nada a mano, ni
+ * siquiera Pendiente/En proceso. Pendiente es donde nace, En proceso lo
+ * pone este mismo archivo... no, lo pone `jornada.routes.js` cuando un
+ * modulo toma la orden, y Finalizado lo pone `captura.routes.js` al
+ * completarse la cantidad programada.
+ *
+ * `fecha_inicio_programada` y `fecha_fin_programada` SI vienen en
+ * `CAMPOS`, pero tampoco se digitan: el frontend las calcula (inicio =
+ * recepcion del lote, fin = la fecha estimada con SAM + eficiencia
+ * esperada + dias no laborales) y las manda ya resueltas. Al guardarlas,
+ * `fecha_fin_programada` se copia a `lotes.fecha_entrega_programada`
+ * (ver `sincronizarEntregaLote`): es el mismo compromiso visto desde el
+ * lote.
  */
 const CAMPOS = [
   "id_lote",
   "fecha_inicio_programada", "fecha_fin_programada", "eficiencia_esperada",
-  "estado", "observaciones",
+  "observaciones",
 ];
+
+/** El compromiso de entrega del lote es el fin estimado de su orden. */
+async function sincronizarEntregaLote(idLote, fechaFinProgramada) {
+  if (!idLote || !fechaFinProgramada) return;
+  await execute("UPDATE lotes SET fecha_entrega_programada = ? WHERE id_lote = ?", [
+    fechaFinProgramada,
+    idLote,
+  ]);
+}
 
 /**
  * El siguiente consecutivo del año: OP-2026-0001, OP-2026-0002...
@@ -204,6 +227,8 @@ ordenesRouter.post(
       ]);
     }
 
+    await sincronizarEntregaLote(datos.id_lote, datos.fecha_fin_programada);
+
     res.status(201).json(
       await queryOne("SELECT * FROM vw_avance_orden WHERE id_orden_produccion = ?", [
         resultado.insertId,
@@ -218,22 +243,12 @@ ordenesRouter.put(
   requierePermiso("Ordenes", "EDITAR"),
   asyncHandler(async (req, res) => {
     const existente = await queryOne(
-      "SELECT id_orden_produccion, estado FROM ordenes_produccion WHERE id_orden_produccion = ?",
+      "SELECT id_orden_produccion, id_lote, estado FROM ordenes_produccion WHERE id_orden_produccion = ?",
       [req.params.id],
     );
     if (!existente) throw ApiError.notFound();
 
     const datos = limpiar(req.body);
-
-    // Finalizado no se escoge a mano: lo pone el sistema solo cuando lo
-    // producido alcanza la cantidad programada (captura.routes.js). Si ya
-    // estaba Finalizado se deja pasar (el formulario reenvia el estado
-    // actual al guardar otros campos), pero no se puede ENTRAR a mano.
-    if (datos.estado === "FINALIZADO" && existente.estado !== "FINALIZADO") {
-      throw ApiError.badRequest(
-        "El estado Finalizado lo asigna el sistema al completarse la cantidad programada; no se puede escoger a mano.",
-      );
-    }
 
     // Si la orden cambia de lote, la cantidad se resincroniza con el
     // nuevo lote: sigue sin ser un dato que se digite.
@@ -254,6 +269,8 @@ ordenesRouter.put(
         [...columnas.map((columna) => datos[columna]), req.params.id],
       );
     }
+
+    await sincronizarEntregaLote(datos.id_lote ?? existente.id_lote, datos.fecha_fin_programada);
 
     res.json(
       await queryOne("SELECT * FROM vw_avance_orden WHERE id_orden_produccion = ?", [req.params.id]),

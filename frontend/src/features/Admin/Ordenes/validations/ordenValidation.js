@@ -18,11 +18,11 @@ export const ordenLimites = {
   eficienciaEsperada: { min: 1, max: 100 },
 };
 
-// Los tres que puede traer una orden. Finalizado no esta en
-// `ordenEstadosSeleccionables`: lo pone el sistema solo al completarse la
-// cantidad programada (ver `captura.routes.js`), nadie lo escoge a mano.
+// Los tres que puede traer una orden. Ya no se escoge ninguno a mano:
+// Pendiente es donde nace, En proceso lo pone `jornada.routes.js` cuando
+// un modulo la toma, y Finalizado lo pone `captura.routes.js` al
+// completarse la cantidad programada.
 export const ordenEstados = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
-export const ordenEstadosSeleccionables = ["PENDIENTE", "EN_PROCESO"];
 
 export function crearOrdenEsquema({ loteOptions = [] } = {}) {
   return {
@@ -30,20 +30,11 @@ export function crearOrdenEsquema({ loteOptions = [] } = {}) {
       reglas.seleccionRequerida("El lote"),
       reglas.opcionValida(loteOptions, "El lote seleccionado"),
     ],
-    fecha_inicio_programada: [
-      reglas.fecha({ etiqueta: "La fecha de inicio programada" }),
-      reglas.anteriorA("fecha_fin_programada", "La fecha de inicio programada"),
-    ],
-    fecha_fin_programada: [
-      reglas.fecha({ etiqueta: "La fecha de fin programada" }),
-      reglas.posteriorA("fecha_inicio_programada", "La fecha de fin programada"),
-    ],
     // Supuesto de planeacion, no una eficiencia declarada de forma fija:
     // German lo ajusta a mano por pedido y puede dejarlo vacio.
     eficiencia_esperada: [
       reglas.numero({ ...ordenLimites.eficienciaEsperada, etiqueta: "La eficiencia esperada" }),
     ],
-    estado: [reglas.seleccionRequerida("El estado"), reglas.opcionValida(ordenEstados, "El estado")],
     observaciones: [
       reglas.longitud({ ...ordenLimites.observaciones, etiqueta: "Las observaciones" }),
     ],

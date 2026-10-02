@@ -103,9 +103,6 @@ class OrdenModel extends OrdenEntity {
       if (valor != null) cuerpo[clave] = valor;
     }
 
-    agregar('estado', solicitud.estado);
-    agregar('fecha_inicio_programada', solicitud.fechaInicioProgramada);
-    agregar('fecha_fin_programada', solicitud.fechaFinProgramada);
     agregar('eficiencia_esperada', solicitud.eficienciaEsperada);
     agregar('observaciones', solicitud.observaciones);
 

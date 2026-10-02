@@ -39,15 +39,8 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
   late final TextEditingController _eficienciaEsperada;
 
   int? _idLote;
-  String _estado = 'PENDIENTE';
-  String? _fechaInicio;
-  String? _fechaFin;
 
   bool get _editando => widget.orden != null;
-
-  // Finalizado no esta aqui: lo pone el sistema solo al completarse la
-  // cantidad programada (ver `captura.routes.js`), nadie lo escoge a mano.
-  static const _estados = ['PENDIENTE', 'EN_PROCESO'];
 
   @override
   void initState() {
@@ -61,9 +54,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     );
 
     _idLote = orden?.idLote;
-    _estado = orden?.estado ?? 'PENDIENTE';
-    _fechaInicio = orden?.fechaInicioProgramada;
-    _fechaFin = orden?.fechaFinProgramada;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OrdenesProvider>().cargarLotes();
@@ -96,9 +86,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
 
     final solicitud = SolicitudOrden(
       idLote: _idLote!,
-      estado: _estado,
-      fechaInicioProgramada: _fechaInicio,
-      fechaFinProgramada: _fechaFin,
       eficienciaEsperada: _eficienciaEsperada.text.trim().isEmpty
           ? null
           : double.tryParse(_eficienciaEsperada.text.replaceAll(',', '.')),
@@ -156,28 +143,6 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     } else {
       avisar(context, fallo, esError: true);
     }
-  }
-
-  Future<void> _escogerFecha(bool esInicio) async {
-    final actual = esInicio ? _fechaInicio : _fechaFin;
-
-    final elegida = await showDatePicker(
-      context: context,
-      initialDate: actual == null ? DateTime.now() : fechas.desdeTexto(actual),
-      firstDate: DateTime(2024),
-      lastDate: DateTime(2030),
-      helpText: esInicio ? 'Inicio programado' : 'Entrega programada',
-    );
-
-    if (elegida == null) return;
-
-    setState(() {
-      if (esInicio) {
-        _fechaInicio = fechas.comoTexto(elegida);
-      } else {
-        _fechaFin = fechas.comoTexto(elegida);
-      }
-    });
   }
 
   @override
@@ -261,47 +226,38 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: _estado == 'FINALIZADO'
-                      ? InputDecorator(
-                          decoration: const InputDecoration(labelText: 'Estado'),
-                          child: Row(
-                            children: [
-                              const EstadoChip('FINALIZADO'),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  'Se completo solo',
-                                  style: const TextStyle(fontSize: 11, color: Paleta.textoSuave),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ],
+                  child: InputDecorator(
+                    decoration: const InputDecoration(labelText: 'Estado'),
+                    child: Row(
+                      children: [
+                        EstadoChip(widget.orden?.estado ?? 'PENDIENTE'),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'No se edita',
+                            style: const TextStyle(fontSize: 11, color: Paleta.textoSuave),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        )
-                      : DropdownButtonFormField<String>(
-                          initialValue: _estado,
-                          isExpanded: true,
-                          decoration: const InputDecoration(labelText: 'Estado'),
-                          items: _estados
-                              .map((valor) => DropdownMenuItem(
-                                    value: valor,
-                                    child: Text(
-                                      valor.replaceAll('_', ' ').toLowerCase(),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ))
-                              .toList(),
-                          onChanged: (valor) => setState(() => _estado = valor ?? 'PENDIENTE'),
                         ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 14),
+            // Las fechas ya no se escogen: inicio es cuando llego el lote, y
+            // fin se calcula con el SAM, la eficiencia esperada y los dias
+            // no laborales -eso se hace en el panel web por ahora-.
             Row(
               children: [
-                Expanded(child: _campoFecha('Inicio programado', _fechaInicio, true)),
+                Expanded(
+                  child: _fechaSoloLectura('Inicio programado', widget.orden?.fechaInicioProgramada),
+                ),
                 const SizedBox(width: 10),
-                Expanded(child: _campoFecha('Entrega programada', _fechaFin, false)),
+                Expanded(
+                  child: _fechaSoloLectura('Fin estimado', widget.orden?.fechaFinProgramada),
+                ),
               ],
             ),
             const SizedBox(height: 14),
@@ -344,21 +300,19 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     );
   }
 
-  Widget _campoFecha(String etiqueta, String? valor, bool esInicio) {
-    return InkWell(
-      onTap: () => _escogerFecha(esInicio),
-      borderRadius: BorderRadius.circular(12),
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: etiqueta,
-          prefixIcon: const Icon(Icons.event_outlined, size: 19),
-        ),
-        child: Text(
-          valor == null ? 'Sin fecha' : fechas.fechaCorta(valor),
-          style: TextStyle(
-            color: valor == null ? Paleta.textoSuave : Paleta.texto,
-            fontSize: 14,
-          ),
+  /// Ya no se escoge: inicio es la recepcion del lote y fin es el calculo
+  /// con SAM + eficiencia esperada + dias no laborales (panel web).
+  Widget _fechaSoloLectura(String etiqueta, String? valor) {
+    return InputDecorator(
+      decoration: InputDecoration(
+        labelText: etiqueta,
+        prefixIcon: const Icon(Icons.event_outlined, size: 19),
+      ),
+      child: Text(
+        valor == null ? 'Aun no definida' : fechas.fechaCorta(valor),
+        style: TextStyle(
+          color: valor == null ? Paleta.textoSuave : Paleta.texto,
+          fontSize: 14,
         ),
       ),
     );

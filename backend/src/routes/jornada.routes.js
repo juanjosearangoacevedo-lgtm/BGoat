@@ -480,6 +480,17 @@ jornadaRouter.post(
       [id_lote],
     );
 
+    // La orden tambien: "en proceso" significa que un modulo ya la tomo,
+    // no que ya produjo algo. Mismo momento que el lote, para que los dos
+    // queden sincronizados.
+    if (idOrden) {
+      await execute(
+        `UPDATE ordenes_produccion SET estado = 'EN_PROCESO'
+         WHERE id_orden_produccion = ? AND estado = 'PENDIENTE'`,
+        [idOrden],
+      );
+    }
+
     res.status(201).json(await jornadaCompleta(idJornada));
   }),
 );

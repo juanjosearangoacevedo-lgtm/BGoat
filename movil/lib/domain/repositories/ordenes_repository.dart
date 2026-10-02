@@ -33,13 +33,12 @@ class FiltroOrdenes {
 /// jornada con ella. Tampoco lleva ficha tecnica, pedido, cantidad ni valor
 /// de maquila --eso vive en el lote--: un lote corre en una sola orden, asi
 /// que la cantidad y el valor se copian del lote al crear la orden, nunca
-/// se digitan aqui. Tampoco lleva numero de orden ni prioridad: el backend
-/// los genera (la prioridad es la posicion en la cola global, no se edita).
+/// se digitan aqui. Tampoco lleva numero de orden, prioridad, estado ni
+/// fechas: el backend las asigna o las calcula solas (la fecha de fin
+/// programada hoy solo se calcula desde el panel web, con el SAM, la
+/// eficiencia esperada y los dias no laborales).
 class SolicitudOrden {
   final int idLote;
-  final String? estado;
-  final String? fechaInicioProgramada;
-  final String? fechaFinProgramada;
 
   /// El supuesto de planeacion que German ajusta a mano, no la eficiencia
   /// real (esa se mide sola en los indicadores).
@@ -49,9 +48,6 @@ class SolicitudOrden {
 
   const SolicitudOrden({
     required this.idLote,
-    this.estado,
-    this.fechaInicioProgramada,
-    this.fechaFinProgramada,
     this.eficienciaEsperada,
     this.observaciones,
   });

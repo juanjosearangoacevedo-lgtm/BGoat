@@ -6,13 +6,6 @@ import { formatFecha, formatMoneda } from "@/shared/utils/formatters";
 import { OrdenFormSection } from "../components/OrdenFormSection";
 import { OrdenSelectField } from "../components/OrdenSelectField";
 import { useOrdenForm } from "../hooks/useOrdenForm";
-import { ordenStatusOptions } from "../hooks/useOrdenesPage";
-
-// Finalizado no se escoge: lo pone el sistema solo al completarse la
-// cantidad programada. El select solo ofrece lo que si es una decision.
-const ordenEstadoSeleccionableOptions = ordenStatusOptions.filter(
-  (opcion) => opcion.value !== "FINALIZADO",
-);
 
 /**
  * Formulario de `ordenes_produccion`.
@@ -25,6 +18,9 @@ const ordenEstadoSeleccionableOptions = ordenStatusOptions.filter(
  * la copia al guardar. Tampoco pide el numero de orden: lo genera el
  * backend al crear (`OP-2026-0001`...), para que no se repita entre
  * quienes esten creando ordenes al mismo tiempo.
+ *
+ * Tampoco pide fechas, prioridad ni estado: las tres se calculan o se
+ * asignan solas (ver `useOrdenForm.js`). Nada de esto se digita.
  */
 export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
   const {
@@ -34,6 +30,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
     reset,
     estimacion,
     diasProgramados,
+    fechaInicioProgramada,
     fechaEstimadaEntrega,
     entregaLoteEnRiesgo,
     guardando,
@@ -121,28 +118,34 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
           </div>
         )}
 
-        <OrdenFormSection title="Produccion" columns="md:grid-cols-3">
-          <FormField
-            label="Fecha de inicio programada"
-            type="date"
-            value={form.fecha_inicio_programada}
-            error={errors.fecha_inicio_programada}
-            onChange={(valor) => setField("fecha_inicio_programada", valor)}
-          />
-          <FormField
-            label="Fecha de fin programada"
-            type="date"
-            value={form.fecha_fin_programada}
-            error={errors.fecha_fin_programada}
-            onChange={(valor) => setField("fecha_fin_programada", valor)}
-          />
-          <div>
-            <p className="mb-1.5 text-sm font-medium text-gray-700">Duracion programada</p>
-            <p className="flex h-10 items-center text-lg font-bold text-[#0F4C3F]">
-              {diasProgramados ? `${diasProgramados} dia${diasProgramados === 1 ? "" : "s"}` : "—"}
-            </p>
-          </div>
-        </OrdenFormSection>
+        {loteSeleccionado && (
+          <OrdenFormSection title="Fechas" columns="md:grid-cols-3">
+            <div>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Inicio programado</p>
+              <p className="flex h-10 items-center text-lg font-bold text-gray-800">
+                {fechaInicioProgramada ? formatFecha(fechaInicioProgramada) : "—"}
+              </p>
+              <p className="text-xs text-gray-400">Cuando llego el lote a la planta.</p>
+            </div>
+            <div>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Fin estimado</p>
+              <p className={`flex h-10 items-center text-lg font-bold ${entregaLoteEnRiesgo ? "text-red-600" : "text-[#0F4C3F]"}`}>
+                {fechaEstimadaEntrega ? formatFecha(fechaEstimadaEntrega) : "—"}
+              </p>
+              <p className="text-xs text-gray-400">
+                {fechaEstimadaEntrega
+                  ? "Con el SAM, la eficiencia esperada y los dias habiles."
+                  : "Falta la eficiencia esperada, abajo."}
+              </p>
+            </div>
+            <div>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Duracion</p>
+              <p className="flex h-10 items-center text-lg font-bold text-gray-800">
+                {diasProgramados ? `${diasProgramados} dia${diasProgramados === 1 ? "" : "s"}` : "—"}
+              </p>
+            </div>
+          </OrdenFormSection>
+        )}
 
         {estimacion && (
           <div className="rounded-2xl border border-[#0F4C3F]/20 bg-[#0F4C3F]/5 p-5">
@@ -165,7 +168,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                 operarias
               </label>
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
+            <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
                 <p className="text-xs text-gray-500">SAM pactado</p>
                 <p className="text-lg font-bold text-gray-800">{estimacion.sam} min</p>
@@ -178,57 +181,39 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                 <p className="text-xs text-gray-500">Unidades por dia ({estimacion.horasDia} h)</p>
                 <p className="text-lg font-bold text-gray-800">{estimacion.unidadesPorDia}</p>
               </div>
-              <div>
-                <p className="text-xs text-gray-500">Dias estimados</p>
-                <p className="text-lg font-bold text-[#0F4C3F]">{estimacion.diasEstimados}</p>
-              </div>
             </div>
             <p className="mt-2 text-xs text-gray-500">
-              Calculado con el SAM del lote y los minutos reales de la jornada de planta. Sirve
-              para comprometer la fecha de entrega con un dato y no con una intuicion. Que modulo
-              la tome se decide despues, al abrir la jornada.
+              Al 100% de eficiencia, con el SAM del lote y los minutos reales de la jornada de
+              planta. Que modulo la tome se decide despues, al abrir la jornada.
             </p>
 
             <div className="mt-4 border-t border-[#0F4C3F]/10 pt-4">
-              <div className="flex flex-wrap items-end gap-4">
-                <div className="w-48">
-                  <FormField
-                    label="Eficiencia esperada (%)"
-                    type="number"
-                    min={1}
-                    max={100}
-                    placeholder="65"
-                    value={form.eficiencia_esperada}
-                    error={errors.eficiencia_esperada}
-                    hint="Segun experiencia del modulo. Se puede ajustar dia a dia."
-                    onChange={(valor) => setField("eficiencia_esperada", valor)}
-                  />
-                </div>
-
-                {fechaEstimadaEntrega && (
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-500">Con estos supuestos, estaria listo el</p>
-                    <p
-                      className={`text-lg font-bold ${entregaLoteEnRiesgo ? "text-red-600" : "text-[#0F4C3F]"}`}
-                    >
-                      {formatFecha(fechaEstimadaEntrega)}
-                    </p>
-                  </div>
-                )}
+              <div className="w-48">
+                <FormField
+                  label="Eficiencia esperada (%)"
+                  type="number"
+                  min={1}
+                  max={100}
+                  placeholder="65"
+                  value={form.eficiencia_esperada}
+                  error={errors.eficiencia_esperada}
+                  hint="Segun experiencia del modulo. Se puede ajustar dia a dia."
+                  onChange={(valor) => setField("eficiencia_esperada", valor)}
+                />
               </div>
 
               {entregaLoteEnRiesgo && (
-                <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-red-600">
+                <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-red-600">
                   <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
-                  Esto es despues de la entrega que el lote le prometio al cliente (
+                  El fin estimado cae despues de la entrega que el lote le prometio al cliente (
                   {formatFecha(loteSeleccionado.fecha_entrega_programada)}).
                 </p>
               )}
 
               <p className="mt-2 text-xs text-gray-400">
-                Cuenta dia por dia, saltando domingos y festivos (de la pantalla "Dias no
-                laborales"). Es solo una referencia: "Fecha de fin programada" arriba se sigue
-                escribiendo a mano.
+                Con esto se calcula "Fin estimado" arriba, contando dia por dia y saltando
+                domingos y festivos (de la pantalla "Dias no laborales"). Esa fecha es la que se
+                guarda, y de paso queda como la entrega programada del lote.
               </p>
             </div>
           </div>
@@ -253,26 +238,19 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
               </p>
             </div>
           )}
-          {form.estado === "FINALIZADO" ? (
-            <div>
-              <p className="mb-1.5 text-sm font-medium text-gray-700">Estado</p>
-              <div className="flex h-10 items-center gap-2">
-                <StatusBadge status="FINALIZADO" />
-                <span className="text-xs text-gray-400">
-                  Se completo solo al alcanzar la cantidad programada.
-                </span>
-              </div>
+          <div>
+            <p className="mb-1.5 text-sm font-medium text-gray-700">Estado</p>
+            <div className="flex h-10 items-center gap-2">
+              <StatusBadge status={orderData?.estado || "PENDIENTE"} />
+              <span className="text-xs text-gray-400">
+                {orderData?.estado === "FINALIZADO"
+                  ? "Se completo solo al alcanzar la cantidad programada."
+                  : orderData?.estado === "EN_PROCESO"
+                    ? "Un modulo ya la tomo."
+                    : "Pasa solo a En proceso cuando un modulo la tome."}
+              </span>
             </div>
-          ) : (
-            <OrdenSelectField
-              label="Estado"
-              required
-              placeholder="Seleccionar estado"
-              value={form.estado}
-              onChange={(value) => setField("estado", value)}
-              options={ordenEstadoSeleccionableOptions}
-            />
-          )}
+          </div>
           <div className="md:col-span-2">
             <FormField
               label="Observaciones"
