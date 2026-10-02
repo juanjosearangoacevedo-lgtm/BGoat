@@ -251,8 +251,12 @@ export function LoteFormModal({
         open={mostrarCalculadora}
         precioInicial={form.valor_maquila_unidad}
         onClose={() => setMostrarCalculadora(false)}
-        onUsar={(sam) => {
+        onUsar={(sam, precio) => {
           onChange("sam_pactado", sam);
+          // El precio con el que se calculo el SAM ES el valor de maquila:
+          // si se cambio dentro de la calculadora para probar un escenario,
+          // el formulario tiene que quedar con ese mismo numero.
+          onChange("valor_maquila_unidad", precio);
           setMostrarCalculadora(false);
         }}
       />

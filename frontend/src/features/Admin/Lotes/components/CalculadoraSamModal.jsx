@@ -13,6 +13,12 @@ import { formatMoneda } from "@/shared/utils/formatters";
  *
  * Las dos constantes de la empresa quedan fijas aqui por ahora; si German
  * necesita ajustarlas seguido, se vuelven un parametro editable aparte.
+ *
+ * El precio que se escribe aqui ES "Valor de maquila por unidad": por eso
+ * arranca precargado con ese campo. Si alguien lo cambia para probar un
+ * escenario distinto, `onUsar` manda tambien ese precio para que el
+ * formulario actualice "Valor de maquila" -el SAM y el precio con el que
+ * se calculo no pueden quedar desincronizados.
  */
 const RETEFUENTE_PCT = 0.07;
 const VALOR_MINUTO_EMPRESA = 660;
@@ -49,7 +55,7 @@ export function CalculadoraSamModal({ open, precioInicial, onClose, onUsar }) {
           <Button
             type="button"
             disabled={precioNum <= 0}
-            onClick={() => onUsar(Number(samSugerido.toFixed(2)))}
+            onClick={() => onUsar(Number(samSugerido.toFixed(2)), precioNum)}
             className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
           >
             Usar este SAM

@@ -180,7 +180,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
   }
 
   Future<void> _abrirCalculadoraSam() async {
-    final resultado = await showModalBottomSheet<double>(
+    final resultado = await showModalBottomSheet<({double sam, double precio})>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Paleta.tarjeta,
@@ -191,7 +191,13 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     );
 
     if (resultado == null || !mounted) return;
-    setState(() => _sam.text = decimal(resultado, 2));
+    setState(() {
+      _sam.text = decimal(resultado.sam, 2);
+      // El precio con el que se calculo el SAM ES el valor de maquila: si
+      // se cambio dentro de la calculadora para probar un escenario, el
+      // formulario tiene que quedar con ese mismo numero.
+      _valorMaquila.text = decimal(resultado.precio, 2);
+    });
   }
 
   /// La unica fecha que se escoge a mano: cuando llego la mercancia. La
@@ -638,8 +644,9 @@ class _CalculadoraSamHojaState extends State<_CalculadoraSamHoja> {
                 Expanded(
                   flex: 2,
                   child: FilledButton(
-                    onPressed:
-                        _precioN > 0 ? () => Navigator.pop(context, _samSugerido) : null,
+                    onPressed: _precioN > 0
+                        ? () => Navigator.pop(context, (sam: _samSugerido, precio: _precioN))
+                        : null,
                     child: const Text('Usar este SAM'),
                   ),
                 ),
