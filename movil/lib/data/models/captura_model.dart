@@ -37,6 +37,28 @@ class ResumenModuloModel extends ResumenModuloEntity {
   }
 }
 
+class DesgloseTallaColorModel extends DesgloseTallaColorEntity {
+  const DesgloseTallaColorModel({
+    super.idTalla,
+    super.idColor,
+    super.nombreTalla,
+    super.nombreColor,
+    required super.asignado,
+    required super.capturado,
+    required super.restante,
+  });
+
+  factory DesgloseTallaColorModel.fromJson(Map<String, dynamic> json) => DesgloseTallaColorModel(
+        idTalla: aIntNulo(json['id_talla']),
+        idColor: aIntNulo(json['id_color']),
+        nombreTalla: aTextoNulo(json['nombre_talla']),
+        nombreColor: aTextoNulo(json['nombre_color']),
+        asignado: aInt(json['asignado']),
+        capturado: aInt(json['capturado']),
+        restante: aInt(json['restante']),
+      );
+}
+
 class ModuloCapturaModel extends ModuloCapturaEntity {
   const ModuloCapturaModel({
     required super.modulo,
@@ -47,6 +69,7 @@ class ModuloCapturaModel extends ModuloCapturaEntity {
     required super.personasSugeridas,
     required super.celdas,
     required super.resumen,
+    super.desgloseTallaColor,
   });
 
   factory ModuloCapturaModel.fromJson(Map<String, dynamic> json) {
@@ -83,6 +106,9 @@ class ModuloCapturaModel extends ModuloCapturaEntity {
       personasSugeridas: aInt(json['personas_sugeridas']),
       celdas: celdas,
       resumen: ResumenModuloModel.fromJson(aMapaNulo(json['resumen'])),
+      desgloseTallaColor: aListaDeMapas(json['desglose_talla_color'])
+          .map(DesgloseTallaColorModel.fromJson)
+          .toList(),
     );
   }
 }

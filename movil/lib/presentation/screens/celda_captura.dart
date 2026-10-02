@@ -39,9 +39,19 @@ class CeldaCapturaHoja extends StatefulWidget {
 
 class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
   late final TextEditingController _personas;
-  late final TextEditingController _producidas;
   late final TextEditingController _defectuosas;
   late final TextEditingController _nota;
+
+  /// Cuanto de esta celda es de cada talla y color. La clave es
+  /// "idTalla-idColor" (vacio = sin talla/color). Reemplaza al antiguo
+  /// campo suelto de unidades producidas: el total es la suma de este mapa.
+  final Map<String, int> _tallaColor = {};
+
+  /// Un controller por combinacion, creado una sola vez en `initState`. Si se
+  /// crearan de nuevo en cada `build` (por ejemplo al escribir, que dispara
+  /// `setState`), el campo perderia el foco y el cursor saltaria con cada
+  /// digito.
+  final Map<String, TextEditingController> _controlesTallaColor = {};
 
   /// Los minutos perdidos, abiertos por causa. Es reemplazo y no suma: lo que
   /// quede en esta lista es lo que queda guardado.
@@ -64,9 +74,13 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
     _personas = TextEditingController(
       text: '${celda?.personasPresentes ?? widget.modulo.personasSugeridas}',
     );
-    _producidas = TextEditingController(
-      text: celda == null ? '' : '${celda.unidadesProducidas}',
-    );
+    for (final linea in celda?.detalleTallaColor ?? const <DetalleTallaColorEntity>[]) {
+      _tallaColor[_clave(linea.idTalla, linea.idColor)] = linea.cantidad;
+    }
+    for (final combo in widget.modulo.desgloseTallaColor) {
+      final clave = _clave(combo.idTalla, combo.idColor);
+      _controlesTallaColor[clave] = TextEditingController(text: '${_tallaColor[clave] ?? 0}');
+    }
     _defectuosas = TextEditingController(
       text: celda == null || celda.unidadesDefectuosas == 0
           ? ''
@@ -83,16 +97,52 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
   @override
   void dispose() {
     _personas.dispose();
-    _producidas.dispose();
     _defectuosas.dispose();
     _nota.dispose();
+    for (final control in _controlesTallaColor.values) {
+      control.dispose();
+    }
     super.dispose();
+  }
+
+  // --- Talla y color ------------------------------------------------------
+
+  String _clave(int? idTalla, int? idColor) => '${idTalla ?? ""}-${idColor ?? ""}';
+
+  /// Cuanto le queda a cada combinacion, pero contando esta misma celda como
+  /// si no se hubiera capturado todavia -si no, al reabrir una hora ya
+  /// guardada el limite se veria mas chico de lo que realmente es, porque su
+  /// propio aporte ya esta contado como "capturado".
+  int _restanteEditable(DesgloseTallaColorEntity combo) {
+    final propio = widget.celda?.detalleTallaColor
+        .where((linea) => _clave(linea.idTalla, linea.idColor) == _clave(combo.idTalla, combo.idColor))
+        .fold<int>(0, (total, linea) => total + linea.cantidad) ??
+        0;
+    return combo.restante + propio;
+  }
+
+  void _cambiarTallaColor(String clave, int limite, String texto) {
+    final limpio = (int.tryParse(texto) ?? 0).clamp(0, limite);
+    setState(() {
+      if (limpio > 0) {
+        _tallaColor[clave] = limpio;
+      } else {
+        _tallaColor.remove(clave);
+      }
+    });
+
+    // Si se recorto el valor (se paso del limite), el campo tiene que verlo.
+    final control = _controlesTallaColor[clave];
+    if (control != null && control.text != '$limpio') {
+      control.text = '$limpio';
+      control.selection = TextSelection.collapsed(offset: control.text.length);
+    }
   }
 
   // --- Calculos en vivo -------------------------------------------------
 
   int get _personasN => int.tryParse(_personas.text) ?? 0;
-  int get _producidasN => int.tryParse(_producidas.text) ?? 0;
+  int get _producidasN => _tallaColor.values.fold(0, (total, cantidad) => total + cantidad);
   int get _defectuosasN => int.tryParse(_defectuosas.text) ?? 0;
 
   double get _sam => widget.modulo.samSugerido ?? widget.modulo.jornada?.samPactado ?? 0;
@@ -141,11 +191,6 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
   // --- Guardado ---------------------------------------------------------
 
   Future<void> _guardar() async {
-    if (_producidas.text.trim().isEmpty) {
-      avisar(context, 'Escriba cuantas unidades salieron en esa hora', esError: true);
-      return;
-    }
-
     if (_defectuosasN > _producidasN) {
       avisar(context, 'Las defectuosas no pueden superar las producidas', esError: true);
       return;
@@ -168,7 +213,14 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
       fecha: widget.fecha,
       horaJornada: widget.franja.orden,
       personasPresentes: _personasN,
-      unidadesProducidas: _producidasN,
+      detalleTallaColor: widget.modulo.desgloseTallaColor
+          .where((combo) => (_tallaColor[_clave(combo.idTalla, combo.idColor)] ?? 0) > 0)
+          .map((combo) => DetalleTallaColorEntity(
+                idTalla: combo.idTalla,
+                idColor: combo.idColor,
+                cantidad: _tallaColor[_clave(combo.idTalla, combo.idColor)]!,
+              ))
+          .toList(),
       unidadesDefectuosas: _defectuosasN,
       nota: _nota.text.trim().isEmpty ? null : _nota.text.trim(),
       minutosPerdidos: _perdidas.entries
@@ -330,12 +382,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
   Widget _numeros() {
     return Column(
       children: [
-        _campo(
-          control: _producidas,
-          etiqueta: 'Producidas',
-          icono: Icons.checkroom_outlined,
-          destacado: true,
-        ),
+        _tallaColorSeccion(),
         const SizedBox(height: 10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -351,6 +398,117 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
             ),
           ],
         ),
+      ],
+    );
+  }
+
+  /// El reparto de las unidades BUENAS por talla y color. Ya no hay un campo
+  /// suelto de "producidas": el total es la suma de estas filas. Las filas
+  /// no las inventa la digitadora -son las que el lote ya tiene asignadas-,
+  /// asi que no hay boton de agregar: solo un numero por combinacion, con lo
+  /// que le queda al lado.
+  Widget _tallaColorSeccion() {
+    final combos = widget.modulo.desgloseTallaColor;
+
+    if (combos.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Paleta.fondo,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Paleta.borde),
+        ),
+        child: const Text(
+          'Este lote no tiene desglose por talla y color: no se puede '
+          'capturar produccion.',
+          style: TextStyle(fontSize: 12, color: Paleta.textoSuave),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'PRODUCIDAS',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Paleta.textoSuave,
+                letterSpacing: 0.4,
+              ),
+            ),
+            Text(
+              '$_producidasN',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: Paleta.primario,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        ...combos.map((combo) {
+          final clave = _clave(combo.idTalla, combo.idColor);
+          final limite = _restanteEditable(combo);
+          final completo = limite <= 0;
+          final etiqueta = (combo.nombreTalla != null || combo.nombreColor != null)
+              ? [combo.nombreTalla, combo.nombreColor].whereType<String>().join(' · ')
+              : 'Sin talla / sin color';
+          final control = _controlesTallaColor[clave]!;
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: completo ? Paleta.fondo : Paleta.tarjeta,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Paleta.borde),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          etiqueta,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                            color: completo ? Paleta.textoSuave : Paleta.texto,
+                          ),
+                        ),
+                        Text(
+                          completo ? 'Completa' : 'Quedan $limite',
+                          style: const TextStyle(fontSize: 11, color: Paleta.textoSuave),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 64,
+                    child: TextField(
+                      controller: control,
+                      enabled: !completo,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                      decoration: const InputDecoration(isDense: true, hintText: '0'),
+                      onChanged: (texto) => _cambiarTallaColor(clave, limite, texto),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ],
     );
   }

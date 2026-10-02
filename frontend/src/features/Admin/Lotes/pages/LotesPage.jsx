@@ -208,12 +208,11 @@ export function LotesPage() {
         subiendoFicha={lotes.subiendoFicha}
         archivosPendientes={lotes.archivosPendientes}
         desglose={lotes.desglose}
-        guardandoDesglose={lotes.guardandoDesglose}
+        onCambiarDesglose={lotes.onCambiarDesglose}
         onSubirFicha={lotes.subirFicha}
         onQuitarFicha={lotes.quitarFicha}
         onSeleccionarArchivoPendiente={lotes.seleccionarArchivoPendiente}
         onQuitarArchivoPendiente={lotes.quitarArchivoPendiente}
-        onGuardarDesglose={lotes.guardarDesglose}
         onChange={lotes.setField}
         onClose={lotes.closeModal}
         onSave={handleSave}
@@ -224,7 +223,6 @@ export function LotesPage() {
         nombreCliente={lotes.nombreCliente}
         subiendoFicha={lotes.subiendoFicha}
         desglose={lotes.desglose}
-        guardandoDesglose={lotes.guardandoDesglose}
         tallaOptions={lotes.tallaOptions}
         colorOptions={lotes.colorOptions}
         onSubirFicha={lotes.subirFicha}

@@ -21,19 +21,19 @@ export const capturaLimites = {
   nota: { max: 255 },
 };
 
+/** La suma del reparto por talla y color: ya no se digita un total suelto. */
+function sumaDetalleTallaColor(form) {
+  return (form?.detalle_talla_color ?? []).reduce((total, fila) => total + Number(fila.cantidad || 0), 0);
+}
+
 export const capturaEsquema = {
-  unidades_producidas: [
-    reglas.entero({ etiqueta: "Las unidades producidas" }),
-    reglas.numero({ ...capturaLimites.unidades, etiqueta: "Las unidades producidas" }),
-  ],
   unidades_defectuosas: [
     reglas.entero({ etiqueta: "Las unidades defectuosas" }),
     reglas.numero({ ...capturaLimites.unidades, etiqueta: "Las unidades defectuosas" }),
-    reglas.noMayorQue(
-      "unidades_producidas",
-      "Las unidades defectuosas",
-      "las unidades producidas",
-    ),
+    (valor, form) =>
+      Number(valor || 0) > sumaDetalleTallaColor(form)
+        ? "Las unidades defectuosas no pueden superar las producidas"
+        : "",
   ],
   personas: [
     reglas.entero({ etiqueta: "Las personas" }),

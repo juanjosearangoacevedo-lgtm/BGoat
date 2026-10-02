@@ -20,6 +20,28 @@ class MinutosPerdidosEntity {
   });
 }
 
+/// Cuanto de la celda fue de una talla y un color concretos.
+///
+/// `unidadesProducidas` ya no se digita suelto: es la suma de estas filas.
+/// Las filas no las inventa la digitadora -son las que el lote ya tiene
+/// asignadas en `lote_detalle_talla_color`-, asi que aqui no hay forma de
+/// escribir una talla y color que el lote no tenga.
+class DetalleTallaColorEntity {
+  final int? idTalla;
+  final int? idColor;
+  final int cantidad;
+  final String? nombreTalla;
+  final String? nombreColor;
+
+  const DetalleTallaColorEntity({
+    this.idTalla,
+    this.idColor,
+    required this.cantidad,
+    this.nombreTalla,
+    this.nombreColor,
+  });
+}
+
 /// Una celda de la rejilla: lo que produjo un modulo en una franja.
 ///
 /// Todos los calculos vienen ya hechos de la vista `vw_registro_horario`, no de
@@ -77,6 +99,7 @@ class RegistroEntity {
   final int minutosPerdidos;
   final int minutosPerdidosPersona;
   final List<MinutosPerdidosEntity> detallePerdidas;
+  final List<DetalleTallaColorEntity> detalleTallaColor;
 
   final int? idCausa;
   final String? codigoCausa;
@@ -118,6 +141,7 @@ class RegistroEntity {
     required this.minutosPerdidos,
     required this.minutosPerdidosPersona,
     this.detallePerdidas = const [],
+    this.detalleTallaColor = const [],
     this.idCausa,
     this.codigoCausa,
     this.nombreCausa,
@@ -161,13 +185,14 @@ class PendienteEntity {
 /// Lo que la pantalla manda al guardar una celda.
 ///
 /// El SAM y el precio NO van aqui: salen del lote y de la orden que la jornada
-/// declaro. La digitadora no digita ninguno de los dos.
+/// declaro. La digitadora no digita ninguno de los dos. Tampoco va un total de
+/// "unidades producidas": ese total es la suma de `detalleTallaColor`.
 class SolicitudCaptura {
   final int idModulo;
   final String fecha;
   final int horaJornada;
   final int personasPresentes;
-  final int unidadesProducidas;
+  final List<DetalleTallaColorEntity> detalleTallaColor;
   final int unidadesDefectuosas;
   final int? idCausa;
   final String? nota;
@@ -178,7 +203,7 @@ class SolicitudCaptura {
     required this.fecha,
     required this.horaJornada,
     required this.personasPresentes,
-    required this.unidadesProducidas,
+    this.detalleTallaColor = const [],
     this.unidadesDefectuosas = 0,
     this.idCausa,
     this.nota,

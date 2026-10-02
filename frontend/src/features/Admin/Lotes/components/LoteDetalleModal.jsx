@@ -17,7 +17,6 @@ export function LoteDetalleModal({
   nombreCliente,
   subiendoFicha = false,
   desglose = [],
-  guardandoDesglose = false,
   tallaOptions = [],
   colorOptions = [],
   onSubirFicha,
@@ -90,13 +89,10 @@ export function LoteDetalleModal({
               ancho: "completo",
               value: (
                 <DesgloseTallaColor
-                  lote={lote}
-                  desglose={desglose}
+                  filas={desglose}
                   tallaOptions={tallaOptions}
                   colorOptions={colorOptions}
-                  guardando={guardandoDesglose}
-                  cantidadProgramada={lote.cantidad_programada}
-                  onGuardar={onGuardarDesglose}
+                  onChange={(filas) => onGuardarDesglose?.(lote.id_lote, filas)}
                 />
               ),
             },

@@ -56,7 +56,9 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
         existente,
         valores: {
           personas_presentes: existente?.personas_presentes ?? modulo.personas_sugeridas ?? 0,
-          unidades_producidas: existente?.unidades_producidas ?? 0,
+          // Ya no se digita un total: se reparte por talla y color, y el
+          // total es la suma de ese reparto (ver `calculoActivo`).
+          detalle_talla_color: existente?.detalle_talla_color ?? [],
           unidades_defectuosas: existente?.unidades_defectuosas ?? 0,
           nota: existente?.nota ?? "",
           // { [id_causa]: minutos } — el detalle de por que se paro el modulo.
@@ -79,6 +81,35 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
       previo ? { ...previo, valores: { ...previo.valores, [campo]: valor } } : previo,
     );
   };
+
+  /** Reemplaza el reparto completo por talla y color de la celda activa. */
+  const actualizarDetalleTallaColor = (filas) => {
+    setCeldaActiva((previo) =>
+      previo ? { ...previo, valores: { ...previo.valores, detalle_talla_color: filas } } : previo,
+    );
+  };
+
+  /**
+   * Cuanto le queda a cada combinacion del lote, pero contando esta misma
+   * celda como si no se hubiera capturado todavia -si no, al reabrir una
+   * hora ya guardada el limite se veria mas chico de lo que realmente es,
+   * porque su propio aporte ya esta contado como "capturado".
+   */
+  const restanteTallaColor = useMemo(() => {
+    if (!celdaActiva) return [];
+    const base = celdaActiva.modulo.desglose_talla_color ?? [];
+    const propios = celdaActiva.existente?.detalle_talla_color ?? [];
+    const propioDe = (idTalla, idColor) =>
+      propios.find(
+        (fila) => String(fila.id_talla ?? "") === String(idTalla ?? "") &&
+          String(fila.id_color ?? "") === String(idColor ?? ""),
+      )?.cantidad ?? 0;
+
+    return base.map((fila) => ({
+      ...fila,
+      restante: fila.restante + propioDe(fila.id_talla, fila.id_color),
+    }));
+  }, [celdaActiva]);
 
   /** Minutos perdidos de una causa. En 0 la causa desaparece del registro. */
   const actualizarMinutosPerdidos = (idCausa, minutos) => {
@@ -139,7 +170,10 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
       celdaActiva.existente?.precio_aplicado ?? celdaActiva.modulo.precio_sugerido ?? 0,
     );
     const personas = Number(celdaActiva.valores.personas_presentes || 0);
-    const producidas = Number(celdaActiva.valores.unidades_producidas || 0);
+    const producidas = (celdaActiva.valores.detalle_talla_color ?? []).reduce(
+      (total, fila) => total + Number(fila.cantidad || 0),
+      0,
+    );
     const minutosFranja = Number(celdaActiva.franja.minutos || 0);
 
     const minutos = personas * minutosFranja;
@@ -214,10 +248,12 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
     resumen,
     celdaActiva,
     calculoActivo,
+    restanteTallaColor,
     guardando,
     abrirCelda,
     cerrarCelda,
     actualizarValor,
+    actualizarDetalleTallaColor,
     actualizarMinutosPerdidos,
     guardarCelda,
     recargar: cargar,

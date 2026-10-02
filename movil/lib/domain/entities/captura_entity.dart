@@ -37,6 +37,31 @@ class ResumenModuloEntity {
   }
 }
 
+/// Cuanto le queda a una talla y color del lote por capturar.
+///
+/// Es del LOTE, no del dia: suma todas las horas ya registradas, de hoy y de
+/// antes. Cuando `restante` llega a 0 esa combinacion ya no se puede seguir
+/// capturando -ni aqui ni en el backend, que es quien de verdad lo impide-.
+class DesgloseTallaColorEntity {
+  final int? idTalla;
+  final int? idColor;
+  final String? nombreTalla;
+  final String? nombreColor;
+  final int asignado;
+  final int capturado;
+  final int restante;
+
+  const DesgloseTallaColorEntity({
+    this.idTalla,
+    this.idColor,
+    this.nombreTalla,
+    this.nombreColor,
+    required this.asignado,
+    required this.capturado,
+    required this.restante,
+  });
+}
+
 /// Una fila de la rejilla de captura: un modulo con sus celdas del dia.
 class ModuloCapturaEntity {
   final ModuloEntity modulo;
@@ -60,6 +85,10 @@ class ModuloCapturaEntity {
 
   final ResumenModuloEntity resumen;
 
+  /// Cuanto le queda al lote de la jornada por talla y color. Vacia sin
+  /// jornada, o si el lote no tiene desglose.
+  final List<DesgloseTallaColorEntity> desgloseTallaColor;
+
   const ModuloCapturaEntity({
     required this.modulo,
     this.jornada,
@@ -69,6 +98,7 @@ class ModuloCapturaEntity {
     required this.personasSugeridas,
     required this.celdas,
     required this.resumen,
+    this.desgloseTallaColor = const [],
   });
 
   RegistroEntity? celdaDe(int franja) => celdas[franja];

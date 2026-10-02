@@ -1,17 +1,24 @@
-import { useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, Plus, Save, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Layers, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/shared/components/button";
+import { Modal } from "@/shared/components/Modal";
 import { formatNumero } from "@/shared/utils/formatters";
 
 /**
  * Desglose del lote por talla y color -> tabla `lote_detalle_talla_color`.
  *
- * Va COLAPSADO por defecto: a veces la hoja del cliente no trae el
- * detalle el primer dia, asi que guardar el lote sin desglose todavia
- * no bloquea nada aqui. Lo que si exige el backend es que, para poder
- * iniciar jornada con este lote, la suma termine siendo EXACTA a la
- * cantidad programada -- es lo que despues reporta la revisadora por
- * prenda, y el tablero de jornada avisa claro si falta.
+ * Ya no es un campo aparte de "Cantidad programada": la cantidad ES la
+ * suma de estas filas (German lo pidio asi -- cantidad, talla y color se
+ * cargan juntos, no por separado). Por eso esta disponible desde que se
+ * crea el lote, no solo al editarlo: antes de que el lote exista no hay
+ * donde guardar las filas en la base, asi que viven en memoria aqui y
+ * las sube el formulario del lote junto con el resto, igual que ya hacia
+ * con la ficha tecnica.
+ *
+ * Si todavia no se conoce el detalle por talla (la hoja del cliente no
+ * lo trae el primer dia), se puede agregar una sola fila con la cantidad
+ * total y dejar talla y color en blanco -son opcionales en la base- para
+ * completarlos despues.
  *
  * Reemplaza a `prendas`, que armaba un SKU con talla + color + tipo y
  * obligaba a crear un registro por combinacion antes de poder usarla.
@@ -19,173 +26,175 @@ import { formatNumero } from "@/shared/utils/formatters";
 const filaVacia = { id_talla: "", id_color: "", cantidad: "" };
 
 export function DesgloseTallaColor({
-  lote,
-  desglose = [],
+  filas = [],
   tallaOptions = [],
   colorOptions = [],
-  guardando = false,
-  cantidadProgramada = 0,
-  onGuardar,
+  error,
+  onChange,
 }) {
-  const [abierto, setAbierto] = useState(false);
-  const [filas, setFilas] = useState([]);
-
-  // El desglose llega despues que el lote (es otra peticion): se copia al
-  // estado local cuando cambia, para poder editarlo sin guardar aun.
-  useEffect(() => {
-    setFilas(
-      desglose.map((entrada) => ({
-        id_talla: entrada.id_talla ?? "",
-        id_color: entrada.id_color ?? "",
-        cantidad: entrada.cantidad ?? "",
-      })),
-    );
-    // Si el lote ya trae desglose, se abre solo: es informacion que ya
-    // existe y esconderla obligaria a descubrirla por accidente.
-    if (desglose.length > 0) setAbierto(true);
-  }, [desglose]);
-
-  if (!lote) {
-    return (
-      <p className="rounded-2xl border border-dashed border-gray-200 p-4 text-sm text-gray-500">
-        El desglose por talla y color se agrega despues de crear el lote.
-      </p>
-    );
-  }
-
-  const cambiar = (indice, campo, valor) =>
-    setFilas((previo) =>
-      previo.map((fila, i) => (i === indice ? { ...fila, [campo]: valor } : fila)),
-    );
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [indiceEditando, setIndiceEditando] = useState(null);
+  const [borrador, setBorrador] = useState(filaVacia);
 
   const suma = filas.reduce((total, fila) => total + Number(fila.cantidad || 0), 0);
-  const programada = Number(cantidadProgramada || 0);
-  const excede = programada > 0 && suma > programada;
-  const completo = programada > 0 && suma === programada;
-  const faltan = programada > 0 && suma < programada ? programada - suma : 0;
+
+  const nombreTalla = (id) => tallaOptions.find((o) => String(o.value) === String(id))?.label;
+  const nombreColor = (id) => colorOptions.find((o) => String(o.value) === String(id))?.label;
+
+  const abrirAgregar = () => {
+    setIndiceEditando(null);
+    setBorrador(filaVacia);
+    setModalAbierto(true);
+  };
+
+  const abrirEditar = (indice) => {
+    setIndiceEditando(indice);
+    setBorrador(filas[indice]);
+    setModalAbierto(true);
+  };
+
+  const guardarFila = () => {
+    const cantidad = Number(borrador.cantidad || 0);
+    if (cantidad <= 0) return;
+
+    const fila = { ...borrador, cantidad };
+    if (indiceEditando === null) {
+      onChange?.([...filas, fila]);
+    } else {
+      onChange?.(filas.map((f, i) => (i === indiceEditando ? fila : f)));
+    }
+    setModalAbierto(false);
+  };
+
+  const quitarFila = (indice) => {
+    onChange?.(filas.filter((_, i) => i !== indice));
+  };
 
   return (
-    <div className="rounded-2xl border border-gray-200">
-      <button
-        type="button"
-        onClick={() => setAbierto((previo) => !previo)}
-        className="flex w-full items-center justify-between gap-3 p-4 text-left"
-      >
+    <div className="rounded-2xl border border-emerald-200 bg-white p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
         <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
-          {abierto ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          Desglose por talla y color
+          <Layers className="h-4 w-4" />
+          Talla y color
         </span>
-        <span
-          className={`text-xs font-medium ${
-            completo
-              ? "text-emerald-600"
-              : excede
-                ? "text-red-600"
-                : filas.length === 0
-                  ? "text-gray-500"
-                  : "text-[#D08E10]"
-          }`}
-        >
-          {filas.length === 0
-            ? "Sin desglose: no se puede iniciar jornada"
-            : completo
-              ? `Completo · ${formatNumero(suma)} unidades`
-              : excede
-                ? `Se paso por ${formatNumero(suma - programada)}`
-                : `Faltan ${formatNumero(faltan)} de ${formatNumero(programada)}`}
+        <span className="text-sm font-bold text-[#0F4C3F]">
+          {formatNumero(suma)} {suma === 1 ? "unidad" : "unidades"}
         </span>
-      </button>
+      </div>
 
-      {abierto && (
-        <div className="space-y-3 border-t border-gray-100 p-4">
-          {filas.length === 0 && (
-            <p className="text-sm text-gray-400">
-              Todavia no hay desglose. Se puede guardar el lote sin el, pero no se va a poder
-              iniciar jornada hasta que sume exactamente la cantidad programada.
-            </p>
-          )}
-
+      {filas.length === 0 ? (
+        <p className="mb-3 text-sm text-gray-400">
+          Todavia no hay filas. Agrega al menos una: si no conoces el detalle por talla y color
+          todavia, puedes poner solo la cantidad total y dejar talla y color en blanco.
+        </p>
+      ) : (
+        <div className="mb-3 space-y-2">
           {filas.map((fila, indice) => (
-            <div key={indice} className="flex items-center gap-2">
-              <select
-                value={fila.id_talla}
-                onChange={(evento) => cambiar(indice, "id_talla", evento.target.value)}
-                aria-label={`Talla de la fila ${indice + 1}`}
-                className="h-10 min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-2 text-sm outline-none focus:border-[#0F4C3F]"
+            <div
+              key={indice}
+              className="flex items-center justify-between gap-2 rounded-xl border border-gray-100 bg-gray-50/60 px-3 py-2 text-sm"
+            >
+              <button
+                type="button"
+                onClick={() => abrirEditar(indice)}
+                className="flex min-w-0 flex-1 items-center gap-2 text-left"
               >
-                <option value="">Talla</option>
+                <Pencil className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
+                <span className="truncate text-gray-700">
+                  {nombreTalla(fila.id_talla) || "Sin talla"} · {nombreColor(fila.id_color) || "Sin color"}
+                </span>
+              </button>
+              <span className="flex-shrink-0 font-semibold text-gray-900">
+                {formatNumero(fila.cantidad)}
+              </span>
+              <button
+                type="button"
+                onClick={() => quitarFila(indice)}
+                aria-label={`Quitar la fila ${indice + 1}`}
+                className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <Button type="button" size="sm" variant="outline" onClick={abrirAgregar}>
+        <Plus className="mr-1.5 h-4 w-4" />
+        Agregar fila
+      </Button>
+
+      {error && <p className="mt-2 text-xs text-red-500">{error}</p>}
+
+      <Modal
+        open={modalAbierto}
+        icon={Layers}
+        title={indiceEditando === null ? "Agregar fila" : "Editar fila"}
+        description="Talla y color son opcionales si todavia no los sabes; la cantidad si hace falta."
+        onClose={() => setModalAbierto(false)}
+        footer={
+          <>
+            <Button type="button" variant="outline" className="flex-1" onClick={() => setModalAbierto(false)}>
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              disabled={Number(borrador.cantidad || 0) <= 0}
+              onClick={guardarFila}
+              className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
+            >
+              Guardar
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Talla</label>
+              <select
+                value={borrador.id_talla}
+                onChange={(evento) => setBorrador((previo) => ({ ...previo, id_talla: evento.target.value }))}
+                className="h-10 w-full rounded-lg border border-gray-200 bg-white px-2 text-sm outline-none focus:border-[#0F4C3F]"
+              >
+                <option value="">Sin talla</option>
                 {tallaOptions.map((opcion) => (
                   <option key={opcion.value} value={opcion.value}>
                     {opcion.label}
                   </option>
                 ))}
               </select>
-
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Color</label>
               <select
-                value={fila.id_color}
-                onChange={(evento) => cambiar(indice, "id_color", evento.target.value)}
-                aria-label={`Color de la fila ${indice + 1}`}
-                className="h-10 min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-2 text-sm outline-none focus:border-[#0F4C3F]"
+                value={borrador.id_color}
+                onChange={(evento) => setBorrador((previo) => ({ ...previo, id_color: evento.target.value }))}
+                className="h-10 w-full rounded-lg border border-gray-200 bg-white px-2 text-sm outline-none focus:border-[#0F4C3F]"
               >
-                <option value="">Color</option>
+                <option value="">Sin color</option>
                 {colorOptions.map((opcion) => (
                   <option key={opcion.value} value={opcion.value}>
                     {opcion.label}
                   </option>
                 ))}
               </select>
-
-              <input
-                type="number"
-                min={0}
-                placeholder="Cantidad"
-                value={fila.cantidad}
-                onChange={(evento) => cambiar(indice, "cantidad", evento.target.value)}
-                aria-label={`Cantidad de la fila ${indice + 1}`}
-                className="h-10 w-28 rounded-xl border border-gray-200 px-2 text-sm outline-none focus:border-[#0F4C3F]"
-              />
-
-              <button
-                type="button"
-                onClick={() => setFilas((previo) => previo.filter((_, i) => i !== indice))}
-                aria-label={`Quitar la fila ${indice + 1}`}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-gray-400 transition hover:bg-red-50 hover:text-red-600"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
             </div>
-          ))}
-
-          {excede && (
-            <p className="text-sm font-medium text-red-600">
-              El desglose suma {formatNumero(suma)} y el lote programa {formatNumero(programada)}.
-            </p>
-          )}
-
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-gray-100 pt-3">
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => setFilas((previo) => [...previo, { ...filaVacia }])}
-            >
-              <Plus className="mr-1.5 h-4 w-4" />
-              Agregar fila
-            </Button>
-
-            <Button
-              type="button"
-              size="sm"
-              disabled={guardando || excede}
-              onClick={() => onGuardar?.(lote.id_lote, filas)}
-              className="bg-[#D08E10] text-white hover:bg-[#B67F14]"
-            >
-              <Save className="mr-1.5 h-4 w-4" />
-              {guardando ? "Guardando..." : "Guardar desglose"}
-            </Button>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700">Cantidad</label>
+            <input
+              type="number"
+              min={1}
+              autoFocus
+              value={borrador.cantidad}
+              onChange={(evento) => setBorrador((previo) => ({ ...previo, cantidad: evento.target.value }))}
+              className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#0F4C3F]"
+            />
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   );
 }

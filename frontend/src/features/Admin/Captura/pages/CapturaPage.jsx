@@ -33,10 +33,12 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
     resumen,
     celdaActiva,
     calculoActivo,
+    restanteTallaColor,
     guardando,
     abrirCelda,
     cerrarCelda,
     actualizarValor,
+    actualizarDetalleTallaColor,
     actualizarMinutosPerdidos,
     guardarCelda,
     recargar,
@@ -252,8 +254,10 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
         celda={celdaActiva}
         calculo={calculoActivo}
         causas={rejilla?.causas || []}
+        combosTallaColor={restanteTallaColor}
         guardando={guardando}
         onCambiar={actualizarValor}
+        onCambiarDetalleTallaColor={actualizarDetalleTallaColor}
         onCambiarMinutosPerdidos={actualizarMinutosPerdidos}
         onCerrar={cerrarCelda}
         onGuardar={guardarYActualizar}

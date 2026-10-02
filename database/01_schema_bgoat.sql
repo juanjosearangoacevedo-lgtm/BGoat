@@ -380,9 +380,9 @@ CREATE TABLE IF NOT EXISTS `lotes` (
 --   exigirlo bloquearia el registro del lote por un dato que a veces no
 --   viene en la hoja del cliente.
 --
---   La produccion se sigue midiendo por lote, no por esta tabla: la
---   captura horaria no la toca. Existe para el dia en que la empresa
---   quiera saber cuantas tallas M salieron.
+--   La captura horaria SI la toca: `registro_detalle_talla_color` valida
+--   cada hora contra lo que aqui se asigno, y una combinacion que ya se
+--   completo no deja capturar mas.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `lote_detalle_talla_color` (
   `id_detalle` BIGINT NOT NULL AUTO_INCREMENT,
@@ -789,6 +789,45 @@ CREATE TABLE IF NOT EXISTS `registro_minutos_perdidos` (
     FOREIGN KEY (`id_causa`) REFERENCES `causas_desviacion` (`id_causa`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `chk_perdida_minutos` CHECK (`minutos` > 0)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
+-- =====================================================================
+-- Tabla `registro_detalle_talla_color`
+--
+--   El reparto por talla y color de las unidades BUENAS de esa celda
+--   (hora + modulo). `unidades_producidas` de `registros_horarios` ya no
+--   se digita suelta: es la suma de estas filas. Las defectuosas no se
+--   reparten aqui, siguen siendo un numero suelto con su causa.
+--
+--   Es reemplazo, no suma: al corregir una celda se borran sus filas y se
+--   insertan las nuevas, igual que `registro_minutos_perdidos` y que el
+--   desglose del lote.
+--
+--   Lo que valida el backend contra esto es que, sumando todas las horas
+--   ya capturadas de un lote para una talla y color, no se pase de lo que
+--   `lote_detalle_talla_color` asigno a esa combinacion: una vez se
+--   completa una talla y color, no se puede volver a capturar de ella.
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS `registro_detalle_talla_color` (
+  `id_detalle` BIGINT NOT NULL AUTO_INCREMENT,
+  `id_registro` BIGINT NOT NULL,
+  `id_talla` BIGINT DEFAULT NULL,
+  `id_color` BIGINT DEFAULT NULL,
+  `cantidad` INT NOT NULL,
+  PRIMARY KEY (`id_detalle`),
+  UNIQUE INDEX `uq_registro_detalle_talla_color` (`id_registro`, `id_talla`, `id_color`),
+  INDEX `fk_registro_detalle_talla` (`id_talla`),
+  INDEX `fk_registro_detalle_color` (`id_color`),
+  CONSTRAINT `fk_registro_detalle_registro`
+    FOREIGN KEY (`id_registro`) REFERENCES `registros_horarios` (`id_registro`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_registro_detalle_talla`
+    FOREIGN KEY (`id_talla`) REFERENCES `tallas` (`id_talla`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_registro_detalle_color`
+    FOREIGN KEY (`id_color`) REFERENCES `colores` (`id_color`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `chk_registro_detalle_cantidad` CHECK (`cantidad` >= 0)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------

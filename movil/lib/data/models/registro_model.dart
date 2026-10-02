@@ -24,6 +24,30 @@ class MinutosPerdidosModel extends MinutosPerdidosEntity {
       };
 }
 
+class DetalleTallaColorModel extends DetalleTallaColorEntity {
+  const DetalleTallaColorModel({
+    super.idTalla,
+    super.idColor,
+    required super.cantidad,
+    super.nombreTalla,
+    super.nombreColor,
+  });
+
+  factory DetalleTallaColorModel.fromJson(Map<String, dynamic> json) => DetalleTallaColorModel(
+        idTalla: aIntNulo(json['id_talla']),
+        idColor: aIntNulo(json['id_color']),
+        cantidad: aInt(json['cantidad']),
+        nombreTalla: aTextoNulo(json['nombre_talla']),
+        nombreColor: aTextoNulo(json['nombre_color']),
+      );
+
+  static Map<String, dynamic> aJson(DetalleTallaColorEntity linea) => {
+        'id_talla': linea.idTalla,
+        'id_color': linea.idColor,
+        'cantidad': linea.cantidad,
+      };
+}
+
 /// Modelo de la celda. Todo lo calculado --meta, eficiencia, dinero, SAM
 /// observado-- viene ya resuelto de `vw_registro_horario`: la app no repite
 /// ninguna de esas cuentas.
@@ -61,6 +85,7 @@ class RegistroModel extends RegistroEntity {
     required super.minutosPerdidos,
     required super.minutosPerdidosPersona,
     super.detallePerdidas,
+    super.detalleTallaColor,
     super.idCausa,
     super.codigoCausa,
     super.nombreCausa,
@@ -106,6 +131,9 @@ class RegistroModel extends RegistroEntity {
         detallePerdidas: aListaDeMapas(json['minutos_perdidos_detalle'])
             .map(MinutosPerdidosModel.fromJson)
             .toList(),
+        detalleTallaColor: aListaDeMapas(json['detalle_talla_color'])
+            .map(DetalleTallaColorModel.fromJson)
+            .toList(),
         idCausa: aIntNulo(json['id_causa']),
         codigoCausa: aTextoNulo(json['codigo_causa']),
         nombreCausa: aTextoNulo(json['nombre_causa']),
@@ -123,7 +151,8 @@ class RegistroModel extends RegistroEntity {
         'fecha': solicitud.fecha,
         'hora_jornada': solicitud.horaJornada,
         'personas_presentes': solicitud.personasPresentes,
-        'unidades_producidas': solicitud.unidadesProducidas,
+        'detalle_talla_color':
+            solicitud.detalleTallaColor.map(DetalleTallaColorModel.aJson).toList(),
         'unidades_defectuosas': solicitud.unidadesDefectuosas,
         'id_causa': solicitud.idCausa,
         'nota': solicitud.nota,

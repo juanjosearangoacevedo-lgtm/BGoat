@@ -3,6 +3,7 @@ import { AlertTriangle, Check, Timer, X } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { formatMoneda } from "@/shared/utils/formatters";
 import { validarCaptura } from "../validations/capturaValidation";
+import { CapturaDesgloseTallaColor } from "./CapturaDesgloseTallaColor";
 
 /**
  * Contador grande. Por defecto tiene +/- para ajustes chicos (personas,
@@ -178,8 +179,10 @@ export function CapturaCeldaModal({
   celda,
   calculo,
   causas = [],
+  combosTallaColor = [],
   guardando,
   onCambiar,
+  onCambiarDetalleTallaColor,
   onCambiarMinutosPerdidos,
   onCerrar,
   onGuardar,
@@ -303,11 +306,10 @@ export function CapturaCeldaModal({
             </div>
           )}
 
-          <Contador
-            etiqueta="Unidades producidas"
-            valor={valores.unidades_producidas}
-            onCambiar={(valor) => onCambiar("unidades_producidas", valor)}
-            soloTeclado
+          <CapturaDesgloseTallaColor
+            combos={combosTallaColor}
+            valores={valores.detalle_talla_color ?? []}
+            onChange={onCambiarDetalleTallaColor}
           />
 
           <div className="grid grid-cols-2 gap-3">

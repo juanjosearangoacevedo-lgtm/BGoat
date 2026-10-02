@@ -5,6 +5,7 @@ import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { Modal } from "@/shared/components/Modal";
 import { ModalAcciones } from "@/shared/components/ModalAcciones";
+import { formatFecha } from "@/shared/utils/formatters";
 import { CalculadoraSamModal } from "./CalculadoraSamModal";
 import { DesgloseTallaColor } from "./DesgloseTallaColor";
 import { FichaTecnicaLote } from "./FichaTecnicaLote";
@@ -20,8 +21,13 @@ import { FichaTecnicaLote } from "./FichaTecnicaLote";
  *
  * La ficha se puede cargar desde el primer momento: los archivos se
  * guardan en memoria y se suben apenas el lote se crea. El desglose por
- * talla y color si solo aparece al editar, porque son filas hijas que
- * necesitan que el lote ya exista en la base.
+ * talla y color igual: vive en memoria (`desglose`) hasta que el lote
+ * existe, y se sube junto con el resto al guardar. "Cantidad programada"
+ * ya no es un campo propio: es la suma de esas filas.
+ *
+ * "Entrega programada" tampoco se digita: se calcula cuando se crea una
+ * orden de produccion para este lote (SAM + eficiencia esperada + dias
+ * no laborales), asi que aqui solo se muestra de solo lectura.
  */
 export function LoteFormModal({
   open,
@@ -36,12 +42,11 @@ export function LoteFormModal({
   subiendoFicha = false,
   archivosPendientes,
   desglose = [],
-  guardandoDesglose = false,
+  onCambiarDesglose,
   onSubirFicha,
   onQuitarFicha,
   onSeleccionarArchivoPendiente,
   onQuitarArchivoPendiente,
-  onGuardarDesglose,
   onChange,
   onClose,
   onSave,
@@ -175,23 +180,24 @@ export function LoteFormModal({
               hint="Lo que paga el cliente por prenda. Con el SAM arma la meta de facturacion de cada hora."
               onChange={(valor) => onChange("valor_maquila_unidad", valor)}
             />
-            <FormField
-              label="Cantidad programada"
-              type="number"
-              min={0}
-              placeholder="0"
-              value={form.cantidad_programada ?? ""}
+          </div>
+          <div className="mt-4">
+            <DesgloseTallaColor
+              filas={desglose}
+              tallaOptions={tallaOptions}
+              colorOptions={colorOptions}
               error={errors.cantidad_programada}
-              onChange={(valor) => onChange("cantidad_programada", valor)}
+              onChange={onCambiarDesglose}
             />
-            <FormField
-              label="Entrega programada"
-              type="date"
-              value={form.fecha_entrega_programada ?? ""}
-              error={errors.fecha_entrega_programada}
-              hint="El compromiso con el cliente: cuando debe estar terminada la produccion."
-              onChange={(valor) => onChange("fecha_entrega_programada", valor)}
-            />
+          </div>
+          <div className="mt-4">
+            <Label>Entrega programada</Label>
+            <p className="mt-1 text-sm text-gray-700">
+              {form.fecha_entrega_programada ? formatFecha(form.fecha_entrega_programada) : "—"}
+            </p>
+            <p className="text-xs text-gray-400">
+              Se calcula sola cuando se crea una orden de produccion para este lote.
+            </p>
           </div>
         </section>
 
@@ -230,23 +236,6 @@ export function LoteFormModal({
           onSeleccionarPendiente={onSeleccionarArchivoPendiente}
           onQuitarPendiente={onQuitarArchivoPendiente}
         />
-
-        {editing ? (
-          <DesgloseTallaColor
-            lote={editing}
-            desglose={desglose}
-            tallaOptions={tallaOptions}
-            colorOptions={colorOptions}
-            guardando={guardandoDesglose}
-            cantidadProgramada={form.cantidad_programada}
-            onGuardar={onGuardarDesglose}
-          />
-        ) : (
-          <p className="rounded-2xl border border-dashed border-gray-200 p-4 text-sm text-gray-500">
-            El desglose por talla y color se agrega despues de crear el lote, desde su detalle o
-            volviendo a este formulario.
-          </p>
-        )}
 
         <FormField
           label="Observaciones"

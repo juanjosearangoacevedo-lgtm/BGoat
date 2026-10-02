@@ -44,7 +44,6 @@ export const emptyLoteForm = {
   valor_maquila_unidad: "",
   fecha_recepcion: "",
   fecha_entrega_programada: "",
-  cantidad_programada: "",
   cantidad_recibida: "",
   observaciones: "",
 };
@@ -94,14 +93,15 @@ export function useLotesPage() {
     campoEstado: "activo",
     nombreRegistro: (lote) => (lote?.codigo_lote ? `el lote ${lote.codigo_lote}` : "el lote"),
     esquema: ({ items, editing }) =>
-      crearLoteEsquema({ lista: items, editing, clienteOptions: clientes.options }),
+      crearLoteEsquema({ lista: items, editing, clienteOptions: clientes.options, desglose }),
     transformarPayload: (datos) => ({
       ...datos,
       id_cliente: aNumero(datos.id_cliente),
       id_tipo_prenda: aNumero(datos.id_tipo_prenda),
       sam_pactado: aNumero(datos.sam_pactado),
       valor_maquila_unidad: aNumero(datos.valor_maquila_unidad),
-      cantidad_programada: Number(datos.cantidad_programada || 0),
+      // Ya no se digita: es la suma de las filas del desglose.
+      cantidad_programada: desglose.reduce((total, fila) => total + Number(fila.cantidad || 0), 0),
       cantidad_recibida: Number(datos.cantidad_recibida || 0),
     }),
   });
@@ -265,16 +265,29 @@ export function useLotesPage() {
     setArchivosPendientes((previo) => ({ ...previo, [tipo]: null }));
   }, []);
 
+  /** Reemplaza el desglose en el backend sin avisar -- el guardado del lote ya lo hizo. */
+  const persistirDesglose = useCallback(async (idLote, filas) => {
+    try {
+      await apiClient.put(buildPath(endpoints.detalleLote, { id: idLote }), { detalle: filas });
+    } catch (problema) {
+      toast.error(problema.message);
+    }
+  }, []);
+
   /**
    * Crea o guarda el lote y, si se acaba de crear, sube de una vez los
    * archivos que quedaron pendientes -la revisadora no tiene que volver a
-   * abrir el lote para dejarlo con foto o PDF.
+   * abrir el lote para dejarlo con foto o PDF- y el desglose por talla y
+   * color, que hasta este momento solo vivia en memoria.
    */
   const guardarLote = useCallback(
     async (extra) => {
       const creando = !crud.editing;
       const guardado = await crud.guardar(extra);
       if (!guardado) return guardado;
+
+      const idLote = guardado.id_lote ?? crud.editing?.id_lote;
+      if (idLote) await persistirDesglose(idLote, desglose);
 
       if (creando) {
         const archivos = Object.values(archivosPendientes).filter(Boolean);
@@ -286,7 +299,7 @@ export function useLotesPage() {
 
       return guardado;
     },
-    [crud, archivosPendientes, subirFicha],
+    [crud, archivosPendientes, subirFicha, desglose, persistirDesglose],
   );
 
   /** Reemplaza el desglose completo del lote. Una lista vacia lo borra. */
@@ -334,6 +347,7 @@ export function useLotesPage() {
     seleccionarArchivoPendiente,
     quitarArchivoPendiente,
     desglose,
+    onCambiarDesglose: setDesglose,
     guardarDesglose,
     guardandoDesglose,
     guardar: guardarLote,

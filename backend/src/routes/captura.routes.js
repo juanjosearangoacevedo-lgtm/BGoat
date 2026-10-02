@@ -151,6 +151,128 @@ function normalizarPerdidas(crudo, minutosFranja) {
   return lineas;
 }
 
+/** El desglose por talla y color de un conjunto de registros, agrupado por registro. */
+async function tallaColorDe(idsRegistro) {
+  if (idsRegistro.length === 0) return new Map();
+
+  const filas = await query(
+    `SELECT rd.id_registro, rd.id_talla, rd.id_color, rd.cantidad, t.nombre AS nombre_talla,
+            co.nombre AS nombre_color
+     FROM registro_detalle_talla_color rd
+     LEFT JOIN tallas t ON t.id_talla = rd.id_talla
+     LEFT JOIN colores co ON co.id_color = rd.id_color
+     WHERE rd.id_registro IN (${idsRegistro.map(() => "?").join(",")})`,
+    idsRegistro,
+  );
+
+  const porRegistro = new Map();
+  filas.forEach((fila) => {
+    if (!porRegistro.has(fila.id_registro)) porRegistro.set(fila.id_registro, []);
+    porRegistro.get(fila.id_registro).push({
+      id_talla: fila.id_talla,
+      id_color: fila.id_color,
+      cantidad: fila.cantidad,
+      nombre_talla: fila.nombre_talla,
+      nombre_color: fila.nombre_color,
+    });
+  });
+  return porRegistro;
+}
+
+/**
+ * El desglose por talla y color de un LOTE, con cuanto ya se capturo en
+ * horas anteriores y cuanto queda. `idRegistroExcluir` es la celda que se
+ * esta volviendo a guardar: sus propias filas no cuentan como "ya
+ * capturado", porque se van a reemplazar.
+ */
+async function desgloseLoteConRestante(idLote, idRegistroExcluir = null) {
+  const filas = await query(
+    `SELECT ld.id_talla, ld.id_color, ld.cantidad AS asignado,
+            t.nombre AS nombre_talla, co.nombre AS nombre_color,
+            COALESCE((
+              SELECT SUM(rd.cantidad)
+              FROM registro_detalle_talla_color rd
+              JOIN registros_horarios r ON r.id_registro = rd.id_registro
+              WHERE r.id_lote = ld.id_lote
+                AND r.estado <> 'ANULADO'
+                AND r.id_registro <> COALESCE(?, 0)
+                AND rd.id_talla <=> ld.id_talla
+                AND rd.id_color <=> ld.id_color
+            ), 0) AS capturado
+     FROM lote_detalle_talla_color ld
+     LEFT JOIN tallas t ON t.id_talla = ld.id_talla
+     LEFT JOIN colores co ON co.id_color = ld.id_color
+     WHERE ld.id_lote = ?`,
+    [idRegistroExcluir, idLote],
+  );
+
+  return filas.map((fila) => {
+    const asignado = Number(fila.asignado || 0);
+    const capturado = Number(fila.capturado || 0);
+    return {
+      id_talla: fila.id_talla,
+      id_color: fila.id_color,
+      nombre_talla: fila.nombre_talla,
+      nombre_color: fila.nombre_color,
+      asignado,
+      capturado,
+      restante: Math.max(asignado - capturado, 0),
+    };
+  });
+}
+
+/** Lo que llega en `detalle_talla_color`: filas con cantidad > 0 solamente. */
+function normalizarDetalleTallaColor(crudo) {
+  if (!Array.isArray(crudo)) return [];
+  return crudo
+    .map((linea) => ({
+      id_talla: linea?.id_talla ? Number(linea.id_talla) : null,
+      id_color: linea?.id_color ? Number(linea.id_color) : null,
+      cantidad: Number(linea?.cantidad || 0),
+    }))
+    .filter((linea) => linea.cantidad > 0);
+}
+
+/**
+ * Valida el reparto contra lo que el lote tiene asignado y lo que ya se
+ * capturo en otras horas. Lanza si una combinacion no existe en el lote o
+ * si se excede lo que le queda.
+ */
+async function validarDetalleTallaColor(detalle, idLote, idRegistroExcluir) {
+  if (detalle.length === 0) return;
+
+  const restantes = await desgloseLoteConRestante(idLote, idRegistroExcluir);
+  const porClave = new Map(restantes.map((fila) => [`${fila.id_talla ?? ""}|${fila.id_color ?? ""}`, fila]));
+
+  for (const linea of detalle) {
+    const clave = `${linea.id_talla ?? ""}|${linea.id_color ?? ""}`;
+    const fila = porClave.get(clave);
+    if (!fila) {
+      throw ApiError.badRequest(
+        "Ese lote no tiene asignada esa combinacion de talla y color",
+        { id_talla: linea.id_talla, id_color: linea.id_color },
+      );
+    }
+    if (linea.cantidad > fila.restante) {
+      throw ApiError.badRequest(
+        `Esa talla y color ya completo lo asignado: quedan ${fila.restante} unidades por producir`,
+        { id_talla: linea.id_talla, id_color: linea.id_color, restante: fila.restante },
+      );
+    }
+  }
+}
+
+/** Reemplaza el desglose por talla y color de un registro. */
+async function guardarDetalleTallaColor(idRegistro, lineas) {
+  await execute("DELETE FROM registro_detalle_talla_color WHERE id_registro = ?", [idRegistro]);
+  for (const linea of lineas) {
+    await execute(
+      "INSERT INTO registro_detalle_talla_color (id_registro, id_talla, id_color, cantidad) VALUES (?, ?, ?, ?)",
+      [idRegistro, linea.id_talla, linea.id_color, linea.cantidad],
+    );
+  }
+}
+
 // =====================================================================
 // GET /captura?fecha=YYYY-MM-DD
 //   La rejilla completa del dia: modulos x franjas, con lo capturado y
@@ -188,7 +310,19 @@ capturaRouter.get(
     ]);
 
     const perdidas = await minutosPerdidosDe(registros.map((r) => r.id_registro));
+    const tallaColor = await tallaColorDe(registros.map((r) => r.id_registro));
     const porModulo = new Map(jornadasDia.map((fila) => [fila.id_modulo, fila]));
+
+    // El desglose por talla y color es del LOTE, no del dia: cuanto queda
+    // por capturar depende de todas las horas ya registradas, de hoy y de
+    // antes. Se trae uno por lote (no uno por modulo) porque dos modulos
+    // podrian estar produciendo el mismo lote el mismo dia.
+    const idsLotesHoy = [...new Set(jornadasDia.map((fila) => fila.id_lote).filter(Boolean))];
+    const desglosesPorLote = new Map(
+      await Promise.all(
+        idsLotesHoy.map(async (idLote) => [idLote, await desgloseLoteConRestante(idLote)]),
+      ),
+    );
 
     // Ultimo valor de personas de cada modulo: se precarga en la siguiente franja.
     const ultimasPersonas = new Map();
@@ -203,6 +337,7 @@ capturaRouter.get(
         celdas[registro.hora_jornada] = {
           ...registro,
           minutos_perdidos_detalle: perdidas.get(registro.id_registro) ?? [],
+          detalle_talla_color: tallaColor.get(registro.id_registro) ?? [],
         };
       });
 
@@ -226,6 +361,9 @@ capturaRouter.get(
           suya?.cantidad_operarias ??
           modulo.capacidad_operarios,
         celdas,
+        // Cuanto le queda al lote por talla y color. Null sin jornada: no
+        // hay lote del que repartir nada.
+        desglose_talla_color: suya ? desglosesPorLote.get(suya.id_lote) ?? [] : null,
         resumen: {
           franjas_registradas: propios.length,
           franjas_pendientes: suya ? Math.max(jornada.franjas.length - propios.length, 0) : 0,
@@ -342,7 +480,7 @@ capturaRouter.put(
       fecha,
       hora_jornada,
       personas_presentes,
-      unidades_producidas,
+      detalle_talla_color = [],
       unidades_defectuosas = 0,
       id_causa = null,
       nota = null,
@@ -391,8 +529,14 @@ capturaRouter.put(
     }
 
     const personas = Number(personas_presentes ?? suya.cantidad_operarias ?? 0);
-    const producidas = Number(unidades_producidas ?? 0);
     const defectuosas = Number(unidades_defectuosas ?? 0);
+
+    // Ya no se digita un total de "unidades producidas": lo que llega es
+    // el reparto por talla y color, y el total ES la suma de esas filas.
+    // Vacio es valido (una hora sin produccion, por ejemplo con la
+    // maquina parada), igual que antes un 0 era valido.
+    const detalleTallaColor = normalizarDetalleTallaColor(detalle_talla_color);
+    const producidas = detalleTallaColor.reduce((total, linea) => total + linea.cantidad, 0);
 
     if (personas < 0 || producidas < 0 || defectuosas < 0) {
       throw ApiError.badRequest("Las cantidades no pueden ser negativas");
@@ -400,6 +544,15 @@ capturaRouter.put(
     if (defectuosas > producidas) {
       throw ApiError.badRequest("Las unidades defectuosas no pueden superar las producidas");
     }
+
+    // La celda es idempotente: si ya existia, su propio reparto anterior
+    // no cuenta como "ya capturado" al validar lo que queda del lote --se
+    // va a reemplazar, no a sumar encima.
+    const existente = await queryOne(
+      "SELECT id_registro FROM registros_horarios WHERE id_modulo = ? AND fecha = ? AND hora_jornada = ?",
+      [id_modulo, fecha, hora_jornada],
+    );
+    await validarDetalleTallaColor(detalleTallaColor, suya.id_lote, existente?.id_registro ?? null);
 
     const perdidas = normalizarPerdidas(minutos_perdidos, franja.minutos);
 
@@ -490,6 +643,7 @@ capturaRouter.put(
     );
 
     await guardarMinutosPerdidos(guardado.id_registro, perdidas);
+    await guardarDetalleTallaColor(guardado.id_registro, detalleTallaColor);
 
     // Al primer registro, la orden pasa a EN_PROCESO automaticamente.
     if (suya.id_orden_produccion && producidas > 0) {
@@ -536,7 +690,11 @@ capturaRouter.put(
       guardado.id_registro,
     ]);
 
-    res.json({ ...final, minutos_perdidos_detalle: perdidas });
+    res.json({
+      ...final,
+      minutos_perdidos_detalle: perdidas,
+      detalle_talla_color: detalleTallaColor,
+    });
   }),
 );
 

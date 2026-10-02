@@ -54,7 +54,9 @@ function identificacionLote(_valor, form = {}) {
     : "Hace falta al menos uno: codigo de lote, codigo de referencia o nombre de referencia.";
 }
 
-export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = [] } = {}) {
+export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = [], desglose = [] } = {}) {
+  const sumaDesglose = desglose.reduce((total, fila) => total + Number(fila.cantidad || 0), 0);
+
   return {
     codigo_lote: [
       identificacionLote,
@@ -106,10 +108,12 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
       reglas.fecha({ etiqueta: "La fecha de recepcion" }),
       reglas.noFutura({ etiqueta: "La fecha de recepcion" }),
     ],
-    fecha_entrega_programada: [reglas.fecha({ etiqueta: "La fecha de entrega programada" })],
+    // Ya no se digita: la suma la define el desglose por talla y color.
     cantidad_programada: [
-      reglas.entero({ etiqueta: "La cantidad programada" }),
-      reglas.numero({ ...loteLimites.cantidad, etiqueta: "La cantidad programada" }),
+      () =>
+        sumaDesglose > 0
+          ? ""
+          : "Agrega al menos una fila de talla y color con una cantidad mayor a cero.",
     ],
     cantidad_recibida: [
       reglas.entero({ etiqueta: "La cantidad recibida" }),
