@@ -213,6 +213,14 @@ lotesRouter.get(
 //   lista vacia es valida y borra el desglose: el negocio todavia no
 //   decide si va a usarlo, y exigirlo bloquearia el registro del lote
 //   por un dato que a veces no viene en la hoja del cliente.
+//
+//   Este es el UNICO lugar que escribe `lotes.cantidad_programada`: la
+//   suma de lo que queda aqui se guarda como la cantidad del lote, en
+//   la misma transaccion. Antes la cantidad se mandaba aparte desde el
+//   formulario del lote y esto solo la validaba contra un techo; asi
+//   quedaba una segunda puerta (el desglose del detalle del lote,
+//   `LoteDetalleModal`) que la podia desincronizar. Ahora no hay forma
+//   de que el desglose y la cantidad programada queden distintos.
 // =====================================================================
 lotesRouter.put(
   "/:id/detalle",
@@ -276,13 +284,11 @@ lotesRouter.put(
       }
     }
 
+    // `cantidad_programada` ya no es un techo aparte que este desglose no
+    // puede pasar: ESTE endpoint es el unico que la escribe (ver
+    // `resources.js`), asi que la suma de estas filas simplemente ES la
+    // cantidad programada del lote, de aqui en adelante.
     const suma = lineas.reduce((total, linea) => total + (linea.cantidad ?? 0), 0);
-    if (Number(lote.cantidad_programada) > 0 && suma > Number(lote.cantidad_programada)) {
-      throw ApiError.badRequest(
-        `El desglose suma ${suma} unidades y el lote programa ${lote.cantidad_programada}`,
-        { suma_detalle: suma, cantidad_programada: Number(lote.cantidad_programada) },
-      );
-    }
 
     await transaction(async (conexion) => {
       await conexion.execute("DELETE FROM lote_detalle_talla_color WHERE id_lote = ?", [
@@ -295,6 +301,10 @@ lotesRouter.put(
           [lote.id_lote, linea.id_talla, linea.id_color, linea.cantidad],
         );
       }
+      await conexion.execute("UPDATE lotes SET cantidad_programada = ? WHERE id_lote = ?", [
+        suma,
+        lote.id_lote,
+      ]);
     });
 
     const datos = await detalleDe(lote.id_lote);

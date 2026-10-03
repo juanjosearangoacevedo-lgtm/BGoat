@@ -87,11 +87,18 @@ export const recursos = {
     // pone solo al completarse la cantidad programada (ver
     // `captura.routes.js`). `activo` si es editable: es el apagado del
     // lote, una pregunta aparte de en que va su produccion.
+    //
+    // `cantidad_programada` tampoco esta aqui: es la suma del desglose
+    // por talla y color, y la escribe solo `PUT /lotes/:id/detalle`
+    // (ver `lotes.routes.js`). `fecha_entrega_programada` tampoco: la
+    // escribe solo `sincronizarEntregaLote` en `ordenes.routes.js`,
+    // cuando se crea o edita una orden sobre el lote. Dejarlas aqui
+    // permitia que cualquiera las pisara por este CRUD generico, sin
+    // pasar por ninguna de las dos reglas.
     campos: [
       "codigo_lote", "numero_pedido", "id_cliente", "codigo_referencia",
       "nombre_referencia", "id_tipo_prenda", "sam_pactado", "valor_maquila_unidad",
-      "fecha_recepcion", "fecha_entrega_programada",
-      "cantidad_programada", "cantidad_recibida", "observaciones", "activo",
+      "fecha_recepcion", "cantidad_recibida", "observaciones", "activo",
     ],
     // `codigo_lote` ya no esta aqui: el lote queda identificado con
     // cualquiera de los tres (codigo de lote, codigo de referencia o

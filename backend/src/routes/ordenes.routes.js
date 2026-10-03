@@ -184,6 +184,14 @@ ordenesRouter.post(
       datos.id_lote,
     ]);
     if (!lote) throw ApiError.badRequest("El lote seleccionado no existe");
+    // Sin desglose por talla y color no hay cantidad que copiar -y
+    // `ordenes_produccion` exige cantidad_programada > 0-: mejor este
+    // mensaje que el error crudo del CHECK de la base.
+    if (!(Number(lote.cantidad_programada) > 0)) {
+      throw ApiError.badRequest(
+        "Ese lote todavia no tiene desglose por talla y color: agreguelo antes de crear la orden",
+      );
+    }
     datos.cantidad_programada = lote.cantidad_programada;
 
     // `creado_por` sale de la sesion, no del formulario.
@@ -257,6 +265,11 @@ ordenesRouter.put(
         datos.id_lote,
       ]);
       if (!lote) throw ApiError.badRequest("El lote seleccionado no existe");
+      if (!(Number(lote.cantidad_programada) > 0)) {
+        throw ApiError.badRequest(
+          "Ese lote todavia no tiene desglose por talla y color: agreguelo antes de asignarlo a la orden",
+        );
+      }
       datos.cantidad_programada = lote.cantidad_programada;
     }
 

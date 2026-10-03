@@ -94,14 +94,16 @@ export function useLotesPage() {
     nombreRegistro: (lote) => (lote?.codigo_lote ? `el lote ${lote.codigo_lote}` : "el lote"),
     esquema: ({ items, editing }) =>
       crearLoteEsquema({ lista: items, editing, clienteOptions: clientes.options, desglose }),
+    // `cantidad_programada` ya no se manda aqui: el backend la ignoraria
+    // igual (`resources.js` ya no la declara como campo del lote). La
+    // pone sola `PUT /lotes/:id/detalle` como la suma del desglose,
+    // justo despues de este guardado (ver `persistirDesglose` abajo).
     transformarPayload: (datos) => ({
       ...datos,
       id_cliente: aNumero(datos.id_cliente),
       id_tipo_prenda: aNumero(datos.id_tipo_prenda),
       sam_pactado: aNumero(datos.sam_pactado),
       valor_maquila_unidad: aNumero(datos.valor_maquila_unidad),
-      // Ya no se digita: es la suma de las filas del desglose.
-      cantidad_programada: desglose.reduce((total, fila) => total + Number(fila.cantidad || 0), 0),
       cantidad_recibida: Number(datos.cantidad_recibida || 0),
     }),
   });
@@ -287,7 +289,14 @@ export function useLotesPage() {
       if (!guardado) return guardado;
 
       const idLote = guardado.id_lote ?? crud.editing?.id_lote;
-      if (idLote) await persistirDesglose(idLote, desglose);
+      if (idLote) {
+        await persistirDesglose(idLote, desglose);
+        // `crud.guardar` ya recargo la lista, pero con la cantidad_programada
+        // de ANTES de este desglose (lo que la escribe es la llamada de
+        // arriba). Sin este segundo refresco, la tabla queda mostrando un
+        // numero viejo hasta el siguiente cambio de filtro.
+        await crud.recargar();
+      }
 
       if (creando) {
         const archivos = Object.values(archivosPendientes).filter(Boolean);
@@ -317,6 +326,10 @@ export function useLotesPage() {
             ? `Desglose guardado (${respuesta.total} filas, ${respuesta.suma_detalle} unidades)`
             : "Desglose borrado",
         );
+        // Este guardado tambien cambia la cantidad_programada del lote
+        // (la pone el backend, ver `lotes.routes.js`): sin recargar, la
+        // tabla y el propio detalle se quedan con el numero viejo.
+        await crud.recargar();
         return true;
       } catch (problema) {
         toast.error(problema.message);
@@ -325,7 +338,7 @@ export function useLotesPage() {
         setGuardandoDesglose(false);
       }
     },
-    [],
+    [crud],
   );
 
   return {
