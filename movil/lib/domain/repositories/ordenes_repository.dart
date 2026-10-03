@@ -33,10 +33,13 @@ class FiltroOrdenes {
 /// jornada con ella. Tampoco lleva ficha tecnica, pedido, cantidad ni valor
 /// de maquila --eso vive en el lote--: un lote corre en una sola orden, asi
 /// que la cantidad y el valor se copian del lote al crear la orden, nunca
-/// se digitan aqui. Tampoco lleva numero de orden, prioridad, estado ni
-/// fechas: el backend las asigna o las calcula solas (la fecha de fin
-/// programada hoy solo se calcula desde el panel web, con el SAM, la
-/// eficiencia esperada y los dias no laborales).
+/// se digitan aqui. Tampoco lleva numero de orden, prioridad ni estado: el
+/// backend los asigna o los calcula solos.
+///
+/// `fechaInicioProgramada` y `fechaFinProgramada` SI van aqui, pero
+/// tampoco se digitan: la pantalla las calcula (inicio = recepcion del
+/// lote, fin = SAM + eficiencia esperada + dias no laborales, igual que
+/// `useOrdenForm.js` en el panel web) y las manda ya resueltas.
 class SolicitudOrden {
   final int idLote;
 
@@ -44,11 +47,16 @@ class SolicitudOrden {
   /// real (esa se mide sola en los indicadores).
   final double? eficienciaEsperada;
 
+  final String? fechaInicioProgramada;
+  final String? fechaFinProgramada;
+
   final String? observaciones;
 
   const SolicitudOrden({
     required this.idLote,
     this.eficienciaEsperada,
+    this.fechaInicioProgramada,
+    this.fechaFinProgramada,
     this.observaciones,
   });
 }

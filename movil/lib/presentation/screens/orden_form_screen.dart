@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/api_cliente.dart';
+import '../../core/conversiones.dart';
+import '../../core/estimacion_fecha.dart';
 import '../../core/fechas.dart' as fechas;
 import '../../core/formato.dart';
 import '../../core/tema.dart';
@@ -40,6 +43,15 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
 
   int? _idLote;
 
+  /// Lo que hace falta para calcular "Fin estimado" sin que nadie lo
+  /// digite: el horario semanal de planta, los festivos y una capacidad
+  /// tipica de modulo. Mismo calculo que el panel web en
+  /// `useOrdenForm.js` / `estimacionFecha.js`, para que la fecha no
+  /// dependa de si la orden se crea desde el celular o desde el escritorio.
+  List<PatronHorario> _patrones = [];
+  Set<String> _festivos = {};
+  int _capacidadTipica = 0;
+
   bool get _editando => widget.orden != null;
 
   @override
@@ -58,6 +70,53 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OrdenesProvider>().cargarLotes();
     });
+    _cargarDatosEstimacion();
+  }
+
+  /// Trae horario, festivos y capacidad tipica en paralelo. Si alguno
+  /// falla, la estimacion de fecha simplemente no se muestra -igual que
+  /// en el panel web, es preferible no mostrar nada a inventar una fecha.
+  Future<void> _cargarDatosEstimacion() async {
+    final api = context.read<ApiCliente>();
+
+    try {
+      final respuesta = aMapaNulo(await api.obtener('/jornada/horario')) ?? const {};
+      final patrones = aListaDeMapas(respuesta['patrones']).map((patron) {
+        final dias = patron['dias'] is List
+            ? (patron['dias'] as List).map(aInt).toList()
+            : const <int>[];
+        return PatronHorario(dias: dias, minutosTotales: aInt(patron['minutos_totales']));
+      }).toList();
+      if (mounted) setState(() => _patrones = patrones);
+    } catch (_) {
+      // Sin horario no hay fecha estimada que mostrar.
+    }
+
+    try {
+      final respuesta = aMapaNulo(await api.obtener('/dias-no-laborales')) ?? const {};
+      final festivos = aListaDeMapas(respuesta['datos'])
+          .map((fila) => aFechaNula(fila['fecha']))
+          .whereType<String>()
+          .toSet();
+      if (mounted) setState(() => _festivos = festivos);
+    } catch (_) {
+      // Sin festivos la estimacion sigue corriendo, solo sin restarlos.
+    }
+
+    try {
+      final respuesta = aMapaNulo(await api.obtener('/modulos')) ?? const {};
+      final capacidades = aListaDeMapas(respuesta['datos'])
+          .where((fila) => aTexto(fila['estado']) == 'ACTIVO')
+          .map((fila) => aInt(fila['capacidad_operarios']))
+          .where((valor) => valor > 0)
+          .toList()
+        ..sort();
+      if (capacidades.isNotEmpty && mounted) {
+        setState(() => _capacidadTipica = capacidades[capacidades.length ~/ 2]);
+      }
+    } catch (_) {
+      // Sin modulos activos no hay de donde sacar una capacidad tipica.
+    }
   }
 
   @override
@@ -74,6 +133,26 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     return null;
   }
 
+  /// Ya no se digita: es la fecha en que el lote llego a la planta.
+  String? _fechaInicioProgramada(LoteEntity? lote) => lote?.fechaRecepcion;
+
+  /// La fecha en que estaria lista la orden segun la eficiencia esperada,
+  /// recorriendo dias de calendario reales. Es el valor real que se
+  /// manda al guardar, no solo una vista previa.
+  String? _fechaFinProgramada(LoteEntity? lote) {
+    if (lote == null) return null;
+
+    return calcularFechaEstimada(
+      fechaInicioISO: _fechaInicioProgramada(lote),
+      cantidad: lote.cantidadProgramada ?? 0,
+      sam: lote.samPactado ?? 0,
+      personas: _capacidadTipica,
+      eficienciaEsperadaPct: double.tryParse(_eficienciaEsperada.text.replaceAll(',', '.')),
+      patrones: _patrones,
+      festivos: _festivos,
+    );
+  }
+
   Future<void> _guardar() async {
     if (!_formulario.currentState!.validate()) return;
 
@@ -83,12 +162,17 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     }
 
     final provider = context.read<OrdenesProvider>();
+    final lote = _lote(provider.lotesDisponibles);
 
     final solicitud = SolicitudOrden(
       idLote: _idLote!,
       eficienciaEsperada: _eficienciaEsperada.text.trim().isEmpty
           ? null
           : double.tryParse(_eficienciaEsperada.text.replaceAll(',', '.')),
+      // Igual que en el panel web: se calculan aqui y se mandan ya
+      // resueltas, no se digitan en ningun campo.
+      fechaInicioProgramada: _fechaInicioProgramada(lote),
+      fechaFinProgramada: _fechaFinProgramada(lote),
       observaciones:
           _observaciones.text.trim().isEmpty ? null : _observaciones.text.trim(),
     );
@@ -248,15 +332,17 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
             const SizedBox(height: 14),
             // Las fechas ya no se escogen: inicio es cuando llego el lote, y
             // fin se calcula con el SAM, la eficiencia esperada y los dias
-            // no laborales -eso se hace en el panel web por ahora-.
+            // no laborales. Se recalculan en vivo -no solo se muestra lo que
+            // ya estaba guardado- para que cambiar la eficiencia abajo se
+            // vea reflejado antes de guardar.
             Row(
               children: [
                 Expanded(
-                  child: _fechaSoloLectura('Inicio programado', widget.orden?.fechaInicioProgramada),
+                  child: _fechaSoloLectura('Inicio programado', _fechaInicioProgramada(lote)),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: _fechaSoloLectura('Fin estimado', widget.orden?.fechaFinProgramada),
+                  child: _fechaSoloLectura('Fin estimado', _fechaFinProgramada(lote)),
                 ),
               ],
             ),
@@ -270,6 +356,8 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
                 prefixIcon: Icon(Icons.insights_outlined),
                 helperText: 'Supuesto de planeacion, no la eficiencia real. Se puede dejar vacio.',
               ),
+              // Recalcula "Fin estimado" mientras se escribe.
+              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             TextFormField(

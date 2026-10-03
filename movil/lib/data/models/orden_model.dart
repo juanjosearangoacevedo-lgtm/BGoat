@@ -104,6 +104,8 @@ class OrdenModel extends OrdenEntity {
     }
 
     agregar('eficiencia_esperada', solicitud.eficienciaEsperada);
+    agregar('fecha_inicio_programada', solicitud.fechaInicioProgramada);
+    agregar('fecha_fin_programada', solicitud.fechaFinProgramada);
     agregar('observaciones', solicitud.observaciones);
 
     return cuerpo;
