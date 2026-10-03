@@ -47,7 +47,7 @@ export function Sidebar({ sidebar }) {
             si no el boton de expandir queda fuera del ancho y no hay forma de
             volver a abrir el menu. */}
         <div
-          className={`flex flex-shrink-0 border-b border-[#E4E9E6] p-4 ${
+          className={`flex flex-shrink-0 border-b border-[#E4E9E6] bg-[#DCEAE1] p-4 ${
             colapsado ? "flex-col items-center gap-2" : "items-center gap-2"
           }`}
         >
