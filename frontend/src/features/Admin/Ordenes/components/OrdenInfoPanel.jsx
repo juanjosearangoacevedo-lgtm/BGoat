@@ -34,6 +34,30 @@ function Comparacion({ esperado, real, formato, peorSiRealEsMayor = false }) {
 }
 
 /**
+ * La entrega comprometida, o por que todavia no la hay. Va resaltada: es
+ * la fecha que German le promete al cliente.
+ */
+function Entrega({ orden }) {
+  if (orden?.fecha_fin_programada) {
+    const atraso = Number(orden.dias_atraso || 0);
+    return (
+      <span className="text-right">
+        <span className="font-bold text-[#0F4C3F]">{formatFecha(orden.fecha_fin_programada)}</span>
+        {atraso > 0 && (
+          <span className="ml-1.5 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
+            +{atraso} {atraso === 1 ? "dia" : "dias"}
+          </span>
+        )}
+      </span>
+    );
+  }
+  if (orden?.fecha_inicio_real) {
+    return <span className="text-[#b46a12]">Falta la eficiencia esperada</span>;
+  }
+  return <span className="text-gray-500">Se calcula al iniciar jornada</span>;
+}
+
+/**
  * Lo que no se ve en otra parte del detalle de la orden.
  *
  * El encabezado ya trae numero, estado, prioridad y cliente; la franja de
@@ -102,6 +126,17 @@ export function OrdenInfoPanel({ orden, lote }) {
       titulo: "Entrega",
       filas: [
         { label: "Recepcion del lote", value: orden?.fecha_recepcion ? formatFecha(orden.fecha_recepcion) : null },
+        {
+          // El dia en que un modulo abrio jornada con la orden por primera vez.
+          label: "Inicio",
+          value: orden?.fecha_inicio_real ? formatFecha(orden.fecha_inicio_real) : "Al iniciar jornada",
+        },
+        {
+          // La fecha que se le promete al cliente: formula de German desde el
+          // inicio, con las personas de esa jornada. Queda fija.
+          label: "Entrega",
+          value: <Entrega orden={orden} />,
+        },
         {
           // Con cuantas personas salio la entrega (formula de German).
           label: "Personas del calculo",
