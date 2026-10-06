@@ -93,13 +93,30 @@ la siguiente y la base queda a medio camino. No meter la salida de `mysql` en
 una tuberia (`| grep`), porque eso tapa el codigo de error.
 
 **Antes de migrar produccion, probar en local con sus datos.** Bajar el ultimo
-respaldo, cargarlo en una base aparte y correr los cinco archivos contra ella.
-Ojo: `00` y `01` traen `USE bgoat;`, asi que hay que cambiarlo, o se aplican
-sobre la base de desarrollo:
+respaldo, cargarlo en una base aparte (`bgoat_prod_prueba`, que debe existir) y
+correr contra ella los mismos archivos de arriba, en el mismo orden.
+
+**Ojo con `USE bgoat;`.** Lo traen `00`, `01`, `02` y `03_demo` (y `00` y `01`
+ademas `CREATE DATABASE`): un archivo que se corra tal cual se aplica sobre la
+base de desarrollo, no sobre la de prueba. `02`, por ejemplo, renombra tres
+causas de incidencia. Por eso **todos** pasan por `sed`, no solo el primero. El
+bucle de abajo lo hace y lee los archivos en orden de bytes (`LC_ALL=C`), asi
+`00_migracion_flujo_jornada` va antes que `00b_...` y una migracion nueva entra
+sola:
 
 ```bash
-sed -e 's/^USE `bgoat`;/USE `bgoat_prod_prueba`;/' -e '/^CREATE DATABASE IF NOT EXISTS `bgoat`/d' database/00_migracion_flujo_jornada.sql | mysql -u root -p bgoat_prod_prueba
+read -rsp "Clave de root de MySQL: " MYSQL_PWD; export MYSQL_PWD; echo
+(
+  export LC_ALL=C; set -e
+  for f in database/00*.sql database/01_schema_bgoat.sql database/02_seed_bgoat.sql; do
+    echo "==> $f"
+    sed -e 's/^USE `bgoat`;/USE `bgoat_prod_prueba`;/' -e '/^CREATE DATABASE IF NOT EXISTS `bgoat`/d' "$f" | mysql -u root bgoat_prod_prueba
+  done
+)
 ```
+
+El bucle va entre parentesis a proposito: el `set -e` solo corta el bucle si un
+archivo falla, no la terminal desde la que lo corres.
 
 Asi aparecio el caso de las horas capturadas sin orden y sin ningun lote en la
 base. La migracion `00` ahora lo cubre con un lote marcador,
