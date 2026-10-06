@@ -54,9 +54,9 @@ class LoteModel extends LoteEntity {
   ///
   /// Solo van los campos que `resources.js` declara: lo demas el backend lo
   /// descarta. Los nulos se omiten para no pisar con null lo que ya existe.
+  /// `codigo_lote` no va: lo asigna el backend al crear y no cambia.
   static Map<String, dynamic> aJson(SolicitudLote solicitud) {
     final cuerpo = <String, dynamic>{
-      'codigo_lote': solicitud.codigoLote,
       'id_cliente': solicitud.idCliente,
       'fecha_recepcion': solicitud.fechaRecepcion,
     };

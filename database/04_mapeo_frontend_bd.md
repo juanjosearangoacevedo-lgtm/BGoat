@@ -171,6 +171,13 @@ cuatro tablas que antes tenían pantalla propia:
 | `fichas_tecnicas` | `sam_pactado`, `material_principal`, `ruta_imagen`, `ruta_documento_pdf` |
 | `prendas` | `id_tipo_prenda` + la tabla hija `lote_detalle_talla_color` |
 
+`codigo_lote` **no se digita**: lo asigna el backend al crear (el consecutivo
+del año: `LT-2026-0001`, `LT-2026-0002`…) y no cambia. Lo que identifica al lote
+ante el cliente son `numero_pedido`, `codigo_referencia` y `nombre_referencia`:
+hace falta **al menos uno**, y el backend lo exige. `codigo_lote`,
+`codigo_referencia` y `numero_pedido` se guardan siempre en MAYÚSCULAS (la
+migración `00j_migracion_lote_mayusculas.sql` subió los que ya existían).
+
 `estado` cubre el ciclo de vida completo —`REGISTRADO`, `APROBADO`,
 `EN_PROCESO`, `DESPACHADO`, `ENTREGADO`, `FINALIZADO`, `CANCELADO`,
 `INACTIVO`—: es la unión de los estados que `lotes` y `pedidos` tenían por

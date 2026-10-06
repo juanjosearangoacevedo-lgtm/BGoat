@@ -6,7 +6,12 @@ import { useListaAdmin } from "@/shared/hooks/useListaAdmin";
 import { apiClient } from "@/shared/services/apiClient";
 import { buildPath, endpoints } from "@/shared/services/endpoints";
 import { aFechaInput } from "@/shared/utils/formatters";
-import { crearLoteEsquema, loteEstados } from "../validations/loteValidation";
+import {
+  camposIdentificacionLote,
+  crearLoteEsquema,
+  loteEstados,
+  MENSAJE_IDENTIFICACION_LOTE,
+} from "../validations/loteValidation";
 
 /**
  * Modulo Lotes -> tabla `lotes`.
@@ -33,8 +38,8 @@ export const loteStatusOptions = loteEstados.map((estado) => ({
     .replace(/^./, (letra) => letra.toUpperCase()),
 }));
 
+// Sin `codigo_lote`: no se digita, lo asigna el backend al crear.
 export const emptyLoteForm = {
-  codigo_lote: "",
   numero_pedido: "",
   id_cliente: "",
   codigo_referencia: "",
@@ -107,6 +112,25 @@ export function useLotesPage() {
       cantidad_recibida: Number(datos.cantidad_recibida || 0),
     }),
   });
+
+  /**
+   * "Al menos uno de tres" marca los tres campos a la vez. Al llenar uno,
+   * el aviso de los otros dos ya no aplica y no debe quedarse pegado hasta
+   * el siguiente guardado: solo se limpia el aviso de esa regla, no un
+   * error propio de cada campo (largo, repetido).
+   */
+  const setField = (campo, valor) => {
+    crud.setField(campo, valor);
+    if (!camposIdentificacionLote.includes(campo)) return;
+
+    crud.setErrors((previo) => {
+      const siguiente = { ...previo };
+      camposIdentificacionLote.forEach((otro) => {
+        if (siguiente[otro] === MENSAJE_IDENTIFICACION_LOTE) siguiente[otro] = "";
+      });
+      return siguiente;
+    });
+  };
 
   const definicionesFiltro = useMemo(
     () => [
@@ -343,6 +367,7 @@ export function useLotesPage() {
 
   return {
     ...crud,
+    setField,
     abrirEditar,
     openCreate: abrirCrear,
     verDetalle,

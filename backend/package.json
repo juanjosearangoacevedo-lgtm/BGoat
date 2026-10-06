@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
+    "test": "node --test",
     "db:setup": "node scripts/setup-db.js",
     "db:reset": "node scripts/setup-db.js --reset",
     "hash": "node scripts/hash.js"

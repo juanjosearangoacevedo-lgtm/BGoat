@@ -304,6 +304,15 @@ CREATE TABLE IF NOT EXISTS `jornada_dia` (
 --   digitar dos veces el mismo compromiso. De ahi viene `numero_pedido`
 --   (el folio).
 --
+--   `codigo_lote` NO se digita: lo asigna el backend al crear, como el
+--   consecutivo del año (LT-2026-0001, LT-2026-0002...), y despues no
+--   cambia. Lo que identifica al lote ante el cliente son otros tres
+--   datos: `numero_pedido`, `codigo_referencia` y `nombre_referencia`.
+--   Segun la hoja que traiga cada cliente basta con que haya uno; el
+--   backend lo exige (`backend/src/lib/lotes.js`) y por eso ninguno de los
+--   tres es NOT NULL aqui: la regla cruza columnas. `codigo_lote`,
+--   `codigo_referencia` y `numero_pedido` se guardan siempre en MAYUSCULAS.
+--
 --   `estado` cubre el ciclo de vida completo, del registro a la entrega:
 --   es la union de los estados que tenian `lotes` y `pedidos` por
 --   separado.

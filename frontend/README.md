@@ -126,6 +126,15 @@ Referencias, Fichas Técnicas y Prendas**: el trabajo llega en una sola hoja del
 cliente y ahora se registra en una sola pantalla, en el orden en que se lee esa
 hoja —de quién es, qué es, qué acordamos, cuánto y para cuándo.
 
+El **código de lote no se digita**: lo asigna el backend al crear, como el
+consecutivo del año (`LT-2026-0001`, `LT-2026-0002`…), y después no cambia; el
+formulario solo lo muestra. Lo que identifica al lote ante el cliente es el
+**número de pedido**, el **código de referencia** o el **nombre de la
+referencia**: hace falta al menos uno (se pueden llenar los tres), porque según
+la hoja que traiga cada cliente a veces solo viene uno. El número de pedido y el
+código de referencia se escriben —y se guardan— en **MAYÚSCULAS** (`FormField`
+lo hace con la opción `mayusculas`).
+
 La ficha técnica son dos ranuras de archivo: la **foto** (que es lo que
 confirma de un vistazo, al iniciar la jornada, que el lote es el correcto) y el
 **PDF** (que se abre para leer el detalle). El destino lo decide el tipo del

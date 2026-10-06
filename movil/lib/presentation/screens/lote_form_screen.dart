@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../core/conversiones.dart';
 import '../../core/fechas.dart' as fechas;
 import '../../core/formato.dart';
+import '../../core/mayusculas.dart';
 import '../../core/tema.dart';
 import '../../domain/entities/lote_entity.dart';
 import '../../domain/repositories/lotes_repository.dart';
@@ -19,6 +20,12 @@ import '../widgets/vistas_estado.dart';
 /// El campo que manda es el SAM pactado: son los minutos que el cliente paga
 /// por prenda, y de ahi sale la meta de cada hora. Sin el, el lote se guarda
 /// pero ningun modulo puede abrir jornada con el.
+///
+/// El codigo de lote no se digita: lo asigna el backend al crear
+/// (`LT-2026-0001`...) y no cambia, asi que aqui solo se muestra. Lo que
+/// identifica al lote es el numero de pedido, el codigo de referencia o el
+/// nombre de la referencia: hace falta al menos uno. El pedido y el codigo de
+/// referencia se escriben en MAYUSCULAS.
 class LoteFormScreen extends StatefulWidget {
   final LoteEntity? lote;
 
@@ -31,7 +38,6 @@ class LoteFormScreen extends StatefulWidget {
 class _LoteFormScreenState extends State<LoteFormScreen> {
   final _formulario = GlobalKey<FormState>();
 
-  late final TextEditingController _codigo;
   late final TextEditingController _pedido;
   late final TextEditingController _codigoReferencia;
   late final TextEditingController _nombreReferencia;
@@ -51,9 +57,11 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
 
     final lote = widget.lote;
 
-    _codigo = TextEditingController(text: lote?.codigoLote ?? '');
-    _pedido = TextEditingController(text: lote?.numeroPedido ?? '');
-    _codigoReferencia = TextEditingController(text: lote?.codigoReferencia ?? '');
+    // El formateador de mayusculas solo corrige lo que se escribe: un valor
+    // que ya viene cargado se sube aqui.
+    _pedido = TextEditingController(text: (lote?.numeroPedido ?? '').toUpperCase());
+    _codigoReferencia =
+        TextEditingController(text: (lote?.codigoReferencia ?? '').toUpperCase());
     _nombreReferencia = TextEditingController(text: lote?.nombreReferencia ?? '');
     _sam = TextEditingController(
       text: lote?.samPactado == null ? '' : '${lote!.samPactado}',
@@ -74,7 +82,6 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
 
   @override
   void dispose() {
-    _codigo.dispose();
     _pedido.dispose();
     _codigoReferencia.dispose();
     _nombreReferencia.dispose();
@@ -92,15 +99,16 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       return;
     }
 
-    // El codigo de lote ya no es obligatorio por si solo: con codigo de
-    // referencia o nombre de referencia alcanza para identificar el lote.
-    final sinIdentificacion = _codigo.text.trim().isEmpty &&
+    // Basta con uno de los tres que identifican al lote (se pueden llenar los
+    // tres): el numero de pedido, el codigo de referencia o el nombre de la
+    // referencia. El codigo de lote no cuenta: lo asigna el backend.
+    final sinIdentificacion = _pedido.text.trim().isEmpty &&
         _codigoReferencia.text.trim().isEmpty &&
         _nombreReferencia.text.trim().isEmpty;
     if (sinIdentificacion) {
       avisar(
         context,
-        'Escriba al menos el codigo de lote, el codigo de referencia o el nombre de la referencia',
+        'Escriba al menos el numero de pedido, el codigo de referencia o el nombre de la referencia',
         esError: true,
       );
       return;
@@ -109,7 +117,6 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     final provider = context.read<LotesProvider>();
 
     final solicitud = SolicitudLote(
-      codigoLote: _codigo.text.trim(),
       idCliente: _idCliente!,
       fechaRecepcion: _fechaRecepcion,
       numeroPedido: _texto(_pedido),
@@ -224,7 +231,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_editando ? 'Editar lote' : 'Nuevo lote'),
+        title: Text(_editando ? 'Editar ${widget.lote!.codigoLote}' : 'Nuevo lote'),
         actions: [
           if (_editando && puedeEliminar)
             IconButton(
@@ -239,17 +246,12 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
-            const TituloSeccion('Identificacion'),
-            TextFormField(
-              controller: _codigo,
-              textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                labelText: 'Codigo del lote',
-                prefixIcon: Icon(Icons.qr_code),
-                hintText: 'LT-2026-001',
-                helperText: 'Si lo deja vacio pero hay referencia, se genera uno solo.',
-              ),
+            const TituloSeccion(
+              'Identificacion',
+              detalle: 'Escriba al menos uno: numero de pedido, codigo de '
+                  'referencia o nombre de la referencia. Puede llenar los tres.',
             ),
+            _campoCodigoSoloLectura(),
             const SizedBox(height: 14),
             DropdownButtonFormField<int>(
               initialValue: _idCliente,
@@ -271,10 +273,12 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
             const SizedBox(height: 14),
             TextFormField(
               controller: _pedido,
+              textCapitalization: TextCapitalization.characters,
+              inputFormatters: const [MayusculasFormatter()],
               decoration: const InputDecoration(
                 labelText: 'Numero de pedido',
                 prefixIcon: Icon(Icons.receipt_long_outlined),
-                helperText: 'El folio con el que llego el trabajo',
+                helperText: 'El folio con el que llego el trabajo, en mayusculas',
               ),
             ),
             const SizedBox(height: 22),
@@ -284,6 +288,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _codigoReferencia,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: const [MayusculasFormatter()],
                     decoration: const InputDecoration(labelText: 'Cod. referencia'),
                   ),
                 ),
@@ -441,6 +447,27 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                   : Text(_editando ? 'Guardar cambios' : 'Crear el lote'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  /// No se digita: el sistema lo asigna al crear (`LT-2026-0001`...) y despues
+  /// no cambia. Al crear todavia no existe, asi que solo avisa que llegara.
+  Widget _campoCodigoSoloLectura() {
+    final codigo = widget.lote?.codigoLote;
+    return InputDecorator(
+      decoration: const InputDecoration(
+        labelText: 'Codigo del lote',
+        prefixIcon: Icon(Icons.qr_code),
+        helperText: 'Consecutivo automatico: no se digita ni se cambia',
+      ),
+      child: Text(
+        codigo ?? 'Se asigna solo al guardar',
+        style: TextStyle(
+          color: codigo == null ? Paleta.textoSuave : Paleta.texto,
+          fontSize: 14,
+          fontWeight: codigo == null ? FontWeight.normal : FontWeight.w600,
         ),
       ),
     );

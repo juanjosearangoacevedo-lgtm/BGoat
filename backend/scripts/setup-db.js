@@ -34,6 +34,7 @@ const archivos = [
   "00g_migracion_estados_tres.sql",
   "00h_migracion_prioridad_consecutivo.sql",
   "00i_migracion_eficiencia_y_festivos.sql",
+  "00j_migracion_lote_mayusculas.sql",
   "01_schema_bgoat.sql",
   "02_seed_bgoat.sql",
 ];

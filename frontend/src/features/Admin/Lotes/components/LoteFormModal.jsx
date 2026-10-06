@@ -28,6 +28,12 @@ import { FichaTecnicaLote } from "./FichaTecnicaLote";
  * "Entrega programada" tampoco se digita: se calcula cuando se crea una
  * orden de produccion para este lote (SAM + eficiencia esperada + dias
  * no laborales), asi que aqui solo se muestra de solo lectura.
+ *
+ * El "Codigo de lote" tampoco: lo asigna el backend al crear (el
+ * consecutivo del año, `LT-2026-0001`...) y no cambia, asi que solo se
+ * muestra. Lo que identifica al lote es el numero de pedido, el codigo de
+ * referencia o el nombre de la referencia: hace falta al menos uno, y el
+ * pedido y el codigo de referencia se escriben en MAYUSCULAS.
  */
 export function LoteFormModal({
   open,
@@ -58,7 +64,7 @@ export function LoteFormModal({
       open={open}
       icon={Package2}
       title={editing ? `Editar lote: ${editing.codigo_lote}` : "Nuevo lote"}
-      description="Los campos marcados con * son obligatorios."
+      description="Los campos marcados con * son obligatorios. Ademas hace falta al menos uno de estos tres: numero de pedido, codigo de referencia o nombre de la referencia."
       onClose={onClose}
       maxWidth="max-w-3xl"
       footer={
@@ -77,15 +83,15 @@ export function LoteFormModal({
             De quien viene
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField
-              label="Codigo de lote"
-              autoFocus
-              placeholder="LOT-0000"
-              value={form.codigo_lote ?? ""}
-              error={errors.codigo_lote}
-              hint="Si lo dejas vacio pero hay referencia, se genera uno solo."
-              onChange={(valor) => onChange("codigo_lote", valor)}
-            />
+            <div>
+              <Label>Codigo de lote</Label>
+              {editing ? (
+                <p className="mt-1 font-mono text-sm font-medium text-[#0F4C3F]">{editing.codigo_lote}</p>
+              ) : (
+                <p className="mt-1 text-sm text-gray-400">Se asigna solo al guardar</p>
+              )}
+              <p className="text-xs text-gray-400">Es un consecutivo automatico: no se digita ni se cambia.</p>
+            </div>
             <FormField
               label="Cliente"
               required
@@ -97,10 +103,12 @@ export function LoteFormModal({
             />
             <FormField
               label="Numero de pedido"
+              autoFocus
+              mayusculas
               placeholder="PED-2026-000"
               value={form.numero_pedido ?? ""}
               error={errors.numero_pedido}
-              hint="El folio con el que el cliente lo pidio. Opcional."
+              hint="El folio con el que el cliente lo pidio. Se guarda en mayusculas."
               onChange={(valor) => onChange("numero_pedido", valor)}
             />
           </div>
@@ -113,10 +121,11 @@ export function LoteFormModal({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               label="Codigo de referencia"
+              mayusculas
               placeholder="9703"
               value={form.codigo_referencia ?? ""}
               error={errors.codigo_referencia}
-              hint="El codigo que trae la hoja del cliente."
+              hint="El codigo que trae la hoja del cliente. Se guarda en mayusculas."
               onChange={(valor) => onChange("codigo_referencia", valor)}
             />
             <FormField

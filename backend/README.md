@@ -81,6 +81,7 @@ src/
   lib/
     http.js         ApiError, asyncHandler y traduccion de errores de MySQL
     crud.js         Fabrica de routers REST a partir de resources.js
+    lotes.js        Reglas del lote: mayusculas, "al menos uno de tres" y el consecutivo del codigo
     filtros.js      El WHERE de un listado: buscar + filtros de igualdad
     fechas.js       hoy() en hora LOCAL (no UTC) y validacion de formato
   middleware/
@@ -100,6 +101,8 @@ uploads/
 scripts/
   setup-db.js       Ejecuta los .sql de /database
   hash.js           Genera un hash bcrypt
+test/
+  lotes.test.js     Reglas del lote que no necesitan base de datos (`npm test`)
 ```
 
 ### Por que un CRUD generico
@@ -172,7 +175,7 @@ en varios archivos y las copias no coincidian:
 
 ---
 
-## Las tres reglas de negocio que viven en el backend
+## Las reglas de negocio que viven en el backend
 
 **1. Sin jornada no hay captura.** `PUT /api/captura` rechaza una hora cuyo
 modulo no tenga jornada abierta ese dia, y responde con `requiere_jornada` para
@@ -196,3 +199,15 @@ debajo del `umbral_cumplimiento` del modulo, el endpoint **rechaza el guardado
 sin incidencia**. Esa validacion esta en el backend a proposito: es la que
 garantiza que el dato exista, y sin ella el Pareto de tiempo perdido quedaria
 vacio.
+
+**4. El codigo del lote lo pone el sistema, y el lote se identifica por tres
+datos.** `POST /api/lotes` ignora cualquier `codigo_lote` que llegue y asigna el
+siguiente consecutivo del año (`LT-2026-0001`, `LT-2026-0002`...; arranca en 1
+cada primero de enero). Dos creaciones simultaneas no se pisan: dentro del
+proceso se atienden de a una y, si dos procesos calculan el mismo numero, el
+indice `UNIQUE` rechaza al segundo y se le pide otro. Ademas hace falta **al
+menos uno** de `numero_pedido`, `codigo_referencia` o `nombre_referencia` (al
+crear; al editar, solo se rechaza si un lote que ya tenia uno se quedaria sin
+ninguno), y `numero_pedido` y `codigo_referencia` se guardan siempre en
+**mayusculas**. Todo vive en `src/lib/lotes.js`; la migracion
+`00j_migracion_lote_mayusculas.sql` sube a mayusculas lo que ya estaba guardado.

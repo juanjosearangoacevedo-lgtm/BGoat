@@ -22,7 +22,6 @@ import { estaVacio, reglas } from "@/shared/validations";
  * tenerlas en los dos lados dejaba que se desincronizaran.
  */
 export const loteLimites = {
-  codigo: { min: 3, max: 30 },
   pedido: { max: 50 },
   referencia: { max: 50 },
   nombreReferencia: { max: 120 },
@@ -41,40 +40,35 @@ export const loteLimites = {
 export const loteEstados = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
 
 /**
- * El lote no exige codigo de lote por si solo: con que traiga codigo de
- * referencia o nombre de referencia alcanza para identificarlo (asi lo
- * aclaro German). Si ninguno de los tres llega, el backend tampoco deja
- * guardar -- esto solo le ahorra el viaje al servidor.
+ * Lo que identifica al lote: el numero de pedido, el codigo de referencia
+ * o el nombre de la referencia, segun lo que traiga la hoja del cliente.
+ * Hace falta al menos uno (se pueden llenar los tres). El codigo de lote
+ * no cuenta: no se digita, lo asigna el backend.
+ *
+ * El backend exige lo mismo; esto solo le ahorra el viaje al servidor y
+ * senala los tres campos de los que hay que llenar uno.
  */
+export const camposIdentificacionLote = ["numero_pedido", "codigo_referencia", "nombre_referencia"];
+
+export const MENSAJE_IDENTIFICACION_LOTE =
+  "Hace falta al menos uno: numero de pedido, codigo de referencia o nombre de la referencia.";
+
 function identificacionLote(_valor, form = {}) {
-  const tieneAlguno =
-    !estaVacio(form.codigo_lote) || !estaVacio(form.codigo_referencia) || !estaVacio(form.nombre_referencia);
-  return tieneAlguno
+  return camposIdentificacionLote.some((campo) => !estaVacio(form[campo]))
     ? ""
-    : "Hace falta al menos uno: codigo de lote, codigo de referencia o nombre de referencia.";
+    : MENSAJE_IDENTIFICACION_LOTE;
 }
 
 export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = [], desglose = [] } = {}) {
   const sumaDesglose = desglose.reduce((total, fila) => total + Number(fila.cantidad || 0), 0);
 
   return {
-    codigo_lote: [
-      identificacionLote,
-      reglas.longitud({ ...loteLimites.codigo, etiqueta: "El codigo del lote" }),
-      reglas.sinCaracteresEspeciales("El codigo del lote"),
-      reglas.unico({
-        lista,
-        campo: "codigo_lote",
-        idField: "id_lote",
-        actual: editing,
-        etiqueta: "Ese codigo de lote",
-      }),
-    ],
     id_cliente: [
       reglas.seleccionRequerida("El cliente"),
       reglas.opcionValida(clienteOptions, "El cliente seleccionado"),
     ],
     numero_pedido: [
+      identificacionLote,
       reglas.longitud({ ...loteLimites.pedido, etiqueta: "El numero de pedido" }),
       reglas.unico({
         lista,
@@ -85,9 +79,11 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
       }),
     ],
     codigo_referencia: [
+      identificacionLote,
       reglas.longitud({ ...loteLimites.referencia, etiqueta: "El codigo de referencia" }),
     ],
     nombre_referencia: [
+      identificacionLote,
       reglas.longitud({ ...loteLimites.nombreReferencia, etiqueta: "El nombre de la referencia" }),
     ],
     // El SAM no es obligatorio para GUARDAR el lote --a veces llega antes
