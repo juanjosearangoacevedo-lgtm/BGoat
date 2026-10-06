@@ -37,10 +37,15 @@ export const publicRoutes = {
 };
 
 export const adminRoutes = {
-  // Panel (entrada suelta, arriba del menu)
+  // Panel y tablero por modulo (entradas sueltas, arriba del menu)
   panel: { component: PanelPage },
+  "tablero-modulo": {
+    component: TableroModuloPage,
+    props: (data) => ({ modulo: data?.modulo ?? data, fecha: data?.fecha }),
+  },
 
   // Produccion
+  lotes: { component: LotesPage },
   orders: { component: OrdenesPage },
   jornada: {
     component: JornadaPage,
@@ -53,15 +58,10 @@ export const adminRoutes = {
     component: CapturaPage,
     props: (data) => ({ moduloInicial: data?.id_modulo ?? null, fechaInicial: data?.fecha }),
   },
-  "tablero-modulo": {
-    component: TableroModuloPage,
-    props: (data) => ({ modulo: data?.modulo ?? data, fecha: data?.fecha }),
-  },
   modulos: { component: ModulosPage },
   "dias-no-laborales": { component: DiasNoLaboralesPage },
 
   // Planta
-  lotes: { component: LotesPage },
   tallas: { component: TallasPage },
   colores: { component: ColoresPage },
   clients: { component: ClientesPage },

@@ -1,5 +1,4 @@
-import { queryOne } from "./db.js";
-import { ApiError } from "../lib/http.js";
+import { generarCodigoLote, prepararLote } from "../lib/lotes.js";
 
 /**
  * Definicion declarativa de los recursos CRUD.
@@ -16,6 +15,7 @@ import { ApiError } from "../lib/http.js";
  *   vista       -> vista o SELECT enriquecido para el listado (opcional)
  *   softDelete  -> si se inactiva en vez de borrar, y con que columna/valor
  *   antesDeGuardar -> hook async opcional, ver `lib/crud.js`
+ *   consecutivo -> campo que asigna el servidor al crear, ver `lib/crud.js`
  *
  * `crudFactory` construye el router a partir de esto, de modo que agregar
  * un recurso no implique escribir un archivo nuevo.
@@ -24,26 +24,6 @@ import { ApiError } from "../lib/http.js";
  * las ordenes, los usuarios, los roles y los indicadores tienen su
  * archivo en `routes/`.
  */
-/**
- * El siguiente codigo autogenerado del año: LT-2026-0001, LT-2026-0002...
- *
- * Solo se usa cuando el lote se identifica por codigo de referencia o
- * nombre de referencia y no trajo codigo de lote propio: el cliente no
- * siempre lo da, y la digitadora no tendria por que inventarselo.
- */
-async function generarCodigoLote() {
-  const anio = new Date().getFullYear();
-  const prefijo = `LT-${anio}-`;
-  const ultimo = await queryOne(
-    `SELECT codigo_lote FROM lotes
-      WHERE codigo_lote LIKE ?
-      ORDER BY codigo_lote DESC LIMIT 1`,
-    [`${prefijo}%`],
-  );
-  const siguiente = ultimo ? Number(ultimo.codigo_lote.slice(prefijo.length)) + 1 : 1;
-  return `${prefijo}${String(siguiente).padStart(4, "0")}`;
-}
-
 export const recursos = {
   /**
    * Cliente-marca: para quien se confecciona.
@@ -91,39 +71,31 @@ export const recursos = {
     // `cantidad_programada` tampoco esta aqui: es la suma del desglose
     // por talla y color, y la escribe solo `PUT /lotes/:id/detalle`
     // (ver `lotes.routes.js`). `fecha_entrega_programada` tampoco: la
-    // escribe solo `sincronizarEntregaLote` en `ordenes.routes.js`,
-    // cuando se crea o edita una orden sobre el lote. Dejarlas aqui
+    // escribe solo el plan de produccion (`lib/plan.js`) cuando su orden
+    // inicia jornada, con la formula de German. Dejarlas aqui
     // permitia que cualquiera las pisara por este CRUD generico, sin
     // pasar por ninguna de las dos reglas.
+    //
+    // `codigo_lote` tampoco: no se digita, lo asigna el sistema al crear
+    // (`consecutivo`, abajo) y despues no cambia. Un cliente que lo mande
+    // es ignorado, igual que `numero_orden` en las ordenes.
     //
     // `cantidad_recibida` tampoco: lo que llego es exactamente lo que se
     // desgloso por talla y color, el mismo numero que
     // `cantidad_programada`, y lo escribe la misma ruta del desglose.
     campos: [
-      "codigo_lote", "numero_pedido", "id_cliente", "codigo_referencia",
+      "numero_pedido", "id_cliente", "codigo_referencia",
       "nombre_referencia", "id_tipo_prenda", "sam_pactado", "valor_maquila_unidad",
       "fecha_recepcion", "observaciones", "activo",
     ],
-    // `codigo_lote` ya no esta aqui: el lote queda identificado con
-    // cualquiera de los tres (codigo de lote, codigo de referencia o
-    // nombre de referencia), segun lo que traiga la hoja del cliente.
-    // El propio `antesDeGuardar` exige que exista al menos uno.
     obligatorios: ["id_cliente", "fecha_recepcion"],
-    // El cliente puede identificar el lote por cualquiera de los tres;
-    // si solo dio referencia o nombre, se le genera un codigo de lote
-    // para que el sistema (indices, exportaciones) siga teniendo uno.
-    antesDeGuardar: async (datos) => {
-      const tieneAlguno = datos.codigo_lote || datos.codigo_referencia || datos.nombre_referencia;
-      if (!tieneAlguno) {
-        throw ApiError.badRequest(
-          "Hace falta al menos uno: codigo de lote, codigo de referencia o nombre de referencia.",
-        );
-      }
-      if (!datos.codigo_lote) {
-        datos.codigo_lote = await generarCodigoLote();
-      }
-      return datos;
-    },
+    // Lo que identifica al lote es el numero de pedido, el codigo de
+    // referencia o el nombre de la referencia: segun lo que traiga la hoja
+    // del cliente, basta con uno (ver `lib/lotes.js`). Ahi mismo se
+    // guardan los codigos en mayusculas.
+    antesDeGuardar: prepararLote,
+    // El codigo de lote es el consecutivo del año: LT-2026-0001, 0002...
+    consecutivo: { campo: "codigo_lote", generar: generarCodigoLote },
     buscables: [
       "codigo_lote", "numero_pedido", "codigo_referencia", "nombre_referencia",
       "observaciones",

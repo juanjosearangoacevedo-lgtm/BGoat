@@ -32,3 +32,13 @@ String porcentaje(num? valor, [int decimales = 0]) {
 
 /// "0,850 min" — el SAM, que se negocia con tres decimales.
 String sam(num? valor) => valor == null ? '—' : '${decimal(valor, 3)} min';
+
+/// Lee un numero escrito como lo muestra la app ("2.600,00", "6,58") o como
+/// se digita ("2600", "6.58"). Con coma, el punto es separador de miles.
+/// Null si no es un numero.
+double? leerDecimal(String? texto) {
+  var limpio = (texto ?? '').trim();
+  if (limpio.isEmpty) return null;
+  if (limpio.contains(',')) limpio = limpio.replaceAll('.', '').replaceAll(',', '.');
+  return double.tryParse(limpio);
+}

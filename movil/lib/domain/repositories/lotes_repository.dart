@@ -20,9 +20,14 @@ class FiltroLotes {
 /// la subida de la ficha. `cantidadProgramada` y `fechaEntregaProgramada`
 /// tampoco: la cantidad es la suma del desglose por talla y color, y la
 /// entrega se calcula sola cuando se crea una orden sobre el lote -las dos
-/// se arman desde el panel web, igual que la ficha tecnica.
+/// se arman desde el panel web, igual que la ficha tecnica. Tampoco lleva
+/// codigo de lote: lo asigna el backend al crear (`LT-2026-0001`...) y no
+/// cambia.
+///
+/// Lo que identifica al lote es el numero de pedido, el codigo de referencia
+/// o el nombre de la referencia: hace falta al menos uno. El backend guarda
+/// el pedido y el codigo de referencia en mayusculas.
 class SolicitudLote {
-  final String codigoLote;
   final int idCliente;
   final String fechaRecepcion;
   final String? numeroPedido;
@@ -34,7 +39,6 @@ class SolicitudLote {
   final String? observaciones;
 
   const SolicitudLote({
-    required this.codigoLote,
     required this.idCliente,
     required this.fechaRecepcion,
     this.numeroPedido,

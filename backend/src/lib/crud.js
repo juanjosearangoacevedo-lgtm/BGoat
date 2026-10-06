@@ -6,6 +6,9 @@ import { filtrosDeListado } from "./filtros.js";
 
 const IDENTIFICADOR = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
+/** Cuantas veces se vuelve a pedir un consecutivo que otra peticion se llevo primero. */
+const REINTENTOS_CONSECUTIVO = 2;
+
 /** Valida que un nombre de columna venga de la definicion y no del cliente. */
 function columnaSegura(nombre) {
   if (!IDENTIFICADOR.test(nombre)) {
@@ -39,11 +42,18 @@ export function crudRouter(definicion) {
   const {
     tabla, pk, permiso, campos, obligatorios = [], buscables = [],
     filtros = [], orden = null, vista = null, alias = null, softDelete = null,
-    // Hook opcional: `async (datos) => datos`. Corre antes de crear o
-    // actualizar, con los datos ya limpios. Sirve para generar un valor
-    // o validar una regla que cruza varios campos (ninguna de las dos
-    // cosas caben en `obligatorios`, que solo mira un campo a la vez).
+    // Hook opcional: `async (datos, { id }) => datos`. Corre antes de crear
+    // o actualizar, con los datos ya limpios; `id` solo llega al actualizar.
+    // Sirve para normalizar un valor o validar una regla que cruza varios
+    // campos (ninguna de las dos cosas caben en `obligatorios`, que solo
+    // mira un campo a la vez).
     antesDeGuardar = null,
+    // Campo que asigna el servidor al crear, nunca el cliente:
+    // `{ campo, generar }` con `generar: async () => valor`. Tiene que ser
+    // UNIQUE: si dos personas piden el siguiente numero en el mismo
+    // instante y las dos calculan el mismo, el indice rechaza a la segunda
+    // y aqui se le pide otro en vez de fallarle al usuario.
+    consecutivo = null,
   } = definicion;
 
   const router = Router();
@@ -53,6 +63,46 @@ export function crudRouter(definicion) {
 
   const origen = vista ? `(${vista}) AS sub` : tablaSegura;
   const origenPrefijo = vista ? "sub." : "";
+
+  // Crear con consecutivo es "calcular el siguiente numero y guardarlo", y
+  // dos peticiones a la vez calculan el mismo. Dentro de este proceso se
+  // atienden de a una, asi no chocan entre ellas; el indice UNIQUE y el
+  // reintento de `insertar` cubren lo que llegue desde otro proceso.
+  let turno = Promise.resolve();
+  const enFila = (tarea) => {
+    const corre = turno.then(tarea);
+    turno = corre.catch(() => {});
+    return corre;
+  };
+
+  /** El INSERT. Con consecutivo, le pone el numero y reintenta si otro se lo llevo primero. */
+  const insertar = async (datos) => {
+    for (let intento = 0; ; intento++) {
+      if (consecutivo) datos[consecutivo.campo] = await consecutivo.generar();
+
+      const columnas = Object.keys(datos);
+      try {
+        return await execute(
+          `INSERT INTO ${tablaSegura} (${columnas.map(columnaSegura).join(", ")})
+           VALUES (${columnas.map(() => "?").join(", ")})`,
+          columnas.map((columna) => datos[columna]),
+        );
+      } catch (error) {
+        // Un duplicado solo se reintenta si fue el consecutivo el que
+        // choco. Las demas llaves unicas (por ejemplo el numero de pedido)
+        // no se arreglan generando otro numero: se le avisa al usuario. Se
+        // sabe cual fue mirando si el valor que se probo ya esta ocupado.
+        if (!consecutivo || error.code !== "ER_DUP_ENTRY" || intento >= REINTENTOS_CONSECUTIVO) {
+          throw error;
+        }
+        const ocupado = await queryOne(
+          `SELECT 1 AS ocupado FROM ${tablaSegura} WHERE ${columnaSegura(consecutivo.campo)} = ?`,
+          [datos[consecutivo.campo]],
+        );
+        if (!ocupado) throw error;
+      }
+    }
+  };
 
   // --- Listado ---------------------------------------------------------
   router.get(
@@ -103,7 +153,7 @@ export function crudRouter(definicion) {
     requierePermiso(permiso, "CREAR"),
     asyncHandler(async (req, res) => {
       let datos = limpiarCuerpo(req.body, campos);
-      if (antesDeGuardar) datos = await antesDeGuardar(datos);
+      if (antesDeGuardar) datos = await antesDeGuardar(datos, {});
 
       const faltantes = obligatorios.filter(
         (campo) => datos[campo] === undefined || datos[campo] === null,
@@ -112,14 +162,9 @@ export function crudRouter(definicion) {
         throw ApiError.badRequest(`Faltan campos obligatorios: ${faltantes.join(", ")}`, faltantes);
       }
 
-      const columnas = Object.keys(datos);
-      if (columnas.length === 0) throw ApiError.badRequest("No se enviaron datos");
+      if (Object.keys(datos).length === 0) throw ApiError.badRequest("No se enviaron datos");
 
-      const resultado = await execute(
-        `INSERT INTO ${tablaSegura} (${columnas.map(columnaSegura).join(", ")})
-         VALUES (${columnas.map(() => "?").join(", ")})`,
-        columnas.map((columna) => datos[columna]),
-      );
+      const resultado = consecutivo ? await enFila(() => insertar(datos)) : await insertar(datos);
 
       const creado = await queryOne(
         `SELECT * FROM ${origen} WHERE ${origenPrefijo}${pkSegura} = ?`,
@@ -135,7 +180,7 @@ export function crudRouter(definicion) {
     requierePermiso(permiso, "EDITAR"),
     asyncHandler(async (req, res) => {
       let datos = limpiarCuerpo(req.body, campos);
-      if (antesDeGuardar) datos = await antesDeGuardar(datos);
+      if (antesDeGuardar) datos = await antesDeGuardar(datos, { id: req.params.id });
       const columnas = Object.keys(datos);
       if (columnas.length === 0) throw ApiError.badRequest("No se enviaron datos");
 

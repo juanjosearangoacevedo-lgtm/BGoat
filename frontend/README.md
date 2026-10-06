@@ -30,19 +30,22 @@ Usuario inicial: `admin@bgoat.com` / `Bgoat2026*`
 
 ## La barra lateral
 
-**Panel** va suelto y arriba de todo: es la pantalla de mirar, no de hacer, y es
-a donde cae la sesión al entrar. Debajo, tres grupos:
+**Panel** y **Tablero por módulo** van sueltos y arriba de todo: son las dos
+pantallas de mirar, no de hacer. El Panel es a donde cae la sesión al entrar; el
+tablero es lo que se consulta de un módulo a lo largo del día, y por eso no se
+esconde dentro de un grupo. Debajo, tres grupos:
 
 | Grupo | Qué hay dentro |
 |---|---|
-| **Producción** | Órdenes de producción · Inicio de jornada · Registrar producción · Tablero por módulo · Módulos |
-| **Planta** | Lotes · Clientes · Operarias · Incidencias |
+| **Producción** | Lotes · Órdenes de producción · Inicio de jornada · Registrar producción · Módulos · Días no laborales |
+| **Planta** | Tallas · Colores · Clientes · Operarias · Incidencias |
 | **Configuración** | Usuarios · Roles y permisos · Consulta de permisos |
 
-*Producción* está en el orden en que ocurre el día: la orden existe suelta, un
-módulo la toma al abrir su jornada, se registra cada hora y se mira el tablero.
-*Planta* es lo que sostiene esa producción: el material que entra, para quién es
-y la gente. *Configuración* administra el sistema, no el negocio.
+*Producción* está en el orden en que ocurre el trabajo: el lote llega del cliente
+(es la base de toda la cadena), se le abre una orden, un módulo la toma al abrir
+su jornada y se registra cada hora. *Planta* es lo que sostiene esa producción:
+los catálogos del producto, para quién es y la gente. *Configuración* administra
+el sistema, no el negocio.
 
 Los tres grupos arrancan desplegados, así que ninguna pantalla queda a más de
 un clic. El menú se filtra por los permisos del rol: un grupo cuyo rol no puede
@@ -122,6 +125,15 @@ Es el único formulario del producto. Reemplaza a los de **Pedidos,
 Referencias, Fichas Técnicas y Prendas**: el trabajo llega en una sola hoja del
 cliente y ahora se registra en una sola pantalla, en el orden en que se lee esa
 hoja —de quién es, qué es, qué acordamos, cuánto y para cuándo.
+
+El **código de lote no se digita**: lo asigna el backend al crear, como el
+consecutivo del año (`LT-2026-0001`, `LT-2026-0002`…), y después no cambia; el
+formulario solo lo muestra. Lo que identifica al lote ante el cliente es el
+**número de pedido**, el **código de referencia** o el **nombre de la
+referencia**: hace falta al menos uno (se pueden llenar los tres), porque según
+la hoja que traiga cada cliente a veces solo viene uno. El número de pedido y el
+código de referencia se escriben —y se guardan— en **MAYÚSCULAS** (`FormField`
+lo hace con la opción `mayusculas`).
 
 La ficha técnica son dos ranuras de archivo: la **foto** (que es lo que
 confirma de un vistazo, al iniciar la jornada, que el lote es el correcto) y el

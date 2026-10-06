@@ -1,7 +1,11 @@
 import 'package:bgoat_movil/core/api_cliente.dart';
 import 'package:bgoat_movil/core/conversiones.dart';
+import 'package:bgoat_movil/core/mayusculas.dart';
+import 'package:bgoat_movil/data/models/lote_model.dart';
 import 'package:bgoat_movil/data/models/orden_model.dart';
 import 'package:bgoat_movil/data/models/registro_model.dart';
+import 'package:bgoat_movil/domain/repositories/lotes_repository.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Lo que se prueba aqui es la traduccion del JSON de la API, que es donde
@@ -122,6 +126,60 @@ void main() {
       // Positivo = la planta gasto mas minutos por prenda de los que el
       // cliente paga, y esa diferencia la absorbe la empresa.
       expect(orden.desviacionSam, closeTo(0.17, 0.0001));
+    });
+  });
+
+  group('LoteModel.aJson', () {
+    test('no manda el codigo de lote: lo asigna el backend', () {
+      final cuerpo = LoteModel.aJson(const SolicitudLote(
+        idCliente: 3,
+        fechaRecepcion: '2026-10-05',
+        numeroPedido: 'PED-1',
+      ));
+
+      expect(cuerpo.containsKey('codigo_lote'), isFalse);
+      expect(cuerpo['id_cliente'], 3);
+      expect(cuerpo['numero_pedido'], 'PED-1');
+    });
+  });
+
+  group('MayusculasFormatter', () {
+    const formateador = MayusculasFormatter();
+
+    TextEditingValue escribir(String texto, [int? cursor]) => formateador.formatEditUpdate(
+          TextEditingValue.empty,
+          TextEditingValue(
+            text: texto,
+            selection: TextSelection.collapsed(offset: cursor ?? texto.length),
+          ),
+        );
+
+    test('sube a mayuscula lo que se escribe o se pega', () {
+      expect(escribir('ped-2026a').text, 'PED-2026A');
+    });
+
+    test('editar a la mitad no manda el cursor al final', () {
+      expect(escribir('abc', 1).selection.baseOffset, 1);
+    });
+
+    test('el cursor sigue al texto aunque una letra cambie de largo al subirla', () {
+      // En la web "ß" pasa a "SS" (en el telefono se queda igual): el cursor
+      // que estaba despues de ella tiene que quedar despues de lo que sea que
+      // salga, nunca apuntando en medio o fuera del texto.
+      final resultado = escribir('aßb', 2);
+
+      expect(resultado.text, 'aßb'.toUpperCase());
+      expect(resultado.selection.baseOffset, 'aß'.toUpperCase().length);
+      expect(resultado.selection.baseOffset, lessThanOrEqualTo(resultado.text.length));
+    });
+
+    test('un texto que ya esta en mayuscula llega intacto', () {
+      const valor = TextEditingValue(
+        text: 'LT-1',
+        selection: TextSelection.collapsed(offset: 4),
+      );
+
+      expect(identical(formateador.formatEditUpdate(TextEditingValue.empty, valor), valor), isTrue);
     });
   });
 
