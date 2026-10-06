@@ -21,19 +21,19 @@ import {
 /**
  * Menu del panel.
  *
- * "Panel" va suelto y arriba de todo: es la pantalla de mirar, no de
- * hacer, y es a donde cae la sesion al entrar.
+ * "Panel" y "Tablero por modulo" van sueltos y arriba de todo: son las
+ * dos pantallas de mirar, no de hacer. El Panel es a donde cae la sesion
+ * al entrar; el tablero es lo que se consulta de un modulo a lo largo del
+ * dia, y por eso no se esconde dentro de un grupo.
  *
- * Cada grupo va en el orden en que se necesita llenar: nada pide un dato
- * de una entrada que este mas abajo.
- *
- * - "Produccion" es el dia en el piso, en el orden en que ocurre: la
- *   orden existe suelta, un modulo la toma al abrir su jornada, se
- *   registra cada hora y se mira el tablero.
- * - "Planta" son los datos base que esa produccion necesita. El lote
- *   pide cliente, tallas y colores, por eso van antes; la jornada pide
- *   modulos y operarias; la captura pide incidencias; y la fecha de
- *   entrega de la orden descuenta los dias no laborales.
+ * - "Produccion" es el flujo real de trabajo, en el orden en que ocurre:
+ *   el lote llega del cliente (es la base de toda la cadena), se le abre
+ *   una orden, un modulo la toma al abrir su jornada y se registra cada
+ *   hora.
+ * - "Planta" son los datos base que esa produccion necesita, en el orden
+ *   en que se llenan: el lote pide cliente, tallas y colores; la jornada
+ *   pide modulos y operarias; la captura pide incidencias; y el calendario
+ *   de la entrega descuenta los dias no laborales.
  * - "Configuracion" es la administracion del sistema, no del negocio.
  *   Ya no hay "Consulta de permisos": el ojo de cada rol en "Roles y
  *   permisos" muestra lo que tiene concedido.
@@ -43,14 +43,15 @@ import {
  */
 export const adminMenuItems = [
   { icon: LayoutDashboard, label: "Panel", page: "panel", permiso: "Panel" },
+  { icon: Table2, label: "Tablero por modulo", page: "tablero-modulo", permiso: "Captura" },
   {
     icon: Factory,
     label: "Produccion",
     children: [
+      { icon: Package2, label: "Lotes", page: "lotes", permiso: "Lotes" },
       { icon: Package, label: "Ordenes de produccion", page: "orders", permiso: "Ordenes" },
       { icon: PlayCircle, label: "Inicio de jornada", page: "jornada", permiso: "Jornada" },
       { icon: ClipboardCheck, label: "Registrar produccion", page: "captura", permiso: "Captura" },
-      { icon: Table2, label: "Tablero por modulo", page: "tablero-modulo", permiso: "Captura" },
     ],
   },
   {
@@ -60,7 +61,6 @@ export const adminMenuItems = [
       { icon: Tag, label: "Clientes", page: "clients", permiso: "Clientes" },
       { icon: Ruler, label: "Tallas", page: "tallas", permiso: "Lotes" },
       { icon: Palette, label: "Colores", page: "colores", permiso: "Lotes" },
-      { icon: Package2, label: "Lotes", page: "lotes", permiso: "Lotes" },
       { icon: UserCog, label: "Modulos", page: "modulos", permiso: "Modulos" },
       { icon: Users, label: "Operarias", page: "operarios", permiso: "Operarios" },
       { icon: AlertTriangle, label: "Incidencias", page: "causas", permiso: "Causas" },

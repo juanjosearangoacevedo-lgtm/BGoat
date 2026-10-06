@@ -37,15 +37,18 @@ esconde dentro de un grupo. Debajo, tres grupos:
 
 | Grupo | Qué hay dentro |
 |---|---|
-| **Producción** | Lotes · Órdenes de producción · Inicio de jornada · Registrar producción · Módulos · Días no laborales |
-| **Planta** | Tallas · Colores · Clientes · Operarias · Incidencias |
-| **Configuración** | Usuarios · Roles y permisos · Consulta de permisos |
+| **Producción** | Lotes · Órdenes de producción · Inicio de jornada · Registrar producción |
+| **Planta** | Clientes · Tallas · Colores · Módulos · Operarias · Incidencias · Días no laborales |
+| **Configuración** | Usuarios · Roles y permisos |
 
 *Producción* está en el orden en que ocurre el trabajo: el lote llega del cliente
 (es la base de toda la cadena), se le abre una orden, un módulo la toma al abrir
-su jornada y se registra cada hora. *Planta* es lo que sostiene esa producción:
-los catálogos del producto, para quién es y la gente. *Configuración* administra
-el sistema, no el negocio.
+su jornada y se registra cada hora. *Planta* son los datos base que esa producción
+necesita, en el orden en que se llenan: el lote pide cliente, tallas y colores; la
+jornada pide módulos y operarias; la captura pide incidencias, y la entrega
+descuenta los días no laborales. *Configuración* administra el sistema, no el
+negocio. Ya no hay "Consulta de permisos": el ojo de cada rol muestra los permisos
+que tiene concedidos.
 
 Los tres grupos arrancan desplegados, así que ninguna pantalla queda a más de
 un clic. El menú se filtra por los permisos del rol: un grupo cuyo rol no puede
@@ -198,7 +201,7 @@ src/
       Ordenes/                Listado, formulario y detalle con curva de arranque
       Lotes/                  EL LOTE: pedido, referencia, SAM, ficha y desglose
       Clientes/               Cliente-marca unificado
-      Usuarios/  Roles/  Permisos/
+      Usuarios/  Roles/
   shared/
     components/               Primitivas de UI + componentes propios
     contexts/                 AuthContext, DarkModeContext
