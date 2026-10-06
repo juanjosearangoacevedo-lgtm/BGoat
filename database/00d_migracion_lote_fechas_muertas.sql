@@ -17,7 +17,9 @@
 --      dos cifras se desincronizaran.
 --
 -- EN UNA BASE NUEVA NO HACE NADA
---   Va condicionada a que las columnas existan.
+--   Va condicionada a que las columnas existan, y la clave solo se anota
+--   si de verdad solto alguna: una migracion que no cambio nada no deja
+--   constancia de haberse aplicado.
 -- =====================================================================
 
 SET @col_inicio = (SELECT COUNT(*) FROM information_schema.COLUMNS
@@ -46,4 +48,7 @@ CREATE TABLE IF NOT EXISTS `migraciones` (
   PRIMARY KEY (`clave`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
-INSERT IGNORE INTO `migraciones` (`clave`) VALUES ('2026-09_lote_limpieza');
+SET @sql = IF(@col_inicio > 0 OR @col_fin > 0,
+  'INSERT IGNORE INTO `migraciones` (`clave`) VALUES (''2026-09_lote_limpieza'')',
+  'DO 0');
+PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
