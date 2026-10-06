@@ -37,20 +37,30 @@
 --   el enum a los tres valores finales.
 --
 -- EN UNA BASE NUEVA NO HACE NADA
---   Cada paso se detecta solo mirando el ENUM actual en
---   information_schema, asi que es seguro volver a correrlo si una vez
---   anterior se quedo a medias (por ejemplo, si ya agrego `activo` pero
---   no alcanzo a tocar el ENUM).
+--   Corre ANTES de `01_schema_bgoat.sql`, asi que en una base nueva
+--   `lotes` y `ordenes_produccion` todavia no existen: no hay a que
+--   ponerle una columna ni a que achicarle el ENUM, y `01` las crea ya
+--   con la forma final. Cada paso se detecta solo mirando
+--   information_schema --que la tabla exista y, segun el paso, que la
+--   columna falte o que el ENUM todavia sea el viejo--, asi que tambien
+--   es seguro volver a correrlo si una vez anterior se quedo a medias
+--   (por ejemplo, si ya agrego `activo` pero no alcanzo a tocar el ENUM).
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
 -- Paso 1 - La columna que separa "borrado" de "en que va la produccion"
+--   Preguntar solo por la columna no alcanza: en una base nueva tampoco
+--   esta, y el ALTER fallaria porque la tabla no existe. Por eso se mira
+--   antes que `lotes` exista.
 -- ---------------------------------------------------------------------
+SET @hay_lotes = (SELECT COUNT(*) FROM information_schema.TABLES
+                  WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'lotes');
+
 SET @col_activo = (SELECT COUNT(*) FROM information_schema.COLUMNS
                    WHERE TABLE_SCHEMA = DATABASE()
                      AND TABLE_NAME = 'lotes' AND COLUMN_NAME = 'activo');
 
-SET @sql = IF(@col_activo = 0,
+SET @sql = IF(@hay_lotes > 0 AND @col_activo = 0,
   'ALTER TABLE `lotes` ADD COLUMN `activo` TINYINT(1) NOT NULL DEFAULT 1 AFTER `estado`',
   'DO 0');
 PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;

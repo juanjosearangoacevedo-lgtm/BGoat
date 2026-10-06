@@ -30,16 +30,21 @@ JWT_SECRET=una-cadena-larga-y-aleatoria
 npm run db:setup
 ```
 
-Corre cuatro archivos de `/database` en orden: `00_migracion_flujo_jornada`,
-`01_schema`, `02_seed` y --con `--demo`-- `03_demo`.
+Corre los archivos de `/database` en orden: las migraciones `00*` (una por
+cada cambio de modelo, empezando por `00_migracion_flujo_jornada`),
+`01_schema`, `02_seed` y --con `--demo`-- `03_demo`. La lista exacta esta en
+`scripts/setup-db.js`.
 
-La migracion va **primero** a proposito: en una base con el modelo anterior,
-las vistas de `01_schema` leen columnas que todavia no existen
+Las migraciones van **primero** a proposito: en una base con el modelo
+anterior, las vistas de `01_schema` leen columnas que todavia no existen
 (`registros_horarios.id_jornada_modulo`, `lotes.codigo_referencia`,
-`clientes.nombre`). En una base nueva se detecta sola --por la ausencia de la
-tabla `marcas`-- y no hace nada. Corre una sola vez: queda anotada en
-`migraciones`. **Saca un respaldo antes de aplicarla sobre datos reales**
-(`../backup.sh`).
+`clientes.nombre`). Por lo mismo, en una base nueva corren cuando todavia no
+existe ninguna tabla --las crea `01_schema`, que va despues--: cada migracion
+comprueba primero que exista la tabla que iba a cambiar (y que todavia tenga
+la huella del modelo viejo) y, si no, no hace nada. Sobre una base existente
+cada una actua una sola vez y queda anotada en `migraciones`, asi que
+`db:setup` se puede repetir sin riesgo. **Saca un respaldo antes de aplicarlas
+sobre datos reales** (`../backup.sh`).
 
 Con datos de demostracion (12 modulos y el tablero de la foto):
 

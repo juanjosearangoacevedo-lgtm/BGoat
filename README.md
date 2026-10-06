@@ -103,11 +103,14 @@ El seed crea el usuario administrador inicial; las credenciales están en
 [`backend/README.md`](backend/README.md) y **deben cambiarse en el primer
 ingreso**.
 
-`db:setup` corre cuatro archivos en orden: la **migración** al flujo de
-jornada, el esquema, los catálogos y —con `--demo`— los datos de prueba. La
-migración se detecta sola: en una base nueva no hace nada, y en una base con
-el modelo anterior la convierte una sola vez (queda anotada en `migraciones`).
-**Saca un respaldo antes de correrla sobre datos reales**: `./backup.sh`.
+`db:setup` corre en orden las **migraciones** (`database/00*_migracion_*.sql`),
+el esquema, los catálogos y —con `--demo`— los datos de prueba. Las
+migraciones se detectan solas: en una base nueva no tocan las tablas del
+modelo (todavía no existen: las crea el esquema, que corre después), y en una
+base con el modelo anterior la llevan al actual, cada cambio una sola vez
+(queda anotado en `migraciones`). Se pueden repetir sin riesgo: sobre una base
+ya migrada tampoco hacen nada.
+**Saca un respaldo antes de correrlas sobre datos reales**: `./backup.sh`.
 
 ---
 

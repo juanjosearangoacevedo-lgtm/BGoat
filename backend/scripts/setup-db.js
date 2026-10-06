@@ -19,10 +19,15 @@ const carpetaSql = resolve(aqui, "../../database");
  * Las migraciones van PRIMERO, no al final: en una base con el modelo
  * anterior, las vistas de `01_schema` leen columnas que la migracion
  * todavia no ha creado (`registros_horarios.id_jornada_modulo`,
- * `lotes.codigo_referencia`, `clientes.nombre`). En una base nueva no
- * hacen nada: cada una se detecta sola --la del flujo de jornada por la
- * ausencia de `marcas`, la de modulos porque las columnas que borra ya
- * no estan.
+ * `lotes.codigo_referencia`, `clientes.nombre`).
+ *
+ * Por lo mismo, en una base nueva corren cuando todavia no existe ninguna
+ * tabla (las crea `01_schema`, que va despues), y ahi no deben hacer nada:
+ * cada una se detecta sola --la del flujo de jornada por la ausencia de
+ * `marcas`; las demas porque la tabla que iban a cambiar no existe, o ya
+ * no tiene la huella del modelo viejo--. Preguntar solo por la columna que
+ * agregan no alcanza: en una base nueva tampoco esta, y el ALTER falla
+ * porque la tabla no existe.
  */
 const archivos = [
   "00_migracion_flujo_jornada.sql",

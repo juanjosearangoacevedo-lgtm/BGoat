@@ -15,14 +15,27 @@
 --   de diciembre que caiga martes se contaba como dia normal.
 --
 -- EN UNA BASE NUEVA NO HACE NADA
---   Va condicionada a que las columnas/tabla no existan.
+--   Corre ANTES de `01_schema_bgoat.sql`, asi que en una base nueva
+--   `ordenes_produccion` todavia no existe: no hay a que agregarle la
+--   columna, y `01` la crea ya con ella (igual que `dias_no_laborales`).
+--   Por eso no basta con preguntar si falta la columna --en una base
+--   nueva tambien falta--: el ALTER y el calendario se condicionan a que
+--   la tabla exista, y la columna se agrega solo si ademas le falta.
+--   (`migraciones`, la tabla de constancia, se crea siempre, como en el
+--   resto de las migraciones; la clave solo se anota si hubo cambio.)
 -- =====================================================================
+
+SET @hay_ordenes = (SELECT COUNT(*) FROM information_schema.TABLES
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ordenes_produccion');
 
 SET @col_eficiencia = (SELECT COUNT(*) FROM information_schema.COLUMNS
                        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'ordenes_produccion'
                          AND COLUMN_NAME = 'eficiencia_esperada');
 
-SET @sql = IF(@col_eficiencia = 0,
+-- Hay que migrar si la tabla ya existe (modelo anterior) y le falta la columna.
+SET @migrar = (@hay_ordenes > 0 AND @col_eficiencia = 0);
+
+SET @sql = IF(@migrar,
   'ALTER TABLE `ordenes_produccion`
      ADD COLUMN `eficiencia_esperada` DECIMAL(5,2) DEFAULT NULL AFTER `cantidad_programada`,
      ADD CONSTRAINT `chk_orden_eficiencia_esperada`
@@ -30,11 +43,18 @@ SET @sql = IF(@col_eficiencia = 0,
   'DO 0');
 PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
 
-CREATE TABLE IF NOT EXISTS `dias_no_laborales` (
-  `fecha` DATE NOT NULL,
-  `descripcion` VARCHAR(100) DEFAULT NULL,
-  PRIMARY KEY (`fecha`)
-) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+-- El calendario se crea solo si ya hay un modelo al que sumarselo: en una
+-- base nueva lo crea `01_schema` con todo lo demas. Crearlo aqui primero
+-- dejaria dos copias del mismo DDL, y un cambio futuro en `01` no llegaria
+-- a las bases nuevas (su `CREATE TABLE IF NOT EXISTS` ya no tendria efecto).
+SET @sql = IF(@hay_ordenes > 0,
+  'CREATE TABLE IF NOT EXISTS `dias_no_laborales` (
+     `fecha` DATE NOT NULL,
+     `descripcion` VARCHAR(100) DEFAULT NULL,
+     PRIMARY KEY (`fecha`)
+   ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4',
+  'DO 0');
+PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
 
 CREATE TABLE IF NOT EXISTS `migraciones` (
   `clave` VARCHAR(80) NOT NULL,
@@ -42,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `migraciones` (
   PRIMARY KEY (`clave`)
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
-SET @sql = IF(@col_eficiencia = 0,
+SET @sql = IF(@migrar,
   'INSERT IGNORE INTO `migraciones` (`clave`) VALUES (''2026-10_eficiencia_y_festivos'')',
   'DO 0');
 PREPARE eje FROM @sql; EXECUTE eje; DEALLOCATE PREPARE eje;
