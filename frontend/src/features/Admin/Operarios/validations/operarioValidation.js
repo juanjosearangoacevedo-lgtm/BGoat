@@ -10,7 +10,6 @@ export const operarioLimites = {
   apellidos: { min: 2, max: 60 },
   documento: { min: 5, max: 20 },
   telefono: { min: 7, max: 15 },
-  especialidad: { max: 60 },
 };
 
 export const operarioTiposDocumento = ["CC", "CE", "TI", "PASAPORTE", "OTRO"];
@@ -71,7 +70,6 @@ export function crearOperarioEsquema({ lista = [], editing = null } = {}) {
       reglas.fecha({ etiqueta: "La fecha de ingreso" }),
       reglas.noFutura({ etiqueta: "La fecha de ingreso" }),
     ],
-    especialidad: [reglas.longitud({ ...operarioLimites.especialidad, etiqueta: "La especialidad" })],
     estado: [
       reglas.seleccionRequerida("El estado"),
       reglas.opcionValida(operarioEstados, "El estado"),

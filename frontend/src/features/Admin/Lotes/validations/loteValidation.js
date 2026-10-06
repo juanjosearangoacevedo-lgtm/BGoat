@@ -100,7 +100,10 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
     // empresa necesita ver desde el primer dia cuanto genera cada modulo
     // en pesos, no solo en unidades o porcentaje.
     valor_maquila_unidad: [
-      reglas.requerido("El valor de maquila"),
+      (valor) =>
+        Number(valor) > 0
+          ? ""
+          : 'Falta el valor de maquila: escribe el precio pactado en "Calcular", junto al SAM.',
       reglas.numero({ ...loteLimites.valorMaquila, etiqueta: "El valor de maquila" }),
     ],
     fecha_recepcion: [
@@ -114,10 +117,6 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
         sumaDesglose > 0
           ? ""
           : "Agrega al menos una fila de talla y color con una cantidad mayor a cero.",
-    ],
-    cantidad_recibida: [
-      reglas.entero({ etiqueta: "La cantidad recibida" }),
-      reglas.numero({ ...loteLimites.cantidad, etiqueta: "La cantidad recibida" }),
     ],
     observaciones: [reglas.longitud({ ...loteLimites.observaciones, etiqueta: "Las observaciones" })],
   };

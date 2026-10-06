@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowLeft, RefreshCcw, Save, X } from "lucide-react";
+import { ArrowLeft, RefreshCcw, Save, X } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { FormField } from "@/shared/components/FormField";
 import { StatusBadge } from "@/shared/components/StatusBadge";
@@ -30,9 +30,6 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
     reset,
     estimacion,
     diasProgramados,
-    fechaInicioProgramada,
-    fechaEstimadaEntrega,
-    entregaLoteEnRiesgo,
     guardando,
     guardar,
     loteSeleccionado,
@@ -120,26 +117,35 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
 
         {loteSeleccionado && (
           <OrdenFormSection title="Fechas" columns="md:grid-cols-3">
+            {/* No se escogen ni se adivinan (`backend/src/lib/plan.js`): el
+                inicio es el dia en que un modulo abre jornada con la orden, y
+                la entrega sale de la formula de German desde ese dia, fija. */}
             <div>
-              <p className="mb-1.5 text-sm font-medium text-gray-700">Inicio programado</p>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Inicio</p>
               <p className="flex h-10 items-center text-lg font-bold text-gray-800">
-                {fechaInicioProgramada ? formatFecha(fechaInicioProgramada) : "—"}
-              </p>
-              <p className="text-xs text-gray-400">Cuando llego el lote a la planta.</p>
-            </div>
-            <div>
-              <p className="mb-1.5 text-sm font-medium text-gray-700">Fin estimado</p>
-              <p className={`flex h-10 items-center text-lg font-bold ${entregaLoteEnRiesgo ? "text-red-600" : "text-[#0F4C3F]"}`}>
-                {fechaEstimadaEntrega ? formatFecha(fechaEstimadaEntrega) : "—"}
+                {orderData?.fecha_inicio_real
+                  ? formatFecha(orderData.fecha_inicio_real)
+                  : "Al iniciar jornada"}
               </p>
               <p className="text-xs text-gray-400">
-                {fechaEstimadaEntrega
-                  ? "Con el SAM, la eficiencia esperada y los dias habiles."
-                  : "Falta la eficiencia esperada, abajo."}
+                El dia en que un modulo abra jornada con esta orden.
               </p>
             </div>
             <div>
-              <p className="mb-1.5 text-sm font-medium text-gray-700">Duracion</p>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Entrega</p>
+              <p className="flex h-10 items-center text-lg font-bold text-[#0F4C3F]">
+                {orderData?.fecha_fin_programada
+                  ? formatFecha(orderData.fecha_fin_programada)
+                  : "Al iniciar jornada"}
+              </p>
+              <p className="text-xs text-gray-400">
+                {form.eficiencia_esperada
+                  ? "Formula de German desde el inicio. Queda fija como entrega del lote."
+                  : "Falta la eficiencia esperada, abajo: sin ella no hay fecha."}
+              </p>
+            </div>
+            <div>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Duracion estimada</p>
               <p className="flex h-10 items-center text-lg font-bold text-gray-800">
                 {diasProgramados ? `${diasProgramados} dia${diasProgramados === 1 ? "" : "s"}` : "—"}
               </p>
@@ -202,18 +208,11 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                 />
               </div>
 
-              {entregaLoteEnRiesgo && (
-                <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-red-600">
-                  <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
-                  El fin estimado cae despues de la entrega que el lote le prometio al cliente (
-                  {formatFecha(loteSeleccionado.fecha_entrega_programada)}).
-                </p>
-              )}
-
               <p className="mt-2 text-xs text-gray-400">
-                Con esto se calcula "Fin estimado" arriba, contando dia por dia y saltando
-                domingos y festivos (de la pantalla "Dias no laborales"). Esa fecha es la que se
-                guarda, y de paso queda como la entrega programada del lote.
+                Con esto se calcula la duracion, contando dia por dia y saltando domingos y
+                festivos (de la pantalla "Dias no laborales"). Al iniciar jornada se calcula la
+                entrega con las personas de esa jornada. Si la orden ya inicio, cambiar la
+                eficiencia recalcula la entrega desde el mismo inicio (decision de German).
               </p>
             </div>
           </div>

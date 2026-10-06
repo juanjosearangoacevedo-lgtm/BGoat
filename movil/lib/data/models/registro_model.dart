@@ -4,7 +4,9 @@ import '../../domain/entities/registro_entity.dart';
 class MinutosPerdidosModel extends MinutosPerdidosEntity {
   const MinutosPerdidosModel({
     required super.idCausa,
-    required super.minutos,
+    super.horaDesde,
+    super.horaHasta,
+    super.minutos,
     super.codigo,
     super.nombre,
     super.tipo,
@@ -12,15 +14,19 @@ class MinutosPerdidosModel extends MinutosPerdidosEntity {
 
   factory MinutosPerdidosModel.fromJson(Map<String, dynamic> json) => MinutosPerdidosModel(
         idCausa: aInt(json['id_causa']),
+        horaDesde: aTextoNulo(json['hora_desde']),
+        horaHasta: aTextoNulo(json['hora_hasta']),
         minutos: aInt(json['minutos']),
         codigo: aTextoNulo(json['codigo']),
         nombre: aTextoNulo(json['nombre']),
         tipo: aTextoNulo(json['tipo']),
       );
 
+  /// Solo la causa y las dos horas: los minutos los calcula el backend.
   static Map<String, dynamic> aJson(MinutosPerdidosEntity linea) => {
         'id_causa': linea.idCausa,
-        'minutos': linea.minutos,
+        'hora_desde': linea.horaDesde,
+        'hora_hasta': linea.horaHasta,
       };
 }
 

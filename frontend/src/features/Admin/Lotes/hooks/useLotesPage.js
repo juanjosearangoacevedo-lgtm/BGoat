@@ -44,7 +44,6 @@ export const emptyLoteForm = {
   valor_maquila_unidad: "",
   fecha_recepcion: "",
   fecha_entrega_programada: "",
-  cantidad_recibida: "",
   observaciones: "",
 };
 
@@ -104,7 +103,6 @@ export function useLotesPage() {
       id_tipo_prenda: aNumero(datos.id_tipo_prenda),
       sam_pactado: aNumero(datos.sam_pactado),
       valor_maquila_unidad: aNumero(datos.valor_maquila_unidad),
-      cantidad_recibida: Number(datos.cantidad_recibida || 0),
     }),
   });
 
@@ -162,7 +160,7 @@ export function useLotesPage() {
       enProceso: contar("EN_PROCESO"),
       entregados: contar("FINALIZADO"),
       sinSam: crud.items.filter((lote) => !Number(lote.sam_pactado)).length,
-      unidades: crud.items.reduce((suma, lote) => suma + Number(lote.cantidad_programada || 0), 0),
+      unidades: crud.items.reduce((suma, lote) => suma + Number(lote.cantidad_recibida || 0), 0),
     };
   }, [crud.items]);
 
@@ -351,7 +349,12 @@ export function useLotesPage() {
     clienteOptions: clientes.options,
     tipoPrendaOptions: tiposPrenda.options,
     tallaOptions: tallas.options,
-    colorOptions: colores.options,
+    // El desglose pinta el circulo y el codigo de cada color, como en el
+    // modulo Colores: por eso la opcion lleva tambien el `hex`.
+    colorOptions: colores.options.map((opcion) => ({
+      ...opcion,
+      hex: colores.buscar(opcion.value)?.codigo_hex ?? null,
+    })),
     nombreCliente: (id) => clientes.buscar(id)?.nombre || "",
     subirFicha,
     quitarFicha,

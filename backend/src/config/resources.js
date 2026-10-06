@@ -95,10 +95,14 @@ export const recursos = {
     // cuando se crea o edita una orden sobre el lote. Dejarlas aqui
     // permitia que cualquiera las pisara por este CRUD generico, sin
     // pasar por ninguna de las dos reglas.
+    //
+    // `cantidad_recibida` tampoco: lo que llego es exactamente lo que se
+    // desgloso por talla y color, el mismo numero que
+    // `cantidad_programada`, y lo escribe la misma ruta del desglose.
     campos: [
       "codigo_lote", "numero_pedido", "id_cliente", "codigo_referencia",
       "nombre_referencia", "id_tipo_prenda", "sam_pactado", "valor_maquila_unidad",
-      "fecha_recepcion", "cantidad_recibida", "observaciones", "activo",
+      "fecha_recepcion", "observaciones", "activo",
     ],
     // `codigo_lote` ya no esta aqui: el lote queda identificado con
     // cualquiera de los tres (codigo de lote, codigo de referencia o
@@ -188,7 +192,7 @@ export const recursos = {
     campos: [
       "id_usuario", "codigo_operario", "tipo_documento", "numero_documento",
       "nombres", "apellidos", "telefono", "correo", "fecha_ingreso",
-      "cargo", "especialidad", "estado",
+      "cargo", "estado",
     ],
     obligatorios: ["codigo_operario", "numero_documento", "nombres", "apellidos", "fecha_ingreso"],
     buscables: ["codigo_operario", "nombres", "apellidos", "numero_documento"],
@@ -215,16 +219,46 @@ export const recursos = {
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 
-  /** El catalogo de incidencias que la digitadora ve como botones. */
+  /**
+   * El catalogo de incidencias que la digitadora ve como botones.
+   *
+   * `codigo` ES el nombre de la causa; `descripcion` es la explicacion
+   * larga y es opcional. El responsable ya no es texto libre: apunta al
+   * catalogo `responsables`, y la vista trae su nombre para el listado.
+   */
   causas: {
     tabla: "causas_desviacion",
     pk: "id_causa",
     permiso: "Causas",
-    campos: ["codigo", "nombre", "tipo", "responsable", "requiere_nota", "orden_visual", "estado"],
-    obligatorios: ["codigo", "nombre", "tipo"],
-    buscables: ["codigo", "nombre", "responsable"],
-    filtros: ["estado", "tipo"],
-    orden: "orden_visual ASC, nombre ASC",
+    campos: ["codigo", "descripcion", "tipo", "id_responsable", "requiere_nota", "orden_visual", "estado"],
+    obligatorios: ["codigo", "tipo"],
+    buscables: ["codigo", "descripcion", "nombre_responsable"],
+    filtros: ["estado", "tipo", "id_responsable"],
+    orden: "orden_visual ASC, codigo ASC",
+    vista: `
+      SELECT c.*, r.nombre AS nombre_responsable
+      FROM causas_desviacion c
+      LEFT JOIN responsables r ON r.id_responsable = c.id_responsable
+    `,
+    softDelete: { columna: "estado", valor: "INACTIVO" },
+  },
+
+  /**
+   * Quien responde por una incidencia (Produccion, Mantenimiento...).
+   *
+   * No tiene pantalla propia: se escoge y se agrega dentro del formulario
+   * de la causa, igual que el tipo de prenda dentro del lote. Por eso lo
+   * protege el permiso de Causas.
+   */
+  responsables: {
+    tabla: "responsables",
+    pk: "id_responsable",
+    permiso: "Causas",
+    campos: ["nombre", "estado"],
+    obligatorios: ["nombre"],
+    buscables: ["nombre"],
+    filtros: ["estado"],
+    orden: "nombre ASC",
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 

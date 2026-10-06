@@ -6,7 +6,6 @@ import {
   Cog,
   Factory,
   LayoutDashboard,
-  Lock,
   Package,
   Package2,
   Palette,
@@ -25,16 +24,19 @@ import {
  * "Panel" va suelto y arriba de todo: es la pantalla de mirar, no de
  * hacer, y es a donde cae la sesion al entrar.
  *
+ * Cada grupo va en el orden en que se necesita llenar: nada pide un dato
+ * de una entrada que este mas abajo.
+ *
  * - "Produccion" es el dia en el piso, en el orden en que ocurre: la
  *   orden existe suelta, un modulo la toma al abrir su jornada, se
  *   registra cada hora y se mira el tablero.
- * - "Planta" es lo que sostiene esa produccion: el material que entra,
- *   para quien es y la gente.
+ * - "Planta" son los datos base que esa produccion necesita. El lote
+ *   pide cliente, tallas y colores, por eso van antes; la jornada pide
+ *   modulos y operarias; la captura pide incidencias; y la fecha de
+ *   entrega de la orden descuenta los dias no laborales.
  * - "Configuracion" es la administracion del sistema, no del negocio.
- *
- * "Panel" es una sola entrada porque es una sola pantalla: el resumen,
- * los indicadores y los reportes eran tres entradas distintas que leian
- * las mismas vistas y respondian a la misma pregunta.
+ *   Ya no hay "Consulta de permisos": el ojo de cada rol en "Roles y
+ *   permisos" muestra lo que tiene concedido.
  *
  * `permiso` es el modulo de la tabla `permisos` que habilita cada entrada:
  * el sidebar solo muestra lo que el rol del usuario puede ver.
@@ -49,7 +51,19 @@ export const adminMenuItems = [
       { icon: PlayCircle, label: "Inicio de jornada", page: "jornada", permiso: "Jornada" },
       { icon: ClipboardCheck, label: "Registrar produccion", page: "captura", permiso: "Captura" },
       { icon: Table2, label: "Tablero por modulo", page: "tablero-modulo", permiso: "Captura" },
+    ],
+  },
+  {
+    icon: Building2,
+    label: "Planta",
+    children: [
+      { icon: Tag, label: "Clientes", page: "clients", permiso: "Clientes" },
+      { icon: Ruler, label: "Tallas", page: "tallas", permiso: "Lotes" },
+      { icon: Palette, label: "Colores", page: "colores", permiso: "Lotes" },
+      { icon: Package2, label: "Lotes", page: "lotes", permiso: "Lotes" },
       { icon: UserCog, label: "Modulos", page: "modulos", permiso: "Modulos" },
+      { icon: Users, label: "Operarias", page: "operarios", permiso: "Operarios" },
+      { icon: AlertTriangle, label: "Incidencias", page: "causas", permiso: "Causas" },
       {
         icon: CalendarOff,
         label: "Dias no laborales",
@@ -59,26 +73,13 @@ export const adminMenuItems = [
     ],
   },
   {
-    icon: Building2,
-    label: "Planta",
-    children: [
-      { icon: Package2, label: "Lotes", page: "lotes", permiso: "Lotes" },
-      { icon: Ruler, label: "Tallas", page: "tallas", permiso: "Lotes" },
-      { icon: Palette, label: "Colores", page: "colores", permiso: "Lotes" },
-      { icon: Tag, label: "Clientes", page: "clients", permiso: "Clientes" },
-      { icon: Users, label: "Operarias", page: "operarios", permiso: "Operarios" },
-      { icon: AlertTriangle, label: "Incidencias", page: "causas", permiso: "Causas" },
-    ],
-  },
-  {
     icon: Cog,
     label: "Configuracion",
     children: [
       { icon: Users, label: "Usuarios", page: "users", permiso: "Usuarios" },
-      // El formulario de rol incluye la matriz de permisos: la pantalla de
-      // Permisos queda como consulta de "quien puede hacer que".
+      // El formulario de rol incluye la matriz de permisos, y el ojo de
+      // cada rol muestra los que tiene concedidos.
       { icon: Shield, label: "Roles y permisos", page: "roles", permiso: "Roles" },
-      { icon: Lock, label: "Consulta de permisos", page: "permissions", permiso: "Permisos" },
     ],
   },
 ];

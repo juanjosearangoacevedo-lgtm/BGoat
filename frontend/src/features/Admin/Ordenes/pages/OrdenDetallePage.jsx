@@ -3,6 +3,7 @@ import { Button } from "@/shared/components/button";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { GUION } from "@/shared/utils/formatters";
+import { OrdenAvisoEntrega } from "../components/OrdenAvisoEntrega";
 import { OrdenCurva } from "../components/OrdenCurva";
 import { OrdenInfoPanel } from "../components/OrdenInfoPanel";
 import { OrdenJornadas } from "../components/OrdenJornadas";
@@ -12,7 +13,7 @@ import { PrioridadBadge } from "../components/PrioridadBadge";
 import { useOrdenDetalle } from "../hooks/useOrdenDetalle";
 
 export function OrdenDetallePage({ orderId, onNavigate }) {
-  const { orden, registros, jornadas, curva, loading, error, progress } =
+  const { orden, registros, jornadas, curva, loading, error, progress, decidiendo, decidirEntrega } =
     useOrdenDetalle(orderId);
 
   return (
@@ -61,6 +62,13 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
         orden && (
           <>
             <OrdenProgresoHero orden={orden} progress={progress} />
+
+            <OrdenAvisoEntrega
+              key={`${orden.id_orden_produccion}-${orden.fecha_fin_programada}`}
+              orden={orden}
+              decidiendo={decidiendo}
+              onDecidir={decidirEntrega}
+            />
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="space-y-6 lg:col-span-2">

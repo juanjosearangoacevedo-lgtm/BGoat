@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Calculator, Package2 } from "lucide-react";
 import { FormField } from "@/shared/components/FormField";
-import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
 import { Modal } from "@/shared/components/Modal";
 import { ModalAcciones } from "@/shared/components/ModalAcciones";
-import { formatFecha } from "@/shared/utils/formatters";
+import { formatFecha, formatMoneda, formatNumero } from "@/shared/utils/formatters";
 import { CalculadoraSamModal } from "./CalculadoraSamModal";
 import { DesgloseTallaColor } from "./DesgloseTallaColor";
 import { FichaTecnicaLote } from "./FichaTecnicaLote";
@@ -22,8 +21,12 @@ import { FichaTecnicaLote } from "./FichaTecnicaLote";
  * La ficha se puede cargar desde el primer momento: los archivos se
  * guardan en memoria y se suben apenas el lote se crea. El desglose por
  * talla y color igual: vive en memoria (`desglose`) hasta que el lote
- * existe, y se sube junto con el resto al guardar. "Cantidad programada"
- * ya no es un campo propio: es la suma de esas filas.
+ * existe, y se sube junto con el resto al guardar. "Cantidad recibida"
+ * ya no se digita: es la suma de esas filas.
+ *
+ * "Valor de maquila por unidad" tampoco se digita: es el precio pactado
+ * que se escribe en la calculadora del SAM, y la calculadora llena los
+ * dos campos a la vez.
  *
  * "Entrega programada" tampoco se digita: se calcula cuando se crea una
  * orden de produccion para este lote (SAM + eficiencia esperada + dias
@@ -52,6 +55,7 @@ export function LoteFormModal({
   onSave,
 }) {
   const [mostrarCalculadora, setMostrarCalculadora] = useState(false);
+  const sumaDesglose = desglose.reduce((total, fila) => total + Number(fila.cantidad || 0), 0);
 
   return (
     <Modal
@@ -154,32 +158,50 @@ export function LoteFormModal({
                   Calcular
                 </button>
               </div>
-              <Input
-                type="number"
-                step="0.01"
-                min={0}
-                placeholder="6.50"
-                value={form.sam_pactado ?? ""}
-                onChange={(event) => onChange("sam_pactado", event.target.value)}
-                className={errors.sam_pactado ? "border-red-400 focus-visible:ring-red-300" : ""}
-              />
+              {/* Tampoco se digita: sale del precio pactado en "Calcular"
+                  (documento de German). Escribirlo a mano lo desacoplaba
+                  del valor de maquila con el que se calculo. */}
+              <button
+                type="button"
+                onClick={() => setMostrarCalculadora(true)}
+                className={`flex h-10 w-full items-center rounded-lg border bg-gray-50 px-3 text-left text-sm ${
+                  errors.sam_pactado ? "border-red-400" : "border-gray-200"
+                }`}
+              >
+                {Number(form.sam_pactado) ? (
+                  <span className="font-medium text-gray-900">{form.sam_pactado} min</span>
+                ) : (
+                  <span className="text-gray-400">Se llena con la calculadora</span>
+                )}
+              </button>
               <p className={`text-xs ${errors.sam_pactado ? "text-red-500" : "text-gray-400"}`}>
                 {errors.sam_pactado ??
-                  "Sin el SAM no se puede iniciar la jornada: es lo que fija la meta de cada hora."}
+                  "Sale del precio pactado. Sin el SAM no se puede iniciar la jornada."}
               </p>
             </div>
-            <FormField
-              label="Valor de maquila por unidad"
-              required
-              type="number"
-              step="0.01"
-              min={0}
-              placeholder="2600"
-              value={form.valor_maquila_unidad ?? ""}
-              error={errors.valor_maquila_unidad}
-              hint="Lo que paga el cliente por prenda. Con el SAM arma la meta de facturacion de cada hora."
-              onChange={(valor) => onChange("valor_maquila_unidad", valor)}
-            />
+            {/* No se digita: es el "precio pactado con el cliente" que se
+                escribe en la calculadora del SAM. Al darle "Usar este SAM"
+                quedan los dos llenos y no pueden quedar desincronizados. */}
+            <div className="space-y-1">
+              <Label>
+                Valor de maquila por unidad <span className="text-red-500">*</span>
+              </Label>
+              <div
+                className={`flex h-10 items-center rounded-lg border bg-gray-50 px-3 text-sm ${
+                  errors.valor_maquila_unidad ? "border-red-400" : "border-gray-200"
+                }`}
+              >
+                {Number(form.valor_maquila_unidad) ? (
+                  <span className="font-medium text-gray-900">{formatMoneda(form.valor_maquila_unidad)}</span>
+                ) : (
+                  <span className="text-gray-400">Se llena con la calculadora del SAM</span>
+                )}
+              </div>
+              <p className={`text-xs ${errors.valor_maquila_unidad ? "text-red-500" : "text-gray-400"}`}>
+                {errors.valor_maquila_unidad ??
+                  'Es el precio pactado con el cliente: se escribe en "Calcular", junto al SAM.'}
+              </p>
+            </div>
           </div>
           <div className="mt-4">
             <DesgloseTallaColor
@@ -196,7 +218,7 @@ export function LoteFormModal({
               {form.fecha_entrega_programada ? formatFecha(form.fecha_entrega_programada) : "—"}
             </p>
             <p className="text-xs text-gray-400">
-              Se calcula sola cuando se crea una orden de produccion para este lote.
+              Se calcula sola cuando su orden de produccion inicia jornada (formula de German).
             </p>
           </div>
         </section>
@@ -215,15 +237,17 @@ export function LoteFormModal({
               hint="Cuando llego la mercancia a la planta -- no cuando se empieza a producir."
               onChange={(valor) => onChange("fecha_recepcion", valor)}
             />
-            <FormField
-              label="Cantidad recibida"
-              type="number"
-              min={0}
-              placeholder="0"
-              value={form.cantidad_recibida ?? ""}
-              error={errors.cantidad_recibida}
-              onChange={(valor) => onChange("cantidad_recibida", valor)}
-            />
+            {/* No se digita: lo que llego es exactamente lo que se desgloso
+                por talla y color, asi que es la suma de esas filas. */}
+            <div className="space-y-1">
+              <Label>Cantidad recibida</Label>
+              <div className="flex h-10 items-center rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm">
+                <span className="font-medium text-gray-900">
+                  {formatNumero(sumaDesglose)} {sumaDesglose === 1 ? "prenda" : "prendas"}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400">La suma del desglose por talla y color.</p>
+            </div>
           </div>
         </section>
 

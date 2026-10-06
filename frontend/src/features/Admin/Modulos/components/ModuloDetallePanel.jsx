@@ -232,7 +232,6 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
                       <p className="text-xs text-gray-500">
                         Puesto {operario.numero}
                         {operario.codigo_operario ? ` · ${operario.codigo_operario}` : ""}
-                        {operario.especialidad ? ` · ${operario.especialidad}` : ""}
                       </p>
                     </div>
                     <StatusBadge status={jornada.estado} />

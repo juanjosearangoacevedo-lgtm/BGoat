@@ -3,19 +3,19 @@ import { reglas } from "@/shared/validations";
 /**
  * Reglas del formulario de causa -> tabla `causas_desviacion`.
  * Es el catalogo de botones que ve la digitadora cuando una hora no alcanza
- * la meta, por eso el codigo y el nombre son cortos y no se repiten.
+ * la meta. El codigo ES el nombre de la causa y no se repite; la
+ * descripcion es opcional. El responsable sale del catalogo `responsables`.
  */
 export const causaLimites = {
-  codigo: { min: 2, max: 30 },
-  nombre: { min: 3, max: 80 },
-  responsable: { max: 60 },
+  codigo: { min: 2, max: 100 },
+  descripcion: { max: 255 },
   ordenVisual: { min: 1, max: 99 },
 };
 
 export const causaTipos = ["PLANEADA", "INTERNA", "EXTERNA"];
 export const causaEstados = ["ACTIVO", "INACTIVO"];
 
-export function crearCausaEsquema({ lista = [], editing = null } = {}) {
+export function crearCausaEsquema({ lista = [], editing = null, responsableOptions = [] } = {}) {
   return {
     codigo: [
       reglas.requerido("El codigo"),
@@ -29,12 +29,14 @@ export function crearCausaEsquema({ lista = [], editing = null } = {}) {
         etiqueta: "Ese codigo de causa",
       }),
     ],
-    nombre: [
-      reglas.requerido("El nombre"),
-      reglas.longitud({ ...causaLimites.nombre, etiqueta: "El nombre" }),
-    ],
+    descripcion: [reglas.longitud({ ...causaLimites.descripcion, etiqueta: "La descripcion" })],
     tipo: [reglas.seleccionRequerida("El tipo"), reglas.opcionValida(causaTipos, "El tipo")],
-    responsable: [reglas.longitud({ ...causaLimites.responsable, etiqueta: "El responsable" })],
+    id_responsable: [
+      (valor) =>
+        !valor || responsableOptions.some((opcion) => String(opcion.value) === String(valor))
+          ? ""
+          : "El responsable seleccionado no existe",
+    ],
     orden_visual: [
       reglas.entero({ etiqueta: "El orden en pantalla" }),
       reglas.numero({ ...causaLimites.ordenVisual, etiqueta: "El orden en pantalla" }),

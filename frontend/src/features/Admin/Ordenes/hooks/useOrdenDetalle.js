@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import { apiClient } from "@/shared/services/apiClient";
 import { buildPath, endpoints } from "@/shared/services/endpoints";
 
@@ -15,6 +16,8 @@ export function useOrdenDetalle(orderId) {
   const [curva, setCurva] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [version, setVersion] = useState(0);
+  const [decidiendo, setDecidiendo] = useState(false);
 
   useEffect(() => {
     if (!orderId) {
@@ -45,7 +48,30 @@ export function useOrdenDetalle(orderId) {
     return () => {
       activo = false;
     };
-  }, [orderId]);
+  }, [orderId, version]);
+
+  /**
+   * La decision de German sobre la entrega cuando cambiaron las personas:
+   * "ajustar" (con la nueva eficiencia esperada) o "dejar".
+   */
+  const decidirEntrega = useCallback(
+    async (accion, eficienciaEsperada) => {
+      setDecidiendo(true);
+      try {
+        await apiClient.post(buildPath(endpoints.entregaOrden, { id: orderId }), {
+          accion,
+          eficiencia_esperada: eficienciaEsperada,
+        });
+        toast.success(accion === "ajustar" ? "Entrega recalculada" : "Se deja la entrega como esta");
+        setVersion((previa) => previa + 1);
+      } catch (problema) {
+        toast.error(problema.message);
+      } finally {
+        setDecidiendo(false);
+      }
+    },
+    [orderId],
+  );
 
   const progress = orden ? Math.min(Math.round(Number(orden.porcentaje_avance || 0)), 100) : 0;
 
@@ -58,5 +84,7 @@ export function useOrdenDetalle(orderId) {
     loading,
     error,
     progress,
+    decidiendo,
+    decidirEntrega,
   };
 }

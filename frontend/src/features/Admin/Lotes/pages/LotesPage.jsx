@@ -117,7 +117,7 @@ export function LotesPage() {
           { label: "En proceso", value: lotes.resumen.enProceso, color: "#D08E10" },
           { label: "Finalizados", value: lotes.resumen.entregados, color: "#10b981" },
           { label: "Sin SAM pactado", value: lotes.resumen.sinSam, color: "#ef4444" },
-          { label: "Unidades programadas", value: formatNumero(lotes.resumen.unidades), color: "#6b7280" },
+          { label: "Prendas recibidas", value: formatNumero(lotes.resumen.unidades), color: "#6b7280" },
         ]}
       />
 

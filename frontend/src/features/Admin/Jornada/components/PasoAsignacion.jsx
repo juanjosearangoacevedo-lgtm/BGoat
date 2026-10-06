@@ -127,7 +127,6 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
               {operarias.map((operaria) => (
                 <option key={operaria.id_operario} value={operaria.id_operario}>
                   {operaria.nombres} {operaria.apellidos}
-                  {operaria.especialidad ? ` - ${operaria.especialidad}` : ""}
                 </option>
               ))}
             </select>

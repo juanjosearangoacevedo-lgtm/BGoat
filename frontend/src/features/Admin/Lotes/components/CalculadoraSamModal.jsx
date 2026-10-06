@@ -103,7 +103,7 @@ export function CalculadoraSamModal({ open, precioInicial, onClose, onUsar }) {
         <div className="flex items-center justify-between rounded-2xl border-2 border-emerald-400 bg-emerald-50 p-4">
           <div>
             <p className="text-xs font-medium text-emerald-800">SAM sugerido</p>
-            <p className="text-xs text-emerald-700">calculado del precio, editable despues</p>
+            <p className="text-xs text-emerald-700">calculado del precio pactado</p>
           </div>
           <p className="text-2xl font-bold text-emerald-900">{samSugerido.toFixed(2)} min</p>
         </div>

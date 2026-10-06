@@ -167,8 +167,9 @@ export function useOrdenForm({ orderData } = {}) {
   }, [loteSeleccionado, personas, minutosDia]);
 
   /**
-   * Fecha de inicio: ya no se digita, es la fecha en que llego el lote a
-   * la planta. Sin lote elegido no hay fecha que mostrar todavia.
+   * Punto de partida SOLO para estimar la duracion en pantalla. Las fechas
+   * que se guardan las pone el plan de produccion en el backend
+   * (`lib/plan.js`): el inicio es el dia en que la orden inicia jornada.
    */
   const fechaInicioProgramada = useMemo(
     () => (loteSeleccionado?.fecha_recepcion ? aFechaInput(loteSeleccionado.fecha_recepcion) : ""),
@@ -176,14 +177,9 @@ export function useOrdenForm({ orderData } = {}) {
   );
 
   /**
-   * La fecha en que estaria lista la orden segun el supuesto de
-   * eficiencia esperada, recorriendo dias de calendario reales (salta
-   * domingos y festivos) en vez de dividir contra el mes mas largo.
-   *
-   * Ya no es una sugerencia aparte: es el valor real de
-   * "fecha_fin_programada" -tampoco se digita-, y se copia al lote como
-   * su "entrega programada" al guardar (`sincronizarEntregaLote` en
-   * `ordenes.routes.js`).
+   * Cuando estaria lista si arrancara desde `fechaInicioProgramada`, con
+   * la misma formula que usa la cola (dias reales, sin domingos ni
+   * festivos). Solo alimenta la "Duracion estimada" del formulario.
    */
   const fechaEstimadaEntrega = useMemo(() => {
     const sam = Number(loteSeleccionado?.sam_pactado || 0);
@@ -207,18 +203,9 @@ export function useOrdenForm({ orderData } = {}) {
     [fechaInicioProgramada, fechaEstimadaEntrega],
   );
 
-  /** Si la estimacion cae despues de lo que el lote le prometio al cliente. */
-  const entregaLoteEnRiesgo = Boolean(
-    fechaEstimadaEntrega &&
-      loteSeleccionado?.fecha_entrega_programada &&
-      fechaEstimadaEntrega > aFechaInput(loteSeleccionado.fecha_entrega_programada),
-  );
-
   const buildPayload = () => ({
     ...form,
     id_lote: aNumero(form.id_lote),
-    fecha_inicio_programada: fechaInicioProgramada || null,
-    fecha_fin_programada: fechaEstimadaEntrega || null,
     eficiencia_esperada: aNumero(form.eficiencia_esperada),
     observaciones: form.observaciones || null,
   });
@@ -269,9 +256,6 @@ export function useOrdenForm({ orderData } = {}) {
     reset,
     estimacion,
     diasProgramados,
-    fechaInicioProgramada,
-    fechaEstimadaEntrega,
-    entregaLoteEnRiesgo,
     guardando,
     guardar,
     buildPayload,

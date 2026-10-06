@@ -1,12 +1,14 @@
 import { Package2 } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { DetailModal } from "@/shared/components/DetailModal";
-import { formatFecha, formatMoneda, formatNumero, porcentaje } from "@/shared/utils/formatters";
+import { StatusBadge } from "@/shared/components/StatusBadge";
+import { formatFecha, formatFechaHora, formatMoneda, formatNumero } from "@/shared/utils/formatters";
 import { DesgloseTallaColor } from "./DesgloseTallaColor";
 import { FichaTecnicaLote } from "./FichaTecnicaLote";
 
 /**
- * Detalle de un registro de la tabla `lotes`.
+ * Detalle de un registro de la tabla `lotes`: TODOS sus campos. El
+ * listado muestra solo cinco columnas, el resto se consulta aqui.
  *
  * Es tambien donde se sube la ficha tecnica: el detalle es el sitio al que
  * se llega cuando alguien trae el papel y hay que adjuntarlo, sin tener
@@ -25,8 +27,6 @@ export function LoteDetalleModal({
   onClose,
   onEditar,
 }) {
-  const avance = lote ? porcentaje(lote.cantidad_recibida, lote.cantidad_programada) : 0;
-
   const secciones = lote
     ? [
         {
@@ -60,7 +60,12 @@ export function LoteDetalleModal({
                 ? `${formatMoneda(lote.valor_maquila_unidad)} / unidad`
                 : null,
             },
-            { label: "Entrega programada", value: formatFecha(lote.fecha_entrega_programada) },
+            {
+              label: "Entrega programada",
+              value: lote.fecha_entrega_programada
+                ? formatFecha(lote.fecha_entrega_programada)
+                : "Se calcula cuando su orden inicia jornada",
+            },
           ],
         },
         {
@@ -99,24 +104,12 @@ export function LoteDetalleModal({
           ],
         },
         {
-          titulo: "Cantidades",
+          titulo: "Cantidad",
           filas: [
-            { label: "Programada", value: formatNumero(lote.cantidad_programada) },
-            { label: "Recibida", value: formatNumero(lote.cantidad_recibida) },
             {
-              label: "Recibido sobre lo programado",
-              ancho: "completo",
-              value: (
-                <div className="mt-1 flex items-center gap-3">
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
-                    <div
-                      className="h-full rounded-full bg-[#0F4C3F] transition-all"
-                      style={{ width: `${avance}%` }}
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-gray-700">{avance}%</span>
-                </div>
-              ),
+              // Es la suma del desglose de arriba: lo que llego a la planta.
+              label: "Cantidad recibida",
+              value: `${formatNumero(lote.cantidad_recibida)} prendas`,
             },
           ],
         },
@@ -124,6 +117,15 @@ export function LoteDetalleModal({
           titulo: "Fechas y notas",
           filas: [
             { label: "Recepcion", value: formatFecha(lote.fecha_recepcion) },
+            { label: "Estado", value: <StatusBadge status={lote.estado} /> },
+            {
+              label: "Activo",
+              value: Number(lote.activo ?? 1) ? "Si, se sigue ofreciendo" : "No, apagado",
+            },
+            {
+              label: "Registrado en el sistema",
+              value: lote.fecha_creacion ? formatFechaHora(lote.fecha_creacion) : null,
+            },
             { label: "Observaciones", value: lote.observaciones, ancho: "completo" },
           ],
         },

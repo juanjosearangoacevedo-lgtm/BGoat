@@ -383,9 +383,6 @@ class _HojaJornada extends StatelessWidget {
                     color: puesto.esAnonima ? Paleta.textoSuave : Paleta.texto,
                   ),
                 ),
-                subtitle: puesto.especialidad == null
-                    ? null
-                    : Text(puesto.especialidad!, style: const TextStyle(fontSize: 11)),
               )),
           if (jornada.observaciones != null) ...[
             const SizedBox(height: 12),

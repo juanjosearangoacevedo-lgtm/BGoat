@@ -26,14 +26,12 @@ class OperariaEntity {
   final String? codigo;
   final String nombres;
   final String apellidos;
-  final String? especialidad;
 
   const OperariaEntity({
     required this.id,
     this.codigo,
     required this.nombres,
     required this.apellidos,
-    this.especialidad,
   });
 
   String get nombreCompleto => '$nombres $apellidos'.trim();

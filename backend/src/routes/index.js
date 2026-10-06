@@ -2,6 +2,7 @@ import { Router } from "express";
 import { recursos } from "../config/resources.js";
 import { crudRouter } from "../lib/crud.js";
 import { query } from "../config/db.js";
+import { actualizarPlanAlEscribir } from "../lib/plan.js";
 import { asyncHandler } from "../lib/http.js";
 import { requiereAuth, requierePermiso } from "../middleware/auth.js";
 import { authRouter } from "./auth.routes.js";
@@ -22,10 +23,12 @@ apiRouter.use("/auth", authRouter);
 // --- Todo lo demas exige sesion ---------------------------------------
 apiRouter.use(requiereAuth);
 
-// Catalogo de permisos (lo consume la matriz del front)
+// Catalogo de permisos: lo consume el formulario del rol para armar su
+// matriz. Ya no hay pantalla de "Consulta de permisos" (el ojo de cada
+// rol muestra lo que tiene concedido), asi que lo habilita ver Roles.
 apiRouter.get(
   "/permisos",
-  requierePermiso("Permisos", "VER"),
+  requierePermiso("Roles", "VER"),
   asyncHandler(async (_req, res) => {
     const datos = await query(
       `SELECT id_permiso, nombre, modulo, accion, descripcion, estado
@@ -35,6 +38,11 @@ apiRouter.get(
     res.json({ datos, total: datos.length });
   }),
 );
+
+// Lo que mueve el plan de produccion (prioridad por recepcion, inicio al
+// abrir jornada, entrega con la formula de German) lo actualiza al
+// escribir. Ver `lib/plan.js`.
+apiRouter.use(["/captura", "/ordenes-produccion", "/jornada", "/lotes"], actualizarPlanAlEscribir);
 
 // Rutas con logica propia
 apiRouter.use("/usuarios", usuariosRouter);

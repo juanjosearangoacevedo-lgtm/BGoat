@@ -122,31 +122,28 @@ WHERE r.nombre = 'Operario';
 -- `requiere_nota` es la explicacion adicional obligatoria: se exige
 -- donde el nombre de la causa no alcanza para entender que paso.
 -- ---------------------------------------------------------------------
+-- `codigo` es el nombre de la causa y `descripcion` la explicacion
+-- larga (opcional). El responsable sale del catalogo `responsables`.
+-- ---------------------------------------------------------------------
+INSERT IGNORE INTO `responsables` (`nombre`) VALUES
+  ('Produccion'), ('Mantenimiento'), ('Comercial'), ('Talento humano'), ('Calidad');
+
 INSERT IGNORE INTO `causas_desviacion`
-  (`codigo`, `nombre`, `tipo`, `responsable`, `requiere_nota`, `orden_visual`) VALUES
-  ('MONTAJE',      'Montaje',                'PLANEADA', 'Produccion',     0, 1),
-  ('CAMBIO_REF',   'Cambio de referencia',   'PLANEADA', 'Produccion',     0, 2),
-  ('APRENDIZAJE',  'Curva de aprendizaje',   'PLANEADA', 'Produccion',     0, 3),
-  ('MAQUINA',      'Dano de maquina',        'INTERNA',  'Mantenimiento',  1, 4),
-  ('ENERGIA',      'Corte de energia',       'EXTERNA',  'Mantenimiento',  0, 5),
-  ('INSUMO',       'Falta de material',      'EXTERNA',  'Comercial',      1, 6),
-  ('AUSENCIA',     'Ausencia de personal',   'INTERNA',  'Talento humano', 0, 7),
-  ('CALIDAD',      'Reproceso por calidad',  'INTERNA',  'Calidad',        0, 8),
-  ('OPERATIVO',    'Problema operativo',     'INTERNA',  'Produccion',     1, 9),
-  ('OTRA',         'Otra causa',             'INTERNA',  NULL,             1, 10);
-
--- `MONTAJE` venia rotulado "Montaje / cambio de referencia". Ahora el
--- cambio de referencia es su propia causa, asi que el rotulo viejo
--- sobraba: INSERT IGNORE no toca una fila que ya existe, por eso se
--- corrige aqui.
-UPDATE `causas_desviacion` SET `nombre` = 'Montaje', `orden_visual` = 1
- WHERE `codigo` = 'MONTAJE' AND `nombre` <> 'Montaje';
-
-UPDATE `causas_desviacion` SET `nombre` = 'Dano de maquina'
- WHERE `codigo` = 'MAQUINA' AND `nombre` = 'Falla de maquina';
-
-UPDATE `causas_desviacion` SET `nombre` = 'Falta de material'
- WHERE `codigo` = 'INSUMO' AND `nombre` = 'Falta de insumo o corte';
+  (`codigo`, `descripcion`, `tipo`, `id_responsable`, `requiere_nota`, `orden_visual`)
+SELECT v.codigo, v.descripcion, v.tipo, r.id_responsable, v.requiere_nota, v.orden_visual
+FROM (
+  SELECT 'MONTAJE' AS codigo, 'Montaje' AS descripcion, 'PLANEADA' AS tipo, 'Produccion' AS responsable, 0 AS requiere_nota, 1 AS orden_visual UNION ALL
+  SELECT 'CAMBIO_REF',  'Cambio de referencia',  'PLANEADA', 'Produccion',     0, 2  UNION ALL
+  SELECT 'APRENDIZAJE', 'Curva de aprendizaje',  'PLANEADA', 'Produccion',     0, 3  UNION ALL
+  SELECT 'MAQUINA',     'Dano de maquina',       'INTERNA',  'Mantenimiento',  1, 4  UNION ALL
+  SELECT 'ENERGIA',     'Corte de energia',      'EXTERNA',  'Mantenimiento',  0, 5  UNION ALL
+  SELECT 'INSUMO',      'Falta de material',     'EXTERNA',  'Comercial',      1, 6  UNION ALL
+  SELECT 'AUSENCIA',    'Ausencia de personal',  'INTERNA',  'Talento humano', 0, 7  UNION ALL
+  SELECT 'CALIDAD',     'Reproceso por calidad', 'INTERNA',  'Calidad',        0, 8  UNION ALL
+  SELECT 'OPERATIVO',   'Problema operativo',    'INTERNA',  'Produccion',     1, 9  UNION ALL
+  SELECT 'OTRA',        'Otra causa',            'INTERNA',  NULL,             1, 10
+) v
+LEFT JOIN `responsables` r ON r.`nombre` = v.responsable;
 
 -- ---------------------------------------------------------------------
 -- Jornadas y franjas

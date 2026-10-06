@@ -44,7 +44,7 @@ const SELECT_JORNADA = `
 async function operariasDe(idJornada) {
   return query(
     `SELECT jo.id_jornada_operaria, jo.numero, jo.id_operario,
-            op.codigo_operario, op.nombres, op.apellidos, op.especialidad
+            op.codigo_operario, op.nombres, op.apellidos
      FROM jornada_operaria jo
      LEFT JOIN operarios op ON op.id_operario = jo.id_operario
      WHERE jo.id_jornada_modulo = ?
@@ -256,7 +256,7 @@ jornadaRouter.get(
          ORDER BY l.fecha_recepcion DESC, l.codigo_lote ASC`,
       ),
       query(
-        `SELECT id_operario, codigo_operario, nombres, apellidos, especialidad
+        `SELECT id_operario, codigo_operario, nombres, apellidos
          FROM operarios
          WHERE estado = 'ACTIVO' AND cargo = 'OPERARIO'
          ORDER BY nombres ASC, apellidos ASC`,
@@ -471,9 +471,9 @@ jornadaRouter.post(
     });
 
     // El lote pasa a EN_PROCESO al arrancar: deja de ser algo que llego
-    // y pasa a ser algo que se esta haciendo. Cuando arranco de verdad
-    // ahora lo dice `ordenes_produccion.fecha_inicio_real` (se marca solo
-    // en la primera hora capturada, en captura.routes.js).
+    // y pasa a ser algo que se esta haciendo. El dia de esta jornada queda
+    // como inicio de la orden y desde ahi se calcula su entrega (lo hace
+    // el plan, `lib/plan.js`, al responder).
     await execute(
       `UPDATE lotes SET estado = 'EN_PROCESO'
        WHERE id_lote = ? AND estado = 'PENDIENTE'`,

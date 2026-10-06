@@ -295,7 +295,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
                               const SizedBox(width: 8),
                               const Expanded(
                                 child: Text(
-                                  'en la cola, no se edita',
+                                  'por fecha de recepcion del lote',
                                   style: TextStyle(fontSize: 11, color: Paleta.textoSuave),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -330,19 +330,25 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            // Las fechas ya no se escogen: inicio es cuando llego el lote, y
-            // fin se calcula con el SAM, la eficiencia esperada y los dias
-            // no laborales. Se recalculan en vivo -no solo se muestra lo que
-            // ya estaba guardado- para que cambiar la eficiencia abajo se
-            // vea reflejado antes de guardar.
+            // Las fechas no se escogen ni se adivinan (`backend/src/lib/plan.js`):
+            // el inicio es el dia en que un modulo abre jornada con la orden, y
+            // la entrega sale de la formula de German desde ese dia, fija.
             Row(
               children: [
                 Expanded(
-                  child: _fechaSoloLectura('Inicio programado', _fechaInicioProgramada(lote)),
+                  child: _fechaSoloLectura(
+                    'Inicio',
+                    widget.orden?.fechaInicioReal,
+                    vacio: 'Al iniciar jornada',
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: _fechaSoloLectura('Fin estimado', _fechaFinProgramada(lote)),
+                  child: _fechaSoloLectura(
+                    'Entrega',
+                    widget.orden?.fechaFinProgramada,
+                    vacio: 'Al iniciar jornada',
+                  ),
                 ),
               ],
             ),
@@ -354,10 +360,8 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
               decoration: const InputDecoration(
                 labelText: 'Eficiencia esperada (%)',
                 prefixIcon: Icon(Icons.insights_outlined),
-                helperText: 'Supuesto de planeacion, no la eficiencia real. Se puede dejar vacio.',
+                helperText: 'La define German. Sin ella no se calcula la entrega.',
               ),
-              // Recalcula "Fin estimado" mientras se escribe.
-              onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 14),
             TextFormField(
@@ -388,16 +392,15 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
     );
   }
 
-  /// Ya no se escoge: inicio es la recepcion del lote y fin es el calculo
-  /// con SAM + eficiencia esperada + dias no laborales (panel web).
-  Widget _fechaSoloLectura(String etiqueta, String? valor) {
+  /// Ya no se escoge: las fechas las pone el plan de produccion.
+  Widget _fechaSoloLectura(String etiqueta, String? valor, {String vacio = 'Aun no definida'}) {
     return InputDecorator(
       decoration: InputDecoration(
         labelText: etiqueta,
         prefixIcon: const Icon(Icons.event_outlined, size: 19),
       ),
       child: Text(
-        valor == null ? 'Aun no definida' : fechas.fechaCorta(valor),
+        valor == null ? vacio : fechas.fechaCorta(valor),
         style: TextStyle(
           color: valor == null ? Paleta.textoSuave : Paleta.texto,
           fontSize: 14,

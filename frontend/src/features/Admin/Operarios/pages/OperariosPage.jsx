@@ -58,7 +58,6 @@ export function OperariosPage() {
           render: (fila) => `${fila.tipo_documento} ${fila.numero_documento}`,
         },
         { key: "cargo", header: "Cargo" },
-        { key: "especialidad", header: "Especialidad" },
         { key: "fecha_ingreso", header: "Ingreso", render: (fila) => formatFecha(fila.fecha_ingreso) },
         { key: "estado", header: "Estado", tipo: "estado" },
       ]}
@@ -72,7 +71,6 @@ export function OperariosPage() {
         correo: "",
         fecha_ingreso: "",
         cargo: "OPERARIO",
-        especialidad: "",
         estado: "ACTIVO",
       }}
       required={["codigo_operario", "numero_documento", "nombres", "apellidos", "fecha_ingreso"]}
@@ -99,7 +97,6 @@ export function OperariosPage() {
         { name: "telefono", label: "Telefono", type: "tel", placeholder: "300 000 0000" },
         { name: "correo", label: "Correo", type: "email", placeholder: "operario@empresa.com" },
         { name: "fecha_ingreso", label: "Fecha de ingreso", type: "date", required: true },
-        { name: "especialidad", label: "Especialidad", placeholder: "Fileteadora", maxLength: 60 },
         {
           name: "estado",
           label: "Estado",

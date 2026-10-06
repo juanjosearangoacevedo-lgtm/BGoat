@@ -25,9 +25,19 @@ export function OrdenProgresoHero({ orden, progress = 0 }) {
       </div>
 
       <div className="mt-2 flex flex-wrap justify-between gap-2 text-xs text-white/60">
-        <span>Inicio programado: {formatFecha(orden?.fecha_inicio_programada)}</span>
-        <span>Defectuosas: {formatNumero(orden?.cantidad_defectuosa)}</span>
-        <span>Fin programado: {formatFecha(orden?.fecha_fin_programada)}</span>
+        {/* Inicio = primera jornada con la orden; entrega = formula de
+            German desde ese dia, fija (`backend/src/lib/plan.js`). */}
+        <span>
+          Inicio:{" "}
+          {orden?.fecha_inicio_real ? formatFecha(orden.fecha_inicio_real) : "al iniciar jornada"}
+        </span>
+        <span>Defectuosas: {formatNumero(orden?.unidades_defectuosas)}</span>
+        <span>
+          Entrega:{" "}
+          {orden?.fecha_fin_programada
+            ? formatFecha(orden.fecha_fin_programada)
+            : "se calcula al iniciar jornada"}
+        </span>
         {dias && <span>Duracion: {dias} dia{dias === 1 ? "" : "s"}</span>}
       </div>
 

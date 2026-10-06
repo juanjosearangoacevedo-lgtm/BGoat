@@ -326,16 +326,17 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
             Row(
               children: [
                 Expanded(
+                  // Tampoco se digita: sale del precio pactado en la
+                  // calculadora (documento de German), junto con la maquila.
                   child: TextFormField(
                     controller: _sam,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                    ],
+                    readOnly: true,
+                    onTap: _abrirCalculadoraSam,
                     decoration: InputDecoration(
                       labelText: 'SAM (acuerdo)',
                       prefixIcon: const Icon(Icons.timer_outlined),
-                      helperText: 'Minutos por prenda',
+                      helperText: 'Sale de la calculadora',
+                      filled: true,
                       suffixIcon: IconButton(
                         icon: const Icon(Icons.calculate_outlined, color: Paleta.primario),
                         tooltip: 'Calcular desde el precio',
@@ -354,20 +355,22 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
+                  // No se digita: es el "precio pactado" que se escribe en la
+                  // calculadora del SAM, que llena los dos campos a la vez.
+                  // Asi el SAM y el precio no pueden quedar desincronizados.
                   child: TextFormField(
                     controller: _valorMaquila,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
-                    ],
+                    readOnly: true,
+                    onTap: _abrirCalculadoraSam,
                     decoration: const InputDecoration(
                       labelText: 'Valor de maquila *',
                       prefixIcon: Icon(Icons.payments_outlined),
-                      helperText: 'Pesos por prenda',
+                      helperText: 'Sale de la calculadora',
+                      filled: true,
                     ),
                     validator: (valor) {
                       final texto = (valor ?? '').trim();
-                      if (texto.isEmpty) return 'Obligatorio';
+                      if (texto.isEmpty) return 'Use la calculadora del SAM';
                       final numero = double.tryParse(texto.replaceAll(',', '.'));
                       if (numero == null || numero <= 0) return 'Valor invalido';
                       return null;
@@ -377,7 +380,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
               ],
             ),
             const SizedBox(height: 14),
-            _CantidadProgramadaInfo(cantidad: widget.lote?.cantidadProgramada),
+            _CantidadRecibidaInfo(cantidad: widget.lote?.cantidadRecibida),
             if (_sam.text.trim().isEmpty) ...[
               const SizedBox(height: 10),
               Container(
@@ -615,7 +618,7 @@ class _CalculadoraSamHojaState extends State<_CalculadoraSamHoja> {
                         ),
                       ),
                       Text(
-                        'calculado del precio, editable despues',
+                        'calculado del precio pactado',
                         style: TextStyle(fontSize: 10, color: Color(0xFF3B6D11)),
                       ),
                     ],
@@ -683,14 +686,14 @@ class _CalculadoraSamHojaState extends State<_CalculadoraSamHoja> {
   }
 }
 
-/// La cantidad programada ya no se digita: es la suma del desglose por
-/// talla y color, que se arma desde el panel web (el mismo recuadro de
-/// "Agregar fila" que ya existe en Nuevo lote de la pantalla de escritorio).
-/// Aqui solo se muestra de solo lectura, igual que la ficha tecnica.
-class _CantidadProgramadaInfo extends StatelessWidget {
+/// La cantidad recibida no se digita: es la suma del desglose por talla y
+/// color (lo que llego es exactamente lo que se desgloso), que se arma desde
+/// el panel web con "Agregar fila". Aqui solo se muestra de solo lectura,
+/// igual que la ficha tecnica.
+class _CantidadRecibidaInfo extends StatelessWidget {
   final int? cantidad;
 
-  const _CantidadProgramadaInfo({required this.cantidad});
+  const _CantidadRecibidaInfo({required this.cantidad});
 
   @override
   Widget build(BuildContext context) {
@@ -705,14 +708,17 @@ class _CantidadProgramadaInfo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  cantidad == null ? 'Cantidad programada: sin definir' : 'Cantidad programada: $cantidad',
+                  cantidad == null || cantidad == 0
+                      ? 'Cantidad recibida: sin definir'
+                      : 'Cantidad recibida: $cantidad prendas',
                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 3),
                 const Text(
                   'Se arma desde el panel web agregando filas de talla, color y '
-                  'cantidad: es la suma de esas filas, no un numero que se digite '
-                  'aqui. Sin eso, ningun modulo va a poder abrir jornada con este lote.',
+                  'cantidad (las tres obligatorias): es la suma de esas filas, no un '
+                  'numero que se digite aqui. Sin eso, ningun modulo va a poder abrir '
+                  'jornada con este lote.',
                   style: TextStyle(fontSize: 11.5, color: Paleta.textoSuave, height: 1.4),
                 ),
               ],

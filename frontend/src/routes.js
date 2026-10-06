@@ -8,7 +8,6 @@ import { CapturaPage } from "@/features/Admin/Captura/pages/CapturaPage";
 import { TableroModuloPage } from "@/features/Admin/Captura/pages/TableroModuloPage";
 import { UsuariosPage } from "@/features/Admin/Usuarios/pages/UsuariosPage";
 import { RolesPage } from "@/features/Admin/Roles/pages/RolesPage";
-import { PermisosPage } from "@/features/Admin/Permisos/pages/PermisosPage";
 import { ClientesPage } from "@/features/Admin/Clientes/pages/ClientesPage";
 import { LotesPage } from "@/features/Admin/Lotes/pages/LotesPage";
 import { TallasPage } from "@/features/Admin/Tallas/pages/TallasPage";
@@ -72,7 +71,6 @@ export const adminRoutes = {
   // Configuracion
   users: { component: UsuariosPage },
   roles: { component: RolesPage },
-  permissions: { component: PermisosPage },
 
   // Sin entrada en el menu: se llega desde el listado de ordenes.
   "create-order": { component: OrdenFormPage },

@@ -39,7 +39,7 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
     cerrarCelda,
     actualizarValor,
     actualizarDetalleTallaColor,
-    actualizarMinutosPerdidos,
+    actualizarParadas,
     guardarCelda,
     recargar,
   } = useCapturaPage({ fechaInicial });
@@ -258,7 +258,7 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
         guardando={guardando}
         onCambiar={actualizarValor}
         onCambiarDetalleTallaColor={actualizarDetalleTallaColor}
-        onCambiarMinutosPerdidos={actualizarMinutosPerdidos}
+        onCambiarParadas={actualizarParadas}
         onCerrar={cerrarCelda}
         onGuardar={guardarYActualizar}
       />

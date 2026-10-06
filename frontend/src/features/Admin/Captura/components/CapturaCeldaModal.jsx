@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { AlertTriangle, Check, Timer, X } from "lucide-react";
+import { AlertTriangle, Check, Plus, Timer, Trash2, X } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { formatMoneda } from "@/shared/utils/formatters";
+import { horaCorta, minutosDeParada } from "../utils/paradas";
 import { validarCaptura } from "../validations/capturaValidation";
 import { CapturaDesgloseTallaColor } from "./CapturaDesgloseTallaColor";
 
@@ -106,58 +107,119 @@ function PersonasFranja({ sugeridas, valor, cambio, onCambio, onCambiar }) {
 }
 
 /**
- * Minutos que el modulo estuvo parado, abiertos por causa.
+ * Las paradas del modulo en esta hora: de que hora a que hora y por que.
  *
- * El tablero de pared trae tres columnas fijas (maquina, calidad,
- * montaje); aqui son las causas del catalogo. Es un numero que se escribe,
- * no que se cuenta a clics: 45 minutos son 9 toques al +.
+ * Antes se escribia el total de minutos por causa; ahora cada parada es
+ * una fila con su causa, "desde" y "hasta", y los minutos se calculan.
+ * Una causa puede repetirse: la maquina se puede trabar dos veces.
  */
-function MinutosPerdidos({ causas, valores, minutosFranja, total, excede, onCambiar }) {
+function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
+  const agregar = () =>
+    onCambiar([...paradas, { id_causa: "", hora_desde: "", hora_hasta: "", minutos_anteriores: null }]);
+  const cambiar = (indice, campo, valor) =>
+    onCambiar(paradas.map((parada, i) => (i === indice ? { ...parada, [campo]: valor } : parada)));
+  const quitar = (indice) => onCambiar(paradas.filter((_, i) => i !== indice));
+
+  const minimo = horaCorta(franja.hora_inicio);
+  const maximo = horaCorta(franja.hora_fin);
+
   return (
     <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
       <div className="mb-3 flex items-center justify-between">
         <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500">
           <Timer className="h-3.5 w-3.5" />
-          Minutos perdidos
+          Paradas del modulo
         </p>
-        <span className={`text-xs font-semibold ${excede ? "text-red-600" : "text-gray-500"}`}>
-          {total} / {minutosFranja} min de la franja
+        <span className={`text-xs font-semibold ${problema ? "text-red-600" : "text-gray-500"}`}>
+          {total} / {franja.minutos} min de la franja
         </span>
       </div>
 
-      <div className="space-y-2">
-        {causas.map((causa) => {
-          const minutos = Number(valores[causa.id_causa] || 0);
-          return (
-            <div key={causa.id_causa} className="flex items-center gap-2">
-              <span
-                className={`flex-1 truncate text-sm ${
-                  minutos > 0 ? "font-medium text-gray-800" : "text-gray-500"
-                }`}
-                title={causa.nombre}
-              >
-                {causa.nombre}
-              </span>
-              <input
-                type="number"
-                inputMode="numeric"
-                value={minutos}
-                min={0}
-                max={minutosFranja}
-                placeholder="0"
-                onFocus={(evento) => evento.target.select()}
-                onChange={(evento) => onCambiar(causa.id_causa, evento.target.value)}
-                className={`h-9 w-16 rounded-lg border text-center text-sm font-semibold outline-none focus:border-[#0F4C3F] ${
-                  minutos > 0
-                    ? "border-[#D08E10]/50 bg-[#D08E10]/10 text-[#b46a12]"
-                    : "border-gray-200 bg-white text-gray-400"
-                }`}
-              />
-              <span className="w-6 flex-shrink-0 text-xs text-gray-400">min</span>
-            </div>
-          );
-        })}
-      </div>
+      {paradas.length === 0 ? (
+        <p className="mb-3 text-xs text-gray-400">
+          Si el modulo se paro en esta hora ({minimo} a {maximo}), agrega cada parada con la hora
+          en que empezo y la hora en que termino.
+        </p>
+      ) : (
+        <div className="mb-3 space-y-2">
+          {paradas.map((parada, indice) => {
+            const minutos = minutosDeParada(parada);
+            return (
+              <div key={indice} className="rounded-xl border border-gray-200 bg-white p-2.5">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={parada.id_causa}
+                    onChange={(evento) => cambiar(indice, "id_causa", evento.target.value)}
+                    aria-label={`Causa de la parada ${indice + 1}`}
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2 text-sm outline-none focus:border-[#0F4C3F]"
+                  >
+                    <option value="" disabled>
+                      Elige la causa
+                    </option>
+                    {causas.map((causa) => (
+                      <option key={causa.id_causa} value={String(causa.id_causa)}>
+                        {causa.nombre}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => quitar(indice)}
+                    aria-label={`Quitar la parada ${indice + 1}`}
+                    className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-600"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="mt-2 flex items-center gap-2 text-sm">
+                  <span className="text-xs text-gray-500">De</span>
+                  <input
+                    type="time"
+                    value={parada.hora_desde}
+                    min={minimo}
+                    max={maximo}
+                    aria-label={`Hora en que empezo la parada ${indice + 1}`}
+                    onChange={(evento) => cambiar(indice, "hora_desde", evento.target.value)}
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-[#0F4C3F]"
+                  />
+                  <span className="text-xs text-gray-500">a</span>
+                  <input
+                    type="time"
+                    value={parada.hora_hasta}
+                    min={minimo}
+                    max={maximo}
+                    aria-label={`Hora en que termino la parada ${indice + 1}`}
+                    onChange={(evento) => cambiar(indice, "hora_hasta", evento.target.value)}
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-[#0F4C3F]"
+                  />
+                  <span
+                    className={`w-14 flex-shrink-0 text-right text-sm font-semibold ${
+                      minutos > 0 ? "text-[#b46a12]" : "text-gray-300"
+                    }`}
+                  >
+                    {minutos} min
+                  </span>
+                </div>
+                {parada.minutos_anteriores ? (
+                  <p className="mt-1.5 text-xs text-gray-400">
+                    Registrada antes del cambio como {parada.minutos_anteriores} min: indica de que
+                    hora a que hora fue.
+                  </p>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <button
+        type="button"
+        onClick={agregar}
+        className="flex items-center gap-1.5 text-xs font-medium text-[#0F4C3F] hover:underline"
+      >
+        <Plus className="h-3.5 w-3.5" />
+        Agregar parada
+      </button>
     </div>
   );
 }
@@ -183,7 +245,7 @@ export function CapturaCeldaModal({
   guardando,
   onCambiar,
   onCambiarDetalleTallaColor,
-  onCambiarMinutosPerdidos,
+  onCambiarParadas,
   onCerrar,
   onGuardar,
 }) {
@@ -204,11 +266,17 @@ export function CapturaCeldaModal({
 
   const { modulo, franja, valores, existente } = celda;
 
-  // La causa que cuenta es la de mas minutos ya cargados, igual que en el
-  // backend: no se le pregunta a la digitadora si ya lo dijo con numeros.
-  const entradasPerdidos = Object.entries(valores.minutos_perdidos || {}).filter(
-    ([, minutos]) => Number(minutos) > 0,
-  );
+  // La causa que cuenta es la que mas minutos suma entre sus paradas,
+  // igual que en el backend: no se le pregunta a la digitadora si ya lo
+  // dijo con las horas. Se suma por causa porque una causa puede tener
+  // varias paradas en la misma hora.
+  const minutosPorCausa = new Map();
+  (valores.paradas ?? []).forEach((parada) => {
+    const minutos = minutosDeParada(parada);
+    if (!parada.id_causa || minutos <= 0) return;
+    minutosPorCausa.set(parada.id_causa, (minutosPorCausa.get(parada.id_causa) ?? 0) + minutos);
+  });
+  const entradasPerdidos = [...minutosPorCausa];
   const idCausaPrincipal = entradasPerdidos.length
     ? entradasPerdidos.reduce((mayor, actual) => (actual[1] > mayor[1] ? actual : mayor))[0]
     : null;
@@ -219,8 +287,7 @@ export function CapturaCeldaModal({
     valores,
     bajoUmbral: calculo?.bajoUmbral,
     causaPrincipal,
-    excedePerdidos: calculo?.excedePerdidos,
-    minutosFranja: calculo?.minutosFranja,
+    problemaParadas: calculo?.problemaParadas,
   });
 
   const handleCambioPersonas = (cambia) => {
@@ -333,18 +400,18 @@ export function CapturaCeldaModal({
           {calculo?.bajoUmbral && entradasPerdidos.length === 0 && (
             <p className="flex items-start gap-2 rounded-xl border border-[#D08E10]/30 bg-[#D08E10]/5 px-3 py-2.5 text-xs text-[#b46a12]">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-              La hora quedo por debajo del umbral ({calculo.umbral}%): registra abajo cuanto tiempo
-              se perdio y por que.
+              La hora quedo por debajo del umbral ({calculo.umbral}%): registra abajo de que hora a
+              que hora se paro el modulo y por que.
             </p>
           )}
 
-          <MinutosPerdidos
+          <Paradas
             causas={causas}
-            valores={valores.minutos_perdidos}
-            minutosFranja={calculo?.minutosFranja ?? franja.minutos}
+            paradas={valores.paradas}
+            franja={franja}
             total={calculo?.minutosPerdidos ?? 0}
-            excede={calculo?.excedePerdidos}
-            onCambiar={onCambiarMinutosPerdidos}
+            problema={calculo?.problemaParadas}
+            onCambiar={onCambiarParadas}
           />
 
           {calculo?.minutosPerdidos > 0 && (

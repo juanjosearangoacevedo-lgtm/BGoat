@@ -40,8 +40,10 @@ export const endpoints = {
   operarios: "/operarios",
   modulos: "/modulos",
   causas: "/causas",                     // tabla causas_desviacion (incidencias)
+  responsables: "/responsables",         // quien responde por una causa; vive en su formulario
   ordenes: "/ordenes-produccion",
   curvaOrden: "/ordenes-produccion/:id/curva",
+  entregaOrden: "/ordenes-produccion/:id/entrega", // German decide: ajustar o dejar la entrega
   diasNoLaborales: "/dias-no-laborales", // tabla dias_no_laborales: festivos y cierres
 
   // --- Captura horaria (el nucleo) -------------------------------------

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { apiClient, withQuery } from "@/shared/services/apiClient";
 import { endpoints } from "@/shared/services/endpoints";
 import { hoyLocal } from "@/shared/utils/formatters";
+import { horaCorta, minutosDeParada, paradaVacia, problemaParadas } from "../utils/paradas";
 
 /**
  * Rejilla de captura horaria -> tabla `registros_horarios`.
@@ -61,13 +62,16 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
           detalle_talla_color: existente?.detalle_talla_color ?? [],
           unidades_defectuosas: existente?.unidades_defectuosas ?? 0,
           nota: existente?.nota ?? "",
-          // { [id_causa]: minutos } — el detalle de por que se paro el modulo.
-          minutos_perdidos: Object.fromEntries(
-            (existente?.minutos_perdidos_detalle ?? []).map((linea) => [
-              linea.id_causa,
-              linea.minutos,
-            ]),
-          ),
+          // [{ id_causa, hora_desde, hora_hasta }] — cada vez que el modulo
+          // se paro en esta hora. Los registros de antes del cambio traen
+          // minutos sin horas: llegan con las horas vacias para que la
+          // digitadora las complete si vuelve a guardar la celda.
+          paradas: (existente?.minutos_perdidos_detalle ?? []).map((linea) => ({
+            id_causa: String(linea.id_causa),
+            hora_desde: horaCorta(linea.hora_desde),
+            hora_hasta: horaCorta(linea.hora_hasta),
+            minutos_anteriores: linea.hora_desde ? null : linea.minutos,
+          })),
         },
       });
     },
@@ -111,23 +115,18 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
     }));
   }, [celdaActiva]);
 
-  /** Minutos perdidos de una causa. En 0 la causa desaparece del registro. */
-  const actualizarMinutosPerdidos = (idCausa, minutos) => {
-    setCeldaActiva((previo) => {
-      if (!previo) return previo;
-      const siguiente = { ...previo.valores.minutos_perdidos };
-      const valor = Math.max(Number(minutos) || 0, 0);
-      if (valor > 0) siguiente[idCausa] = valor;
-      else delete siguiente[idCausa];
-      return { ...previo, valores: { ...previo.valores, minutos_perdidos: siguiente } };
-    });
+  /** Reemplaza la lista de paradas de la celda activa. */
+  const actualizarParadas = (paradas) => {
+    setCeldaActiva((previo) =>
+      previo ? { ...previo, valores: { ...previo.valores, paradas } } : previo,
+    );
   };
 
   /** Guarda la celda. El backend calcula meta, cumplimiento, SAM y pesos. */
   const guardarCelda = useCallback(async () => {
     if (!celdaActiva) return false;
 
-    const { minutos_perdidos, ...valores } = celdaActiva.valores;
+    const { paradas, ...valores } = celdaActiva.valores;
 
     setGuardando(true);
     try {
@@ -137,10 +136,14 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
         hora_jornada: celdaActiva.franja.orden_franja,
         ...valores,
         nota: valores.nota || null,
-        minutos_perdidos: Object.entries(minutos_perdidos).map(([id_causa, minutos]) => ({
-          id_causa: Number(id_causa),
-          minutos,
-        })),
+        // El backend calcula los minutos de cada parada con sus dos horas.
+        minutos_perdidos: paradas
+          .filter((parada) => !paradaVacia(parada))
+          .map((parada) => ({
+            id_causa: Number(parada.id_causa),
+            hora_desde: parada.hora_desde,
+            hora_hasta: parada.hora_hasta,
+          })),
       });
 
       toast.success(`${celdaActiva.modulo.codigo} · ${celdaActiva.franja.etiqueta} guardada`);
@@ -181,8 +184,8 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
     const cumplimiento = meta > 0 ? (producidas * 100) / meta : 0;
     const umbral = Number(celdaActiva.modulo.umbral_cumplimiento || 85);
 
-    const perdidos = Object.values(celdaActiva.valores.minutos_perdidos).reduce(
-      (total, valor) => total + Number(valor || 0),
+    const perdidos = (celdaActiva.valores.paradas ?? []).reduce(
+      (total, parada) => total + minutosDeParada(parada),
       0,
     );
 
@@ -200,8 +203,8 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
       facturacionReal: Number((producidas * precio).toFixed(0)),
       minutosPerdidos: perdidos,
       minutosPerdidosPersona: perdidos * personas,
-      // No se puede perder mas tiempo del que dura la franja.
-      excedePerdidos: perdidos > minutosFranja,
+      // Fuera de la franja, al reves o cruzadas: no se deja guardar.
+      problemaParadas: problemaParadas(celdaActiva.valores.paradas, celdaActiva.franja),
     };
   }, [celdaActiva]);
 
@@ -254,7 +257,7 @@ export function useCapturaPage({ fechaInicial = null } = {}) {
     cerrarCelda,
     actualizarValor,
     actualizarDetalleTallaColor,
-    actualizarMinutosPerdidos,
+    actualizarParadas,
     guardarCelda,
     recargar: cargar,
   };

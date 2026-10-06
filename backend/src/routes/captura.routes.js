@@ -78,16 +78,31 @@ async function jornadaDelModulo(idModulo, fecha) {
   ]);
 }
 
+/** "HH:MM" o "HH:MM:SS" -> minutos desde la medianoche (null si no es una hora). */
+function aMinutos(hora) {
+  const partes = /^(\d{1,2}):(\d{2})(?::\d{2})?$/.exec(String(hora ?? "").trim());
+  if (!partes) return null;
+  const h = Number(partes[1]);
+  const m = Number(partes[2]);
+  if (h > 23 || m > 59) return null;
+  return h * 60 + m;
+}
+
+/** Minutos desde la medianoche -> "HH:MM". */
+const aHora = (minutos) =>
+  `${String(Math.floor(minutos / 60)).padStart(2, "0")}:${String(minutos % 60).padStart(2, "0")}`;
+
 /** Minutos perdidos de un conjunto de registros, agrupados por registro. */
 async function minutosPerdidosDe(idsRegistro) {
   if (idsRegistro.length === 0) return new Map();
 
   const filas = await query(
-    `SELECT p.id_registro, p.id_causa, p.minutos, c.codigo, c.nombre, c.tipo
+    `SELECT p.id_perdida, p.id_registro, p.id_causa, p.hora_desde, p.hora_hasta, p.minutos,
+            c.codigo, COALESCE(c.descripcion, c.codigo) AS nombre, c.tipo
      FROM registro_minutos_perdidos p
      JOIN causas_desviacion c ON c.id_causa = p.id_causa
      WHERE p.id_registro IN (${idsRegistro.map(() => "?").join(",")})
-     ORDER BY p.minutos DESC`,
+     ORDER BY p.hora_desde IS NULL, p.hora_desde ASC, p.minutos DESC`,
     idsRegistro,
   );
 
@@ -95,7 +110,11 @@ async function minutosPerdidosDe(idsRegistro) {
   filas.forEach((fila) => {
     if (!porRegistro.has(fila.id_registro)) porRegistro.set(fila.id_registro, []);
     porRegistro.get(fila.id_registro).push({
+      id_perdida: fila.id_perdida,
       id_causa: fila.id_causa,
+      // Los registros de antes del cambio no tienen horas: solo minutos.
+      hora_desde: fila.hora_desde ? String(fila.hora_desde).slice(0, 5) : null,
+      hora_hasta: fila.hora_hasta ? String(fila.hora_hasta).slice(0, 5) : null,
       minutos: fila.minutos,
       codigo: fila.codigo,
       nombre: fila.nombre,
@@ -115,40 +134,79 @@ async function guardarMinutosPerdidos(idRegistro, lineas) {
   await execute("DELETE FROM registro_minutos_perdidos WHERE id_registro = ?", [idRegistro]);
   for (const linea of lineas) {
     await execute(
-      "INSERT INTO registro_minutos_perdidos (id_registro, id_causa, minutos) VALUES (?, ?, ?)",
-      [idRegistro, linea.id_causa, linea.minutos],
+      `INSERT INTO registro_minutos_perdidos (id_registro, id_causa, hora_desde, hora_hasta, minutos)
+       VALUES (?, ?, ?, ?, ?)`,
+      [idRegistro, linea.id_causa, linea.hora_desde, linea.hora_hasta, linea.minutos],
     );
   }
 }
 
 /**
  * Normaliza y valida lo que llega en `minutos_perdidos`.
- * Devuelve solo las lineas con minutos > 0, sin causas repetidas.
+ *
+ * Cada linea es UNA parada: `{ id_causa, hora_desde, hora_hasta }`. La
+ * digitadora ya no escribe los minutos, escribe de que hora a que hora
+ * estuvo parado el modulo, y aqui se calculan. Una causa puede repetirse
+ * en la misma hora: la maquina se puede trabar dos veces.
+ *
+ * Reglas:
+ *   - "hasta" despues de "desde";
+ *   - las dos horas dentro de la franja que se esta registrando;
+ *   - ninguna parada se cruza con otra: el modulo no puede estar parado
+ *     dos veces en el mismo minuto, y contarlo dos veces infla el Pareto.
  */
-function normalizarPerdidas(crudo, minutosFranja) {
+function normalizarPerdidas(crudo, franja) {
   if (!Array.isArray(crudo)) return [];
 
-  const porCausa = new Map();
+  const inicioFranja = aMinutos(franja.hora_inicio);
+  const finFranja = aMinutos(franja.hora_fin);
+
+  const lineas = [];
   crudo.forEach((linea) => {
     const idCausa = Number(linea?.id_causa ?? 0);
-    const minutos = Number(linea?.minutos ?? 0);
-    if (!idCausa || !Number.isFinite(minutos) || minutos <= 0) return;
-    porCausa.set(idCausa, (porCausa.get(idCausa) ?? 0) + Math.round(minutos));
+    const desde = aMinutos(linea?.hora_desde);
+    const hasta = aMinutos(linea?.hora_hasta);
+    // Una fila sin causa y sin horas es una fila que se agrego y se dejo
+    // en blanco: se descarta sin avisar.
+    if (!idCausa && desde === null && hasta === null) return;
+
+    if (!idCausa) throw ApiError.badRequest("Cada parada necesita su causa");
+    if (desde === null || hasta === null) {
+      throw ApiError.badRequest("Cada parada necesita la hora en que empezo y la hora en que termino");
+    }
+    if (hasta <= desde) {
+      throw ApiError.badRequest(
+        `La parada de ${aHora(desde)} a ${aHora(hasta)}: la hora final tiene que ser despues de la inicial`,
+      );
+    }
+    if (inicioFranja !== null && finFranja !== null && (desde < inicioFranja || hasta > finFranja)) {
+      throw ApiError.badRequest(
+        `La parada de ${aHora(desde)} a ${aHora(hasta)} se sale de la hora que se esta registrando ` +
+          `(${aHora(inicioFranja)} a ${aHora(finFranja)})`,
+      );
+    }
+    lineas.push({
+      id_causa: idCausa,
+      hora_desde: aHora(desde),
+      hora_hasta: aHora(hasta),
+      minutos: hasta - desde,
+      desde,
+      hasta,
+    });
   });
 
-  const lineas = [...porCausa].map(([id_causa, minutos]) => ({ id_causa, minutos }));
-  const total = lineas.reduce((suma, linea) => suma + linea.minutos, 0);
-
-  // Una franja de 40 minutos no puede haber perdido 60: seria un dato
-  // que despues infla el Pareto y nadie sabe de donde salio.
-  if (total > minutosFranja) {
-    throw ApiError.badRequest(
-      `Los minutos perdidos (${total}) superan los ${minutosFranja} minutos de la hora`,
-      { minutos_franja: minutosFranja, minutos_perdidos: total },
-    );
+  lineas.sort((a, b) => a.desde - b.desde);
+  for (let i = 1; i < lineas.length; i++) {
+    if (lineas[i].desde < lineas[i - 1].hasta) {
+      throw ApiError.badRequest(
+        `Las paradas de ${lineas[i - 1].hora_desde} a ${lineas[i - 1].hora_hasta} y de ` +
+          `${lineas[i].hora_desde} a ${lineas[i].hora_hasta} se cruzan: el modulo no puede ` +
+          "estar parado dos veces en el mismo minuto",
+      );
+    }
   }
 
-  return lineas;
+  return lineas.map(({ desde, hasta, ...resto }) => resto);
 }
 
 /** El desglose por talla y color de un conjunto de registros, agrupado por registro. */
@@ -302,9 +360,12 @@ capturaRouter.get(
         fecha,
       ]),
       query(
-        `SELECT id_causa, codigo, nombre, tipo, responsable, requiere_nota
-         FROM causas_desviacion WHERE estado = 'ACTIVO'
-         ORDER BY orden_visual ASC`,
+        `SELECT c.id_causa, c.codigo, c.descripcion, COALESCE(c.descripcion, c.codigo) AS nombre,
+                c.tipo, r.nombre AS responsable, c.requiere_nota
+         FROM causas_desviacion c
+         LEFT JOIN responsables r ON r.id_responsable = c.id_responsable
+         WHERE c.estado = 'ACTIVO'
+         ORDER BY c.orden_visual ASC`,
       ),
       query(`${SELECT_JORNADA_MODULO} WHERE jm.fecha = ?`, [fecha]),
     ]);
@@ -554,7 +615,7 @@ capturaRouter.put(
     );
     await validarDetalleTallaColor(detalleTallaColor, suya.id_lote, existente?.id_registro ?? null);
 
-    const perdidas = normalizarPerdidas(minutos_perdidos, franja.minutos);
+    const perdidas = normalizarPerdidas(minutos_perdidos, franja);
 
     // El SAM y la tarifa salen los dos del lote: no se digitan.
     const sam = suya.sam_pactado ?? null;
@@ -568,12 +629,18 @@ capturaRouter.put(
     const cumplimiento = meta > 0 ? (producidas * 100) / meta : 0;
     const bajoUmbral = meta > 0 && cumplimiento < Number(modulo.umbral_cumplimiento);
 
-    // Si ya explico con minutos donde se fue el tiempo, la incidencia
-    // principal es la que mas peso: no se le pregunta dos veces.
+    // Si ya explico con paradas donde se fue el tiempo, la incidencia
+    // principal es la causa que mas minutos sumo: no se le pregunta dos
+    // veces. Se suma por causa porque una causa puede tener varias
+    // paradas en la misma hora.
+    const minutosPorCausa = new Map();
+    perdidas.forEach((linea) =>
+      minutosPorCausa.set(linea.id_causa, (minutosPorCausa.get(linea.id_causa) ?? 0) + linea.minutos),
+    );
     const causaPrincipal =
       id_causa ||
-      (perdidas.length > 0
-        ? perdidas.reduce((mayor, linea) => (linea.minutos > mayor.minutos ? linea : mayor)).id_causa
+      (minutosPorCausa.size > 0
+        ? [...minutosPorCausa].reduce((mayor, actual) => (actual[1] > mayor[1] ? actual : mayor))[0]
         : null);
 
     if (bajoUmbral && !causaPrincipal) {
@@ -598,13 +665,14 @@ capturaRouter.put(
     }
 
     // Las causas de los minutos perdidos tambien tienen que existir.
-    if (perdidas.length > 0) {
+    if (minutosPorCausa.size > 0) {
+      const idsCausa = [...minutosPorCausa.keys()];
       const validas = await query(
         `SELECT id_causa FROM causas_desviacion
-         WHERE estado = 'ACTIVO' AND id_causa IN (${perdidas.map(() => "?").join(",")})`,
-        perdidas.map((linea) => linea.id_causa),
+         WHERE estado = 'ACTIVO' AND id_causa IN (${idsCausa.map(() => "?").join(",")})`,
+        idsCausa,
       );
-      if (validas.length !== perdidas.length) {
+      if (validas.length !== idsCausa.length) {
         throw ApiError.badRequest("Alguna incidencia de los minutos perdidos no existe o esta inactiva");
       }
     }
@@ -645,14 +713,15 @@ capturaRouter.put(
     await guardarMinutosPerdidos(guardado.id_registro, perdidas);
     await guardarDetalleTallaColor(guardado.id_registro, detalleTallaColor);
 
-    // Al primer registro, la orden pasa a EN_PROCESO automaticamente.
+    // Al primer registro, la orden pasa a EN_PROCESO automaticamente. El
+    // inicio ya no se marca aqui: es el dia en que se abrio la jornada con
+    // la orden, y lo pone el plan (`lib/plan.js`).
     if (suya.id_orden_produccion && producidas > 0) {
       await execute(
         `UPDATE ordenes_produccion
-         SET estado = IF(estado = 'PENDIENTE', 'EN_PROCESO', estado),
-             fecha_inicio_real = COALESCE(fecha_inicio_real, ?)
+         SET estado = IF(estado = 'PENDIENTE', 'EN_PROCESO', estado)
          WHERE id_orden_produccion = ?`,
-        [fecha, suya.id_orden_produccion],
+        [suya.id_orden_produccion],
       );
 
       // Finalizado no es una fecha: es la ultima unidad. Cuando lo

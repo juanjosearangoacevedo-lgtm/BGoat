@@ -5,6 +5,7 @@ import { verificarConexion } from "./config/db.js";
 import { ApiError, traducirErrorMysql } from "./lib/http.js";
 import { apiRouter } from "./routes/index.js";
 import { CARPETA_SUBIDAS } from "./routes/lotes.routes.js";
+import { actualizarPlanSinFallar } from "./lib/plan.js";
 
 const app = express();
 
@@ -67,6 +68,9 @@ app.use((error, _req, res, _next) => {
 try {
   const info = await verificarConexion();
   console.log(`[BGoat] Conectado a MySQL ${info.version} · base "${info.db}"`);
+  // Al arrancar se pone al dia el plan: prioridades por recepcion y las
+  // entregas de ordenes que ya iniciaron jornada y no la tienen.
+  await actualizarPlanSinFallar();
 } catch (error) {
   console.error("[BGoat] No se pudo conectar a MySQL:", error.message);
   console.error('        Revisa el archivo backend/.env y que el servicio MySQL este corriendo.');

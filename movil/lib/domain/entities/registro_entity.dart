@@ -1,11 +1,18 @@
-/// Los minutos que el modulo estuvo parado por una causa concreta.
+/// Una parada del modulo: de que hora a que hora estuvo parado y por que.
 ///
 /// El tiempo perdido se MIDE, no se deduce. Antes el Pareto lo calculaba
 /// restando lo ganado a lo disponible, y eso mezcla una parada de maquina con
 /// un modulo que simplemente va lento: dos problemas distintos, dos soluciones
 /// distintas, un solo numero.
+///
+/// La digitadora ya no escribe los minutos: escribe `horaDesde` y
+/// `horaHasta` ("HH:MM") y los minutos los calcula el backend. Una causa
+/// puede tener varias paradas en la misma hora. Los registros de antes del
+/// cambio llegan con minutos y sin horas.
 class MinutosPerdidosEntity {
   final int idCausa;
+  final String? horaDesde;
+  final String? horaHasta;
   final int minutos;
   final String? codigo;
   final String? nombre;
@@ -13,7 +20,9 @@ class MinutosPerdidosEntity {
 
   const MinutosPerdidosEntity({
     required this.idCausa,
-    required this.minutos,
+    this.horaDesde,
+    this.horaHasta,
+    this.minutos = 0,
     this.codigo,
     this.nombre,
     this.tipo,

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiClient, withQuery } from "@/shared/services/apiClient";
 
 /**
@@ -9,10 +9,14 @@ import { apiClient, withQuery } from "@/shared/services/apiClient";
  *     etiqueta: (fila) => fila.nombre,
  *   });
  *   -> clientes.options = [{ value, label }]
+ *
+ * `recargar()` lo vuelve a pedir: sirve cuando el propio formulario le
+ * agrega una opcion al catalogo (por ejemplo, un responsable nuevo).
  */
 export function useCatalogo(recurso, { valor, etiqueta, filtros = {} } = {}) {
   const [datos, setDatos] = useState([]);
   const [cargando, setCargando] = useState(true);
+  const [version, setVersion] = useState(0);
 
   const filtrosSerializados = JSON.stringify(filtros);
 
@@ -36,7 +40,7 @@ export function useCatalogo(recurso, { valor, etiqueta, filtros = {} } = {}) {
     return () => {
       activo = false;
     };
-  }, [recurso, filtrosSerializados]);
+  }, [recurso, filtrosSerializados, version]);
 
   const options = datos.map((fila) => ({
     value: String(fila[valor]),
@@ -45,5 +49,7 @@ export function useCatalogo(recurso, { valor, etiqueta, filtros = {} } = {}) {
 
   const buscar = (id) => datos.find((fila) => String(fila[valor]) === String(id)) || null;
 
-  return { datos, options, cargando, buscar };
+  const recargar = useCallback(() => setVersion((previa) => previa + 1), []);
+
+  return { datos, options, cargando, buscar, recargar };
 }

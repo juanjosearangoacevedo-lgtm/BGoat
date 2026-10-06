@@ -291,7 +291,7 @@ class _LotesScreenState extends State<LotesScreen> {
               valor: lote.tieneSam ? sam(lote.samPactado) : 'Falta',
               color: lote.tieneSam ? Paleta.primario : Paleta.alerta,
             ),
-            Dato(etiqueta: 'Programado', valor: entero(lote.cantidadProgramada)),
+            Dato(etiqueta: 'Cantidad', valor: entero(lote.cantidadRecibida)),
             Dato(
               etiqueta: 'Entrega',
               valor: fechas.fechaCorta(lote.fechaEntregaProgramada),
@@ -430,14 +430,11 @@ class _HojaLote extends StatelessWidget {
                   ),
                 ]),
                 const SizedBox(height: 12),
+                // Programado y recibido son el mismo numero (la suma del
+                // desglose por talla y color): se muestra uno solo.
                 FilaDeDatos([
                   Dato(
-                    etiqueta: 'Programado',
-                    valor: entero(lote.cantidadProgramada),
-                    destacado: true,
-                  ),
-                  Dato(
-                    etiqueta: 'Recibido',
+                    etiqueta: 'Cantidad recibida',
                     valor: entero(lote.cantidadRecibida),
                     destacado: true,
                   ),
@@ -506,7 +503,7 @@ class _HojaLote extends StatelessWidget {
                 children: [
                   const TituloSeccion(
                     'Desglose por talla y color',
-                    detalle: 'Es opcional: el negocio todavia no define si lo usa.',
+                    detalle: 'Cada fila lleva talla, color y cantidad: su suma es lo recibido.',
                   ),
                   ...desglose.map((fila) => Padding(
                         padding: const EdgeInsets.only(bottom: 7),
@@ -530,6 +527,18 @@ class _HojaLote extends StatelessWidget {
                                 style: const TextStyle(fontSize: 13),
                               ),
                             ),
+                            // El codigo del color, como en el modulo Colores.
+                            if (fila.codigoHex != null) ...[
+                              Text(
+                                fila.codigoHex!,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontFamily: 'monospace',
+                                  color: Paleta.textoSuave,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                            ],
                             Text(
                               entero(fila.cantidad),
                               style: const TextStyle(fontWeight: FontWeight.w700),

@@ -57,13 +57,13 @@ INSERT IGNORE INTO `modulos`
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `operarios`
   (`codigo_operario`, `tipo_documento`, `numero_documento`, `nombres`, `apellidos`,
-   `fecha_ingreso`, `cargo`, `especialidad`) VALUES
-  ('OP-001', 'CC', '43567891', 'Luz Eliana',  'Martinez Ramos',  '2021-03-01', 'OPERARIO', 'Plana'),
-  ('OP-002', 'CC', '43567892', 'Maria',       'Gonzalez Rios',   '2021-05-10', 'OPERARIO', 'Fileteadora'),
-  ('OP-003', 'CC', '43567893', 'Sandra',      'Ospina Vera',     '2022-01-17', 'OPERARIO', 'Collareta'),
-  ('OP-004', 'CC', '43567894', 'Claudia',     'Restrepo Loaiza', '2022-08-02', 'OPERARIO', 'Plana'),
-  ('OP-005', 'CC', '43567895', 'Diana',       'Zapata Muriel',   '2023-02-13', 'OPERARIO', 'Fileteadora'),
-  ('OP-006', 'CC', '43567896', 'Carlos',      'Agudelo Perez',   '2020-06-01', 'MECANICO', 'Mantenimiento de maquinas');
+   `fecha_ingreso`, `cargo`) VALUES
+  ('OP-001', 'CC', '43567891', 'Luz Eliana',  'Martinez Ramos',  '2021-03-01', 'OPERARIO'),
+  ('OP-002', 'CC', '43567892', 'Maria',       'Gonzalez Rios',   '2021-05-10', 'OPERARIO'),
+  ('OP-003', 'CC', '43567893', 'Sandra',      'Ospina Vera',     '2022-01-17', 'OPERARIO'),
+  ('OP-004', 'CC', '43567894', 'Claudia',     'Restrepo Loaiza', '2022-08-02', 'OPERARIO'),
+  ('OP-005', 'CC', '43567895', 'Diana',       'Zapata Muriel',   '2023-02-13', 'OPERARIO'),
+  ('OP-006', 'CC', '43567896', 'Carlos',      'Agudelo Perez',   '2020-06-01', 'MECANICO');
 
 -- ---------------------------------------------------------------------
 -- Lotes

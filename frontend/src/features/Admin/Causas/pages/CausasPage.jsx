@@ -1,12 +1,19 @@
 import { AlertTriangle } from "lucide-react";
 import { CrudPage } from "@/shared/components/CrudPage";
+import { useCatalogo } from "@/shared/hooks/useCatalogo";
 import { endpoints } from "@/shared/services/endpoints";
+import { GUION } from "@/shared/utils/formatters";
+import { NuevoResponsable } from "../components/NuevoResponsable";
 import { crearCausaEsquema } from "../validations/causaValidation";
 
 /**
  * Modulo Causas -> tabla `causas_desviacion`.
  * Es el catalogo que la digitadora ve como botones cuando una hora no
  * alcanza la meta. `tipo` separa lo planeado, lo interno y lo del cliente.
+ *
+ * El `codigo` ES el nombre de la causa; la `descripcion` es la
+ * explicacion larga y es opcional. El responsable se escoge del catalogo
+ * `responsables` (y si falta, se agrega desde el mismo formulario).
  */
 const tipos = [
   { value: "PLANEADA", label: "Planeada (se sabia que iba a pasar)" },
@@ -21,6 +28,12 @@ const tiposFiltro = [
 ];
 
 export function CausasPage() {
+  const responsables = useCatalogo(endpoints.responsables, {
+    valor: "id_responsable",
+    etiqueta: "nombre",
+    filtros: { estado: "ACTIVO" },
+  });
+
   return (
     <CrudPage
       titulo="Causas de desviacion"
@@ -28,8 +41,8 @@ export function CausasPage() {
       recurso={endpoints.causas}
       idField="id_causa"
       etiquetaNuevo="Nueva causa"
-      busquedaPlaceholder="Buscar por codigo, nombre o responsable..."
-      nombreRegistro={(fila) => (fila?.nombre ? `la causa ${fila.nombre}` : "la causa")}
+      busquedaPlaceholder="Buscar por codigo, descripcion o responsable..."
+      nombreRegistro={(fila) => (fila?.codigo ? `la causa ${fila.codigo}` : "la causa")}
       emptyIcon={AlertTriangle}
       emptyTitle="No hay causas configuradas"
       emptyDescription="Sin causas, la digitadora no puede explicar por que una hora quedo por debajo de la meta."
@@ -46,6 +59,13 @@ export function CausasPage() {
         },
         { clave: "tipo", label: "Tipo", etiquetaTodos: "Todos los tipos", opciones: tiposFiltro },
         {
+          clave: "id_responsable",
+          label: "Responsable",
+          etiquetaTodos: "Todos los responsables",
+          opciones: responsables.options,
+          comparar: (fila, valor) => String(fila.id_responsable ?? "") === String(valor),
+        },
+        {
           clave: "requiere_nota",
           label: "Nota",
           etiquetaTodos: "Pide nota o no",
@@ -58,9 +78,19 @@ export function CausasPage() {
       ]}
       columnas={[
         { key: "codigo", header: "Codigo" },
-        { key: "nombre", header: "Causa" },
+        {
+          key: "descripcion",
+          header: "Descripcion",
+          render: (fila) => fila.descripcion || <span className="text-gray-300">{GUION}</span>,
+          exportar: (fila) => fila.descripcion || "",
+        },
         { key: "tipo", header: "Tipo" },
-        { key: "responsable", header: "Responsable" },
+        {
+          key: "nombre_responsable",
+          header: "Responsable",
+          render: (fila) => fila.nombre_responsable || <span className="text-gray-300">{GUION}</span>,
+          exportar: (fila) => fila.nombre_responsable || "",
+        },
         {
           key: "requiere_nota",
           header: "Pide nota",
@@ -72,17 +102,21 @@ export function CausasPage() {
       ]}
       emptyForm={{
         codigo: "",
-        nombre: "",
+        descripcion: "",
         tipo: "INTERNA",
-        responsable: "",
+        id_responsable: "",
         requiere_nota: "0",
         orden_visual: "1",
         estado: "ACTIVO",
       }}
-      required={["codigo", "nombre", "tipo"]}
-      esquema={({ items, editing }) => crearCausaEsquema({ lista: items, editing })}
+      required={["codigo", "tipo"]}
+      esquema={({ items, editing }) =>
+        crearCausaEsquema({ lista: items, editing, responsableOptions: responsables.options })
+      }
       transformarPayload={(datos) => ({
         ...datos,
+        descripcion: String(datos.descripcion || "").trim() || null,
+        id_responsable: datos.id_responsable ? Number(datos.id_responsable) : null,
         requiere_nota: Number(datos.requiere_nota) ? 1 : 0,
         orden_visual: Number(datos.orden_visual || 1),
       })}
@@ -90,21 +124,35 @@ export function CausasPage() {
         {
           name: "codigo",
           label: "Codigo",
-          placeholder: "MONTAJE",
+          placeholder: "Dano de maquina",
           required: true,
-          maxLength: 30,
-          hint: "Corto y en mayusculas.",
-        },
-        {
-          name: "nombre",
-          label: "Nombre",
-          placeholder: "Montaje / cambio de referencia",
-          required: true,
-          minLength: 3,
-          maxLength: 80,
+          maxLength: 100,
+          hint: "Es el nombre de la causa: lo que la digitadora ve en el boton.",
         },
         { name: "tipo", label: "Tipo", options: tipos, required: true },
-        { name: "responsable", label: "Responsable", placeholder: "Produccion", maxLength: 60 },
+        {
+          name: "descripcion",
+          label: "Descripcion",
+          type: "textarea",
+          rows: 2,
+          placeholder: "Que significa esta causa y cuando se usa",
+          maxLength: 255,
+          ancho: "completo",
+        },
+        {
+          name: "id_responsable",
+          label: "Responsable",
+          options: responsables.options,
+          emptyOption: "Sin responsable",
+          extra: ({ setField }) => (
+            <NuevoResponsable
+              onCreado={(id) => {
+                responsables.recargar();
+                if (id) setField("id_responsable", String(id));
+              }}
+            />
+          ),
+        },
         {
           name: "requiere_nota",
           label: "Exige nota",

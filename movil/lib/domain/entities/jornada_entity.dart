@@ -15,7 +15,6 @@ class PuestoJornadaEntity {
   final String? codigoOperaria;
   final String? nombres;
   final String? apellidos;
-  final String? especialidad;
 
   const PuestoJornadaEntity({
     this.id,
@@ -24,7 +23,6 @@ class PuestoJornadaEntity {
     this.codigoOperaria,
     this.nombres,
     this.apellidos,
-    this.especialidad,
   });
 
   bool get esAnonima => idOperaria == null;

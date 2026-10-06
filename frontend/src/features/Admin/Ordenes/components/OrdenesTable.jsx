@@ -8,6 +8,10 @@ import { PrioridadBadge } from "./PrioridadBadge";
 /**
  * Columnas del listado de la vista `vw_avance_orden`.
  * Las comparte la tabla y la exportacion a CSV.
+ *
+ * La tabla muestra solo cinco: N. de orden, cliente, lote, modulo y
+ * referencia. El resto lleva `oculta: true`: no se pinta en la tabla
+ * pero si sale en la exportacion, y se ve completo en el detalle (ojo).
  */
 export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
   return [
@@ -22,12 +26,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       key: "nombre_cliente",
       header: "Cliente",
       sortable: true,
-      render: (orden) => (
-        <div className="min-w-0">
-          <p className="truncate text-sm text-gray-800">{orden.nombre_cliente || GUION}</p>
-          <p className="truncate text-xs text-gray-400">{orden.nombre_referencia || GUION}</p>
-        </div>
-      ),
+      render: (orden) => <span className="text-sm text-gray-800">{orden.nombre_cliente || GUION}</span>,
       exportar: (orden) => orden.nombre_cliente || "",
     },
     { key: "codigo_lote", header: "Lote", sortable: true },
@@ -54,7 +53,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       render: (orden) => (
         <div className="min-w-0">
           <p className="truncate text-sm text-gray-800">{orden.codigo_referencia || GUION}</p>
-          <p className="truncate text-xs text-gray-400">{orden.codigo_ficha || GUION}</p>
+          <p className="truncate text-xs text-gray-400">{orden.nombre_referencia || GUION}</p>
         </div>
       ),
       exportar: (orden) => orden.codigo_referencia || "",
@@ -63,6 +62,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       key: "porcentaje_avance",
       header: "Avance",
       sortable: true,
+      oculta: true,
       render: (orden) => (
         <div className="w-28">
           <Progress value={Number(orden.porcentaje_avance || 0)} className="h-2" />
@@ -80,6 +80,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       key: "dias_atraso",
       header: "Entrega",
       sortable: true,
+      oculta: true,
       // `dias_atraso` sale sola de `jornada_modulo`: el ultimo dia que un
       // modulo trabajo esta orden, comparado con la fecha en que debia
       // estar lista. Nadie la digita ni la cierra a mano.
@@ -109,19 +110,26 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       key: "prioridad",
       header: "Prioridad",
       sortable: true,
+      oculta: true,
       render: (orden) => <PrioridadBadge prioridad={orden.prioridad} />,
       exportar: (orden) => orden.prioridad,
     },
     {
-      key: "fecha_emision",
-      header: "Emision",
+      // Cuando llego el lote. Antes se mostraba `fecha_emision` (cuando
+      // se digito la orden) con el rotulo "Emision", y convivian dos
+      // fechas de ingreso con nombres distintos.
+      key: "fecha_recepcion",
+      header: "Recepcion",
       sortable: true,
-      render: (orden) => formatFecha(orden.fecha_emision),
+      oculta: true,
+      render: (orden) => formatFecha(orden.fecha_recepcion),
+      exportar: (orden) => orden.fecha_recepcion || "",
     },
     {
       key: "estado",
       header: "Estado",
       sortable: true,
+      oculta: true,
       render: (orden) => <StatusBadge status={orden.estado} />,
       exportar: (orden) => orden.estado,
     },

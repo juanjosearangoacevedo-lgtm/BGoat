@@ -62,6 +62,10 @@ class OrdenEntity {
   final double? tarifaMinutoReal;
 
   final String? fechaEmision;
+
+  /// Cuando llego el lote a la planta. Es la unica fecha de ingreso que se
+  /// muestra ("Recepcion"): `fechaEmision` es solo cuando se digito la orden.
+  final String? fechaRecepcion;
   final String? fechaInicioProgramada;
   final String? fechaFinProgramada;
   final String? fechaInicioReal;
@@ -100,6 +104,7 @@ class OrdenEntity {
     this.tarifaMinutoPactada,
     this.tarifaMinutoReal,
     this.fechaEmision,
+    this.fechaRecepcion,
     this.fechaInicioProgramada,
     this.fechaFinProgramada,
     this.fechaInicioReal,

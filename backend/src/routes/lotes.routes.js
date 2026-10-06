@@ -210,9 +210,9 @@ lotesRouter.get(
 //
 //   Es reemplazo y no suma, igual que los minutos perdidos de la
 //   captura: lo que la pantalla muestra es lo que queda guardado. Una
-//   lista vacia es valida y borra el desglose: el negocio todavia no
-//   decide si va a usarlo, y exigirlo bloquearia el registro del lote
-//   por un dato que a veces no viene en la hoja del cliente.
+//   lista vacia es valida (el lote se registra antes de tener la hoja
+//   del cliente), pero sin desglose no hay cantidad ni se puede crear
+//   la orden. Cada fila, en cambio, exige talla, color y cantidad.
 //
 //   Este es el UNICO lugar que escribe `lotes.cantidad_programada`: la
 //   suma de lo que queda aqui se guarda como la cantidad del lote, en
@@ -248,6 +248,16 @@ lotesRouter.put(
 
     const negativa = lineas.find((linea) => linea.cantidad !== null && linea.cantidad < 0);
     if (negativa) throw ApiError.badRequest("Las cantidades del desglose no pueden ser negativas");
+
+    // German: "Toda produccion, sin excepcion, se trabaja por talla y
+    // color. NO SE TRABAJA NADA SIN TALLA". Cada fila lleva las dos y una
+    // cantidad mayor que cero; una fila a medias no se guarda.
+    const incompleta = lineas.find(
+      (linea) => !linea.id_talla || !linea.id_color || !(linea.cantidad > 0),
+    );
+    if (incompleta) {
+      throw ApiError.badRequest("Cada fila del desglose necesita talla, color y una cantidad mayor que cero");
+    }
 
     // La misma pareja talla+color dos veces son dos numeros para el mismo
     // casillero: el segundo taparia al primero en cualquier reporte.
@@ -301,10 +311,12 @@ lotesRouter.put(
           [lote.id_lote, linea.id_talla, linea.id_color, linea.cantidad],
         );
       }
-      await conexion.execute("UPDATE lotes SET cantidad_programada = ? WHERE id_lote = ?", [
-        suma,
-        lote.id_lote,
-      ]);
+      // Lo que llego es exactamente lo que se desgloso: la cantidad
+      // recibida es la misma suma, no un numero que se digite aparte.
+      await conexion.execute(
+        "UPDATE lotes SET cantidad_programada = ?, cantidad_recibida = ? WHERE id_lote = ?",
+        [suma, suma, lote.id_lote],
+      );
     });
 
     const datos = await detalleDe(lote.id_lote);

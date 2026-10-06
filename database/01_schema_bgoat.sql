@@ -207,18 +207,36 @@ CREATE TABLE IF NOT EXISTS `tipos_prenda` (
 --   `tipo` separa el tiempo perdido imputable al cliente (EXTERNA) del
 --   propio (INTERNA) y del planeado (montaje, curva de aprendizaje).
 --   `requiere_nota` obliga a escribir la explicacion adicional.
+--
+--   `codigo` ES el nombre de la causa (lo que la digitadora ve en el
+--   boton); `descripcion` es la explicacion larga y es opcional.
+--
+--   `id_responsable` apunta a `responsables`: antes era texto libre y
+--   "Produccion" y "produccion" contaban como dos responsables.
 -- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `responsables` (
+  `id_responsable` BIGINT NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(80) NOT NULL,
+  `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
+  PRIMARY KEY (`id_responsable`),
+  UNIQUE INDEX `uq_responsables_nombre` (`nombre`)
+) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
+
 CREATE TABLE IF NOT EXISTS `causas_desviacion` (
   `id_causa` BIGINT NOT NULL AUTO_INCREMENT,
-  `codigo` VARCHAR(30) NOT NULL,
-  `nombre` VARCHAR(100) NOT NULL,
+  `codigo` VARCHAR(100) NOT NULL,
+  `descripcion` VARCHAR(255) DEFAULT NULL,
   `tipo` ENUM('PLANEADA', 'INTERNA', 'EXTERNA') NOT NULL DEFAULT 'INTERNA',
-  `responsable` VARCHAR(80) DEFAULT NULL,
+  `id_responsable` BIGINT DEFAULT NULL,
   `requiere_nota` TINYINT(1) NOT NULL DEFAULT '0',
   `orden_visual` SMALLINT NOT NULL DEFAULT '1',
   `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
   PRIMARY KEY (`id_causa`),
-  UNIQUE INDEX `uq_causas_codigo` (`codigo`)
+  UNIQUE INDEX `uq_causas_codigo` (`codigo`),
+  INDEX `fk_causa_responsable` (`id_responsable`),
+  CONSTRAINT `fk_causa_responsable`
+    FOREIGN KEY (`id_responsable`) REFERENCES `responsables` (`id_responsable`)
+    ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8mb4;
 
 -- ---------------------------------------------------------------------
@@ -477,7 +495,6 @@ CREATE TABLE IF NOT EXISTS `operarios` (
   `correo` VARCHAR(150) DEFAULT NULL,
   `fecha_ingreso` DATE NOT NULL,
   `cargo` ENUM('OPERARIO', 'MECANICO', 'OTRO') NOT NULL DEFAULT 'OPERARIO',
-  `especialidad` VARCHAR(100) DEFAULT NULL,
   `estado` ENUM('ACTIVO', 'INACTIVO', 'RETIRADO') NOT NULL DEFAULT 'ACTIVO',
   PRIMARY KEY (`id_operario`),
   UNIQUE INDEX `uq_operarios_codigo` (`codigo_operario`),
@@ -562,9 +579,14 @@ CREATE TABLE IF NOT EXISTS `ordenes_produccion` (
   -- estimar cuando estaria listo. No es la eficiencia real -esa se mide
   -- sola en los indicadores- y puede quedar vacio o cambiar dia a dia.
   `eficiencia_esperada` DECIMAL(5,2) DEFAULT NULL,
-  -- Ya no es BAJA/MEDIA/ALTA/URGENTE a elegir: es el consecutivo global
-  -- de la cola, lo asigna el backend al crear (ver `ordenes.routes.js`).
-  -- El numero mas bajo es la orden mas vieja esperando turno.
+  -- Con cuantas personas se calculo la entrega (las de la primera
+  -- jornada, o las del ultimo ajuste de German), y para cuales ya dijo
+  -- "dejar como esta". Si la ultima jornada declara otras, el panel avisa.
+  `personas_entrega` SMALLINT DEFAULT NULL,
+  `personas_aviso_visto` SMALLINT DEFAULT NULL,
+  -- Ya no es BAJA/MEDIA/ALTA/URGENTE a elegir: es la posicion en la cola
+  -- por fecha de recepcion del lote (el que llego primero es el #1). La
+  -- renumera sola el plan de produccion (`backend/src/lib/plan.js`).
   `prioridad` INT NOT NULL DEFAULT 1,
   -- Igual que en `lotes.estado`: Pendiente/En proceso son manuales,
   -- Finalizado lo pone solo `captura.routes.js` al completarse la
@@ -775,12 +797,22 @@ CREATE TABLE IF NOT EXISTS `registros_horarios` (
 --
 --   Registrar minutos NO baja la meta: la meta la fija la franja. Los
 --   minutos perdidos explican el hueco, no lo perdonan.
+--
+--   Cada fila es UNA parada: de que hora a que hora (`hora_desde`,
+--   `hora_hasta`) y por que causa. `minutos` lo calcula el backend de
+--   esas dos horas; la digitadora no lo escribe. Una causa puede
+--   repetirse en la misma hora (la maquina se trabo dos veces). Las
+--   filas anteriores a este cambio tienen minutos y no tienen horas.
 -- =====================================================================
 CREATE TABLE IF NOT EXISTS `registro_minutos_perdidos` (
+  `id_perdida` BIGINT NOT NULL AUTO_INCREMENT,
   `id_registro` BIGINT NOT NULL,
   `id_causa` BIGINT NOT NULL,
+  `hora_desde` TIME DEFAULT NULL,
+  `hora_hasta` TIME DEFAULT NULL,
   `minutos` SMALLINT NOT NULL,
-  PRIMARY KEY (`id_registro`, `id_causa`),
+  PRIMARY KEY (`id_perdida`),
+  INDEX `fk_perdida_registro` (`id_registro`),
   INDEX `fk_perdida_causa` (`id_causa`),
   CONSTRAINT `fk_perdida_registro`
     FOREIGN KEY (`id_registro`) REFERENCES `registros_horarios` (`id_registro`)
@@ -997,7 +1029,7 @@ SELECT
 
   r.id_causa                                       AS id_causa,
   c.codigo                                         AS codigo_causa,
-  c.nombre                                         AS nombre_causa,
+  COALESCE(c.descripcion, c.codigo)                AS nombre_causa,
   c.tipo                                           AS tipo_causa,
   r.nota                                           AS nota,
   r.estado                                         AS estado,
@@ -1149,6 +1181,10 @@ SELECT
   lot.nombre_referencia                            AS nombre_referencia,
   lot.sam_pactado                                  AS sam_pactado,
   lot.numero_pedido                                AS numero_pedido,
+  -- Cuando llego el lote a la planta. Es la fecha que se muestra como
+  -- "Recepcion" en la orden: `fecha_emision` es solo cuando se digito la
+  -- orden en el sistema, y mostrar las dos confundia.
+  lot.fecha_recepcion                              AS fecha_recepcion,
   lot.fecha_entrega_programada                     AS fecha_entrega_programada,
   cli.id_cliente                                   AS id_cliente,
   cli.nombre                                       AS nombre_cliente,
@@ -1161,6 +1197,13 @@ SELECT
   tom.tomada_el                                    AS tomada_el,
   o.cantidad_programada                            AS cantidad_programada,
   o.eficiencia_esperada                            AS eficiencia_esperada,
+  o.personas_entrega                               AS personas_entrega,
+  o.personas_aviso_visto                           AS personas_aviso_visto,
+  -- Las personas de la ultima jornada con esta orden: si no coinciden con
+  -- las de la entrega, German decide si ajusta (ver `lib/plan.js`).
+  (SELECT jmu.cantidad_operarias FROM jornada_modulo jmu
+    WHERE jmu.id_orden_produccion = o.id_orden_produccion
+    ORDER BY jmu.fecha DESC, jmu.id_jornada_modulo DESC LIMIT 1) AS personas_ultima_jornada,
   COALESCE(p.unidades_producidas, 0)               AS unidades_producidas,
   COALESCE(p.unidades_defectuosas, 0)              AS unidades_defectuosas,
   GREATEST(o.cantidad_programada - COALESCE(p.unidades_producidas, 0), 0) AS unidades_restantes,
@@ -1256,9 +1299,9 @@ SELECT
   v.codigo_modulo                                  AS codigo_modulo,
   cd.id_causa                                      AS id_causa,
   cd.codigo                                        AS codigo_causa,
-  cd.nombre                                        AS nombre_causa,
+  COALESCE(cd.descripcion, cd.codigo)              AS nombre_causa,
   cd.tipo                                          AS tipo_causa,
-  cd.responsable                                   AS responsable,
+  resp.nombre                                      AS responsable,
   COUNT(*)                                         AS horas_afectadas,
 
   -- Minutos de modulo: lo que la digitadora anoto en el tablero.
@@ -1284,8 +1327,9 @@ SELECT
 FROM registro_minutos_perdidos p
 JOIN vw_registro_horario v ON v.id_registro = p.id_registro
 JOIN causas_desviacion cd  ON cd.id_causa = p.id_causa
+LEFT JOIN responsables resp ON resp.id_responsable = cd.id_responsable
 GROUP BY v.fecha, v.id_modulo, v.codigo_modulo,
-         cd.id_causa, cd.codigo, cd.nombre, cd.tipo, cd.responsable;
+         cd.id_causa, cd.codigo, cd.descripcion, cd.tipo, resp.nombre;
 
 -- ---------------------------------------------------------------------
 -- vw_tablero_modulo_dia

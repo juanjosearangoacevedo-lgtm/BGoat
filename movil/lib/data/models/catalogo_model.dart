@@ -21,7 +21,6 @@ class OperariaModel extends OperariaEntity {
     super.codigo,
     required super.nombres,
     required super.apellidos,
-    super.especialidad,
   });
 
   factory OperariaModel.fromJson(Map<String, dynamic> json) => OperariaModel(
@@ -29,7 +28,6 @@ class OperariaModel extends OperariaEntity {
         codigo: aTextoNulo(json['codigo_operario']),
         nombres: aTexto(json['nombres']),
         apellidos: aTexto(json['apellidos']),
-        especialidad: aTextoNulo(json['especialidad']),
       );
 }
 
@@ -46,7 +44,10 @@ class CausaModel extends CausaEntity {
   factory CausaModel.fromJson(Map<String, dynamic> json) => CausaModel(
         id: aInt(json['id_causa']),
         codigo: aTexto(json['codigo']),
-        nombre: aTexto(json['nombre']),
+        // El codigo ES el nombre de la causa y la descripcion es opcional:
+        // el backend ya manda en `nombre` lo que se muestra (la descripcion
+        // si la hay, si no el codigo).
+        nombre: aTexto(json['nombre'] ?? json['descripcion'] ?? json['codigo']),
         tipo: aTexto(json['tipo'], 'INTERNA'),
         responsable: aTextoNulo(json['responsable']),
         // MySQL guarda los TINYINT(1) como 0 y 1, no como true y false.

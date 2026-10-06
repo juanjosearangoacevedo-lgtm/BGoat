@@ -10,6 +10,10 @@ import { formatFecha, formatNumero, GUION } from "@/shared/utils/formatters";
  * `estado` (Pendiente, En proceso, Finalizado) y `activo` (si se sigue
  * ofreciendo) son columnas independientes: el interruptor de la fila
  * cambia `activo`, no `estado`.
+ *
+ * La tabla muestra solo cinco: codigo, cliente, referencia, cantidad y
+ * entrega. El resto lleva `oculta: true`: no se pinta pero si sale en la
+ * exportacion, y se ve completo en el detalle (ojo).
  */
 export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado, onDelete } = {}) {
   return [
@@ -26,6 +30,7 @@ export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado
       key: "numero_pedido",
       header: "Pedido",
       sortable: true,
+      oculta: true,
       render: (lote) =>
         lote.numero_pedido || <span className="text-gray-300">{GUION}</span>,
       exportar: (lote) => lote.numero_pedido || "",
@@ -58,6 +63,7 @@ export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado
       key: "nombre_tipo_prenda",
       header: "Tipo",
       sortable: true,
+      oculta: true,
       render: (lote) =>
         lote.nombre_tipo_prenda || <span className="text-gray-300">{GUION}</span>,
       exportar: (lote) => lote.nombre_tipo_prenda || "",
@@ -67,6 +73,7 @@ export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado
       header: "SAM",
       align: "right",
       sortable: true,
+      oculta: true,
       // Un lote sin SAM no deja iniciar la jornada: se marca en rojo para
       // que se vea en el listado y no al momento de arrancar el modulo.
       render: (lote) =>
@@ -78,44 +85,44 @@ export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado
       exportar: (lote) => Number(lote.sam_pactado || 0),
     },
     {
-      key: "cantidad_programada",
-      header: "Programada",
+      // Programada y recibida son el mismo numero: la suma del desglose
+      // por talla y color. Se muestra una sola.
+      key: "cantidad_recibida",
+      header: "Cantidad",
       align: "right",
       sortable: true,
       render: (lote) => (
-        <span className="font-medium text-gray-900">{formatNumero(lote.cantidad_programada)}</span>
+        <span className="font-medium text-gray-900">{formatNumero(lote.cantidad_recibida)}</span>
       ),
-      exportar: (lote) => Number(lote.cantidad_programada || 0),
-    },
-    {
-      key: "cantidad_recibida",
-      header: "Recibida",
-      align: "right",
-      sortable: true,
-      render: (lote) => formatNumero(lote.cantidad_recibida),
       exportar: (lote) => Number(lote.cantidad_recibida || 0),
     },
     {
       key: "fecha_recepcion",
       header: "Recepcion",
       sortable: true,
+      oculta: true,
       render: (lote) => formatFecha(lote.fecha_recepcion),
     },
     {
       key: "fecha_entrega_programada",
       header: "Entrega",
       sortable: true,
+      // La entrega sale de la orden el dia en que inicia jornada (formula
+      // de German); antes no hay con que calcularla, y se dice asi en vez
+      // de un guion mudo.
       render: (lote) =>
         lote.fecha_entrega_programada ? (
           formatFecha(lote.fecha_entrega_programada)
         ) : (
-          <span className="text-gray-300">{GUION}</span>
+          <span className="text-xs text-gray-400">Al iniciar jornada</span>
         ),
+      exportar: (lote) => lote.fecha_entrega_programada || "",
     },
     {
       key: "estado",
       header: "Estado",
       sortable: true,
+      oculta: true,
       render: (lote) => <StatusBadge status={lote.estado} />,
       exportar: (lote) => lote.estado,
     },

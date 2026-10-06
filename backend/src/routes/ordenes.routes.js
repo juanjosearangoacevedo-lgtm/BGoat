@@ -2,6 +2,7 @@ import { Router } from "express";
 import { execute, query, queryOne } from "../config/db.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
 import { filtrosDeListado } from "../lib/filtros.js";
+import { decidirEntrega } from "../lib/plan.js";
 import { requierePermiso } from "../middleware/auth.js";
 
 export const ordenesRouter = Router();
@@ -33,9 +34,10 @@ export const ordenesRouter = Router();
  * quien esta creando la orden que invente un consecutivo sin duplicarse
  * con el resto de la planta. Lo genera `generarNumeroOrden()` al crear.
  *
- * `prioridad` tampoco: ya no es BAJA/MEDIA/ALTA/URGENTE a elegir, es la
- * posicion en la cola global (la orden mas vieja es la numero mas baja).
- * La asigna `siguientePrioridad()` al crear, y no se vuelve a tocar.
+ * `prioridad` tampoco: es la posicion en la cola por fecha de recepcion
+ * del lote (el que llego primero es el #1). `siguientePrioridad()` solo
+ * le pone un numero provisional al crear; enseguida el plan
+ * (`lib/plan.js`) renumera todas las que no han terminado.
  *
  * `eficiencia_esperada` si viene en `CAMPOS` y si se edita libremente:
  * es un supuesto de planeacion (que tan bien le va a ir al modulo que
@@ -49,28 +51,12 @@ export const ordenesRouter = Router();
  * modulo toma la orden, y Finalizado lo pone `captura.routes.js` al
  * completarse la cantidad programada.
  *
- * `fecha_inicio_programada` y `fecha_fin_programada` SI vienen en
- * `CAMPOS`, pero tampoco se digitan: el frontend las calcula (inicio =
- * recepcion del lote, fin = la fecha estimada con SAM + eficiencia
- * esperada + dias no laborales) y las manda ya resueltas. Al guardarlas,
- * `fecha_fin_programada` se copia a `lotes.fecha_entrega_programada`
- * (ver `sincronizarEntregaLote`): es el mismo compromiso visto desde el
- * lote.
+ * `fecha_inicio_programada` y `fecha_fin_programada` tampoco vienen en
+ * `CAMPOS`: las pone el plan de produccion (`lib/plan.js`). El inicio es
+ * el dia en que un modulo abre jornada con la orden, y el fin sale de la
+ * formula de German desde ese dia; queda fijo como entrega del lote.
  */
-const CAMPOS = [
-  "id_lote",
-  "fecha_inicio_programada", "fecha_fin_programada", "eficiencia_esperada",
-  "observaciones",
-];
-
-/** El compromiso de entrega del lote es el fin estimado de su orden. */
-async function sincronizarEntregaLote(idLote, fechaFinProgramada) {
-  if (!idLote || !fechaFinProgramada) return;
-  await execute("UPDATE lotes SET fecha_entrega_programada = ? WHERE id_lote = ?", [
-    fechaFinProgramada,
-    idLote,
-  ]);
-}
+const CAMPOS = ["id_lote", "eficiencia_esperada", "observaciones"];
 
 /**
  * El siguiente consecutivo del año: OP-2026-0001, OP-2026-0002...
@@ -235,8 +221,6 @@ ordenesRouter.post(
       ]);
     }
 
-    await sincronizarEntregaLote(datos.id_lote, datos.fecha_fin_programada);
-
     res.status(201).json(
       await queryOne("SELECT * FROM vw_avance_orden WHERE id_orden_produccion = ?", [
         resultado.insertId,
@@ -251,12 +235,29 @@ ordenesRouter.put(
   requierePermiso("Ordenes", "EDITAR"),
   asyncHandler(async (req, res) => {
     const existente = await queryOne(
-      "SELECT id_orden_produccion, id_lote, estado FROM ordenes_produccion WHERE id_orden_produccion = ?",
+      `SELECT id_orden_produccion, id_lote, estado, eficiencia_esperada,
+              fecha_inicio_real, fecha_fin_programada
+         FROM ordenes_produccion WHERE id_orden_produccion = ?`,
       [req.params.id],
     );
     if (!existente) throw ApiError.notFound();
 
     const datos = limpiar(req.body);
+
+    // Cambiar la eficiencia de una orden que ya arranco y ya tiene entrega
+    // es la decision de German de ajustarla: se recalcula la entrega desde
+    // el mismo inicio con las personas de la ultima jornada (`lib/plan.js`).
+    const eficienciaNueva = datos.eficiencia_esperada;
+    if (
+      eficienciaNueva !== undefined &&
+      eficienciaNueva !== null &&
+      existente.fecha_inicio_real &&
+      existente.fecha_fin_programada &&
+      Number(eficienciaNueva) !== Number(existente.eficiencia_esperada)
+    ) {
+      await decidirEntrega(req.params.id, { accion: "ajustar", eficiencia_esperada: eficienciaNueva });
+      delete datos.eficiencia_esperada;
+    }
 
     // Si la orden cambia de lote, la cantidad se resincroniza con el
     // nuevo lote: sigue sin ser un dato que se digite.
@@ -283,8 +284,22 @@ ordenesRouter.put(
       );
     }
 
-    await sincronizarEntregaLote(datos.id_lote ?? existente.id_lote, datos.fecha_fin_programada);
 
+    res.json(
+      await queryOne("SELECT * FROM vw_avance_orden WHERE id_orden_produccion = ?", [req.params.id]),
+    );
+  }),
+);
+
+// --- Entrega: la decision de German cuando cambian las personas ------------
+//   POST /ordenes-produccion/:id/entrega
+//     { accion: "ajustar", eficiencia_esperada }  -> recalcula y queda fija
+//     { accion: "dejar" }                          -> no cambia, apaga el aviso
+ordenesRouter.post(
+  "/:id/entrega",
+  requierePermiso("Ordenes", "EDITAR"),
+  asyncHandler(async (req, res) => {
+    await decidirEntrega(req.params.id, req.body || {});
     res.json(
       await queryOne("SELECT * FROM vw_avance_orden WHERE id_orden_produccion = ?", [req.params.id]),
     );

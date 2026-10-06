@@ -1,4 +1,5 @@
 import { reglas, validarFormulario } from "@/shared/validations";
+import { minutosDeParada } from "../utils/paradas";
 
 /**
  * Reglas de la captura horaria -> tabla `registros_horarios`.
@@ -8,7 +9,8 @@ import { reglas, validarFormulario } from "@/shared/validations";
  *
  *   - las unidades y las defectuosas son enteros que no bajan de cero,
  *   - las defectuosas no pueden superar lo producido,
- *   - si la hora quedo bajo el umbral hay que registrar minutos perdidos,
+ *   - si la hora quedo bajo el umbral hay que registrar al menos una parada,
+ *   - cada parada (causa, desde, hasta) cae dentro de la hora y no se cruza,
  *   - si la causa con mas minutos lo exige, hay que escribir la nota.
  *
  * Ya no hay un selector de "causa principal" aparte: se preguntaba lo
@@ -65,30 +67,23 @@ export function crearCapturaEsquema({ causaPrincipal = null } = {}) {
  * rejilla muestra bajo el boton de guardar.
  *
  * Dos reglas no son de un solo campo, asi que se revisan aparte:
- *   - si la hora quedo bajo el umbral, tiene que haber algo cargado en
- *     minutos perdidos (ya no se pregunta la causa por separado),
- *   - los minutos perdidos, sumados, no pueden salirse de la franja.
+ *   - si la hora quedo bajo el umbral, tiene que haber al menos una
+ *     parada (ya no se pregunta la causa por separado),
+ *   - las paradas tienen que estar completas, dentro de la franja y sin
+ *     cruzarse (`problemaParadas`).
  * El backend valida las dos igual; esto es para que la digitadora lo
  * vea antes de guardar.
  */
-export function validarCaptura({
-  valores,
-  bajoUmbral,
-  causaPrincipal,
-  excedePerdidos = false,
-  minutosFranja = 60,
-}) {
+export function validarCaptura({ valores, bajoUmbral, causaPrincipal, problemaParadas = "" }) {
   const errores = validarFormulario(valores, crearCapturaEsquema({ causaPrincipal }));
 
-  const hayMinutosPerdidos = Object.values(valores.minutos_perdidos || {}).some(
-    (minutos) => Number(minutos) > 0,
-  );
+  const hayParadas = (valores.paradas ?? []).some((parada) => minutosDeParada(parada) > 0);
 
-  if (excedePerdidos) {
-    errores.minutos_perdidos = `Los minutos perdidos no caben en una franja de ${minutosFranja} minutos`;
-  } else if (bajoUmbral && !hayMinutosPerdidos) {
+  if (problemaParadas) {
+    errores.minutos_perdidos = problemaParadas;
+  } else if (bajoUmbral && !hayParadas) {
     errores.minutos_perdidos =
-      "La hora quedo bajo la meta: registra cuanto tiempo se perdio y por que";
+      "La hora quedo bajo la meta: registra de que hora a que hora se paro el modulo y por que";
   }
 
   return {

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/fechas.dart' as fechas;
 import '../../core/formato.dart';
+import '../../core/paradas.dart';
 import '../../core/tema.dart';
 import '../../domain/entities/captura_entity.dart';
 import '../../domain/entities/catalogo_entity.dart';
@@ -53,9 +54,10 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
   /// digito.
   final Map<String, TextEditingController> _controlesTallaColor = {};
 
-  /// Los minutos perdidos, abiertos por causa. Es reemplazo y no suma: lo que
-  /// quede en esta lista es lo que queda guardado.
-  final Map<int, int> _perdidas = {};
+  /// Las paradas de esta hora: causa, desde y hasta. Es reemplazo y no suma:
+  /// lo que quede en esta lista es lo que queda guardado. Una causa puede
+  /// aparecer varias veces (la maquina se trabo dos veces).
+  final List<MinutosPerdidosEntity> _paradas = [];
 
   /// Se enciende cuando el backend rechaza el guardado por falta de incidencia.
   bool _resaltarIncidencia = false;
@@ -89,9 +91,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
     _nota = TextEditingController(text: celda?.nota ?? '');
     _cambioPersonas = celda != null && celda.personasPresentes != widget.modulo.personasSugeridas;
 
-    for (final linea in celda?.detallePerdidas ?? const <MinutosPerdidosEntity>[]) {
-      _perdidas[linea.idCausa] = linea.minutos;
-    }
+    _paradas.addAll(celda?.detallePerdidas ?? const <MinutosPerdidosEntity>[]);
   }
 
   @override
@@ -164,17 +164,27 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
 
   bool get _bajoUmbral => _meta > 0 && _producidasN > 0 && _eficiencia < _umbral;
 
+  /// Minutos de una parada: de sus dos horas. Las de antes del cambio no
+  /// tienen horas y conservan los minutos con que se guardaron.
+  int _minutosDe(MinutosPerdidosEntity parada) => parada.horaDesde == null
+      ? parada.minutos
+      : minutosDeParada(parada.horaDesde, parada.horaHasta);
+
   int get _minutosPerdidos =>
-      _perdidas.values.fold(0, (total, minutos) => total + minutos);
+      _paradas.fold(0, (total, parada) => total + _minutosDe(parada));
 
-  /// La causa principal: la que mas minutos perdidos tiene. No se pregunta
-  /// aparte -- es lo mismo que calcula el backend al guardar, y pedirla dos
-  /// veces era la misma pregunta con otro nombre.
+  /// La causa principal: la que mas minutos suma entre sus paradas. No se
+  /// pregunta aparte -- es lo mismo que calcula el backend al guardar, y
+  /// pedirla dos veces era la misma pregunta con otro nombre.
   int? get _causaEfectiva {
-    if (_perdidas.isEmpty) return null;
+    if (_paradas.isEmpty) return null;
 
-    var mayor = _perdidas.entries.first;
-    for (final linea in _perdidas.entries) {
+    final porCausa = <int, int>{};
+    for (final parada in _paradas) {
+      porCausa[parada.idCausa] = (porCausa[parada.idCausa] ?? 0) + _minutosDe(parada);
+    }
+    var mayor = porCausa.entries.first;
+    for (final linea in porCausa.entries) {
       if (linea.value > mayor.value) mayor = linea;
     }
     return mayor.key;
@@ -196,13 +206,9 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
       return;
     }
 
-    if (_minutosPerdidos > widget.franja.minutos) {
-      avisar(
-        context,
-        'Los minutos perdidos ($_minutosPerdidos) superan los '
-        '${widget.franja.minutos} de la hora',
-        esError: true,
-      );
+    final problema = problemaParadas(_paradas, widget.franja);
+    if (problema != null) {
+      avisar(context, problema, esError: true);
       return;
     }
 
@@ -223,9 +229,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
           .toList(),
       unidadesDefectuosas: _defectuosasN,
       nota: _nota.text.trim().isEmpty ? null : _nota.text.trim(),
-      minutosPerdidos: _perdidas.entries
-          .map((linea) => MinutosPerdidosEntity(idCausa: linea.key, minutos: linea.value))
-          .toList(),
+      minutosPerdidos: List.of(_paradas),
     ));
 
     if (!mounted) return;
@@ -687,77 +691,94 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
     );
   }
 
-  /// Los minutos que el modulo estuvo parado, abiertos por causa.
+  /// Las paradas del modulo en esta hora: de que hora a que hora y por que.
   ///
-  /// Es lo que convierte "el modulo fue lento" en "se perdieron 20 minutos por
+  /// Es lo que convierte "el modulo fue lento" en "se paro de 9:10 a 9:30 por
   /// maquina", que es lo unico con lo que se puede hacer algo. La causa
-  /// principal no se pregunta aparte: sale sola de cual causa tiene mas
-  /// minutos aqui (`_causaEfectiva`), igual que la calcula el backend.
+  /// principal no se pregunta aparte: sale sola de cual causa suma mas minutos
+  /// aqui (`_causaEfectiva`), igual que la calcula el backend.
   Widget _minutosPerdidosSeccion(List<CausaEntity> causas) {
     final obligatoria = (_bajoUmbral && _causaEfectiva == null) || _resaltarIncidencia;
     final causaPrincipal = _causa(_causaEfectiva);
+    final problema = problemaParadas(_paradas, widget.franja);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TituloSeccion(
-          obligatoria ? 'Que paso (obligatorio)' : 'Minutos perdidos',
+          obligatoria ? 'Que paso (obligatorio)' : 'Paradas del modulo',
           detalle: _minutosPerdidos > 0
               ? '$_minutosPerdidos de ${widget.franja.minutos} minutos de la hora'
               : obligatoria
                   ? 'Sin esto el sistema no puede decir en que se van los minutos.'
-                  : 'Opcional. Cuanto tiempo estuvo parado el modulo y por que.',
+                  : 'Opcional. De que hora a que hora estuvo parado el modulo y por que.',
           accion: TextButton.icon(
-            onPressed: () => _agregarPerdida(causas),
+            onPressed: () => _editarParada(causas),
             icon: const Icon(Icons.add, size: 17),
             label: const Text('Agregar'),
           ),
         ),
-        if (_perdidas.isEmpty)
+        if (_paradas.isEmpty)
           Text(
             'Sin paradas registradas en esta hora.',
             style: TextStyle(fontSize: 12, color: obligatoria ? Paleta.alerta : Paleta.textoSuave),
           )
         else
-          ..._perdidas.entries.map((linea) {
-            final causa = _causa(linea.key);
+          ..._paradas.asMap().entries.map((entrada) {
+            final indice = entrada.key;
+            final parada = entrada.value;
+            final causa = _causa(parada.idCausa);
+            final sinHoras = parada.horaDesde == null;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Tarjeta(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                hijo: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        causa?.nombre ?? 'Causa ${linea.key}',
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                hijo: InkWell(
+                  onTap: () => _editarParada(causas, indice: indice),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              causa?.nombre ?? parada.nombre ?? 'Causa ${parada.idCausa}',
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                            ),
+                            Text(
+                              sinHoras
+                                  ? 'Registrada antes del cambio: toca para poner las horas'
+                                  : '${horaCorta(parada.horaDesde)} a ${horaCorta(parada.horaHasta)}',
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: sinHoras ? Paleta.alerta : Paleta.textoSuave,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Text(
-                      '${linea.value} min',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        color: Paleta.error,
+                      Text(
+                        '${_minutosDe(parada)} min',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Paleta.error,
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () => setState(() => _perdidas.remove(linea.key)),
-                      icon: const Icon(Icons.close, size: 17),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ],
+                      IconButton(
+                        onPressed: () => setState(() => _paradas.removeAt(indice)),
+                        icon: const Icon(Icons.close, size: 17),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
           }),
-        if (_minutosPerdidos > widget.franja.minutos) ...[
+        if (problema != null && _paradas.isNotEmpty) ...[
           const SizedBox(height: 8),
-          Text(
-            'Una franja de ${widget.franja.minutos} minutos no puede haber '
-            'perdido $_minutosPerdidos.',
-            style: const TextStyle(fontSize: 12, color: Paleta.error),
-          ),
+          Text(problema, style: const TextStyle(fontSize: 12, color: Paleta.error)),
         ],
         // Algunas incidencias exigen explicacion: el backend rechaza el
         // guardado sin ella, asi que el campo aparece solo cuando toca.
@@ -777,75 +798,121 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
     );
   }
 
-  Future<void> _agregarPerdida(List<CausaEntity> causas) async {
+  /// Agrega una parada, o corrige la de `indice`: causa, desde y hasta.
+  ///
+  /// Las horas se escogen con el reloj del telefono y arrancan en el inicio
+  /// de la franja: es mas rapido mover unos minutos que escribir la hora.
+  Future<void> _editarParada(List<CausaEntity> causas, {int? indice}) async {
     if (causas.isEmpty) return;
 
-    var idCausa = causas.first.id;
-    final minutos = TextEditingController();
-    var valorMinutos = 0;
+    final actual = indice == null ? null : _paradas[indice];
+    final inicioFranja = aMinutosDelDia(widget.franja.horaInicio) ?? 0;
+    final finFranja = aMinutosDelDia(widget.franja.horaFin) ?? inicioFranja + widget.franja.minutos;
+
+    var idCausa = actual?.idCausa ?? causas.first.id;
+    var desde = aMinutosDelDia(actual?.horaDesde) ?? inicioFranja;
+    var hasta = aMinutosDelDia(actual?.horaHasta) ?? (desde + 10).clamp(desde, finFranja);
+
+    Future<int?> elegirHora(BuildContext dialogo, int minutos) async {
+      final hora = await showTimePicker(
+        context: dialogo,
+        initialTime: TimeOfDay(hour: minutos ~/ 60, minute: minutos % 60),
+        helpText: 'Entre ${horaCorta(widget.franja.horaInicio)} y ${horaCorta(widget.franja.horaFin)}',
+      );
+      return hora == null ? null : hora.hour * 60 + hora.minute;
+    }
 
     final resultado = await showDialog<bool>(
       context: context,
       builder: (dialogo) => StatefulBuilder(
-        builder: (_, refrescar) => AlertDialog(
-          title: const Text('Minutos perdidos'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<int>(
-                initialValue: idCausa,
-                isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Causa'),
-                items: causas
-                    .map((causa) => DropdownMenuItem(
-                          value: causa.id,
-                          child: Text(causa.nombre, overflow: TextOverflow.ellipsis),
-                        ))
-                    .toList(),
-                onChanged: (valor) => refrescar(() => idCausa = valor ?? idCausa),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: minutos,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: 'Minutos',
-                  helperText: 'Maximo ${widget.franja.minutos}',
+        builder: (_, refrescar) {
+          final minutos = hasta > desde ? hasta - desde : 0;
+          return AlertDialog(
+            title: Text(indice == null ? 'Nueva parada' : 'Corregir parada'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<int>(
+                  initialValue: idCausa,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Causa'),
+                  items: causas
+                      .map((causa) => DropdownMenuItem(
+                            value: causa.id,
+                            child: Text(causa.nombre, overflow: TextOverflow.ellipsis),
+                          ))
+                      .toList(),
+                  onChanged: (valor) => refrescar(() => idCausa = valor ?? idCausa),
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final elegida = await elegirHora(dialogo, desde);
+                          if (elegida != null) refrescar(() => desde = elegida);
+                        },
+                        child: Text('De ${aHoraTexto(desde)}'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          final elegida = await elegirHora(dialogo, hasta);
+                          if (elegida != null) refrescar(() => hasta = elegida);
+                        },
+                        child: Text('A ${aHoraTexto(hasta)}'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  minutos > 0 ? '$minutos minutos parado' : 'La hora final va despues de la inicial',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: minutos > 0 ? Paleta.texto : Paleta.error,
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogo, false),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: minutos > 0 ? () => Navigator.pop(dialogo, true) : null,
+                child: Text(indice == null ? 'Agregar' : 'Guardar'),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogo, false),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              // El valor se lee aqui, antes de cerrar el dialogo: leerlo
-              // despues de Navigator.pop corre contra la animacion de salida,
-              // que todavia necesita un cuadro con el controller vivo.
-              onPressed: () {
-                valorMinutos = int.tryParse(minutos.text) ?? 0;
-                Navigator.pop(dialogo, true);
-              },
-              child: const Text('Agregar'),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
 
-    // Se destruye en el siguiente cuadro, ya con el dialogo fuera del arbol:
-    // destruirlo de inmediato tumbaba la animacion de cierre con "controller
-    // used after being disposed".
-    WidgetsBinding.instance.addPostFrameCallback((_) => minutos.dispose());
+    if (resultado != true || !mounted) return;
 
-    if (resultado == true && valorMinutos > 0) {
-      // Se suma sobre la misma causa en vez de duplicarla: es lo mismo que
-      // hace el backend al normalizar.
-      setState(() => _perdidas[idCausa] = (_perdidas[idCausa] ?? 0) + valorMinutos);
-    }
+    final parada = MinutosPerdidosEntity(
+      idCausa: idCausa,
+      horaDesde: aHoraTexto(desde),
+      horaHasta: aHoraTexto(hasta),
+      minutos: hasta - desde,
+    );
+    setState(() {
+      if (indice == null) {
+        _paradas.add(parada);
+      } else {
+        _paradas[indice] = parada;
+      }
+    });
+
+    // Fuera de la franja o cruzada con otra: se avisa ya, no al guardar.
+    final problema = problemaParadas(_paradas, widget.franja);
+    if (problema != null) avisar(context, problema, esError: true);
   }
 
   Widget _pie(CapturaProvider provider) {

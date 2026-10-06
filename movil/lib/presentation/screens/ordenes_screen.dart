@@ -477,8 +477,8 @@ class _HojaOrden extends StatelessWidget {
                 const TituloSeccion('Fechas y asignacion'),
                 FilaDeDatos([
                   Dato(
-                    etiqueta: 'Emitida',
-                    valor: fechas.fechaCorta(orden.fechaEmision),
+                    etiqueta: 'Recepcion',
+                    valor: fechas.fechaCorta(orden.fechaRecepcion),
                   ),
                   Dato(
                     etiqueta: 'Entrega',

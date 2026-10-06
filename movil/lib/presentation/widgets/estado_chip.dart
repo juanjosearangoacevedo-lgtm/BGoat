@@ -47,8 +47,8 @@ class EstadoChip extends StatelessWidget {
 }
 
 /// La etiqueta de prioridad de una orden: ya no es BAJA/MEDIA/ALTA/URGENTE,
-/// es la posicion de la orden en la cola global (la mas vieja es la
-/// numero mas baja), asignada sola al crearla.
+/// es su posicion en la cola por fecha de recepcion del lote (el que llego
+/// primero es el #1). La renumera sola el backend.
 class PrioridadChip extends StatelessWidget {
   final int? prioridad;
 

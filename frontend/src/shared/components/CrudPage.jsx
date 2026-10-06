@@ -28,7 +28,9 @@ import { MODOS, useViewMode } from "../hooks/useViewMode";
  *
  *   columnas: [{ key, header, align, render(fila), sortable, tipo: "estado" }]
  *   campos:   [{ name, label, type, options, placeholder, ancho, required,
- *               minLength, maxLength, min, max, patron, hint }]
+ *               minLength, maxLength, min, max, patron, hint,
+ *               extra({ setField }) }]   -> algo debajo del campo, como un
+ *                                          "+ agregar" al catalogo de un select
  *   filtrosLista: [{ clave, label, tipo, opciones }]  -> filtros en pantalla
  *   filtros:      { estado: "ACTIVO" }                -> filtros del query
  */
@@ -348,6 +350,7 @@ export function CrudPage({
                 error={crud.errors[campo.name]}
                 onChange={(valor) => crud.setField(campo.name, valor)}
               />
+              {campo.extra?.({ setField: crud.setField })}
             </div>
           ))}
         </div>

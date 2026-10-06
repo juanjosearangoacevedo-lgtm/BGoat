@@ -12,7 +12,6 @@ class PuestoJornadaModel extends PuestoJornadaEntity {
     super.codigoOperaria,
     super.nombres,
     super.apellidos,
-    super.especialidad,
   });
 
   factory PuestoJornadaModel.fromJson(Map<String, dynamic> json) => PuestoJornadaModel(
@@ -24,7 +23,6 @@ class PuestoJornadaModel extends PuestoJornadaEntity {
         codigoOperaria: aTextoNulo(json['codigo_operario']),
         nombres: aTextoNulo(json['nombres']),
         apellidos: aTextoNulo(json['apellidos']),
-        especialidad: aTextoNulo(json['especialidad']),
       );
 }
 
