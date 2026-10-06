@@ -48,7 +48,7 @@ export function OrdenesPage({ onNavigate }) {
     ) : (
       <Button
         onClick={() => onNavigate?.("create-order")}
-        className="bg-[#D08E10] text-white hover:bg-[#B67F14]"
+        className="bg-dorado text-white hover:bg-dorado-hover"
       >
         <Plus className="mr-2 h-4 w-4" />
         Nueva orden
@@ -77,7 +77,7 @@ export function OrdenesPage({ onNavigate }) {
       >
         <Button
           onClick={() => onNavigate?.("create-order")}
-          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
+          className="h-10 gap-2 rounded-xl bg-dorado px-5 text-white hover:bg-dorado-hover"
         >
           <Plus className="h-4 w-4" />
           Nueva orden
@@ -94,9 +94,9 @@ export function OrdenesPage({ onNavigate }) {
         columns={4}
         items={[
           { label: "Total ordenes", value: ordenes.resumen.total },
-          { label: "En proceso", value: ordenes.resumen.enProceso, color: "#D08E10" },
-          { label: "Pendientes", value: ordenes.resumen.pendientes, color: "#eab308" },
-          { label: "Finalizadas", value: ordenes.resumen.finalizadas, color: "#10b981" },
+          { label: "En proceso", value: ordenes.resumen.enProceso, color: "var(--dorado)" },
+          { label: "Pendientes", value: ordenes.resumen.pendientes, color: "var(--amarillo)" },
+          { label: "Finalizadas", value: ordenes.resumen.finalizadas, color: "var(--exito-vivo)" },
         ]}
       />
 
@@ -146,7 +146,7 @@ export function OrdenesPage({ onNavigate }) {
           footer={paginacion}
           onClick={(orden) => onNavigate?.("order-detail", orden)}
           avatar={() => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F4C3F] to-[#0F4C3F] text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-marca to-marca text-white">
               <Package className="h-4 w-4" />
             </div>
           )}

@@ -1,4 +1,5 @@
 import { AlertTriangle, Clock, Package, Target, TrendingUp } from "lucide-react";
+import { transparente } from "@/shared/styles/paleta";
 
 /**
  * Las tarjetas de KPI del panel.
@@ -13,34 +14,34 @@ export const KPIS = {
     titulo: "Produccion del periodo",
     unidad: "unidades",
     icono: Package,
-    color: "#D49A17",
+    color: "var(--ambar)",
   },
   eficiencia: {
     titulo: "Eficiencia",
     unidad: "% de minutos aprovechados",
     icono: Target,
-    color: "#22A447",
+    color: "var(--exito)",
     sufijo: "%",
   },
   cumplimiento_meta: {
     titulo: "Cumplimiento de meta",
     unidad: "% de la meta del periodo",
     icono: TrendingUp,
-    color: "#2F8068",
+    color: "var(--marca-claro)",
     sufijo: "%",
   },
   porcentaje_defectos: {
     titulo: "Tasa de defectos",
     unidad: "sobre lo producido",
     icono: AlertTriangle,
-    color: "#D64545",
+    color: "var(--peligro)",
     sufijo: "%",
   },
   minutos_por_prenda: {
     titulo: "SAM real promedio",
     unidad: "minutos por prenda",
     icono: Clock,
-    color: "#A87508",
+    color: "var(--ambar-texto)",
   },
 };
 
@@ -72,17 +73,17 @@ export function PanelKpis({ valores = {}, claves = KPIS_INDICADORES_REPORTES, co
           <div key={clave} className="rounded-2xl border border-emerald-200 bg-white p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-[#5C6B64]">{kpi.titulo}</p>
+                <p className="text-sm text-texto-suave">{kpi.titulo}</p>
                 <p className="mt-1 text-3xl font-bold" style={{ color: kpi.color }}>
                   {texto}
                 </p>
-                <p className="mt-1 text-xs text-[#8B968F]">{kpi.unidad}</p>
+                <p className="mt-1 text-xs text-gris">{kpi.unidad}</p>
               </div>
 
               {conIcono && (
                 <div
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
-                  style={{ backgroundColor: `${kpi.color}15` }}
+                  style={{ backgroundColor: transparente(kpi.color, 8.235) }}
                 >
                   <Icono className="h-5 w-5" style={{ color: kpi.color }} />
                 </div>

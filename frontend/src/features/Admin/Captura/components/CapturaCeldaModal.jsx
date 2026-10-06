@@ -16,8 +16,8 @@ import { CapturaDesgloseTallaColor } from "./CapturaDesgloseTallaColor";
 function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca", soloTeclado = false, autoFocus = false }) {
   const numero = Number(valor || 0);
   const colores = {
-    marca: "text-[#0F4C3F]",
-    naranja: "text-[#D08E10]",
+    marca: "text-marca",
+    naranja: "text-dorado",
     rojo: "text-red-500",
   };
 
@@ -37,14 +37,14 @@ function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca
           min={min}
           onChange={(evento) => onCambiar(Math.max(Number(evento.target.value || 0), min))}
           onFocus={(evento) => evento.target.select()}
-          className={`w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-center text-3xl font-bold outline-none focus:border-[#0F4C3F] ${colores[tono]}`}
+          className={`w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-center text-3xl font-bold outline-none focus:border-marca ${colores[tono]}`}
         />
       ) : (
         <div className="flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => onCambiar(Math.max(numero - paso, min))}
-            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] active:scale-95"
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-marca hover:text-marca active:scale-95"
             aria-label={`Restar ${etiqueta || "cantidad"}`}
           >
             <span className="text-xl leading-none">−</span>
@@ -63,7 +63,7 @@ function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca
           <button
             type="button"
             onClick={() => onCambiar(numero + paso)}
-            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-[#0F4C3F] hover:text-[#0F4C3F] active:scale-95"
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-marca hover:text-marca active:scale-95"
             aria-label={`Sumar ${etiqueta || "cantidad"}`}
           >
             <span className="text-xl leading-none">+</span>
@@ -92,13 +92,13 @@ function PersonasFranja({ sugeridas, valor, cambio, onCambio, onCambiar }) {
       {cambio ? (
         <Contador valor={valor} onCambiar={onCambiar} tono="naranja" min={0} autoFocus />
       ) : (
-        <p className="text-center text-3xl font-bold text-[#D08E10]">{Number(sugeridas || 0)}</p>
+        <p className="text-center text-3xl font-bold text-dorado">{Number(sugeridas || 0)}</p>
       )}
 
       <button
         type="button"
         onClick={() => onCambio(!cambio)}
-        className="mt-2 w-full text-center text-xs font-medium text-[#0F4C3F] underline underline-offset-2"
+        className="mt-2 w-full text-center text-xs font-medium text-marca underline underline-offset-2"
       >
         {cambio ? "No, dejar la de la jornada" : "¿Cambio la cantidad esta hora?"}
       </button>
@@ -151,7 +151,7 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
                     value={parada.id_causa}
                     onChange={(evento) => cambiar(indice, "id_causa", evento.target.value)}
                     aria-label={`Causa de la parada ${indice + 1}`}
-                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2 text-sm outline-none focus:border-[#0F4C3F]"
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-2 text-sm outline-none focus:border-marca"
                   >
                     <option value="" disabled>
                       Elige la causa
@@ -180,7 +180,7 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
                     max={maximo}
                     aria-label={`Hora en que empezo la parada ${indice + 1}`}
                     onChange={(evento) => cambiar(indice, "hora_desde", evento.target.value)}
-                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-[#0F4C3F]"
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-marca"
                   />
                   <span className="text-xs text-gray-500">a</span>
                   <input
@@ -190,11 +190,11 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
                     max={maximo}
                     aria-label={`Hora en que termino la parada ${indice + 1}`}
                     onChange={(evento) => cambiar(indice, "hora_hasta", evento.target.value)}
-                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-[#0F4C3F]"
+                    className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-marca"
                   />
                   <span
                     className={`w-14 flex-shrink-0 text-right text-sm font-semibold ${
-                      minutos > 0 ? "text-[#b46a12]" : "text-gray-300"
+                      minutos > 0 ? "text-dorado-texto" : "text-gray-300"
                     }`}
                   >
                     {minutos} min
@@ -215,7 +215,7 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
       <button
         type="button"
         onClick={agregar}
-        className="flex items-center gap-1.5 text-xs font-medium text-[#0F4C3F] hover:underline"
+        className="flex items-center gap-1.5 text-xs font-medium text-marca hover:underline"
       >
         <Plus className="h-3.5 w-3.5" />
         Agregar parada
@@ -316,7 +316,7 @@ export function CapturaCeldaModal({
                     : " · sin orden, no se factura")
                 : "Este modulo no tiene jornada configurada"}
             </p>
-            <p className="mt-0.5 text-xs font-medium text-[#0F4C3F]">
+            <p className="mt-0.5 text-xs font-medium text-marca">
               Franja de {franja.minutos} minutos
               {franja.minutos !== 60 && (
                 <span className="ml-1 font-normal text-gray-400">
@@ -337,25 +337,25 @@ export function CapturaCeldaModal({
 
         <div className="flex-1 space-y-4 overflow-y-auto p-5">
           {/* Meta calculada por el sistema */}
-          <div className="grid grid-cols-3 gap-3 rounded-2xl bg-[#0F4C3F]/5 p-4 text-center">
+          <div className="grid grid-cols-3 gap-3 rounded-2xl bg-marca/5 p-4 text-center">
             <div>
-              <p className="text-xs text-[#0F4C3F]/70">Meta</p>
-              <p className="text-2xl font-bold text-[#0F4C3F]">
+              <p className="text-xs text-marca/70">Meta</p>
+              <p className="text-2xl font-bold text-marca">
                 {Math.round(calculo?.meta ?? 0)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#0F4C3F]/70">Eficiencia</p>
+              <p className="text-xs text-marca/70">Eficiencia</p>
               <p
                 className={`text-2xl font-bold ${
-                  calculo?.bajoUmbral ? "text-[#b46a12]" : "text-green-600"
+                  calculo?.bajoUmbral ? "text-dorado-texto" : "text-green-600"
                 }`}
               >
                 {calculo?.cumplimiento ?? 0}%
               </p>
             </div>
             <div>
-              <p className="text-xs text-[#0F4C3F]/70">SAM real</p>
+              <p className="text-xs text-marca/70">SAM real</p>
               <p className="text-2xl font-bold text-gray-700">{calculo?.samObservado ?? "—"}</p>
             </div>
           </div>
@@ -398,7 +398,7 @@ export function CapturaCeldaModal({
           {/* El aviso solo apunta a lo de abajo: ya no hay un selector de
               causa aparte que responda la misma pregunta dos veces. */}
           {calculo?.bajoUmbral && entradasPerdidos.length === 0 && (
-            <p className="flex items-start gap-2 rounded-xl border border-[#D08E10]/30 bg-[#D08E10]/5 px-3 py-2.5 text-xs text-[#b46a12]">
+            <p className="flex items-start gap-2 rounded-xl border border-dorado/30 bg-dorado/5 px-3 py-2.5 text-xs text-dorado-texto">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
               La hora quedo por debajo del umbral ({calculo.umbral}%): registra abajo de que hora a
               que hora se paro el modulo y por que.
@@ -417,7 +417,7 @@ export function CapturaCeldaModal({
           {calculo?.minutosPerdidos > 0 && (
             <p className="text-center text-xs text-gray-500">
               {calculo.minutosPerdidos} min de modulo x {valores.personas_presentes} personas ={" "}
-              <strong className="text-[#b46a12]">
+              <strong className="text-dorado-texto">
                 {calculo.minutosPerdidosPersona} minutos-persona
               </strong>{" "}
               perdidos
@@ -426,8 +426,8 @@ export function CapturaCeldaModal({
 
           {/* La nota solo aparece si la causa con mas minutos la exige. */}
           {(causaPrincipal?.requiere_nota || valores.nota) && (
-            <div className="rounded-2xl border border-[#D08E10]/30 bg-[#D08E10]/5 p-4">
-              <p className="mb-2 flex items-center gap-2 text-sm font-medium text-[#b46a12]">
+            <div className="rounded-2xl border border-dorado/30 bg-dorado/5 p-4">
+              <p className="mb-2 flex items-center gap-2 text-sm font-medium text-dorado-texto">
                 <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                 {causaPrincipal ? `${causaPrincipal.nombre}: explica que paso` : "Explica que paso"}
               </p>
@@ -435,7 +435,7 @@ export function CapturaCeldaModal({
                 value={valores.nota || ""}
                 onChange={(evento) => onCambiar("nota", evento.target.value)}
                 placeholder="Explica brevemente que paso"
-                className="h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-[#0F4C3F]"
+                className="h-11 w-full rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-marca"
               />
             </div>
           )}
@@ -453,7 +453,7 @@ export function CapturaCeldaModal({
             Cancelar
           </Button>
           <Button
-            className="h-12 flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
+            className="h-12 flex-1 bg-dorado text-white hover:bg-dorado-hover"
             disabled={guardando || !validacion.valido}
             onClick={onGuardar}
           >
@@ -463,7 +463,7 @@ export function CapturaCeldaModal({
         </div>
 
         {validacion.mensaje && (
-          <p className="px-5 pb-4 text-center text-xs text-[#b46a12]">{validacion.mensaje}</p>
+          <p className="px-5 pb-4 text-center text-xs text-dorado-texto">{validacion.mensaje}</p>
         )}
       </div>
     </div>

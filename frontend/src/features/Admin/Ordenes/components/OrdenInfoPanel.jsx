@@ -42,7 +42,7 @@ function Entrega({ orden }) {
     const atraso = Number(orden.dias_atraso || 0);
     return (
       <span className="text-right">
-        <span className="font-bold text-[#0F4C3F]">{formatFecha(orden.fecha_fin_programada)}</span>
+        <span className="font-bold text-marca">{formatFecha(orden.fecha_fin_programada)}</span>
         {atraso > 0 && (
           <span className="ml-1.5 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
             +{atraso} {atraso === 1 ? "dia" : "dias"}
@@ -52,7 +52,7 @@ function Entrega({ orden }) {
     );
   }
   if (orden?.fecha_inicio_real) {
-    return <span className="text-[#b46a12]">Falta la eficiencia esperada</span>;
+    return <span className="text-dorado-texto">Falta la eficiencia esperada</span>;
   }
   return <span className="text-gray-500">Se calcula al iniciar jornada</span>;
 }
@@ -159,7 +159,7 @@ export function OrdenInfoPanel({ orden, lote }) {
       <div className="space-y-5">
         {grupos.map((grupo) => (
           <div key={grupo.titulo}>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-marca">
               {grupo.titulo}
             </p>
             <div className="space-y-2.5">
@@ -180,7 +180,7 @@ export function OrdenInfoPanel({ orden, lote }) {
         {/* La ficha tecnica vive en el lote: se abre el archivo directo. */}
         {(imagen || pdf) && (
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-marca">
               Ficha tecnica
             </p>
             <div className="flex flex-wrap gap-2">
@@ -189,7 +189,7 @@ export function OrdenInfoPanel({ orden, lote }) {
                   href={imagen}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-[#0F4C3F] hover:bg-gray-50"
+                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-marca hover:bg-gray-50"
                 >
                   <Image className="h-3.5 w-3.5" />
                   Ver foto
@@ -200,7 +200,7 @@ export function OrdenInfoPanel({ orden, lote }) {
                   href={pdf}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-[#0F4C3F] hover:bg-gray-50"
+                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-marca hover:bg-gray-50"
                 >
                   <FileText className="h-3.5 w-3.5" />
                   Ver PDF
@@ -212,7 +212,7 @@ export function OrdenInfoPanel({ orden, lote }) {
 
         {orden?.observaciones && (
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-marca">
               Observaciones
             </p>
             <p className="whitespace-pre-line text-sm text-gray-800">{orden.observaciones}</p>

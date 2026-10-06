@@ -56,7 +56,7 @@ function SelectorColor({ value, options, onChange }) {
         aria-haspopup="listbox"
         aria-expanded={abierto}
         onClick={() => setAbierto((previo) => !previo)}
-        className="flex h-10 w-full items-center gap-2 rounded-lg border border-gray-200 bg-white px-2 text-left text-sm outline-none focus:border-[#0F4C3F]"
+        className="flex h-10 w-full items-center gap-2 rounded-lg border border-gray-200 bg-white px-2 text-left text-sm outline-none focus:border-marca"
       >
         {elegido ? (
           <>
@@ -88,13 +88,13 @@ function SelectorColor({ value, options, onChange }) {
                     setAbierto(false);
                   }}
                   className={`flex w-full items-center gap-3 px-3 py-2 text-left text-sm transition hover:bg-gray-50 ${
-                    activo ? "bg-[#0F4C3F]/5" : ""
+                    activo ? "bg-marca/5" : ""
                   }`}
                 >
                   <Muestra hex={opcion.hex} className="h-5 w-5" />
                   <span className="flex-1 text-gray-800">{opcion.label}</span>
                   <span className="font-mono text-xs text-gray-400">{opcion.hex || "—"}</span>
-                  {activo && <Check className="h-4 w-4 text-[#0F4C3F]" />}
+                  {activo && <Check className="h-4 w-4 text-marca" />}
                 </button>
               </li>
             );
@@ -155,11 +155,11 @@ export function DesgloseTallaColor({
   return (
     <div className="rounded-2xl border border-emerald-200 bg-white p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-marca">
           <Layers className="h-4 w-4" />
           Talla y color
         </span>
-        <span className="text-sm font-bold text-[#0F4C3F]">
+        <span className="text-sm font-bold text-marca">
           {formatNumero(suma)} {suma === 1 ? "unidad" : "unidades"}
         </span>
       </div>
@@ -233,7 +233,7 @@ export function DesgloseTallaColor({
               type="button"
               disabled={!borradorCompleto}
               onClick={guardarFila}
-              className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
+              className="flex-1 bg-dorado text-white hover:bg-dorado-hover"
             >
               Guardar
             </Button>
@@ -249,7 +249,7 @@ export function DesgloseTallaColor({
               <select
                 value={borrador.id_talla}
                 onChange={(evento) => setBorrador((previo) => ({ ...previo, id_talla: evento.target.value }))}
-                className="h-10 w-full rounded-lg border border-gray-200 bg-white px-2 text-sm outline-none focus:border-[#0F4C3F]"
+                className="h-10 w-full rounded-lg border border-gray-200 bg-white px-2 text-sm outline-none focus:border-marca"
               >
                 <option value="" disabled>
                   Elige la talla
@@ -282,7 +282,7 @@ export function DesgloseTallaColor({
               autoFocus
               value={borrador.cantidad}
               onChange={(evento) => setBorrador((previo) => ({ ...previo, cantidad: evento.target.value }))}
-              className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#0F4C3F]"
+              className="h-10 w-full rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-marca"
             />
           </div>
         </div>

@@ -21,7 +21,7 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
       sortable: true,
       render: (modulo) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#0F4C3F]/10 text-[#0F4C3F]">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca">
             <Factory className="h-4 w-4" />
           </div>
           <div className="min-w-0">
@@ -87,7 +87,7 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
           <div className="w-24">
             <div className="h-2 overflow-hidden rounded-full bg-gray-100">
               <div
-                className={`h-full rounded-full ${eficiencia >= 100 ? "bg-green-500" : "bg-[#0F4C3F]"}`}
+                className={`h-full rounded-full ${eficiencia >= 100 ? "bg-green-500" : "bg-marca"}`}
                 style={{ width: `${Math.min(eficiencia, 100)}%` }}
               />
             </div>

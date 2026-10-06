@@ -25,7 +25,7 @@ export function LoginPage({ onNavigate }) {
   const login = useLoginForm(onNavigate);
 
   return (
-    <div className="fuente-bgoat relative min-h-screen w-full overflow-hidden bg-[#0F1A17]">
+    <div className="fuente-bgoat relative min-h-screen w-full overflow-hidden bg-tinta-3">
       <img
         src={authFoto}
         alt=""
@@ -50,7 +50,7 @@ export function LoginPage({ onNavigate }) {
         Volver al inicio
       </button>
 
-      <AuthThemeToggle dark={dark} onToggle={toggleDark} color="#ffffff" />
+      <AuthThemeToggle dark={dark} onToggle={toggleDark} color="var(--blanco)" />
 
       <FraseManuscrita
         lineas={authFrases.izquierda}
@@ -93,7 +93,7 @@ function FraseManuscrita({ lineas, className }) {
         {lineas[1]}
       </p>
       <svg viewBox="0 0 220 22" className="mt-1 h-4 w-[190px]" fill="none">
-        <path d="M5 17C58 12 138 6 215 4" stroke="#E3A81B" strokeWidth="5" strokeLinecap="round" />
+        <path d="M5 17C58 12 138 6 215 4" stroke="var(--dorado-claro)" strokeWidth="5" strokeLinecap="round" />
       </svg>
     </div>
   );

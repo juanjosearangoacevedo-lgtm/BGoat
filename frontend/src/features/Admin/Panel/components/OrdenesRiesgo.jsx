@@ -22,9 +22,9 @@ export function OrdenesRiesgo({ ordenes = [], onNavigate }) {
   }
 
   return (
-    <Card className="border-l-4 border-l-[#0F4C3F] bg-white p-6">
+    <Card className="border-l-4 border-l-marca bg-white p-6">
       <div className="mb-4 flex items-center gap-2">
-        <AlertTriangle className="h-5 w-5 text-[#D08E10]" />
+        <AlertTriangle className="h-5 w-5 text-dorado" />
         <h3 className="text-lg font-bold text-gray-900">
           Ordenes en riesgo ({ordenes.length})
         </h3>
@@ -60,7 +60,7 @@ export function OrdenesRiesgo({ ordenes = [], onNavigate }) {
               </div>
 
               <div className="text-right">
-                <p className={`text-sm font-bold ${vencida ? "text-red-600" : "text-[#b46a12]"}`}>
+                <p className={`text-sm font-bold ${vencida ? "text-red-600" : "text-dorado-texto"}`}>
                   {vencida ? `${Math.abs(dias)} dias vencida` : `${dias} dias`}
                 </p>
                 <p className="text-xs text-gray-400">{formatFecha(orden.fecha_fin_programada)}</p>

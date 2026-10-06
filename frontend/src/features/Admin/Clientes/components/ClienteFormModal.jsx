@@ -34,7 +34,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
     >
       <div className="space-y-5">
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
             Como lo conoce la planta
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -71,7 +71,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
             Datos fiscales
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -104,7 +104,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">Contacto</h3>
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">Contacto</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
               label="Correo"

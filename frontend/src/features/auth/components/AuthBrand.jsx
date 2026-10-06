@@ -28,7 +28,7 @@ export function AuthBrand({
           }
         />
       ) : (
-        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-[#0F4C3F] to-[#0F4C3F]">
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-marca to-marca">
           <Package className="h-7 w-7 text-white" />
         </div>
       )}
@@ -36,7 +36,7 @@ export function AuthBrand({
         <span
           className={
             vertical
-              ? "mt-3 text-[22px] font-bold tracking-tight text-[#16232B] sm:text-[26px]"
+              ? "mt-3 text-[22px] font-bold tracking-tight text-tinta-4 sm:text-[26px]"
               : `text-2xl font-bold ${textColor}`
           }
         >

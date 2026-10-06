@@ -83,14 +83,14 @@ export function LoteFormModal({
     >
       <div className="space-y-5">
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
             De quien viene
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label>Codigo de lote</Label>
               {editing ? (
-                <p className="mt-1 font-mono text-sm font-medium text-[#0F4C3F]">{editing.codigo_lote}</p>
+                <p className="mt-1 font-mono text-sm font-medium text-marca">{editing.codigo_lote}</p>
               ) : (
                 <p className="mt-1 text-sm text-gray-400">Se asigna solo al guardar</p>
               )}
@@ -119,7 +119,7 @@ export function LoteFormModal({
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
             Que se va a confeccionar
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -151,7 +151,7 @@ export function LoteFormModal({
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
             Acuerdo con el cliente
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -233,7 +233,7 @@ export function LoteFormModal({
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
             Recepcion
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -23,8 +23,8 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
       <div className="mb-4 flex items-start justify-between">
         <button onClick={() => onSelect?.(modulo)} className="text-left" type="button">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#0F4C3F]/10">
-              <Factory className="h-4 w-4 text-[#0F4C3F]" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-marca/10">
+              <Factory className="h-4 w-4 text-marca" />
             </div>
             <h3 className="font-bold text-gray-900">{modulo.nombre}</h3>
           </div>
@@ -44,7 +44,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
         </div>
         <div className="h-2 overflow-hidden rounded-full bg-gray-100">
           <div
-            className={`h-full rounded-full transition-all ${eficiencia >= 100 ? "bg-green-500" : "bg-[#0F4C3F]"}`}
+            className={`h-full rounded-full transition-all ${eficiencia >= 100 ? "bg-green-500" : "bg-marca"}`}
             style={{ width: `${Math.min(eficiencia, 100)}%` }}
           />
         </div>
@@ -77,7 +77,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
       </dl>
 
       <div className="flex items-center justify-between border-t border-gray-50 pt-3">
-        <span className="text-sm font-bold text-[#0F4C3F]">
+        <span className="text-sm font-bold text-marca">
           {Number(modulo.prendas_por_hora || 0).toFixed(1)} prendas/hora
         </span>
         <RowActions

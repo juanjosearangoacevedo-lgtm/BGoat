@@ -9,7 +9,7 @@ import { Edit2, Eye, Power, PowerOff, Trash2 } from "lucide-react";
  */
 const tonos = {
   neutro: "text-gray-400 hover:bg-gray-100 hover:text-gray-600",
-  primario: "text-gray-400 hover:bg-[#0F4C3F]/10 hover:text-[#0F4C3F]",
+  primario: "text-gray-400 hover:bg-marca/10 hover:text-marca",
   info: "text-gray-400 hover:bg-blue-50 hover:text-blue-500",
   exito: "text-gray-400 hover:bg-green-50 hover:text-green-600",
   advertencia: "text-gray-400 hover:bg-amber-50 hover:text-amber-600",

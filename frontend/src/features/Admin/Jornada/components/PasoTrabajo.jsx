@@ -49,7 +49,7 @@ export function PasoTrabajo({
           id="jornada-cliente"
           value={form.id_cliente}
           onChange={(evento) => onCambiar("id_cliente", evento.target.value)}
-          className={`h-12 w-full rounded-xl border bg-white px-3 text-base outline-none focus:border-[#0F4C3F] ${
+          className={`h-12 w-full rounded-xl border bg-white px-3 text-base outline-none focus:border-marca ${
             errors.id_cliente ? "border-red-400" : "border-gray-200"
           }`}
         >
@@ -73,7 +73,7 @@ export function PasoTrabajo({
           value={form.id_lote}
           disabled={!form.id_cliente}
           onChange={(evento) => onCambiar("id_lote", evento.target.value)}
-          className={`h-12 w-full rounded-xl border bg-white px-3 text-base outline-none focus:border-[#0F4C3F] disabled:bg-gray-50 disabled:text-gray-400 ${
+          className={`h-12 w-full rounded-xl border bg-white px-3 text-base outline-none focus:border-marca disabled:bg-gray-50 disabled:text-gray-400 ${
             errors.id_lote ? "border-red-400" : "border-gray-200"
           }`}
         >
@@ -105,7 +105,7 @@ export function PasoTrabajo({
             id="jornada-orden"
             value={form.id_orden_produccion}
             onChange={(evento) => onCambiar("id_orden_produccion", evento.target.value)}
-            className="h-12 w-full rounded-xl border border-gray-200 bg-white px-3 text-base outline-none focus:border-[#0F4C3F]"
+            className="h-12 w-full rounded-xl border border-gray-200 bg-white px-3 text-base outline-none focus:border-marca"
           >
             <option value="">Seleccionar orden</option>
             {ordenes.map((orden, indice) => (
@@ -154,7 +154,7 @@ export function PasoTrabajo({
               </div>
               <div>
                 <dt className="text-xs text-gray-500">SAM pactado</dt>
-                <dd className="font-semibold text-[#0F4C3F]">
+                <dd className="font-semibold text-marca">
                   {loteSeleccionado.sam_pactado
                     ? `${loteSeleccionado.sam_pactado} min`
                     : "Sin SAM"}
@@ -162,7 +162,7 @@ export function PasoTrabajo({
               </div>
               <div>
                 <dt className="text-xs text-gray-500">Valor de maquila</dt>
-                <dd className="font-semibold text-[#0F4C3F]">
+                <dd className="font-semibold text-marca">
                   {loteSeleccionado.valor_maquila_unidad
                     ? `${formatMoneda(loteSeleccionado.valor_maquila_unidad)} / und`
                     : "Falta"}

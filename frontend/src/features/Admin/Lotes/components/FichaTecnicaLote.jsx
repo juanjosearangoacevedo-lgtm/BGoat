@@ -96,7 +96,7 @@ function Ranura({ ranura, lote, subiendo, pendiente, onSubir, onQuitar }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-gray-800">{ranura.titulo}</p>
         {pendiente ? (
-          <p className="mt-0.5 truncate text-xs font-medium text-[#0F4C3F]">
+          <p className="mt-0.5 truncate text-xs font-medium text-marca">
             {pendiente.name} · se sube al guardar
           </p>
         ) : (
@@ -162,7 +162,7 @@ export function FichaTecnicaLote({
   return (
     <div className={compacto ? "" : "rounded-2xl border border-gray-200 bg-gray-50/60 p-4"}>
       {!compacto && (
-        <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+        <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
           Ficha tecnica
         </h4>
       )}

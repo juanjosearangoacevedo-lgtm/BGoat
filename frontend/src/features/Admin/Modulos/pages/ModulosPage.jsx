@@ -57,7 +57,7 @@ export function ModulosPage() {
         Limpiar busqueda y filtros
       </Button>
     ) : (
-      <Button onClick={modulos.openCreate} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
+      <Button onClick={modulos.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
         <Plus className="mr-2 h-4 w-4" />
         Nuevo modulo
       </Button>
@@ -82,7 +82,7 @@ export function ModulosPage() {
       <PageHeader title="Modulos y Empleados" subtitle="Tablero de control de la planta de produccion">
         <Button
           onClick={modulos.openCreate}
-          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
+          className="h-10 gap-2 rounded-xl bg-dorado px-5 text-white hover:bg-dorado-hover"
         >
           <Plus className="h-4 w-4" />
           Nuevo modulo
@@ -141,7 +141,7 @@ export function ModulosPage() {
           footer={paginacion}
           onClick={modulos.setSelected}
           avatar={() => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F4C3F]/10 text-[#0F4C3F]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-marca/10 text-marca">
               <Factory className="h-4 w-4" />
             </div>
           )}

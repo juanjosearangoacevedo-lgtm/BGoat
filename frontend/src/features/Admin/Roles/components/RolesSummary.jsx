@@ -7,9 +7,9 @@ export function RolesSummary({ resumen }) {
       columns={4}
       items={[
         { label: "Roles configurados", value: resumen.total },
-        { label: "Roles activos", value: resumen.activos, color: "#10b981" },
-        { label: "Roles inactivos", value: resumen.inactivos, color: "#6b7280" },
-        { label: "Permisos asignados", value: resumen.permisosAsignados, color: "#D08E10" },
+        { label: "Roles activos", value: resumen.activos, color: "var(--exito-vivo)" },
+        { label: "Roles inactivos", value: resumen.inactivos, color: "var(--neutro-500)" },
+        { label: "Permisos asignados", value: resumen.permisosAsignados, color: "var(--dorado)" },
       ]}
     />
   );

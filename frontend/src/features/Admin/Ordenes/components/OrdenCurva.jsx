@@ -30,12 +30,12 @@ export function OrdenCurva({ curva = [], umbral = 85 }) {
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 font-bold text-gray-900">
-          <TrendingUp className="h-4 w-4 text-[#0F4C3F]" />
+          <TrendingUp className="h-4 w-4 text-marca" />
           Curva de arranque
         </h3>
         {conDatos && (
           <p className="text-xs text-gray-500">
-            Ultima hora <strong className="text-[#0F4C3F]">{ultima}%</strong> · maxima {maxima}%
+            Ultima hora <strong className="text-marca">{ultima}%</strong> · maxima {maxima}%
           </p>
         )}
       </div>
@@ -47,14 +47,14 @@ export function OrdenCurva({ curva = [], umbral = 85 }) {
       ) : (
         <ResponsiveContainer width="100%" height={280}>
           <LineChart data={curva}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--rejilla)" />
             <XAxis
               dataKey="hora_desde_inicio"
-              stroke="#6b7280"
+              stroke="var(--neutro-500)"
               label={{ value: "Hora desde el inicio", position: "insideBottom", offset: -4, fontSize: 11 }}
             />
             <YAxis
-              stroke="#6b7280"
+              stroke="var(--neutro-500)"
               unit="%"
               domain={[0, (mayor) => Math.max(100, Math.ceil(mayor / 10) * 10)]}
             />
@@ -64,7 +64,7 @@ export function OrdenCurva({ curva = [], umbral = 85 }) {
             />
             <ReferenceLine
               y={Number(umbral)}
-              stroke="#10b981"
+              stroke="var(--exito-vivo)"
               strokeDasharray="4 4"
               label={{ value: `Meta ${Number(umbral)}%`, fontSize: 11, position: "insideTopRight" }}
             />
@@ -72,7 +72,7 @@ export function OrdenCurva({ curva = [], umbral = 85 }) {
               type="monotone"
               dataKey="eficiencia"
               name="Eficiencia"
-              stroke="#0F4C3F"
+              stroke="var(--marca)"
               strokeWidth={2}
               dot={{ r: 3 }}
             />

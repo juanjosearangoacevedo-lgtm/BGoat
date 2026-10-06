@@ -5,7 +5,7 @@ export function OrdenProgresoHero({ orden, progress = 0 }) {
   const dias = diasEntre(orden?.fecha_inicio_programada, orden?.fecha_fin_programada);
 
   return (
-    <div className="rounded-2xl bg-gradient-to-r from-[#0F4C3F] to-[#1B6B55] p-6 text-white">
+    <div className="rounded-2xl bg-gradient-to-r from-marca to-marca-medio p-6 text-white">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <p className="text-sm text-white/70">Progreso general</p>
@@ -21,7 +21,7 @@ export function OrdenProgresoHero({ orden, progress = 0 }) {
       </div>
 
       <div className="h-3 overflow-hidden rounded-full bg-white/20">
-        <div className="h-full rounded-full bg-[#D08E10] transition-all" style={{ width: `${progress}%` }} />
+        <div className="h-full rounded-full bg-dorado transition-all" style={{ width: `${progress}%` }} />
       </div>
 
       <div className="mt-2 flex flex-wrap justify-between gap-2 text-xs text-white/60">
@@ -52,7 +52,7 @@ export function OrdenProgresoHero({ orden, progress = 0 }) {
             Ultimo dia trabajado: {formatFecha(orden.ultimo_dia_trabajado)}
           </span>
           {Number(orden.dias_atraso) > 0 ? (
-            <span className="rounded-full bg-[#D64545]/25 px-2.5 py-1 font-semibold text-white">
+            <span className="rounded-full bg-peligro/25 px-2.5 py-1 font-semibold text-white">
               +{orden.dias_atraso} {Number(orden.dias_atraso) === 1 ? "dia" : "dias"} de atraso
             </span>
           ) : (

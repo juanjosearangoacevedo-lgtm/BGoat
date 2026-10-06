@@ -4,11 +4,11 @@ import { StatusBadge } from "@/shared/components/StatusBadge";
 import { documento, iniciales } from "@/shared/utils/formatters";
 
 const avatarColors = [
-  "bg-[#D08E10]",
-  "bg-[#D08E10]",
+  "bg-dorado",
+  "bg-dorado",
   "bg-teal-500",
   "bg-rose-500",
-  "bg-[#24973A]",
+  "bg-exito-anillo",
   "bg-amber-500",
 ];
 

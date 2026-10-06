@@ -82,7 +82,7 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
             value={fecha}
             max={hoyLocal()}
             onChange={(evento) => setFecha(evento.target.value)}
-            className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
+            className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-marca/30"
           />
         </div>
         {/* El inicio de jornada salio del menu lateral, asi que este es su
@@ -111,16 +111,16 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
         <button
           type="button"
           onClick={() => irACelda(recordatorio.siguiente)}
-          className="mb-6 flex w-full items-center gap-3 rounded-2xl border border-[#D08E10]/40 bg-[#D08E10]/10 p-4 text-left transition hover:bg-[#D08E10]/15"
+          className="mb-6 flex w-full items-center gap-3 rounded-2xl border border-dorado/40 bg-dorado/10 p-4 text-left transition hover:bg-dorado/15"
         >
-          <BellRing className="h-5 w-5 shrink-0 animate-pulse text-[#D08E10]" />
+          <BellRing className="h-5 w-5 shrink-0 animate-pulse text-dorado" />
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-[#b46a12]">
+            <p className="font-semibold text-dorado-texto">
               {recordatorio.total === 1
                 ? "Falta registrar una hora"
                 : `Faltan ${recordatorio.total} horas por registrar`}
             </p>
-            <p className="truncate text-sm text-[#b46a12]/80">
+            <p className="truncate text-sm text-dorado-texto/80">
               La mas atrasada: {recordatorio.siguiente?.etiqueta} en{" "}
               {recordatorio.siguiente?.codigo_lote} · toca para registrarla
             </p>
@@ -134,9 +134,9 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
         <button
           type="button"
           onClick={() => onNavigate?.("jornada", { fecha })}
-          className="mb-6 flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white p-4 text-left transition hover:border-[#D08E10]/40"
+          className="mb-6 flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white p-4 text-left transition hover:border-dorado/40"
         >
-          <PlayCircle className="h-5 w-5 shrink-0 text-[#0F4C3F]" />
+          <PlayCircle className="h-5 w-5 shrink-0 text-marca" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-gray-800">
               {resumen.sinJornada === 1
@@ -156,22 +156,22 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
           <span className="text-sm font-medium text-gray-700">
             Avance del recorrido
             {jornada?.codigo && (
-              <span className="ml-2 rounded-md bg-[#0F4C3F]/10 px-2 py-0.5 text-xs font-medium text-[#0F4C3F]">
+              <span className="ml-2 rounded-md bg-marca/10 px-2 py-0.5 text-xs font-medium text-marca">
                 {jornada.nombre}
               </span>
             )}
           </span>
           <span className="text-sm text-gray-500">
-            <strong className="text-[#0F4C3F]">{resumen.registradas}</strong> de {resumen.totales} celdas
+            <strong className="text-marca">{resumen.registradas}</strong> de {resumen.totales} celdas
             {resumen.pendientes > 0 && (
-              <span className="ml-2 text-[#D08E10]">· {resumen.pendientes} pendientes</span>
+              <span className="ml-2 text-dorado">· {resumen.pendientes} pendientes</span>
             )}
           </span>
         </div>
         <div className="h-2.5 overflow-hidden rounded-full bg-gray-100">
           <div
             className={`h-full rounded-full transition-all ${
-              resumen.porcentaje === 100 ? "bg-green-500" : "bg-[#0F4C3F]"
+              resumen.porcentaje === 100 ? "bg-green-500" : "bg-marca"
             }`}
             style={{ width: `${resumen.porcentaje}%` }}
           />

@@ -8,7 +8,7 @@ function tonoCelda(celda, umbral) {
   const cumplimiento = Number(celda.cumplimiento || 0);
   if (celda.unidades_producidas === 0) return "border-red-200 bg-red-50 text-red-600";
   if (cumplimiento >= umbral) return "border-green-200 bg-green-50 text-green-700";
-  if (cumplimiento >= umbral * 0.7) return "border-[#D08E10]/40 bg-[#D08E10]/10 text-[#b46a12]";
+  if (cumplimiento >= umbral * 0.7) return "border-dorado/40 bg-dorado/10 text-dorado-texto";
   return "border-red-200 bg-red-50 text-red-600";
 }
 
@@ -75,7 +75,7 @@ export function CapturaRejilla({
                   <div>{horaCorta(franja)}</div>
                   <div
                     className={`mt-0.5 text-[10px] font-normal normal-case ${
-                      franja.minutos === 60 ? "text-gray-300" : "text-[#D08E10]"
+                      franja.minutos === 60 ? "text-gray-300" : "text-dorado"
                     }`}
                   >
                     {franja.minutos} min
@@ -106,7 +106,7 @@ export function CapturaRejilla({
                         type="button"
                         disabled={soloLectura}
                         onClick={() => onAbrirJornada?.(modulo)}
-                        className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 transition hover:border-[#0F4C3F] hover:text-[#0F4C3F] disabled:cursor-default disabled:hover:border-gray-300 disabled:hover:text-gray-500"
+                        className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 transition hover:border-marca hover:text-marca disabled:cursor-default disabled:hover:border-gray-300 disabled:hover:text-gray-500"
                       >
                         <Lock className="h-4 w-4" />
                         Abrir la jornada de este modulo para poder registrar
@@ -124,17 +124,17 @@ export function CapturaRejilla({
               return (
                 <tr
                   key={modulo.id_modulo}
-                  className={destacado ? "bg-[#0F4C3F]/5" : "hover:bg-gray-50/40"}
+                  className={destacado ? "bg-marca/5" : "hover:bg-gray-50/40"}
                 >
                   <td
                     className={`sticky left-0 z-10 px-4 py-3 ${
-                      destacado ? "bg-[#0F4C3F]/5" : "bg-white"
+                      destacado ? "bg-marca/5" : "bg-white"
                     }`}
                   >
                     <button
                       type="button"
                       onClick={() => onVerModulo?.(modulo)}
-                      className="text-left font-semibold text-gray-900 hover:text-[#0F4C3F] hover:underline"
+                      className="text-left font-semibold text-gray-900 hover:text-marca hover:underline"
                     >
                       {modulo.codigo}
                     </button>
@@ -168,7 +168,7 @@ export function CapturaRejilla({
                             umbral,
                           )} ${soloLectura ? "" : "hover:shadow-sm"} ${
                             reclamada
-                              ? "animate-pulse border-solid border-[#D08E10] bg-[#D08E10]/10 text-[#b46a12]"
+                              ? "animate-pulse border-solid border-dorado bg-dorado/10 text-dorado-texto"
                               : ""
                           }`}
                         >
@@ -182,7 +182,7 @@ export function CapturaRejilla({
                               </span>
                               {celda.minutos_perdidos > 0 && (
                                 <span
-                                  className="absolute -right-1 -top-1 rounded-full bg-[#0F4C3F] px-1 text-[9px] font-bold leading-tight text-white"
+                                  className="absolute -right-1 -top-1 rounded-full bg-marca px-1 text-[9px] font-bold leading-tight text-white"
                                   title={`${celda.minutos_perdidos} minutos perdidos`}
                                 >
                                   {celda.minutos_perdidos}
@@ -207,7 +207,7 @@ export function CapturaRejilla({
                     <div className="text-xs text-gray-400">
                       {modulo.resumen.eficiencia}% ef.
                       {modulo.resumen.franjas_pendientes > 0 && (
-                        <span className="ml-1 text-[#D08E10]">
+                        <span className="ml-1 text-dorado">
                           · {modulo.resumen.franjas_pendientes} pend.
                         </span>
                       )}

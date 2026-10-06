@@ -9,7 +9,7 @@ import { useTableroModulo } from "../hooks/useTableroModulo";
 function Indicador({ etiqueta, valor, nota, tono = "gris" }) {
   const tonos = {
     gris: "text-gray-900",
-    marca: "text-[#0F4C3F]",
+    marca: "text-marca",
     verde: "text-green-600",
     rojo: "text-red-600",
   };
@@ -65,7 +65,7 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
         <select
           value={idModulo ?? ""}
           onChange={(evento) => setIdModulo(evento.target.value)}
-          className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
+          className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-marca/30"
         >
           {modulos.map((m) => (
             <option key={m.id_modulo} value={m.id_modulo}>
@@ -81,7 +81,7 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
             value={fecha}
             max={hoyLocal()}
             onChange={(evento) => setFecha(evento.target.value)}
-            className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
+            className="h-10 rounded-xl border border-gray-200 px-3 text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-marca/30"
           />
         </div>
 

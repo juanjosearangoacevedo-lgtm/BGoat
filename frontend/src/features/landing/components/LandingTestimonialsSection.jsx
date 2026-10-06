@@ -13,14 +13,14 @@ export function LandingTestimonialsSection({ testimonials }) {
             <Card key={testimonial.name} className="p-6 bg-white">
               <div className="flex items-center gap-1 mb-4">
                 {[...Array(5)].map((_, index) => (
-                  <Award key={index} className="w-4 h-4 text-[#D08E10] fill-[#D08E10]" />
+                  <Award key={index} className="w-4 h-4 text-dorado fill-dorado" />
                 ))}
               </div>
               <p className="text-gray-700 mb-4">"{testimonial.text}"</p>
               <div>
                 <p className="font-bold text-gray-900">{testimonial.name}</p>
                 <p className="text-sm text-gray-600">{testimonial.role}</p>
-                <p className="text-sm text-[#0F4C3F]">{testimonial.company}</p>
+                <p className="text-sm text-marca">{testimonial.company}</p>
               </div>
             </Card>
           ))}

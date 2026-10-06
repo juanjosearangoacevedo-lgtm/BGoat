@@ -40,7 +40,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
         orden.codigo_modulo ? (
           <span className="text-gray-700">{orden.codigo_modulo}</span>
         ) : (
-          <span className="rounded-md bg-[#D08E10]/10 px-2 py-0.5 text-xs font-medium text-[#b46a12]">
+          <span className="rounded-md bg-dorado/10 px-2 py-0.5 text-xs font-medium text-dorado-texto">
             Libre
           </span>
         ),
@@ -90,11 +90,11 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
         }
         const dias = Number(orden.dias_atraso);
         return dias > 0 ? (
-          <span className="whitespace-nowrap rounded-full bg-[#D64545]/15 px-2.5 py-1 text-xs font-medium text-[#D64545]">
+          <span className="whitespace-nowrap rounded-full bg-peligro/15 px-2.5 py-1 text-xs font-medium text-peligro">
             +{dias} {dias === 1 ? "dia" : "dias"} tarde
           </span>
         ) : (
-          <span className="whitespace-nowrap rounded-full bg-[#DCEAE1] px-2.5 py-1 text-xs font-medium text-[#1F5C45]">
+          <span className="whitespace-nowrap rounded-full bg-marca-suave px-2.5 py-1 text-xs font-medium text-marca-texto">
             A tiempo
           </span>
         );

@@ -133,7 +133,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             </div>
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">Entrega</p>
-              <p className="flex h-10 items-center text-lg font-bold text-[#0F4C3F]">
+              <p className="flex h-10 items-center text-lg font-bold text-marca">
                 {orderData?.fecha_fin_programada
                   ? formatFecha(orderData.fecha_fin_programada)
                   : "Al iniciar jornada"}
@@ -154,9 +154,9 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
         )}
 
         {estimacion && (
-          <div className="rounded-2xl border border-[#0F4C3F]/20 bg-[#0F4C3F]/5 p-5">
+          <div className="rounded-2xl border border-marca/20 bg-marca/5 p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm font-medium text-[#0F4C3F]">Capacidad estimada</p>
+              <p className="text-sm font-medium text-marca">Capacidad estimada</p>
 
               {/* La orden ya no nombra modulo, asi que las personas son un
                   supuesto de quien la programa, no un dato de la orden. Se
@@ -169,7 +169,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                   max={99}
                   value={personasSupuestas}
                   onChange={(evento) => setPersonasSupuestas(evento.target.value)}
-                  className="h-8 w-16 rounded-lg border border-gray-200 bg-white px-2 text-center text-sm outline-none focus:border-[#0F4C3F]"
+                  className="h-8 w-16 rounded-lg border border-gray-200 bg-white px-2 text-center text-sm outline-none focus:border-marca"
                 />
                 operarias
               </label>
@@ -193,7 +193,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
               planta. Que modulo la tome se decide despues, al abrir la jornada.
             </p>
 
-            <div className="mt-4 border-t border-[#0F4C3F]/10 pt-4">
+            <div className="mt-4 border-t border-marca/10 pt-4">
               <div className="w-48">
                 <FormField
                   label="Eficiencia esperada (%)"
@@ -223,7 +223,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">Prioridad</p>
               <div className="flex h-10 items-center gap-2">
-                <span className="rounded-full bg-[#0F4C3F]/10 px-3 py-1 text-sm font-semibold text-[#0F4C3F]">
+                <span className="rounded-full bg-marca/10 px-3 py-1 text-sm font-semibold text-marca">
                   #{orderData.prioridad}
                 </span>
                 <span className="text-xs text-gray-400">en la cola global, no se edita</span>
@@ -272,7 +272,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             <RefreshCcw className="mr-2 h-4 w-4" />
             Limpiar
           </Button>
-          <Button type="submit" disabled={guardando} className="bg-[#D08E10] hover:bg-[#B67F14]">
+          <Button type="submit" disabled={guardando} className="bg-dorado hover:bg-dorado-hover">
             <Save className="mr-2 h-4 w-4" />
             {guardando ? "Guardando..." : isEdit ? "Actualizar" : "Guardar"}
           </Button>

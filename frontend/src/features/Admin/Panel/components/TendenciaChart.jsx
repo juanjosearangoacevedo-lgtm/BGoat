@@ -15,17 +15,17 @@ export function TendenciaEficienciaChart({ data = [] }) {
     <ChartCard title="Eficiencia por dia" data={data}>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis dataKey="periodo" stroke="#6b7280" fontSize={11} />
-          <YAxis stroke="#2F8068" fontSize={12} unit="%" domain={[0, 100]} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--rejilla)" />
+          <XAxis dataKey="periodo" stroke="var(--neutro-500)" fontSize={11} />
+          <YAxis stroke="var(--marca-claro)" fontSize={12} unit="%" domain={[0, 100]} />
           <Tooltip formatter={(valor) => [`${valor}%`, "Eficiencia"]} />
           <Area
             type="monotone"
             dataKey="eficiencia"
             name="Eficiencia"
-            stroke="#2F8068"
+            stroke="var(--marca-claro)"
             strokeWidth={2}
-            fill="#2F8068"
+            fill="var(--marca-claro)"
             fillOpacity={0.18}
           />
         </AreaChart>
@@ -39,17 +39,17 @@ export function TendenciaUnidadesChart({ data = [] }) {
     <ChartCard title="Unidades producidas por dia" data={data}>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-          <XAxis dataKey="periodo" stroke="#6b7280" fontSize={11} />
-          <YAxis stroke="#D49A17" fontSize={12} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--rejilla)" />
+          <XAxis dataKey="periodo" stroke="var(--neutro-500)" fontSize={11} />
+          <YAxis stroke="var(--ambar)" fontSize={12} />
           <Tooltip formatter={(valor) => [valor, "Unidades"]} />
           <Area
             type="monotone"
             dataKey="unidades_producidas"
             name="Unidades"
-            stroke="#D49A17"
+            stroke="var(--ambar)"
             strokeWidth={2}
-            fill="#D49A17"
+            fill="var(--ambar)"
             fillOpacity={0.22}
           />
         </AreaChart>

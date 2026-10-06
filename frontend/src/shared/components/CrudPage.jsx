@@ -186,7 +186,7 @@ export function CrudPage({
           Limpiar busqueda y filtros
         </Button>
       ) : (
-        <Button onClick={crud.openCreate} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
+        <Button onClick={crud.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
           <Plus className="mr-2 h-4 w-4" />
           {etiquetaNuevo}
         </Button>
@@ -215,7 +215,7 @@ export function CrudPage({
         {extraAcciones}
         <Button
           onClick={crud.openCreate}
-          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
+          className="h-10 gap-2 rounded-xl bg-dorado px-5 text-white hover:bg-dorado-hover"
         >
           <Plus className="h-4 w-4" />
           {etiquetaNuevo}
@@ -321,7 +321,7 @@ export function CrudPage({
               Cancelar
             </Button>
             <Button
-              className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
+              className="flex-1 bg-dorado text-white hover:bg-dorado-hover"
               disabled={crud.guardando}
               onClick={handleGuardar}
             >
@@ -369,7 +369,7 @@ export function CrudPage({
               Cerrar
             </Button>
             <Button
-              className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
+              className="flex-1 bg-dorado text-white hover:bg-dorado-hover"
               onClick={() => {
                 const fila = crud.detalle;
                 crud.cerrarDetalle();

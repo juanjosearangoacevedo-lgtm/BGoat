@@ -42,7 +42,7 @@ export function NuevoResponsable({ onCreado }) {
       <button
         type="button"
         onClick={() => setAbierto(true)}
-        className="mt-1 flex items-center gap-1 text-xs font-medium text-[#0F4C3F] hover:underline"
+        className="mt-1 flex items-center gap-1 text-xs font-medium text-marca hover:underline"
       >
         <Plus className="h-3.5 w-3.5" />
         Nuevo responsable
@@ -65,13 +65,13 @@ export function NuevoResponsable({ onCreado }) {
           }
           if (evento.key === "Escape") setAbierto(false);
         }}
-        className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-[#0F4C3F]"
+        className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-3 text-sm outline-none focus:border-marca"
       />
       <button
         type="button"
         disabled={guardando}
         onClick={crear}
-        className="h-9 rounded-lg bg-[#0F4C3F] px-3 text-xs font-medium text-white disabled:opacity-60"
+        className="h-9 rounded-lg bg-marca px-3 text-xs font-medium text-white disabled:opacity-60"
       >
         {guardando ? "Agregando..." : "Agregar"}
       </button>

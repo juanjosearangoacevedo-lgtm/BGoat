@@ -56,7 +56,7 @@ export function CalculadoraSamModal({ open, precioInicial, onClose, onUsar }) {
             type="button"
             disabled={precioNum <= 0}
             onClick={() => onUsar(Number(samSugerido.toFixed(2)), precioNum)}
-            className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
+            className="flex-1 bg-dorado text-white hover:bg-dorado-hover"
           >
             Usar este SAM
           </Button>
@@ -75,7 +75,7 @@ export function CalculadoraSamModal({ open, precioInicial, onClose, onUsar }) {
               autoFocus
               value={precio}
               onChange={(event) => setPrecio(event.target.value)}
-              className="h-10 w-full rounded-lg border border-gray-200 px-3 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
+              className="h-10 w-full rounded-lg border border-gray-200 px-3 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-marca/30"
             />
             <span className="whitespace-nowrap text-xs text-gray-500">/ unidad</span>
           </div>

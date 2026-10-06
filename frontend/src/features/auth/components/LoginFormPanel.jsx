@@ -27,7 +27,7 @@ export function LoginFormPanel({
   onTogglePassword,
 }) {
   const campo =
-    "h-[56px] w-full rounded-[14px] border border-white/70 bg-white/92 pl-[52px] pr-4 text-[15px] text-[#16232B] shadow-[0_2px_10px_-4px_rgba(14,38,32,0.25)] outline-none transition placeholder:text-[#93A0A7] focus:border-[#D08E10] focus:ring-4 focus:ring-[#D08E10]/20";
+    "h-[56px] w-full rounded-[14px] border border-white/70 bg-white/92 pl-[52px] pr-4 text-[15px] text-tinta-4 shadow-[0_2px_10px_-4px_rgba(14,38,32,0.25)] outline-none transition placeholder:text-pizarra-8 focus:border-dorado focus:ring-4 focus:ring-dorado/20";
 
   return (
     <div className="relative w-full max-w-[520px]">
@@ -50,10 +50,10 @@ export function LoginFormPanel({
         <div className="flex flex-col items-center text-center">
           <AuthBrand logo="image" nombre={null} orientacion="vertical" />
 
-        <h1 className="fuente-bienvenida mt-4 text-[29px] font-bold leading-tight text-[#12263B] sm:text-[33px]">
+        <h1 className="fuente-bienvenida mt-4 text-[29px] font-bold leading-tight text-tinta-5 sm:text-[33px]">
           Bienvenido
         </h1>
-        <p className="mt-1.5 text-[15px] text-[#55636E]">
+        <p className="mt-1.5 text-[15px] text-pizarra-6">
           Ingresa tus credenciales para acceder al sistema
         </p>
       </div>
@@ -72,7 +72,7 @@ export function LoginFormPanel({
           <div className="relative">
             <Mail
               aria-hidden="true"
-              className="pointer-events-none absolute left-[18px] top-1/2 h-[19px] w-[19px] -translate-y-1/2 text-[#54636C]"
+              className="pointer-events-none absolute left-[18px] top-1/2 h-[19px] w-[19px] -translate-y-1/2 text-pizarra-5"
             />
             <input
               id="email"
@@ -93,7 +93,7 @@ export function LoginFormPanel({
           <div className="relative">
             <Lock
               aria-hidden="true"
-              className="pointer-events-none absolute left-[18px] top-1/2 h-[19px] w-[19px] -translate-y-1/2 text-[#54636C]"
+              className="pointer-events-none absolute left-[18px] top-1/2 h-[19px] w-[19px] -translate-y-1/2 text-pizarra-5"
             />
             <input
               id="password"
@@ -108,7 +108,7 @@ export function LoginFormPanel({
               type="button"
               onClick={onTogglePassword}
               aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center text-[#54636C] transition-colors hover:text-[#16232B]"
+              className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center text-pizarra-5 transition-colors hover:text-tinta-4"
             >
               {showPassword ? (
                 <EyeOff className="h-[19px] w-[19px]" />
@@ -123,16 +123,16 @@ export function LoginFormPanel({
           <div className="flex items-center gap-2.5">
             <Checkbox
               id="remember"
-              className="size-[18px] rounded-[5px] border-[#B9C2C7] bg-white/90 data-[state=checked]:border-[#D08E10] data-[state=checked]:bg-[#D08E10] data-[state=checked]:text-white"
+              className="size-[18px] rounded-[5px] border-linea-10 bg-white/90 data-[state=checked]:border-dorado data-[state=checked]:bg-dorado data-[state=checked]:text-white"
             />
-            <label htmlFor="remember" className="cursor-pointer text-[14px] text-[#3D4A53] sm:text-[15px]">
+            <label htmlFor="remember" className="cursor-pointer text-[14px] text-pizarra-3 sm:text-[15px]">
               Recordarme
             </label>
           </div>
           <button
             type="button"
             onClick={() => onNavigate("recover-password")}
-            className="text-[13px] text-[#3D4A53] transition-colors hover:text-[#C6890A] sm:text-[15px]"
+            className="text-[13px] text-pizarra-3 transition-colors hover:text-dorado-oscuro sm:text-[15px]"
           >
             ¿Olvidaste tu contraseña?
           </button>
@@ -141,7 +141,7 @@ export function LoginFormPanel({
         {error && (
           <p
             role="alert"
-            className="rounded-[12px] border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-[13px] text-[#c02626]"
+            className="rounded-[12px] border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-[13px] text-peligro-oscuro"
           >
             {error}
           </p>
@@ -150,7 +150,7 @@ export function LoginFormPanel({
         <button
           type="submit"
           disabled={cargando}
-          className="mt-1 flex h-[58px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-[#C8901F] text-[16px] font-semibold text-white shadow-[0_16px_34px_-14px_rgba(200,144,31,0.95)] transition-colors hover:bg-[#B67F14] disabled:cursor-wait disabled:opacity-70"
+          className="mt-1 flex h-[58px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-dorado-medio text-[16px] font-semibold text-white shadow-[0_16px_34px_-14px_rgba(200,144,31,0.95)] transition-colors hover:bg-dorado-hover disabled:cursor-wait disabled:opacity-70"
         >
           {cargando ? (
             "Ingresando..."
@@ -164,12 +164,12 @@ export function LoginFormPanel({
       </form>
 
       <div aria-hidden="true" className="mt-8 flex items-center">
-        <span className="h-px flex-1 bg-[#C9D1CE]" />
-        <span className="mx-3 h-[3px] w-8 rounded-full bg-[#C8901F]" />
-        <span className="h-px flex-1 bg-[#C9D1CE]" />
+        <span className="h-px flex-1 bg-linea-8" />
+        <span className="mx-3 h-[3px] w-8 rounded-full bg-dorado-medio" />
+        <span className="h-px flex-1 bg-linea-8" />
       </div>
 
-        <p className="mt-4 text-center text-[11.5px] leading-relaxed text-[#55636E] sm:text-[12px]">
+        <p className="mt-4 text-center text-[11.5px] leading-relaxed text-pizarra-6 sm:text-[12px]">
           Al iniciar sesión, aceptas nuestros Términos de Servicio y Política de Privacidad
         </p>
       </div>

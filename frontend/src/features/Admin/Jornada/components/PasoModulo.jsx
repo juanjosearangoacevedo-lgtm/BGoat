@@ -35,10 +35,10 @@ export function PasoModulo({ modulos = [], seleccionado, onSeleccionar, onContin
             }
             className={`relative flex min-h-[104px] flex-col items-start justify-between rounded-2xl border-2 p-4 text-left transition ${
               activo
-                ? "border-[#0F4C3F] bg-[#0F4C3F]/5 shadow-sm"
+                ? "border-marca bg-marca/5 shadow-sm"
                 : ocupado
                   ? "border-emerald-200 bg-emerald-50/60 hover:border-emerald-300"
-                  : "border-gray-200 bg-white hover:border-[#D08E10]/40 hover:shadow-sm"
+                  : "border-gray-200 bg-white hover:border-dorado/40 hover:shadow-sm"
             }`}
           >
             {ocupado && (

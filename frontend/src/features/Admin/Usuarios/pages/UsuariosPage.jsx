@@ -56,7 +56,7 @@ export function UsuariosPage() {
         Limpiar busqueda y filtros
       </Button>
     ) : (
-      <Button onClick={usuarios.openCreate} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
+      <Button onClick={usuarios.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
         <Plus className="mr-2 h-4 w-4" />
         Nuevo usuario
       </Button>
@@ -81,7 +81,7 @@ export function UsuariosPage() {
       <PageHeader title="Usuarios" subtitle={`${usuarios.total} usuarios registrados`}>
         <Button
           onClick={usuarios.openCreate}
-          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
+          className="h-10 gap-2 rounded-xl bg-dorado px-5 text-white hover:bg-dorado-hover"
         >
           <Plus className="h-4 w-4" />
           Nuevo usuario
@@ -142,7 +142,7 @@ export function UsuariosPage() {
           footer={paginacion}
           onClick={usuarios.verDetalle}
           avatar={(usuario) => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F4C3F] to-[#0F4C3F] text-xs font-bold text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-marca to-marca text-xs font-bold text-white">
               {iniciales(nombreCompleto(usuario))}
             </div>
           )}

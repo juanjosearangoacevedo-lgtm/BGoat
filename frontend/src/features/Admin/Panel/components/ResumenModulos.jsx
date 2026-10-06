@@ -67,7 +67,7 @@ const columns = [
           Number(fila.eficiencia) >= 85
             ? "text-green-600"
             : Number(fila.eficiencia) >= 60
-              ? "text-[#b46a12]"
+              ? "text-dorado-texto"
               : "text-red-600"
         }`}
       >

@@ -71,7 +71,7 @@ export function LotesPage() {
         Limpiar busqueda y filtros
       </Button>
     ) : (
-      <Button onClick={lotes.openCreate} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
+      <Button onClick={lotes.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
         <Plus className="mr-2 h-4 w-4" />
         Crear lote
       </Button>
@@ -96,7 +96,7 @@ export function LotesPage() {
       <PageHeader title="Lotes" subtitle={`${lotes.total} lotes registrados`}>
         <Button
           onClick={lotes.openCreate}
-          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
+          className="h-10 gap-2 rounded-xl bg-dorado px-5 text-white hover:bg-dorado-hover"
         >
           <Plus className="h-4 w-4" />
           Crear lote
@@ -114,10 +114,10 @@ export function LotesPage() {
         variant="sutil"
         items={[
           { label: "Total lotes", value: lotes.resumen.total },
-          { label: "En proceso", value: lotes.resumen.enProceso, color: "#D08E10" },
-          { label: "Finalizados", value: lotes.resumen.entregados, color: "#10b981" },
-          { label: "Sin SAM pactado", value: lotes.resumen.sinSam, color: "#ef4444" },
-          { label: "Prendas recibidas", value: formatNumero(lotes.resumen.unidades), color: "#6b7280" },
+          { label: "En proceso", value: lotes.resumen.enProceso, color: "var(--dorado)" },
+          { label: "Finalizados", value: lotes.resumen.entregados, color: "var(--exito-vivo)" },
+          { label: "Sin SAM pactado", value: lotes.resumen.sinSam, color: "var(--peligro-vivo)" },
+          { label: "Prendas recibidas", value: formatNumero(lotes.resumen.unidades), color: "var(--neutro-500)" },
         ]}
       />
 
@@ -167,7 +167,7 @@ export function LotesPage() {
           footer={paginacion}
           onClick={lotes.verDetalle}
           avatar={() => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#0F4C3F] to-[#0F4C3F] text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-marca to-marca text-white">
               <Package2 className="h-4 w-4" />
             </div>
           )}

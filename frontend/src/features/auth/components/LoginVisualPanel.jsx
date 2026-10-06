@@ -11,8 +11,8 @@ export function LoginVisualPanel({ overlay }) {
         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", filter: "blur(26px)", transform: "scale(1.12)", pointerEvents: "none", userSelect: "none" }}
       />
       <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: overlay, pointerEvents: "none" }} />
-      <div style={{ position: "relative", zIndex: 10, color: "#ffffff", maxWidth: "28rem" }}>
-        <Factory style={{ width: 80, height: 80, marginBottom: "1.5rem", color: "#F97316" }} />
+      <div style={{ position: "relative", zIndex: 10, color: "var(--blanco)", maxWidth: "28rem" }}>
+        <Factory style={{ width: 80, height: 80, marginBottom: "1.5rem", color: "var(--naranja)" }} />
         <h2 style={{ fontSize: "2.25rem", fontWeight: 700, marginBottom: "1rem", lineHeight: 1.2 }}>
           Sistema de Gestion de Produccion Textil
         </h2>
@@ -22,7 +22,7 @@ export function LoginVisualPanel({ overlay }) {
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {loginHighlights.map(({ Icon, title, desc }) => (
             <div key={title} style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-              <div style={{ width: 32, height: 32, background: "#F97316", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ width: 32, height: 32, background: "var(--naranja)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <Icon style={{ width: 18, height: 18, color: "#fff" }} />
               </div>
               <div>

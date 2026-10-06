@@ -40,7 +40,7 @@ export function RecoverPasswordForm({
         <Button
           type="submit"
           disabled={enviando}
-          className="w-full h-12 bg-[#D08E10] hover:bg-[#B67F14] text-white"
+          className="w-full h-12 bg-dorado hover:bg-dorado-hover text-white"
         >
           {enviando ? "Enviando..." : "Enviar instrucciones"}
         </Button>
@@ -48,7 +48,7 @@ export function RecoverPasswordForm({
         <button
           type="button"
           onClick={() => onNavigate("login")}
-          className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-[#0F4C3F] transition-colors"
+          className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-marca transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Volver al inicio de sesion

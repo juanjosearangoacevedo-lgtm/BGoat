@@ -29,9 +29,9 @@ const tonos = {
   },
   info: {
     icono: AlertTriangle,
-    circulo: "bg-[#0F4C3F]/10",
-    color: "text-[#0F4C3F]",
-    boton: "bg-[#D08E10] text-white hover:bg-[#B67F14]",
+    circulo: "bg-marca/10",
+    color: "text-marca",
+    boton: "bg-dorado text-white hover:bg-dorado-hover",
   },
 };
 

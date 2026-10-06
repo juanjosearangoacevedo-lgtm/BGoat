@@ -15,7 +15,7 @@ export function columnasClientes({ onDetalle, onEdit, onToggleEstado, onDelete }
       sortable: true,
       render: (cliente) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#0F4C3F]/10 text-xs font-bold text-[#0F4C3F]">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-marca/10 text-xs font-bold text-marca">
             {iniciales(cliente.nombre)}
           </div>
           <div className="min-w-0">

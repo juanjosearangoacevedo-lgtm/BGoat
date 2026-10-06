@@ -58,7 +58,7 @@ export function ClientesPage() {
         Limpiar busqueda y filtros
       </Button>
     ) : (
-      <Button onClick={clientes.openCreate} className="bg-[#D08E10] text-white hover:bg-[#B67F14]">
+      <Button onClick={clientes.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
         <Plus className="mr-2 h-4 w-4" />
         Nuevo cliente
       </Button>
@@ -83,7 +83,7 @@ export function ClientesPage() {
       <PageHeader title="Clientes" subtitle={`${clientes.total} clientes registrados`}>
         <Button
           onClick={clientes.openCreate}
-          className="h-10 gap-2 rounded-xl bg-[#D08E10] px-5 text-white hover:bg-[#B67F14]"
+          className="h-10 gap-2 rounded-xl bg-dorado px-5 text-white hover:bg-dorado-hover"
         >
           <Plus className="h-4 w-4" />
           Nuevo cliente
@@ -101,9 +101,9 @@ export function ClientesPage() {
         variant="sutil"
         items={[
           { label: "Total clientes", value: clientes.resumen.total },
-          { label: "Activos", value: clientes.resumen.activos, color: "#10b981" },
-          { label: "Con datos fiscales", value: clientes.resumen.conDatos, color: "#D08E10" },
-          { label: "Sin datos fiscales", value: clientes.resumen.sinDatos, color: "#6b7280" },
+          { label: "Activos", value: clientes.resumen.activos, color: "var(--exito-vivo)" },
+          { label: "Con datos fiscales", value: clientes.resumen.conDatos, color: "var(--dorado)" },
+          { label: "Sin datos fiscales", value: clientes.resumen.sinDatos, color: "var(--neutro-500)" },
         ]}
       />
 
@@ -151,7 +151,7 @@ export function ClientesPage() {
           footer={paginacion}
           onClick={clientes.verDetalle}
           avatar={(cliente) => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0F4C3F]/10 text-xs font-bold text-[#0F4C3F]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-marca/10 text-xs font-bold text-marca">
               {iniciales(cliente.nombre)}
             </div>
           )}

@@ -57,7 +57,7 @@ export function JornadasAbiertas({ jornadas = [], onCapturar, onCerrar, onReabri
                 <Button
                   size="sm"
                   onClick={() => onCapturar(modulo)}
-                  className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
+                  className="flex-1 bg-dorado text-white hover:bg-dorado-hover"
                 >
                   <ClipboardCheck className="mr-1.5 h-4 w-4" />
                   Registrar hora

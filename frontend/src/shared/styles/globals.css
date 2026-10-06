@@ -11,35 +11,35 @@ html {
 }
 
 /* ── Base backgrounds ─────────────────────────────────────────────────────── */
-html.dark body                             { background-color: #0A1512 !important; color: #E4EFE9 !important; }
-html.dark .bg-white                        { background-color: #12211D !important; }
-html.dark .bg-gray-50                      { background-color: #0A1512 !important; }
-html.dark .bg-gray-100                     { background-color: #17302A !important; }
-html.dark .bg-gray-200                     { background-color: #1F4037 !important; }
+html.dark body                             { background-color: var(--oscuro-fondo) !important; color: var(--oscuro-texto) !important; }
+html.dark .bg-white                        { background-color: var(--oscuro-superficie) !important; }
+html.dark .bg-gray-50                      { background-color: var(--oscuro-fondo) !important; }
+html.dark .bg-gray-100                     { background-color: var(--oscuro-tarjeta) !important; }
+html.dark .bg-gray-200                     { background-color: var(--oscuro-linea) !important; }
 
 /* ── Card / panel surfaces ────────────────────────────────────────────────── */
 html.dark .rounded-2xl.bg-white,
 html.dark .rounded-xl.bg-white,
-html.dark .rounded-lg.bg-white            { background-color: #17302A !important; }
-html.dark .bg-gray-50\/30                 { background-color: rgba(31,64,55,0.3) !important; }
-html.dark .bg-gray-50\/50                 { background-color: rgba(31,64,55,0.5) !important; }
+html.dark .rounded-lg.bg-white            { background-color: var(--oscuro-tarjeta) !important; }
+html.dark .bg-gray-50\/30                 { background-color: color-mix(in srgb, var(--oscuro-linea) 30.0%, transparent) !important; }
+html.dark .bg-gray-50\/50                 { background-color: color-mix(in srgb, var(--oscuro-linea) 50.0%, transparent) !important; }
 
 /* ── Text colors ──────────────────────────────────────────────────────────── */
-html.dark .text-gray-900                  { color: #F1F7F3 !important; }
-html.dark .text-gray-800                  { color: #E4EFE9 !important; }
-html.dark .text-gray-700                  { color: #BCD3C8 !important; }
-html.dark .text-gray-600                  { color: #9CB5AB !important; }
-html.dark .text-gray-500                  { color: #7A938A !important; }
-html.dark .text-gray-400                  { color: #2E6B58 !important; }
+html.dark .text-gray-900                  { color: var(--oscuro-texto-fuerte) !important; }
+html.dark .text-gray-800                  { color: var(--oscuro-texto) !important; }
+html.dark .text-gray-700                  { color: var(--oscuro-texto-2) !important; }
+html.dark .text-gray-600                  { color: var(--oscuro-texto-3) !important; }
+html.dark .text-gray-500                  { color: var(--oscuro-texto-4) !important; }
+html.dark .text-gray-400                  { color: var(--oscuro-acento) !important; }
 
 /* ── Borders & dividers ───────────────────────────────────────────────────── */
-html.dark .border-gray-100               { border-color: #1F4037 !important; }
-html.dark .border-gray-200               { border-color: #1F4037 !important; }
-html.dark .border-t.border-gray-200      { border-color: #1F4037 !important; }
-html.dark .border-b.border-gray-200      { border-color: #1F4037 !important; }
-html.dark .border-l.border-gray-200      { border-color: #1F4037 !important; }
-html.dark .divide-gray-50 > *            { border-color: #1F4037 !important; }
-html.dark .divide-y > *                  { border-color: #1F4037 !important; }
+html.dark .border-gray-100               { border-color: var(--oscuro-linea) !important; }
+html.dark .border-gray-200               { border-color: var(--oscuro-linea) !important; }
+html.dark .border-t.border-gray-200      { border-color: var(--oscuro-linea) !important; }
+html.dark .border-b.border-gray-200      { border-color: var(--oscuro-linea) !important; }
+html.dark .border-l.border-gray-200      { border-color: var(--oscuro-linea) !important; }
+html.dark .divide-gray-50 > *            { border-color: var(--oscuro-linea) !important; }
+html.dark .divide-y > *                  { border-color: var(--oscuro-linea) !important; }
 
 /* ── Input fields ─────────────────────────────────────────────────────────── */
 html.dark input[type="text"],
@@ -49,17 +49,17 @@ html.dark input[type="number"],
 html.dark input[type="date"],
 html.dark select,
 html.dark textarea                        {
-  background-color: #1F4037 !important;
-  border-color: #2E6B58 !important;
-  color: #E4EFE9 !important;
+  background-color: var(--oscuro-linea) !important;
+  border-color: var(--oscuro-acento) !important;
+  color: var(--oscuro-texto) !important;
 }
-html.dark input::placeholder              { color: #7A938A !important; }
+html.dark input::placeholder              { color: var(--oscuro-texto-4) !important; }
 
 /* ── Table elements ───────────────────────────────────────────────────────── */
-html.dark table                           { background-color: #17302A !important; }
-html.dark thead                           { background-color: #12211D !important; }
-html.dark .bg-gray-50.border-b           { background-color: #12211D !important; }
-html.dark tr:hover                        { background-color: rgba(31,64,55,0.5) !important; }
+html.dark table                           { background-color: var(--oscuro-tarjeta) !important; }
+html.dark thead                           { background-color: var(--oscuro-superficie) !important; }
+html.dark .bg-gray-50.border-b           { background-color: var(--oscuro-superficie) !important; }
+html.dark tr:hover                        { background-color: color-mix(in srgb, var(--oscuro-linea) 50.0%, transparent) !important; }
 
 /* ── Shadows ──────────────────────────────────────────────────────────────── */
 html.dark .shadow-sm                      { box-shadow: 0 1px 3px rgba(0,0,0,0.6) !important; }
@@ -69,17 +69,17 @@ html.dark .shadow-xl                      { box-shadow: 0 16px 40px rgba(0,0,0,0
 html.dark .shadow-2xl                     { box-shadow: 0 24px 60px rgba(0,0,0,0.8) !important; }
 
 /* ── Header & nav ─────────────────────────────────────────────────────────── */
-html.dark .h-16.bg-white                  { background-color: #12211D !important; border-color: #1F4037 !important; }
-html.dark .border-b.border-gray-200      { border-color: #1F4037 !important; }
-html.dark .border-l.border-gray-200      { border-color: #1F4037 !important; }
+html.dark .h-16.bg-white                  { background-color: var(--oscuro-superficie) !important; border-color: var(--oscuro-linea) !important; }
+html.dark .border-b.border-gray-200      { border-color: var(--oscuro-linea) !important; }
+html.dark .border-l.border-gray-200      { border-color: var(--oscuro-linea) !important; }
 
 /* ── Search input in header ───────────────────────────────────────────────── */
-html.dark .bg-gray-50.border.border-gray-200 { background-color: #1F4037 !important; border-color: #2E6B58 !important; }
+html.dark .bg-gray-50.border.border-gray-200 { background-color: var(--oscuro-linea) !important; border-color: var(--oscuro-acento) !important; }
 
 /* ── Hover states ─────────────────────────────────────────────────────────── */
-html.dark .hover\:bg-gray-100:hover       { background-color: #1F4037 !important; }
-html.dark .hover\:bg-gray-50:hover        { background-color: #17302A !important; }
-html.dark .hover\:bg-gray-50\/50:hover    { background-color: rgba(31,64,55,0.5) !important; }
+html.dark .hover\:bg-gray-100:hover       { background-color: var(--oscuro-linea) !important; }
+html.dark .hover\:bg-gray-50:hover        { background-color: var(--oscuro-tarjeta) !important; }
+html.dark .hover\:bg-gray-50\/50:hover    { background-color: color-mix(in srgb, var(--oscuro-linea) 50.0%, transparent) !important; }
 
 /* ── Stat / KPI backgrounds ───────────────────────────────────────────────── */
 html.dark .bg-green-50                    { background-color: rgba(16,185,129,0.1) !important; }
@@ -168,7 +168,7 @@ html.dark header { transition-property: background-color, border-color, color, b
     min-height: 0 !important;
   }
 
-  html, body { background: #ffffff !important; }
+  html, body { background: var(--blanco) !important; }
 
   /* Las tarjetas y los graficos no deben partirse a mitad de pagina. */
   .recharts-wrapper,

@@ -1,0 +1,187 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PALETA DE BGOAT — el UNICO lugar donde se escriben los colores.
+
+   Cada color tiene un nombre por el papel que cumple. Los componentes nunca
+   escriben un "#0F4C3F": usan la clase de Tailwind que sale de aqui
+   (`bg-marca`, `text-dorado-texto`, `border-linea`, `bg-marca/10`...) o, en
+   JS (graficos, estilos en linea), `paleta.marca` de `paleta.js`, que es
+   `var(--marca)`.
+
+   Para cambiar la gama de colores del aplicativo se cambian los valores de
+   este archivo y nada mas. Los nombres se quedan: son el papel, no el tono.
+
+   El modo oscuro tiene sus propios tonos abajo (`--oscuro-*`), que usa
+   `globals.css`.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Marca: el verde de God's Eyes ──────────────────────────────────────── */
+  --marca: #0F4C3F;            /* principal: menu activo, titulos, botones */
+  --marca-oscuro: #0C3D32;     /* hover del principal */
+  --marca-profundo: #0D2925;
+  --marca-texto: #1F5C45;      /* texto verde sobre fondo claro */
+  --marca-medio: #1B6B55;
+  --marca-medio-2: #26695A;
+  --marca-claro: #2F8068;      /* banner del panel, graficos */
+  --marca-suave: #DCEAE1;      /* fondos verdes claros, "A tiempo" */
+  --salvia: #7AB396;
+  --salvia-claro: #8FBEA9;
+
+  /* ── Exito: cumple la meta, a tiempo, finalizado ────────────────────────── */
+  --exito: #22A447;
+  --exito-vivo: #10B981;
+  --exito-anillo: #24973A;
+  --exito-anillo-claro: #8FCFA5;
+  --exito-barra: #12AD26;
+
+  /* ── Dorado: acciones destacadas (Crear, Guardar) ───────────────────────── */
+  --dorado: #D08E10;
+  --dorado-hover: #B67F14;
+  --dorado-texto: #B46A12;     /* texto dorado legible sobre fondo claro */
+  --dorado-oscuro: #C6890A;
+  --dorado-medio: #C8901F;
+  --dorado-claro: #E3A81B;
+
+  /* ── Ambar: avisos, "por llegar", falta un dato ─────────────────────────── */
+  --ambar: #D49A17;
+  --ambar-texto: #A87508;
+  --amarillo: #EAB308;
+  --naranja: #F97316;
+
+  /* ── Peligro: atraso, error, bajo la meta ───────────────────────────────── */
+  --peligro: #D64545;
+  --peligro-vivo: #EF4444;
+  --peligro-fuerte: #DC2626;
+  --peligro-oscuro: #C02626;
+
+  /* ── Tintas: textos oscuros ─────────────────────────────────────────────── */
+  --tinta: #12201B;
+  --tinta-2: #11221D;
+  --tinta-3: #0F1A17;
+  --tinta-4: #16232B;
+  --tinta-5: #12263B;
+  --texto-suave: #5C6B64;      /* textos secundarios */
+  --gris: #8B968F;
+  --pizarra-1: #33423E;
+  --pizarra-2: #3C4B49;
+  --pizarra-3: #3D4A53;
+  --pizarra-4: #44524F;
+  --pizarra-5: #54636C;
+  --pizarra-6: #55636E;
+  --pizarra-7: #7C8A87;
+  --pizarra-8: #93A0A7;
+
+  /* ── Fondos y lineas ────────────────────────────────────────────────────── */
+  --fondo: #F6F8F7;            /* fondo de pagina */
+  --blanco: #FFFFFF;
+  --neutro-25: #FAFAFA;
+  --neutro-50: #F9FAFB;
+  --rejilla: #F0F0F0;          /* rejilla de los graficos */
+  --neutro-200: #E5E7EB;
+  --neutro-400: #9CA3AF;
+  --neutro-500: #6B7280;
+  --neutro-900: #111827;
+  --linea: #E4E9E6;            /* borde por defecto */
+  --linea-2: #E9ECEA;
+  --linea-3: #E8ECE9;
+  --linea-4: #E3E7E4;
+  --linea-5: #ECEFEC;
+  --linea-6: #DCE3DF;
+  --linea-7: #DCE1DE;
+  --linea-8: #C9D1CE;
+  --linea-9: #B7BFBA;
+  --linea-10: #B9C2C7;
+
+  /* ── Semaforo del tablero de la portada (bien / medio / mal) ────────────── */
+  --estado-bien-fondo: #DCFCE7;
+  --estado-bien-borde: #86EFAC;
+  --estado-bien-texto: #15803D;
+  --estado-bien-barra: #16A34A;
+  --estado-medio-fondo: #FEF3C7;
+  --estado-medio-borde: #FCD34D;
+  --estado-medio-barra: #D97706;
+  --estado-mal-fondo: #FEE2E2;
+  --estado-mal-borde: #FCA5A5;
+  --estado-mal-texto: #B91C1C;
+  --anillo-bajo: #E24B4A;
+  --anillo-bajo-texto: #B23A3A;
+
+  /* ── Modo oscuro (los usa globals.css) ──────────────────────────────────── */
+  --oscuro-fondo: #0A1512;
+  --oscuro-superficie: #12211D;
+  --oscuro-tarjeta: #17302A;
+  --oscuro-linea: #1F4037;
+  --oscuro-acento: #2E6B58;
+  --oscuro-texto: #E4EFE9;
+  --oscuro-texto-fuerte: #F1F7F3;
+  --oscuro-texto-2: #BCD3C8;
+  --oscuro-texto-3: #9CB5AB;
+  --oscuro-texto-4: #7A938A;
+}
+
+/* Cada color de arriba como color de Tailwind: bg-marca, text-dorado... */
+@theme inline {
+  --color-marca: var(--marca);
+  --color-marca-oscuro: var(--marca-oscuro);
+  --color-marca-profundo: var(--marca-profundo);
+  --color-marca-texto: var(--marca-texto);
+  --color-marca-medio: var(--marca-medio);
+  --color-marca-medio-2: var(--marca-medio-2);
+  --color-marca-claro: var(--marca-claro);
+  --color-marca-suave: var(--marca-suave);
+  --color-salvia: var(--salvia);
+  --color-salvia-claro: var(--salvia-claro);
+  --color-exito: var(--exito);
+  --color-exito-vivo: var(--exito-vivo);
+  --color-exito-anillo: var(--exito-anillo);
+  --color-exito-anillo-claro: var(--exito-anillo-claro);
+  --color-exito-barra: var(--exito-barra);
+  --color-dorado: var(--dorado);
+  --color-dorado-hover: var(--dorado-hover);
+  --color-dorado-texto: var(--dorado-texto);
+  --color-dorado-oscuro: var(--dorado-oscuro);
+  --color-dorado-medio: var(--dorado-medio);
+  --color-dorado-claro: var(--dorado-claro);
+  --color-ambar: var(--ambar);
+  --color-ambar-texto: var(--ambar-texto);
+  --color-amarillo: var(--amarillo);
+  --color-naranja: var(--naranja);
+  --color-peligro: var(--peligro);
+  --color-peligro-vivo: var(--peligro-vivo);
+  --color-peligro-fuerte: var(--peligro-fuerte);
+  --color-peligro-oscuro: var(--peligro-oscuro);
+  --color-tinta: var(--tinta);
+  --color-tinta-2: var(--tinta-2);
+  --color-tinta-3: var(--tinta-3);
+  --color-tinta-4: var(--tinta-4);
+  --color-tinta-5: var(--tinta-5);
+  --color-texto-suave: var(--texto-suave);
+  --color-gris: var(--gris);
+  --color-pizarra-1: var(--pizarra-1);
+  --color-pizarra-2: var(--pizarra-2);
+  --color-pizarra-3: var(--pizarra-3);
+  --color-pizarra-4: var(--pizarra-4);
+  --color-pizarra-5: var(--pizarra-5);
+  --color-pizarra-6: var(--pizarra-6);
+  --color-pizarra-7: var(--pizarra-7);
+  --color-pizarra-8: var(--pizarra-8);
+  --color-fondo: var(--fondo);
+  --color-blanco: var(--blanco);
+  --color-neutro-25: var(--neutro-25);
+  --color-neutro-50: var(--neutro-50);
+  --color-rejilla: var(--rejilla);
+  --color-neutro-200: var(--neutro-200);
+  --color-neutro-400: var(--neutro-400);
+  --color-neutro-500: var(--neutro-500);
+  --color-neutro-900: var(--neutro-900);
+  --color-linea: var(--linea);
+  --color-linea-2: var(--linea-2);
+  --color-linea-3: var(--linea-3);
+  --color-linea-4: var(--linea-4);
+  --color-linea-5: var(--linea-5);
+  --color-linea-6: var(--linea-6);
+  --color-linea-7: var(--linea-7);
+  --color-linea-8: var(--linea-8);
+  --color-linea-9: var(--linea-9);
+  --color-linea-10: var(--linea-10);
+}

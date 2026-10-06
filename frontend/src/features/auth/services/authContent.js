@@ -25,7 +25,7 @@ export const loginHighlights = [
 ];
 
 export const registerBenefits = [
-  { color: "#D08E10", text: "Monitoreo de produccion en tiempo real" },
-  { color: "#E3A81B", text: "Reportes analiticos y exportacion de datos" },
-  { color: "#D08E10", text: "Gestion completa de ordenes y operarios" },
+  { color: "var(--dorado)", text: "Monitoreo de produccion en tiempo real" },
+  { color: "var(--dorado-claro)", text: "Reportes analiticos y exportacion de datos" },
+  { color: "var(--dorado)", text: "Gestion completa de ordenes y operarios" },
 ];

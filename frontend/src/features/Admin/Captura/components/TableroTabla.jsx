@@ -4,7 +4,7 @@ import { formatMoneda, formatNumero } from "@/shared/utils/formatters";
 function tonoEficiencia(valor, umbral) {
   if (valor === null || valor === undefined) return "text-gray-300";
   if (valor >= umbral) return "text-green-600";
-  if (valor >= umbral * 0.7) return "text-[#b46a12]";
+  if (valor >= umbral * 0.7) return "text-dorado-texto";
   return "text-red-600";
 }
 
@@ -95,14 +95,14 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
                   <td className="whitespace-nowrap px-3 py-2 text-left font-medium text-gray-900">
                     {franja.etiqueta}
                     {r.nombre_causa && (
-                      <span className="ml-2 rounded-md bg-[#D08E10]/10 px-1.5 py-0.5 text-[10px] font-medium text-[#b46a12]">
+                      <span className="ml-2 rounded-md bg-dorado/10 px-1.5 py-0.5 text-[10px] font-medium text-dorado-texto">
                         {r.nombre_causa}
                       </span>
                     )}
                   </td>
 
                   <Celda
-                    className={franja.minutos === 60 ? "text-gray-400" : "font-semibold text-[#D08E10]"}
+                    className={franja.minutos === 60 ? "text-gray-400" : "font-semibold text-dorado"}
                     titulo={franja.minutos === 60 ? undefined : "Franja mas corta: la meta baja igual"}
                   >
                     {franja.minutos}
@@ -127,13 +127,13 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
                     {formatMoneda(r.facturacion_real)}
                   </Celda>
 
-                  <Celda className={r.minutos_maquina ? "text-[#b46a12]" : "text-gray-200"}>
+                  <Celda className={r.minutos_maquina ? "text-dorado-texto" : "text-gray-200"}>
                     {r.minutos_maquina || "·"}
                   </Celda>
-                  <Celda className={r.minutos_calidad ? "text-[#b46a12]" : "text-gray-200"}>
+                  <Celda className={r.minutos_calidad ? "text-dorado-texto" : "text-gray-200"}>
                     {r.minutos_calidad || "·"}
                   </Celda>
-                  <Celda className={r.minutos_montaje ? "text-[#b46a12]" : "text-gray-200"}>
+                  <Celda className={r.minutos_montaje ? "text-dorado-texto" : "text-gray-200"}>
                     {r.minutos_montaje || "·"}
                   </Celda>
                   <Celda
@@ -160,7 +160,7 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
               <td className="px-3 py-3 text-left">
                 Total capturado
                 {pendientes > 0 && (
-                  <span className="ml-2 text-xs font-normal text-[#D08E10]">
+                  <span className="ml-2 text-xs font-normal text-dorado">
                     {pendientes} {pendientes === 1 ? "franja" : "franjas"} sin capturar
                   </span>
                 )}
@@ -178,9 +178,9 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
               <Celda className="text-gray-300">—</Celda>
               <Celda className="text-gray-500">{formatMoneda(totales.facturacion_meta)}</Celda>
               <Celda>{formatMoneda(totales.facturacion_real)}</Celda>
-              <Celda className="text-[#b46a12]">{totales.minutos_maquina || "·"}</Celda>
-              <Celda className="text-[#b46a12]">{totales.minutos_calidad || "·"}</Celda>
-              <Celda className="text-[#b46a12]">{totales.minutos_montaje || "·"}</Celda>
+              <Celda className="text-dorado-texto">{totales.minutos_maquina || "·"}</Celda>
+              <Celda className="text-dorado-texto">{totales.minutos_calidad || "·"}</Celda>
+              <Celda className="text-dorado-texto">{totales.minutos_montaje || "·"}</Celda>
               <Celda className={totales.minutos_perdidos_persona ? "text-red-600" : "text-gray-300"}>
                 {totales.minutos_perdidos_persona || "·"}
               </Celda>

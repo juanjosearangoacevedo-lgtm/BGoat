@@ -12,43 +12,43 @@
  */
 const styles = {
   // logrado / activo / completo -> sage (badge "Sistema en tiempo real")
-  ACTIVO: "bg-[#DCEAE1] text-[#1F5C45]",
-  ACTIVA: "bg-[#DCEAE1] text-[#1F5C45]",
-  FINALIZADO: "bg-[#DCEAE1] text-[#1F5C45]",
-  FINALIZADA: "bg-[#DCEAE1] text-[#1F5C45]",
-  ENTREGADO: "bg-[#DCEAE1] text-[#1F5C45]",
-  VIGENTE: "bg-[#DCEAE1] text-[#1F5C45]",
-  VALIDADO: "bg-[#DCEAE1] text-[#1F5C45]",
+  ACTIVO: "bg-marca-suave text-marca-texto",
+  ACTIVA: "bg-marca-suave text-marca-texto",
+  FINALIZADO: "bg-marca-suave text-marca-texto",
+  FINALIZADA: "bg-marca-suave text-marca-texto",
+  ENTREGADO: "bg-marca-suave text-marca-texto",
+  VIGENTE: "bg-marca-suave text-marca-texto",
+  VALIDADO: "bg-marca-suave text-marca-texto",
 
   // en curso / requiere atencion -> dorado
-  EN_PROCESO: "bg-[#D49A17]/15 text-[#A87508]",
-  EN_PRODUCCION: "bg-[#D49A17]/15 text-[#A87508]",
-  DESPACHADO: "bg-[#D49A17]/15 text-[#A87508]",
-  ALTA: "bg-[#D49A17]/15 text-[#A87508]",
-  MANTENIMIENTO: "bg-[#D49A17]/15 text-[#A87508]",
-  PAUSADA: "bg-[#D49A17]/15 text-[#A87508]",
+  EN_PROCESO: "bg-ambar/15 text-ambar-texto",
+  EN_PRODUCCION: "bg-ambar/15 text-ambar-texto",
+  DESPACHADO: "bg-ambar/15 text-ambar-texto",
+  ALTA: "bg-ambar/15 text-ambar-texto",
+  MANTENIMIENTO: "bg-ambar/15 text-ambar-texto",
+  PAUSADA: "bg-ambar/15 text-ambar-texto",
 
   // inicial / bajo perfil -> gris
-  PENDIENTE: "bg-[#F6F8F7] text-[#5C6B64]",
-  REGISTRADO: "bg-[#F6F8F7] text-[#5C6B64]",
-  APROBADO: "bg-[#F6F8F7] text-[#5C6B64]",
-  PROGRAMADA: "bg-[#F6F8F7] text-[#5C6B64]",
-  BORRADOR: "bg-[#F6F8F7] text-[#5C6B64]",
-  MEDIA: "bg-[#F6F8F7] text-[#5C6B64]",
-  BAJA: "bg-[#F6F8F7] text-[#8B968F]",
+  PENDIENTE: "bg-fondo text-texto-suave",
+  REGISTRADO: "bg-fondo text-texto-suave",
+  APROBADO: "bg-fondo text-texto-suave",
+  PROGRAMADA: "bg-fondo text-texto-suave",
+  BORRADOR: "bg-fondo text-texto-suave",
+  MEDIA: "bg-fondo text-texto-suave",
+  BAJA: "bg-fondo text-gris",
 
   // negativo -> rojo (exclusivo de error, nunca dorado)
-  BLOQUEADO: "bg-[#D64545]/15 text-[#D64545]",
-  CANCELADO: "bg-[#D64545]/10 text-[#D64545]",
-  CANCELADA: "bg-[#D64545]/10 text-[#D64545]",
-  ANULADO: "bg-[#D64545]/10 text-[#D64545]",
-  URGENTE: "bg-[#D64545]/15 text-[#D64545]",
+  BLOQUEADO: "bg-peligro/15 text-peligro",
+  CANCELADO: "bg-peligro/10 text-peligro",
+  CANCELADA: "bg-peligro/10 text-peligro",
+  ANULADO: "bg-peligro/10 text-peligro",
+  URGENTE: "bg-peligro/15 text-peligro",
 
   // inactivo / neutral -> gris
-  INACTIVO: "bg-[#F6F8F7] text-[#8B968F]",
-  INACTIVA: "bg-[#F6F8F7] text-[#8B968F]",
-  RETIRADO: "bg-[#F6F8F7] text-[#8B968F]",
-  OBSOLETA: "bg-[#F6F8F7] text-[#8B968F]",
+  INACTIVO: "bg-fondo text-gris",
+  INACTIVA: "bg-fondo text-gris",
+  RETIRADO: "bg-fondo text-gris",
+  OBSOLETA: "bg-fondo text-gris",
 };
 
 /** Convierte EN_PROCESO -> "En proceso". */
@@ -64,7 +64,7 @@ export function StatusBadge({ status }) {
   if (!status) return null;
 
   const key = String(status).toUpperCase();
-  const style = styles[key] || "bg-[#F6F8F7] text-[#5C6B64]";
+  const style = styles[key] || "bg-fondo text-texto-suave";
 
   return <span className={`rounded-full px-2 py-1 text-xs font-medium ${style}`}>{statusLabel(status)}</span>;
 }

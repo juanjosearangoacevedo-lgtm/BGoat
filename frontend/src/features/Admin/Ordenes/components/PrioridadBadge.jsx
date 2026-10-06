@@ -7,7 +7,7 @@ export function PrioridadBadge({ prioridad }) {
   if (!prioridad) return null;
 
   return (
-    <span className="rounded-full bg-[#0F4C3F]/10 px-2 py-1 text-xs font-semibold text-[#0F4C3F]">
+    <span className="rounded-full bg-marca/10 px-2 py-1 text-xs font-semibold text-marca">
       #{prioridad}
     </span>
   );

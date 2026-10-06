@@ -14,7 +14,7 @@ export function OrdenJornadas({ jornadas = [] }) {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center gap-2">
-        <CalendarDays className="h-5 w-5 text-[#0F4C3F]" />
+        <CalendarDays className="h-5 w-5 text-marca" />
         <h3 className="font-bold text-gray-900">Jornadas trabajadas</h3>
       </div>
 

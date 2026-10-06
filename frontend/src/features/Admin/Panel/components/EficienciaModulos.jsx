@@ -22,9 +22,9 @@ import { formatMoneda, hoyLocal } from "@/shared/utils/formatters";
  * es donde se ve por que el numero quedo asi.
  */
 const BANDAS = [
-  { clave: "verde", titulo: "En meta", color: "#22A447", fondo: "#22A4471a", texto: "#1F5C45" },
-  { clave: "naranja", titulo: "Por llegar", color: "#D49A17", fondo: "#D49A171a", texto: "#A87508" },
-  { clave: "rojo", titulo: "Atrasados", color: "#D49A17", fondo: "#D49A171a", texto: "#A87508" },
+  { clave: "verde", titulo: "En meta", color: "var(--exito)", fondo: "color-mix(in srgb, var(--exito) 10.196%, transparent)", texto: "var(--marca-texto)" },
+  { clave: "naranja", titulo: "Por llegar", color: "var(--ambar)", fondo: "color-mix(in srgb, var(--ambar) 10.196%, transparent)", texto: "var(--ambar-texto)" },
+  { clave: "rojo", titulo: "Atrasados", color: "var(--ambar)", fondo: "color-mix(in srgb, var(--ambar) 10.196%, transparent)", texto: "var(--ambar-texto)" },
 ];
 
 const VISTAS = [
@@ -53,15 +53,15 @@ export function EficienciaModulos({ modules = [], loading = false, onNavigate })
     <Card className="bg-white p-6">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-xl font-bold text-[#12201B]">Eficiencia en Tiempo Real</h3>
-          <p className="mt-1 text-sm text-[#5C6B64]">
+          <h3 className="text-xl font-bold text-tinta">Eficiencia en Tiempo Real</h3>
+          <p className="mt-1 text-sm text-texto-suave">
             {enDinero
               ? "Cuanto ha facturado cada modulo frente a su propia meta del dia"
               : "Cada modulo frente a su propia meta del dia"}
           </p>
         </div>
 
-        <div className="flex gap-1 rounded-lg border border-[#E4E9E6] p-1">
+        <div className="flex gap-1 rounded-lg border border-linea p-1">
           {VISTAS.map((opcion) => (
             <button
               key={opcion.clave}
@@ -69,8 +69,8 @@ export function EficienciaModulos({ modules = [], loading = false, onNavigate })
               onClick={() => setVista(opcion.clave)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
                 vista === opcion.clave
-                  ? "bg-[#D49A17] text-white"
-                  : "text-[#5C6B64] hover:bg-[#F6F8F7]"
+                  ? "bg-ambar text-white"
+                  : "text-texto-suave hover:bg-fondo"
               }`}
             >
               {opcion.label}
@@ -89,12 +89,12 @@ export function EficienciaModulos({ modules = [], loading = false, onNavigate })
         <div className="space-y-4">
           {BANDAS.map((bandaInfo) => (
             <div key={bandaInfo.clave}>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#8B968F]">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gris">
                 {bandaInfo.titulo} ({grupos[bandaInfo.clave].length})
               </p>
 
               {grupos[bandaInfo.clave].length === 0 ? (
-                <p className="text-sm text-[#B7BFBA]">Ningun modulo en este rango</p>
+                <p className="text-sm text-linea-9">Ningun modulo en este rango</p>
               ) : (
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
                   {grupos[bandaInfo.clave].map((modulo) => (
@@ -108,7 +108,7 @@ export function EficienciaModulos({ modules = [], loading = false, onNavigate })
                       className="rounded-lg border px-2 py-2.5 text-center transition-transform hover:scale-[1.03] hover:shadow-sm"
                       style={{ backgroundColor: bandaInfo.fondo, borderColor: bandaInfo.color }}
                     >
-                      <p className="truncate text-xs text-[#5C6B64]">{modulo.codigo}</p>
+                      <p className="truncate text-xs text-texto-suave">{modulo.codigo}</p>
                       {enDinero ? (
                         <>
                           <p
@@ -118,7 +118,7 @@ export function EficienciaModulos({ modules = [], loading = false, onNavigate })
                           >
                             {formatMoneda(modulo.facturacion_real)}
                           </p>
-                          <p className="truncate text-[10px] text-[#5C6B64]">
+                          <p className="truncate text-[10px] text-texto-suave">
                             de {formatMoneda(modulo.facturacion_meta)}
                           </p>
                         </>

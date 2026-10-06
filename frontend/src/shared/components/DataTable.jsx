@@ -79,8 +79,8 @@ export function DataTable({
                         type="button"
                         onClick={() => onOrdenar(campo)}
                         title={`Ordenar por ${columna.header}`}
-                        className={`inline-flex items-center gap-1.5 transition-colors hover:text-[#0F4C3F] ${
-                          activo ? "text-[#0F4C3F]" : ""
+                        className={`inline-flex items-center gap-1.5 transition-colors hover:text-marca ${
+                          activo ? "text-marca" : ""
                         }`}
                       >
                         <span>{columna.header}</span>

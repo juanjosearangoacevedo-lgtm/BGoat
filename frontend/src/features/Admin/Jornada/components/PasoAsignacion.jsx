@@ -43,9 +43,9 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
         <button
           type="button"
           onClick={() => setAsignando(true)}
-          className="flex w-full items-start gap-4 rounded-2xl border-2 border-gray-200 p-5 text-left transition hover:border-[#0F4C3F] hover:bg-[#0F4C3F]/5"
+          className="flex w-full items-start gap-4 rounded-2xl border-2 border-gray-200 p-5 text-left transition hover:border-marca hover:bg-marca/5"
         >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0F4C3F]/10 text-[#0F4C3F]">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca">
             <UserPlus className="h-6 w-6" />
           </span>
           <span className="min-w-0">
@@ -56,8 +56,8 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
           </span>
         </button>
 
-        <div className="flex w-full items-start gap-4 rounded-2xl border-2 border-[#0F4C3F] bg-[#0F4C3F]/5 p-5">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0F4C3F] text-white">
+        <div className="flex w-full items-start gap-4 rounded-2xl border-2 border-marca bg-marca/5 p-5">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-marca text-white">
             <Check className="h-6 w-6" />
           </span>
           <span className="min-w-0">
@@ -93,7 +93,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
             puestos.forEach((indice) => onAsignar(indice, ""));
             setAsignando(false);
           }}
-          className="text-sm font-medium text-[#0F4C3F] hover:underline"
+          className="text-sm font-medium text-marca hover:underline"
         >
           Dejarlas anonimas
         </button>
@@ -106,12 +106,12 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
           <div
             key={indice}
             className={`flex items-center gap-3 rounded-2xl border p-3 transition ${
-              asignada ? "border-[#D08E10]/30 bg-[#D08E10]/5" : "border-gray-200 bg-white"
+              asignada ? "border-dorado/30 bg-dorado/5" : "border-gray-200 bg-white"
             }`}
           >
             <span
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-bold ${
-                asignada ? "bg-[#0F4C3F] text-white" : "bg-gray-100 text-gray-400"
+                asignada ? "bg-marca text-white" : "bg-gray-100 text-gray-400"
               }`}
             >
               {indice + 1}
@@ -121,7 +121,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
               value={asignada ?? ""}
               onChange={(evento) => onAsignar(indice, evento.target.value)}
               aria-label={`Operaria del puesto ${indice + 1}`}
-              className="h-11 min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 text-sm outline-none focus:border-[#0F4C3F]"
+              className="h-11 min-w-0 flex-1 rounded-xl border border-gray-200 bg-white px-3 text-sm outline-none focus:border-marca"
             >
               <option value="">Sin identificar</option>
               {operarias.map((operaria) => (

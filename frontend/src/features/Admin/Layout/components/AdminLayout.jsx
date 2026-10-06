@@ -14,7 +14,7 @@ export function AdminLayout({ children, currentPage, onNavigate }) {
   const margen = sidebar.colapsado ? "lg:ml-20" : "lg:ml-64";
 
   return (
-    <div className="min-h-screen bg-[#F6F8F7]">
+    <div className="min-h-screen bg-fondo">
       <Sidebar sidebar={sidebar} />
       <Header sidebar={sidebar} currentPage={currentPage} />
 

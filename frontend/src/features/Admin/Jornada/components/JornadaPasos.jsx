@@ -23,7 +23,7 @@ export function JornadaPasos({ pasos = [], actual = 0, onIr }) {
               onClick={() => alcanzable && onIr?.(indice)}
               className={`flex min-w-0 flex-1 items-center gap-2 rounded-xl px-2 py-2 text-left transition sm:px-3 ${
                 activo
-                  ? "bg-[#0F4C3F]/10"
+                  ? "bg-marca/10"
                   : alcanzable
                     ? "hover:bg-gray-50"
                     : "cursor-not-allowed opacity-50"
@@ -32,9 +32,9 @@ export function JornadaPasos({ pasos = [], actual = 0, onIr }) {
               <span
                 className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                   completado
-                    ? "bg-[#0F4C3F] text-white"
+                    ? "bg-marca text-white"
                     : activo
-                      ? "bg-[#0F4C3F] text-white"
+                      ? "bg-marca text-white"
                       : "bg-gray-200 text-gray-500"
                 }`}
               >
@@ -42,7 +42,7 @@ export function JornadaPasos({ pasos = [], actual = 0, onIr }) {
               </span>
               <span
                 className={`hidden truncate text-sm sm:block ${
-                  activo ? "font-semibold text-[#0F4C3F]" : "text-gray-500"
+                  activo ? "font-semibold text-marca" : "text-gray-500"
                 }`}
               >
                 {paso.titulo}
@@ -52,7 +52,7 @@ export function JornadaPasos({ pasos = [], actual = 0, onIr }) {
             {indice < pasos.length - 1 && (
               <span
                 className={`hidden h-px w-4 shrink-0 sm:block ${
-                  completado ? "bg-[#0F4C3F]" : "bg-gray-200"
+                  completado ? "bg-marca" : "bg-gray-200"
                 }`}
               />
             )}

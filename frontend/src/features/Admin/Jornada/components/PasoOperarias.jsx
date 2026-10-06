@@ -20,7 +20,7 @@ export function PasoOperarias({ valor, capacidad, onCambiar, error }) {
           onClick={() => onCambiar(cantidad - 1)}
           disabled={cantidad <= 1}
           aria-label="Una operaria menos"
-          className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-gray-200 text-gray-600 transition hover:border-[#0F4C3F] hover:text-[#0F4C3F] disabled:opacity-30 disabled:hover:border-gray-200 disabled:hover:text-gray-600"
+          className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-gray-200 text-gray-600 transition hover:border-marca hover:text-marca disabled:opacity-30 disabled:hover:border-gray-200 disabled:hover:text-gray-600"
         >
           <Minus className="h-7 w-7" />
         </button>
@@ -32,7 +32,7 @@ export function PasoOperarias({ valor, capacidad, onCambiar, error }) {
           value={cantidad}
           onChange={(evento) => onCambiar(evento.target.value)}
           aria-label="Cantidad de operarias"
-          className="w-28 rounded-2xl border-2 border-gray-200 bg-white py-3 text-center text-5xl font-bold text-[#0F4C3F] outline-none focus:border-[#0F4C3F] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          className="w-28 rounded-2xl border-2 border-gray-200 bg-white py-3 text-center text-5xl font-bold text-marca outline-none focus:border-marca [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
 
         <button
@@ -40,7 +40,7 @@ export function PasoOperarias({ valor, capacidad, onCambiar, error }) {
           onClick={() => onCambiar(cantidad + 1)}
           disabled={cantidad >= 99}
           aria-label="Una operaria mas"
-          className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-gray-200 text-gray-600 transition hover:border-[#0F4C3F] hover:text-[#0F4C3F] disabled:opacity-30"
+          className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-gray-200 text-gray-600 transition hover:border-marca hover:text-marca disabled:opacity-30"
         >
           <Plus className="h-7 w-7" />
         </button>

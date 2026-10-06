@@ -6,7 +6,7 @@ export function LandingHeader({ onNavigate }) {
   const irArriba = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <header className="fuente-bgoat sticky top-0 z-50 border-b border-[#ECEFEC] bg-white/95 backdrop-blur">
+    <header className="fuente-bgoat sticky top-0 z-50 border-b border-linea-5 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-5 py-3 sm:px-8 lg:px-12">
         <button
           type="button"
@@ -26,7 +26,7 @@ export function LandingHeader({ onNavigate }) {
         <button
           type="button"
           onClick={() => onNavigate("login")}
-          className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border-2 border-[#0F4C3F] bg-transparent px-5 py-2.5 text-[15px] font-semibold text-[#0F4C3F] transition-colors hover:bg-[#0F4C3F] hover:text-white sm:px-7 sm:py-3"
+          className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border-2 border-marca bg-transparent px-5 py-2.5 text-[15px] font-semibold text-marca transition-colors hover:bg-marca hover:text-white sm:px-7 sm:py-3"
         >
           <UserRound className="h-[18px] w-[18px]" />
           Iniciar Sesión

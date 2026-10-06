@@ -38,7 +38,7 @@ export function UsuarioFormModal({
     >
       <div className="space-y-5">
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
             Datos personales
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -98,7 +98,7 @@ export function UsuarioFormModal({
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
             Acceso al sistema
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

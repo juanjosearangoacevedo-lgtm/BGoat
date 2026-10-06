@@ -98,7 +98,7 @@ export function JornadaPage({ onNavigate, moduloInicial = null, fechaInicial = n
           value={jornada.fecha}
           max={new Date().toISOString().slice(0, 10)}
           onChange={(evento) => jornada.setFecha(evento.target.value)}
-          className="h-10 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-[#0F4C3F]"
+          className="h-10 rounded-xl border border-gray-200 px-3 text-sm outline-none focus:border-marca"
         />
       </PageHeader>
 
@@ -143,7 +143,7 @@ export function JornadaPage({ onNavigate, moduloInicial = null, fechaInicial = n
             <Button
               onClick={handleIniciar}
               disabled={jornada.guardando || !jornada.loteSeleccionado?.sam_pactado}
-              className="h-11 flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14] sm:flex-none sm:px-8"
+              className="h-11 flex-1 bg-dorado text-white hover:bg-dorado-hover sm:flex-none sm:px-8"
             >
               <PlayCircle className="mr-2 h-5 w-5" />
               {jornada.guardando ? "Iniciando..." : "Iniciar produccion"}
@@ -151,7 +151,7 @@ export function JornadaPage({ onNavigate, moduloInicial = null, fechaInicial = n
           ) : (
             <Button
               onClick={jornada.avanzar}
-              className="h-11 flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14] sm:flex-none sm:px-8"
+              className="h-11 flex-1 bg-dorado text-white hover:bg-dorado-hover sm:flex-none sm:px-8"
             >
               Continuar
               <ArrowRight className="ml-1.5 h-4 w-4" />

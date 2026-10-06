@@ -43,7 +43,7 @@ export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
             Cerrar
           </Button>
           <Button
-            className="flex-1 bg-[#D08E10] text-white hover:bg-[#B67F14]"
+            className="flex-1 bg-dorado text-white hover:bg-dorado-hover"
             onClick={() => onEditar?.(cliente)}
           >
             Editar cliente

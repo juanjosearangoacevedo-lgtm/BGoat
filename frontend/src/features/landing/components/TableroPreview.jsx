@@ -23,9 +23,9 @@
 // la aplicacion, no unos nuevos: la landing y el producto tienen que
 // verse como la misma cosa.
 const ESTADOS = {
-  bien: { fondo: "#dcfce7", borde: "#86efac", texto: "#15803d", barra: "#16a34a" },
-  medio: { fondo: "#fef3c7", borde: "#fcd34d", texto: "#b46a12", barra: "#d97706" },
-  mal: { fondo: "#fee2e2", borde: "#fca5a5", texto: "#b91c1c", barra: "#dc2626" },
+  bien: { fondo: "var(--estado-bien-fondo)", borde: "var(--estado-bien-borde)", texto: "var(--estado-bien-texto)", barra: "var(--estado-bien-barra)" },
+  medio: { fondo: "var(--estado-medio-fondo)", borde: "var(--estado-medio-borde)", texto: "var(--dorado-texto)", barra: "var(--estado-medio-barra)" },
+  mal: { fondo: "var(--estado-mal-fondo)", borde: "var(--estado-mal-borde)", texto: "var(--estado-mal-texto)", barra: "var(--peligro-fuerte)" },
 };
 
 const HORAS = ["6:00", "7:00", "8:00", "9:00", "10:00", "11:00"];
@@ -105,25 +105,25 @@ export function TableroPreview() {
         width="620"
         height="380"
         rx="16"
-        fill="#ffffff"
+        fill="var(--blanco)"
         filter="url(#sombra-tablero)"
       />
 
       {/* Cabecera */}
-      <rect x="0" y="0" width="620" height="48" rx="16" fill="#fafafa" />
-      <rect x="0" y="32" width="620" height="16" fill="#fafafa" />
-      <line x1="0" y1="48" x2="620" y2="48" stroke="#e5e7eb" strokeWidth="1" />
+      <rect x="0" y="0" width="620" height="48" rx="16" fill="var(--neutro-25)" />
+      <rect x="0" y="32" width="620" height="16" fill="var(--neutro-25)" />
+      <line x1="0" y1="48" x2="620" y2="48" stroke="var(--neutro-200)" strokeWidth="1" />
 
       <circle cx="26" cy="24" r="4" fill="#f87171" />
       <circle cx="40" cy="24" r="4" fill="#fbbf24" />
       <circle cx="54" cy="24" r="4" fill="#34d399" />
 
-      <text x="76" y="28" fontSize="13" fontWeight="700" fill="#111827">
+      <text x="76" y="28" fontSize="13" fontWeight="700" fill="var(--neutro-900)">
         Registrar produccion
       </text>
 
-      <rect x="452" y="13" width="152" height="22" rx="11" fill="#0F4C3F" opacity="0.1" />
-      <text x="528" y="28" fontSize="11" fontWeight="600" fill="#0F4C3F" textAnchor="middle">
+      <rect x="452" y="13" width="152" height="22" rx="11" fill="var(--marca)" opacity="0.1" />
+      <text x="528" y="28" fontSize="11" fontWeight="600" fill="var(--marca)" textAnchor="middle">
         24 de 36 celdas
       </text>
 
@@ -135,13 +135,13 @@ export function TableroPreview() {
           y="70"
           fontSize="10"
           fontWeight="600"
-          fill="#9ca3af"
+          fill="var(--neutro-400)"
           textAnchor="middle"
         >
           {hora}
         </text>
       ))}
-      <text x="578" y="70" fontSize="10" fontWeight="600" fill="#9ca3af" textAnchor="middle">
+      <text x="578" y="70" fontSize="10" fontWeight="600" fill="var(--neutro-400)" textAnchor="middle">
         DIA
       </text>
 
@@ -152,10 +152,10 @@ export function TableroPreview() {
 
         return (
           <g key={modulo.codigo}>
-            <text x="18" y={y + 19} fontSize="12" fontWeight="700" fill="#111827">
+            <text x="18" y={y + 19} fontSize="12" fontWeight="700" fill="var(--neutro-900)">
               {modulo.codigo}
             </text>
-            <text x="18" y={y + 33} fontSize="8.5" fill="#9ca3af">
+            <text x="18" y={y + 33} fontSize="8.5" fill="var(--neutro-400)">
               {modulo.detalle}
             </text>
 
@@ -173,8 +173,8 @@ export function TableroPreview() {
                     width={COL_ANCHO}
                     height={FILA_ALTO}
                     rx="8"
-                    fill="#f9fafb"
-                    stroke="#e5e7eb"
+                    fill="var(--neutro-50)"
+                    stroke="var(--neutro-200)"
                     strokeWidth="1"
                     strokeDasharray="3 3"
                   />
@@ -224,7 +224,7 @@ export function TableroPreview() {
                     width={COL_ANCHO - 20}
                     height="3"
                     rx="1.5"
-                    fill="#ffffff"
+                    fill="var(--blanco)"
                     opacity="0.7"
                   />
                   <rect
@@ -254,33 +254,33 @@ export function TableroPreview() {
       })}
 
       {/* Cierre del dia */}
-      <line x1="18" y1="306" x2="602" y2="306" stroke="#e5e7eb" strokeWidth="1" />
+      <line x1="18" y1="306" x2="602" y2="306" stroke="var(--neutro-200)" strokeWidth="1" />
 
-      <text x="18" y="330" fontSize="9" fill="#9ca3af">
+      <text x="18" y="330" fontSize="9" fill="var(--neutro-400)">
         UNIDADES DE LA PLANTA
       </text>
-      <text x="18" y="350" fontSize="17" fontWeight="700" fill="#111827">
+      <text x="18" y="350" fontSize="17" fontWeight="700" fill="var(--neutro-900)">
         1.689
       </text>
 
-      <text x="178" y="330" fontSize="9" fill="#9ca3af">
+      <text x="178" y="330" fontSize="9" fill="var(--neutro-400)">
         EFICIENCIA
       </text>
-      <text x="178" y="350" fontSize="17" fontWeight="700" fill="#0F4C3F">
+      <text x="178" y="350" fontSize="17" fontWeight="700" fill="var(--marca)">
         79,1%
       </text>
 
-      <text x="300" y="330" fontSize="9" fill="#9ca3af">
+      <text x="300" y="330" fontSize="9" fill="var(--neutro-400)">
         FACTURACION REAL
       </text>
-      <text x="300" y="350" fontSize="17" fontWeight="700" fill="#111827">
+      <text x="300" y="350" fontSize="17" fontWeight="700" fill="var(--neutro-900)">
         $ 4.026.600
       </text>
 
-      <text x="470" y="330" fontSize="9" fill="#9ca3af">
+      <text x="470" y="330" fontSize="9" fill="var(--neutro-400)">
         MIN. PERDIDOS
       </text>
-      <text x="470" y="350" fontSize="17" fontWeight="700" fill="#dc2626">
+      <text x="470" y="350" fontSize="17" fontWeight="700" fill="var(--peligro-fuerte)">
         360
       </text>
     </svg>

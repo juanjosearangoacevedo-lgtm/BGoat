@@ -26,12 +26,12 @@ const INCLUYE = [
 
 export function LandingFooter() {
   return (
-    <footer id="contacto" className="bg-[#0F4C3F] text-white py-12 scroll-mt-24">
+    <footer id="contacto" className="bg-marca text-white py-12 scroll-mt-24">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid gap-8 md:grid-cols-3">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-[#D08E10] rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-dorado rounded-lg flex items-center justify-center">
                 <Package className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold">BGoat ERP</span>
@@ -55,7 +55,7 @@ export function LandingFooter() {
             <ul className="space-y-3 text-sm text-white/80">
               {CONTACTO.map(({ Icon, texto, href }) => (
                 <li key={texto} className="flex items-center gap-2">
-                  <Icon className="w-4 h-4 flex-shrink-0 text-[#D08E10]" />
+                  <Icon className="w-4 h-4 flex-shrink-0 text-dorado" />
                   {href ? (
                     <a href={href} className="hover:text-white transition-colors">
                       {texto}

@@ -56,7 +56,7 @@ const columnasModulo = [
 function Aviso({ mensaje }) {
   if (!mensaje) return null;
   return (
-    <div className="rounded-2xl border border-[#D64545]/25 bg-[#D64545]/10 p-4 text-sm text-[#D64545]">
+    <div className="rounded-2xl border border-peligro/25 bg-peligro/10 p-4 text-sm text-peligro">
       {mensaje}
     </div>
   );
@@ -173,7 +173,7 @@ export function PanelPage({ onNavigate }) {
         title="Panel"
         subtitle="Como va la planta: resumen del dia, indicadores y reportes"
       >
-        <nav className="flex gap-1 rounded-xl border border-[#E4E9E6] bg-white p-1 no-print">
+        <nav className="flex gap-1 rounded-xl border border-linea bg-white p-1 no-print">
           {PESTANAS.map((entrada) => {
             const Icono = entrada.icono;
             const activa = pestana === entrada.clave;
@@ -184,7 +184,7 @@ export function PanelPage({ onNavigate }) {
                 type="button"
                 onClick={() => setPestana(entrada.clave)}
                 className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  activa ? "bg-[#D49A17] text-white" : "text-[#5C6B64] hover:bg-[#F6F8F7]"
+                  activa ? "bg-ambar text-white" : "text-texto-suave hover:bg-fondo"
                 }`}
               >
                 <Icono className="h-4 w-4" />

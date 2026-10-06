@@ -237,6 +237,26 @@ una fecha—; ahora vive en `shared/utils/formatters.js`.
 
 ---
 
+## Colores
+
+Todos los colores del aplicativo viven en un solo archivo:
+`src/shared/styles/paleta.css`. Cada color tiene un nombre por el papel que
+cumple (`marca`, `dorado`, `exito`, `peligro`, `linea`, `fondo`...), y los
+componentes nunca escriben un código de color:
+
+| Dónde | Cómo se usa |
+|---|---|
+| Clases de Tailwind | `bg-marca`, `text-dorado-texto`, `border-linea`, `bg-marca/10` |
+| Gráficos y estilos en línea | `paleta.marca` de `src/shared/styles/paleta.js` (es `var(--marca)`) |
+| Con opacidad, en JS | `transparente(paleta.exito, 10)` |
+| Modo oscuro | Los tonos `--oscuro-*` del mismo archivo, que usa `globals.css` |
+
+Para cambiar la gama de colores se cambian los valores de `paleta.css` y nada
+más: los nombres se quedan, porque son el papel y no el tono. Lo único que no
+pasa por la paleta es decoración que no es tema (el anillo de colores del
+login, los puntos de ventana del dibujo de la portada) y los colores que
+guarda el módulo Colores, que son datos de los lotes.
+
 ## Cómo se conecta con la base de datos
 
 **Regla: el frontend usa los nombres de columna reales.** Nada de `name`,

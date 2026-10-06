@@ -50,8 +50,8 @@ export function ProductionTable({ rows = [], loading = false }) {
                     <span className="ml-2 text-xs text-gray-400">{item.nombre}</span>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0F4C3F]/10">
-                      <span className="text-sm font-medium text-[#0F4C3F]">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-marca/10">
+                      <span className="text-sm font-medium text-marca">
                         {Math.round(Number(item.promedio_personas || 0))}
                       </span>
                     </div>

@@ -9,9 +9,9 @@ import { formatMoneda, formatNumero, GUION } from "@/shared/utils/formatters";
  * estado del ciclo de vida de un registro, son de donde viene el problema.
  */
 const estiloTipo = {
-  PLANEADA: "bg-[#DCEAE1] text-[#1F5C45]",
-  INTERNA: "bg-[#DCEAE1] text-[#1F5C45]",
-  EXTERNA: "bg-[#D64545]/15 text-[#D64545]",
+  PLANEADA: "bg-marca-suave text-marca-texto",
+  INTERNA: "bg-marca-suave text-marca-texto",
+  EXTERNA: "bg-peligro/15 text-peligro",
 };
 
 const columnas = [
@@ -32,7 +32,7 @@ const columnas = [
     render: (fila) => (
       <span
         className={`rounded-full px-2 py-1 text-xs font-medium ${
-          estiloTipo[fila.tipo_causa] || "bg-[#F6F8F7] text-[#5C6B64]"
+          estiloTipo[fila.tipo_causa] || "bg-fondo text-texto-suave"
         }`}
       >
         {statusLabel(fila.tipo_causa)}
@@ -65,7 +65,7 @@ const columnas = [
     align: "center",
     sortValue: (fila) => Number(fila.facturacion_no_realizada || 0),
     render: (fila) => (
-      <span className="font-semibold text-[#D64545]">
+      <span className="font-semibold text-peligro">
         {formatMoneda(fila.facturacion_no_realizada)}
       </span>
     ),

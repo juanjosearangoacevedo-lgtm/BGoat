@@ -44,9 +44,9 @@ export function OrdenAvisoEntrega({ orden, decidiendo, onDecidir }) {
   // Arranco pero sin eficiencia esperada (o sin SAM): no hay entrega todavia.
   if (!orden.fecha_fin_programada) {
     return (
-      <div className="flex items-start gap-3 rounded-2xl border border-[#D08E10]/30 bg-[#D08E10]/5 p-4 text-sm">
-        <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#b46a12]" />
-        <p className="text-[#b46a12]">
+      <div className="flex items-start gap-3 rounded-2xl border border-dorado/30 bg-dorado/5 p-4 text-sm">
+        <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-dorado-texto" />
+        <p className="text-dorado-texto">
           Inicio jornada el {formatFecha(orden.fecha_inicio_real)}, pero falta la eficiencia
           esperada (o el SAM del lote): sin eso no se puede calcular la entrega. Se calcula sola
           apenas se llene.
@@ -58,8 +58,8 @@ export function OrdenAvisoEntrega({ orden, decidiendo, onDecidir }) {
   if (!cambiaronPersonas) return null;
 
   return (
-    <div className="rounded-2xl border border-[#D08E10]/30 bg-[#D08E10]/5 p-4 text-sm">
-      <p className="flex items-start gap-2 font-medium text-[#b46a12]">
+    <div className="rounded-2xl border border-dorado/30 bg-dorado/5 p-4 text-sm">
+      <p className="flex items-start gap-2 font-medium text-dorado-texto">
         <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
         Cambio el numero de personas ({personasEntrega} → {personasAhora}). ¿Ajustar la eficiencia
         esperada?
@@ -82,13 +82,13 @@ export function OrdenAvisoEntrega({ orden, decidiendo, onDecidir }) {
             max={100}
             value={eficiencia}
             onChange={(evento) => setEficiencia(evento.target.value)}
-            className="h-9 w-20 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-[#0F4C3F]"
+            className="h-9 w-20 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-marca"
           />
           <Button
             size="sm"
             disabled={decidiendo || !(Number(eficiencia) > 0 && Number(eficiencia) <= 100)}
             onClick={() => onDecidir?.("ajustar", Number(eficiencia))}
-            className="bg-[#0F4C3F] text-white hover:bg-[#0c3d32]"
+            className="bg-marca text-white hover:bg-marca-oscuro"
           >
             {decidiendo ? "Recalculando..." : "Recalcular entrega"}
           </Button>
@@ -101,7 +101,7 @@ export function OrdenAvisoEntrega({ orden, decidiendo, onDecidir }) {
           <Button
             size="sm"
             onClick={() => setAjustando(true)}
-            className="bg-[#D08E10] text-white hover:bg-[#B67F14]"
+            className="bg-dorado text-white hover:bg-dorado-hover"
           >
             Ajustar
           </Button>

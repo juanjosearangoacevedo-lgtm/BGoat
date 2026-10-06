@@ -10,9 +10,9 @@ let contadorId = 0;
 
 /** Rojo por debajo de la mitad, naranja acercandose, verde en la meta. */
 export function colorPorEficiencia(porcentaje) {
-  if (porcentaje < 50) return { arco: "#E24B4A", texto: "#B23A3A" };
-  if (porcentaje < 80) return { arco: "#D08E10", texto: "#B67F14" };
-  return { arco: "#12AD26", texto: "#0F4C3F" };
+  if (porcentaje < 50) return { arco: "var(--anillo-bajo)", texto: "var(--anillo-bajo-texto)" };
+  if (porcentaje < 80) return { arco: "var(--dorado)", texto: "var(--dorado-hover)" };
+  return { arco: "var(--exito-barra)", texto: "var(--marca)" };
 }
 
 /**

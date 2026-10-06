@@ -44,39 +44,39 @@ export function LandingHero() {
         style={{
           background:
             "radial-gradient(76% 58% at 2% 92%, rgba(255,255,255,0.97) 0%, rgba(255,255,255,0.86) 38%, rgba(255,255,255,0.38) 62%, rgba(255,255,255,0) 82%), " +
-            "linear-gradient(to right, #ffffff 0%, #ffffff 27%, rgba(255,255,255,0.90) 37%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0) 61%)",
+            "linear-gradient(to right, var(--blanco) 0%, var(--blanco) 27%, rgba(255,255,255,0.90) 37%, rgba(255,255,255,0.45) 50%, rgba(255,255,255,0) 61%)",
         }}
       />
 
       <div className="relative mx-auto flex max-w-[1600px] flex-col px-5 pb-12 pt-10 sm:px-8 lg:min-h-[690px] lg:justify-center lg:px-12 lg:pb-16 lg:pt-14">
         <div className="max-w-[540px]">
-          <span className="inline-flex items-center rounded-full bg-[#7AB396]/85 px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white sm:text-[13px]">
+          <span className="inline-flex items-center rounded-full bg-salvia/85 px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white sm:text-[13px]">
             Sistema ERP Industrial
           </span>
 
-          <h1 className="mt-5 text-[40px] font-extrabold leading-[1.04] tracking-tight text-[#11221D] sm:text-[52px] xl:text-[62px]">
+          <h1 className="mt-5 text-[40px] font-extrabold leading-[1.04] tracking-tight text-tinta-2 sm:text-[52px] xl:text-[62px]">
             {heroTitulo[0]}
             <br />
             {heroTitulo[1]}
             <br />
-            <span className="text-[#C6890A]">{heroTitulo[2]}</span>
+            <span className="text-dorado-oscuro">{heroTitulo[2]}</span>
           </h1>
         </div>
 
         <ul className="mt-10 grid max-w-[600px] grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-4 lg:mt-14">
           {heroIndicadores.map(({ icon: Icon, valor, texto }) => (
             <li key={texto} className="flex flex-col items-center text-center">
-              <Icon className="h-[30px] w-[30px] text-[#0F4C3F]" strokeWidth={1.7} />
+              <Icon className="h-[30px] w-[30px] text-marca" strokeWidth={1.7} />
               {valor && (
-                <p className="mt-2.5 text-[26px] font-extrabold leading-none text-[#C6890A] sm:text-[28px]">
+                <p className="mt-2.5 text-[26px] font-extrabold leading-none text-dorado-oscuro sm:text-[28px]">
                   {valor}
                 </p>
               )}
               <p
                 className={
                   valor
-                    ? "mt-1.5 text-[13px] leading-snug text-[#33423E]"
-                    : "mt-2.5 text-[15px] font-medium leading-snug text-[#33423E]"
+                    ? "mt-1.5 text-[13px] leading-snug text-pizarra-1"
+                    : "mt-2.5 text-[15px] font-medium leading-snug text-pizarra-1"
                 }
               >
                 {texto}
@@ -179,19 +179,19 @@ function FichaProduccion({ dato, unidades, puesto }) {
     >
       <div className="flex-1">
         <div className="flex items-baseline justify-between gap-3">
-          <span className="text-[17px] font-bold text-[#11221D]">{dato.modulo}</span>
-          <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#7AB396]">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#7AB396]" />
+          <span className="text-[17px] font-bold text-tinta-2">{dato.modulo}</span>
+          <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-salvia">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-salvia" />
             En vivo
           </span>
         </div>
 
-        <p className="mt-2.5 text-[34px] font-extrabold leading-none text-[#11221D]">
+        <p className="mt-2.5 text-[34px] font-extrabold leading-none text-tinta-2">
           {unidades}
-          <span className="ml-1.5 text-[16px] font-medium text-[#7C8A87]">/ {dato.meta}</span>
+          <span className="ml-1.5 text-[16px] font-medium text-pizarra-7">/ {dato.meta}</span>
         </p>
 
-        <div className="mt-3.5 h-2 overflow-hidden rounded-full bg-[#E3E7E4]">
+        <div className="mt-3.5 h-2 overflow-hidden rounded-full bg-linea-4">
           <div
             className="h-full rounded-full transition-[width,background-color] duration-200"
             style={{ width: avance + "%", backgroundColor: arco }}
@@ -203,7 +203,7 @@ function FichaProduccion({ dato, unidades, puesto }) {
         </p>
       </div>
 
-      <div className="w-px flex-shrink-0 bg-[#E9ECEA]" />
+      <div className="w-px flex-shrink-0 bg-linea-2" />
 
       <div className="flex flex-shrink-0 items-center justify-center">
         <AnilloEficiencia valor={avance} color={arco} />
@@ -242,7 +242,7 @@ function AnilloEficiencia({ valor, color }) {
   return (
     <div className="relative h-[118px] w-[118px]">
       <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-        <circle cx="50" cy="50" r={radio} fill="none" stroke="#DCE1DE" strokeWidth="12" />
+        <circle cx="50" cy="50" r={radio} fill="none" stroke="var(--linea-7)" strokeWidth="12" />
         <circle
           cx="50"
           cy="50"
@@ -260,7 +260,7 @@ function AnilloEficiencia({ valor, color }) {
         <span className="text-[20px] font-extrabold leading-none transition-colors duration-200" style={{ color }}>
           {valor}%
         </span>
-        <span className="mt-1 text-[10.5px] font-medium leading-tight text-[#44524F]">
+        <span className="mt-1 text-[10.5px] font-medium leading-tight text-pizarra-4">
           Eficiencia
           <br />
           del módulo
@@ -283,7 +283,7 @@ function FraseTejemos() {
         <span className="ml-8">{heroFrase[1]}</span>
       </p>
       <svg viewBox="0 0 220 22" className="ml-auto mt-1 h-4 w-[205px]" fill="none">
-        <path d="M5 17C58 12 138 6 215 4" stroke="#E3A81B" strokeWidth="5" strokeLinecap="round" />
+        <path d="M5 17C58 12 138 6 215 4" stroke="var(--dorado-claro)" strokeWidth="5" strokeLinecap="round" />
       </svg>
     </div>
   );

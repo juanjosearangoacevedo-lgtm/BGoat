@@ -61,7 +61,7 @@ export function RegisterFormPanel({
                 id="tipo_documento"
                 value={form.tipo_documento}
                 onChange={setField("tipo_documento")}
-                className="h-12 w-full rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3F]/30"
+                className="h-12 w-full rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-marca/30"
               >
                 {documentTypes.map((tipo) => (
                   <option key={tipo} value={tipo}>
@@ -157,7 +157,7 @@ export function RegisterFormPanel({
             El rol de acceso lo asigna un administrador desde el modulo Usuarios.
           </p>
 
-          <Button type="submit" className="h-12 w-full bg-[#D08E10] text-white hover:bg-[#B67F14]">
+          <Button type="submit" className="h-12 w-full bg-dorado text-white hover:bg-dorado-hover">
             Crear cuenta
           </Button>
 
@@ -166,7 +166,7 @@ export function RegisterFormPanel({
             <button
               type="button"
               onClick={() => onNavigate("login")}
-              className="font-medium text-[#0F4C3F] hover:text-[#0F4C3F]/80"
+              className="font-medium text-marca hover:text-marca/80"
             >
               Iniciar sesion
             </button>

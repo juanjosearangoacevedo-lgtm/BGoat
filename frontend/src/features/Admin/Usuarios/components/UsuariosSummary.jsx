@@ -7,9 +7,9 @@ export function UsuariosSummary({ resumen }) {
       columns={4}
       items={[
         { label: "Total usuarios", value: resumen.total },
-        { label: "Activos", value: resumen.activos, color: "#10b981" },
-        { label: "Inactivos", value: resumen.inactivos, color: "#6b7280" },
-        { label: "Bloqueados", value: resumen.bloqueados, color: "#ef4444" },
+        { label: "Activos", value: resumen.activos, color: "var(--exito-vivo)" },
+        { label: "Inactivos", value: resumen.inactivos, color: "var(--neutro-500)" },
+        { label: "Bloqueados", value: resumen.bloqueados, color: "var(--peligro-vivo)" },
       ]}
     />
   );

@@ -31,14 +31,14 @@ export function PanelHero({ summary = {}, modules = [], onNavigate }) {
   const enMeta = contarModulosEnMeta(modules);
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-[#2F8068] to-[#26695A] p-8 text-white">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-marca-claro to-marca-medio-2 p-8 text-white">
       <div className="absolute right-0 top-0 -mr-32 -mt-32 h-64 w-64 rounded-full bg-white/10" />
-      <div className="absolute bottom-0 left-0 -mb-24 -ml-24 h-48 w-48 rounded-full bg-[#D49A17]/20" />
+      <div className="absolute bottom-0 left-0 -mb-24 -ml-24 h-48 w-48 rounded-full bg-ambar/20" />
 
       <div className="relative z-10">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#DCEAE1] px-3 py-1.5 text-xs font-semibold text-[#1F5C45]">
+            <span className="mb-3 inline-flex items-center gap-2 rounded-full bg-marca-suave px-3 py-1.5 text-xs font-semibold text-marca-texto">
               <Activity className="h-4 w-4" />
               Sistema en Tiempo Real
             </span>
@@ -55,14 +55,14 @@ export function PanelHero({ summary = {}, modules = [], onNavigate }) {
             <div className="flex gap-4">
               <Button
                 onClick={() => onNavigate?.("captura")}
-                className="bg-[#D49A17] text-white hover:bg-[#A87508]"
+                className="bg-ambar text-white hover:bg-ambar-texto"
               >
                 <FileText className="mr-2 h-4 w-4" />
                 Generar Reporte
               </Button>
               <Button
                 onClick={() => onNavigate?.("create-order")}
-                className="border border-[#E4E9E6] bg-white text-[#0D2925] hover:bg-[#F6F8F7]"
+                className="border border-linea bg-white text-marca-profundo hover:bg-fondo"
               >
                 <Plus className="mr-2 h-4 w-4" />
                 Nueva Orden de Produccion
@@ -72,7 +72,7 @@ export function PanelHero({ summary = {}, modules = [], onNavigate }) {
 
           <div className="ml-8 hidden lg:block">
             <div className="relative h-48 w-48">
-              <div className="absolute inset-0 animate-pulse rounded-full bg-[#D49A17]/20" />
+              <div className="absolute inset-0 animate-pulse rounded-full bg-ambar/20" />
               <div className="delay-75 absolute inset-4 animate-pulse rounded-full bg-white/15" />
               <div className="absolute inset-8 flex items-center justify-center rounded-full bg-white/20">
                 <Activity className="h-16 w-16 text-white" />
