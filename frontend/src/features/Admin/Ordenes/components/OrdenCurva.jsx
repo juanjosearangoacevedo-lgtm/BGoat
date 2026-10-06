@@ -16,8 +16,12 @@ import { TrendingUp } from "lucide-react";
  * Muestra la eficiencia hora a hora desde que el modulo empezo la
  * referencia. Es lo que explica que un 18% no sea un modulo malo, sino un
  * arranque en curso: sin esta curva, el numero se lee al reves.
+ *
+ * La linea de meta es el umbral del modulo que la trabaja (cada modulo
+ * tiene el suyo), no un 85 fijo. La escala va de 0 a 100% -o mas, si
+ * alguna hora lo supero- para que la meta siempre quede a la vista.
  */
-export function OrdenCurva({ curva = [] }) {
+export function OrdenCurva({ curva = [], umbral = 85 }) {
   const conDatos = curva.length > 0;
   const ultima = conDatos ? Number(curva[curva.length - 1].eficiencia || 0) : 0;
   const maxima = conDatos ? Math.max(...curva.map((punto) => Number(punto.eficiencia || 0))) : 0;
@@ -49,12 +53,21 @@ export function OrdenCurva({ curva = [] }) {
               stroke="#6b7280"
               label={{ value: "Hora desde el inicio", position: "insideBottom", offset: -4, fontSize: 11 }}
             />
-            <YAxis stroke="#6b7280" unit="%" />
+            <YAxis
+              stroke="#6b7280"
+              unit="%"
+              domain={[0, (mayor) => Math.max(100, Math.ceil(mayor / 10) * 10)]}
+            />
             <Tooltip
               formatter={(valor, nombre) => [`${valor}%`, nombre]}
               labelFormatter={(valor) => `Hora ${valor} desde el arranque`}
             />
-            <ReferenceLine y={85} stroke="#10b981" strokeDasharray="4 4" label={{ value: "Meta", fontSize: 11 }} />
+            <ReferenceLine
+              y={Number(umbral)}
+              stroke="#10b981"
+              strokeDasharray="4 4"
+              label={{ value: `Meta ${Number(umbral)}%`, fontSize: 11, position: "insideTopRight" }}
+            />
             <Line
               type="monotone"
               dataKey="eficiencia"

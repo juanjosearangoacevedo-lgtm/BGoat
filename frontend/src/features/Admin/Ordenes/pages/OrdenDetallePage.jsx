@@ -1,4 +1,4 @@
-import { ArrowLeft, Package, Shirt } from "lucide-react";
+import { ArrowLeft, Package } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { StatusBadge } from "@/shared/components/StatusBadge";
@@ -13,7 +13,7 @@ import { PrioridadBadge } from "../components/PrioridadBadge";
 import { useOrdenDetalle } from "../hooks/useOrdenDetalle";
 
 export function OrdenDetallePage({ orderId, onNavigate }) {
-  const { orden, registros, jornadas, curva, loading, error, progress, decidiendo, decidirEntrega } =
+  const { orden, registros, jornadas, curva, lote, loading, error, progress, decidiendo, decidirEntrega } =
     useOrdenDetalle(orderId);
 
   return (
@@ -72,47 +72,14 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
               <div className="space-y-6 lg:col-span-2">
-                <OrdenCurva curva={curva} />
+                {/* La meta de la curva es el umbral del modulo: viene en cada hora registrada. */}
+                <OrdenCurva curva={curva} umbral={registros[0]?.umbral_cumplimiento ?? 85} />
                 <OrdenRegistros registros={registros} />
                 <OrdenJornadas jornadas={jornadas} />
               </div>
 
               <div className="space-y-6">
-                <OrdenInfoPanel orden={orden} />
-
-                <div className="rounded-2xl border border-[#0F4C3F]/20 bg-[#0F4C3F]/5 p-5">
-                  <div className="mb-3 flex items-center gap-3">
-                    <Shirt className="h-5 w-5 text-[#0F4C3F]" />
-                    <h3 className="font-bold text-[#0F4C3F]">Lo que pactamos</h3>
-                  </div>
-                  <p className="mb-1 text-sm text-gray-600">
-                    {orden.nombre_referencia || orden.codigo_referencia || GUION}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    Lote {orden.codigo_lote || GUION} · SAM pactado {orden.sam_pactado ?? GUION} min
-                  </p>
-                  {orden.sam_observado && (
-                    <p
-                      className={`mt-2 text-xs font-medium ${
-                        Number(orden.sam_observado) > Number(orden.sam_pactado)
-                          ? "text-red-600"
-                          : "text-green-600"
-                      }`}
-                    >
-                      SAM real: {orden.sam_observado} min
-                      {Number(orden.sam_observado) > Number(orden.sam_pactado)
-                        ? " · por encima de lo pactado"
-                        : " · dentro de lo pactado"}
-                    </p>
-                  )}
-                  <button
-                    onClick={() => onNavigate?.("ficha-tecnica")}
-                    className="mt-3 text-xs font-medium text-[#0F4C3F] hover:underline"
-                    type="button"
-                  >
-                    Ver ficha completa
-                  </button>
-                </div>
+                <OrdenInfoPanel orden={orden} lote={lote} />
               </div>
             </div>
           </>

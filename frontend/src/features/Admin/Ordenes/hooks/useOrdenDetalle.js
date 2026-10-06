@@ -10,10 +10,13 @@ import { buildPath, endpoints } from "@/shared/services/endpoints";
  *   registros -> vista `vw_registro_horario` (las horas capturadas)
  *   jornadas  -> tabla `jornada_modulo` (los dias que se trabajo la orden)
  *   curva     -> vista `vw_curva_arranque`
+ *   lote      -> el lote de la orden, solo para enlazar su ficha tecnica
+ *                (foto y PDF). Si el rol no puede ver lotes, queda en null.
  */
 export function useOrdenDetalle(orderId) {
   const [orden, setOrden] = useState(null);
   const [curva, setCurva] = useState([]);
+  const [lote, setLote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [version, setVersion] = useState(0);
@@ -38,6 +41,13 @@ export function useOrdenDetalle(orderId) {
         if (!activo) return;
         setOrden(datos);
         setCurva(curvaDatos?.datos ?? []);
+
+        // La ficha vive en el lote. Si no se puede leer (permiso), el
+        // detalle de la orden sigue igual, solo sin los enlaces.
+        const datosLote = datos?.id_lote
+          ? await apiClient.get(`${endpoints.lotes}/${datos.id_lote}`).catch(() => null)
+          : null;
+        if (activo) setLote(datosLote);
       } catch (problema) {
         if (activo) setError(problema.message);
       } finally {
@@ -81,6 +91,7 @@ export function useOrdenDetalle(orderId) {
     registros: orden?.registros ?? [],
     jornadas: orden?.jornadas ?? [],
     curva,
+    lote,
     loading,
     error,
     progress,

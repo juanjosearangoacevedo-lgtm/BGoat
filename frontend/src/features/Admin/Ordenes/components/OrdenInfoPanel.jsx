@@ -1,4 +1,5 @@
-import { StatusBadge } from "@/shared/components/StatusBadge";
+import { FileText, Image } from "lucide-react";
+import { archivoUrl } from "@/shared/services/apiClient";
 import {
   formatFecha,
   formatFechaHora,
@@ -7,37 +8,50 @@ import {
   formatPorcentaje,
   GUION,
 } from "@/shared/utils/formatters";
-import { PrioridadBadge } from "./PrioridadBadge";
 
-const fecha = (valor) => (valor ? formatFecha(valor) : null);
-const minutos = (valor) => (valor !== null && valor !== undefined ? `${valor} min` : null);
-const pct = (valor) => (valor !== null && valor !== undefined ? formatPorcentaje(valor, 1) : null);
+const minutos = (valor) => (valor !== null && valor !== undefined ? `${valor} min` : GUION);
+const pct = (valor) => (valor !== null && valor !== undefined ? formatPorcentaje(valor, 1) : GUION);
+
+const hay = (valor) => valor !== null && valor !== undefined && valor !== "";
 
 /**
- * Toda la informacion de la orden (vista `vw_avance_orden`).
- *
- * La tabla del listado muestra solo cinco columnas; lo demas vive aqui,
- * agrupado por la pregunta que responde: que es, cuanto va, cuando y
- * quien la registro.
- *
- * Solo hay una fecha de ingreso, "Recepcion": la del lote. Cuando se
- * digito la orden en el sistema va junto a quien la creo, para que no
- * se lea como otra fecha de llegada.
+ * Lo esperado/pactado contra lo real. El real se pinta en rojo si quedo
+ * peor (eficiencia por debajo, SAM por encima) y en verde si no.
  */
-export function OrdenInfoPanel({ orden }) {
+function Comparacion({ esperado, real, formato, peorSiRealEsMayor = false }) {
+  const hayAmbos = hay(esperado) && hay(real);
+  const peor =
+    hayAmbos && (peorSiRealEsMayor ? Number(real) > Number(esperado) : Number(real) < Number(esperado));
+  return (
+    <span className="text-right">
+      <span className="text-gray-500">{hay(esperado) ? formato(esperado) : GUION}</span>
+      <span className="mx-1 text-gray-300">→</span>
+      <span className={hayAmbos ? (peor ? "text-red-600" : "text-green-700") : "text-gray-800"}>
+        {hay(real) ? formato(real) : GUION}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Lo que no se ve en otra parte del detalle de la orden.
+ *
+ * El encabezado ya trae numero, estado, prioridad y cliente; la franja de
+ * progreso trae unidades, avance, defectuosas, inicio, entrega, ultimo
+ * dia trabajado y atraso; "Horas registradas" y "Jornadas trabajadas"
+ * traen las horas y las personas. Aqui solo queda lo que falta, para no
+ * leer el mismo numero tres veces.
+ */
+export function OrdenInfoPanel({ orden, lote }) {
+  const imagen = archivoUrl(lote?.ruta_imagen);
+  const pdf = archivoUrl(lote?.ruta_documento_pdf);
+
   const grupos = [
     {
       titulo: "La orden",
       filas: [
-        { label: "N. orden", value: orden?.numero_orden },
-        { label: "Estado", value: orden?.estado ? <StatusBadge status={orden.estado} /> : null },
-        {
-          label: "Prioridad",
-          value: orden?.prioridad ? <PrioridadBadge prioridad={orden.prioridad} /> : null,
-        },
         { label: "Lote", value: orden?.codigo_lote },
         { label: "Pedido", value: orden?.numero_pedido },
-        { label: "Cliente", value: orden?.nombre_cliente },
         {
           label: "Referencia",
           value: [orden?.codigo_referencia, orden?.nombre_referencia].filter(Boolean).join(" · "),
@@ -51,22 +65,33 @@ export function OrdenInfoPanel({ orden }) {
             ? `${orden.codigo_modulo} · ${orden.nombre_modulo}`
             : "Libre - la toma el modulo que abra jornada con ella",
         },
-        { label: "Tomada el", value: orden?.tomada_el ? formatFechaHora(orden.tomada_el) : null },
       ],
     },
     {
-      titulo: "Avance",
+      titulo: "Rendimiento",
       filas: [
-        { label: "Cantidad programada", value: formatNumero(orden?.cantidad_programada) },
-        { label: "Producidas", value: formatNumero(orden?.unidades_producidas) },
-        { label: "Defectuosas", value: formatNumero(orden?.unidades_defectuosas) },
         { label: "Restantes", value: formatNumero(orden?.unidades_restantes) },
-        { label: "Avance", value: pct(orden?.porcentaje_avance) },
-        { label: "Horas registradas", value: formatNumero(orden?.horas_registradas) },
-        { label: "Eficiencia esperada", value: pct(orden?.eficiencia_esperada) },
-        { label: "Eficiencia real", value: pct(orden?.eficiencia) },
-        { label: "SAM pactado", value: minutos(orden?.sam_pactado) },
-        { label: "SAM real", value: minutos(orden?.sam_observado) },
+        {
+          label: "Eficiencia esperada → real",
+          value: (
+            <Comparacion
+              esperado={orden?.eficiencia_esperada}
+              real={Number(orden?.horas_registradas) > 0 ? orden?.eficiencia : null}
+              formato={pct}
+            />
+          ),
+        },
+        {
+          label: "SAM pactado → real",
+          value: (
+            <Comparacion
+              esperado={orden?.sam_pactado}
+              real={orden?.sam_observado}
+              formato={minutos}
+              peorSiRealEsMayor
+            />
+          ),
+        },
         {
           label: "Valor de maquila",
           value: orden?.valor_maquila_unidad ? formatMoneda(orden.valor_maquila_unidad) : null,
@@ -74,54 +99,27 @@ export function OrdenInfoPanel({ orden }) {
       ],
     },
     {
-      titulo: "Fechas",
+      titulo: "Entrega",
       filas: [
-        { label: "Recepcion", value: fecha(orden?.fecha_recepcion) },
+        { label: "Recepcion del lote", value: orden?.fecha_recepcion ? formatFecha(orden.fecha_recepcion) : null },
         {
-          // El dia en que un modulo abrio jornada con la orden por primera vez.
-          label: "Inicio",
-          value: fecha(orden?.fecha_inicio_real) ?? "Al iniciar jornada",
-        },
-        {
-          // Formula de German desde el inicio; queda fija.
-          label: "Entrega",
-          value: fecha(orden?.fecha_fin_programada) ?? "Se calcula al iniciar jornada",
-        },
-        {
+          // Con cuantas personas salio la entrega (formula de German).
           label: "Personas del calculo",
           value: orden?.personas_entrega ? formatNumero(orden.personas_entrega) : null,
+          soloSiHay: true,
         },
-        { label: "Personas ultima jornada", value: formatNumero(orden?.personas_ultima_jornada) },
-        { label: "Termino", value: fecha(orden?.fecha_fin_real) },
-        { label: "Ultimo dia trabajado", value: fecha(orden?.ultimo_dia_trabajado) },
         {
-          label: "Atraso",
-          value:
-            orden?.dias_atraso === null || orden?.dias_atraso === undefined
-              ? null
-              : Number(orden.dias_atraso) > 0
-                ? `${orden.dias_atraso} ${Number(orden.dias_atraso) === 1 ? "dia" : "dias"}`
-                : "A tiempo",
+          label: "Termino",
+          value: orden?.fecha_fin_real ? formatFecha(orden.fecha_fin_real) : null,
+          soloSiHay: true,
         },
-      ],
-    },
-    {
-      titulo: "Registro",
-      filas: [
-        {
-          label: "Creada por",
-          value: orden?.nombre_creador
-            ? `${orden.nombre_creador} · ${formatFechaHora(orden.fecha_emision)}`
-            : null,
-        },
-        { label: "Observaciones", value: orden?.observaciones, largo: true },
       ],
     },
   ];
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-      <h3 className="mb-4 font-bold text-gray-900">Informacion completa</h3>
+      <h3 className="mb-4 font-bold text-gray-900">Informacion de la orden</h3>
 
       <div className="space-y-5">
         {grupos.map((grupo) => (
@@ -130,26 +128,67 @@ export function OrdenInfoPanel({ orden }) {
               {grupo.titulo}
             </p>
             <div className="space-y-2.5">
-              {grupo.filas.map((fila) =>
-                fila.largo ? (
-                  <div key={fila.label} className="text-sm">
-                    <span className="text-gray-400">{fila.label}</span>
-                    <p className="mt-0.5 whitespace-pre-line font-medium text-gray-800">
-                      {fila.value || GUION}
-                    </p>
-                  </div>
-                ) : (
+              {grupo.filas
+                .filter((fila) => !fila.soloSiHay || fila.value)
+                .map((fila) => (
                   <div key={fila.label} className="flex items-center justify-between gap-3 text-sm">
                     <span className="flex-shrink-0 text-gray-400">{fila.label}</span>
                     <span className="truncate text-right font-medium text-gray-800">
                       {fila.value || GUION}
                     </span>
                   </div>
-                ),
-              )}
+                ))}
             </div>
           </div>
         ))}
+
+        {/* La ficha tecnica vive en el lote: se abre el archivo directo. */}
+        {(imagen || pdf) && (
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+              Ficha tecnica
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {imagen && (
+                <a
+                  href={imagen}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-[#0F4C3F] hover:bg-gray-50"
+                >
+                  <Image className="h-3.5 w-3.5" />
+                  Ver foto
+                </a>
+              )}
+              {pdf && (
+                <a
+                  href={pdf}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-[#0F4C3F] hover:bg-gray-50"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Ver PDF
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
+        {orden?.observaciones && (
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#0F4C3F]">
+              Observaciones
+            </p>
+            <p className="whitespace-pre-line text-sm text-gray-800">{orden.observaciones}</p>
+          </div>
+        )}
+
+        {orden?.nombre_creador && (
+          <p className="border-t border-gray-100 pt-3 text-xs text-gray-400">
+            Creada por {orden.nombre_creador} · {formatFechaHora(orden.fecha_emision)}
+          </p>
+        )}
       </div>
     </div>
   );

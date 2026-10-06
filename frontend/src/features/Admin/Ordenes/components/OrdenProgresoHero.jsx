@@ -36,7 +36,9 @@ export function OrdenProgresoHero({ orden, progress = 0 }) {
           Entrega:{" "}
           {orden?.fecha_fin_programada
             ? formatFecha(orden.fecha_fin_programada)
-            : "se calcula al iniciar jornada"}
+            : orden?.fecha_inicio_real
+              ? "falta la eficiencia esperada"
+              : "se calcula al iniciar jornada"}
         </span>
         {dias && <span>Duracion: {dias} dia{dias === 1 ? "" : "s"}</span>}
       </div>
