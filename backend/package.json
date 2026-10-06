@@ -10,6 +10,7 @@
     "start": "node src/server.js",
     "db:setup": "node scripts/setup-db.js",
     "db:reset": "node scripts/setup-db.js --reset",
+    "db:probar": "node scripts/probar-migraciones.js",
     "hash": "node scripts/hash.js"
   },
   "dependencies": {

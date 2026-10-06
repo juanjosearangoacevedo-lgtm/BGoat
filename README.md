@@ -109,7 +109,8 @@ migraciones se detectan solas: en una base nueva no tocan las tablas del
 modelo (todavía no existen: las crea el esquema, que corre después), y en una
 base con el modelo anterior la llevan al actual, cada cambio una sola vez
 (queda anotado en `migraciones`). Se pueden repetir sin riesgo: sobre una base
-ya migrada tampoco hacen nada.
+ya migrada tampoco hacen nada. Para comprobarlo sin tocar tu base:
+`cd backend && npm run db:probar` (crea una base temporal y la borra al terminar).
 **Saca un respaldo antes de correrlas sobre datos reales**: `./backup.sh`.
 
 ---

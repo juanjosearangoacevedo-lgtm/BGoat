@@ -58,6 +58,32 @@ Para borrar todo y empezar de cero:
 npm run db:reset -- --demo
 ```
 
+**`db:reset` borra la base `bgoat` del servidor al que apunte tu `.env`.** Usalo
+solo cuando de verdad quieras empezar de cero, nunca para "probar" algo.
+
+Para comprobar que las migraciones y el esquema funcionan sobre una base vacia y
+que se pueden repetir, **sin tocar `bgoat` ni ninguna otra base tuya**:
+
+```bash
+npm run db:probar
+```
+
+Crea una base temporal (`bgoat_prueba_<hex>`), corre ahi los mismos archivos que
+`db:setup` dos veces seguidas, compara las dos corridas (esquema, filas y claves
+de `migraciones`) y la borra al terminar. Solo corre contra un MySQL local, y se
+niega a correr si algun `.sql` nombra `bgoat` o toca el servidor entero. Con
+`-- --sin-demo` omite los datos de demostracion.
+
+**Antes de fusionar una migracion `00*` nueva:**
+
+1. Numerala con la letra siguiente a la ultima que haya en `database/` y
+   agregala a la lista de `scripts/setup-db.js`.
+2. Condiciona cada paso a que la tabla **exista** (`information_schema.TABLES`)
+   y a la huella del modelo viejo. Preguntar solo "falta la columna" no basta:
+   en una base nueva tambien falta, y el `ALTER` falla porque la tabla no existe.
+3. Anota su clave en `migraciones` solo si de verdad cambio algo.
+4. Corre `npm run db:probar`.
+
 ### 4. Levantar la API
 
 ```bash
@@ -104,6 +130,7 @@ uploads/
   fichas/           Las fichas tecnicas subidas. No se versiona.
 scripts/
   setup-db.js       Ejecuta los .sql de /database
+  probar-migraciones.js  Prueba db:setup en una base temporal (npm run db:probar)
   hash.js           Genera un hash bcrypt
 ```
 
