@@ -22,14 +22,16 @@ import {
 /**
  * Menu del panel.
  *
- * "Panel" va suelto y arriba de todo: es la pantalla de mirar, no de
- * hacer, y es a donde cae la sesion al entrar.
+ * "Panel" y "Tablero por modulo" van sueltos y arriba de todo: son las
+ * dos pantallas de mirar, no de hacer. El Panel es a donde cae la sesion
+ * al entrar; el tablero es lo que se consulta de un modulo a lo largo del
+ * dia, y por eso no se esconde dentro de un grupo.
  *
- * - "Produccion" es el dia en el piso, en el orden en que ocurre: la
- *   orden existe suelta, un modulo la toma al abrir su jornada, se
- *   registra cada hora y se mira el tablero.
- * - "Planta" es lo que sostiene esa produccion: el material que entra,
- *   para quien es y la gente.
+ * - "Produccion" es el trabajo, en el orden en que ocurre: el lote llega
+ *   del cliente (es la base de toda la cadena), se le abre una orden, un
+ *   modulo la toma al abrir su jornada y se registra cada hora.
+ * - "Planta" es lo que sostiene esa produccion: los catalogos del
+ *   producto, para quien es y la gente.
  * - "Configuracion" es la administracion del sistema, no del negocio.
  *
  * "Panel" es una sola entrada porque es una sola pantalla: el resumen,
@@ -41,14 +43,15 @@ import {
  */
 export const adminMenuItems = [
   { icon: LayoutDashboard, label: "Panel", page: "panel", permiso: "Panel" },
+  { icon: Table2, label: "Tablero por modulo", page: "tablero-modulo", permiso: "Captura" },
   {
     icon: Factory,
     label: "Produccion",
     children: [
+      { icon: Package2, label: "Lotes", page: "lotes", permiso: "Lotes" },
       { icon: Package, label: "Ordenes de produccion", page: "orders", permiso: "Ordenes" },
       { icon: PlayCircle, label: "Inicio de jornada", page: "jornada", permiso: "Jornada" },
       { icon: ClipboardCheck, label: "Registrar produccion", page: "captura", permiso: "Captura" },
-      { icon: Table2, label: "Tablero por modulo", page: "tablero-modulo", permiso: "Captura" },
       { icon: UserCog, label: "Modulos", page: "modulos", permiso: "Modulos" },
       {
         icon: CalendarOff,
@@ -62,7 +65,6 @@ export const adminMenuItems = [
     icon: Building2,
     label: "Planta",
     children: [
-      { icon: Package2, label: "Lotes", page: "lotes", permiso: "Lotes" },
       { icon: Ruler, label: "Tallas", page: "tallas", permiso: "Lotes" },
       { icon: Palette, label: "Colores", page: "colores", permiso: "Lotes" },
       { icon: Tag, label: "Clientes", page: "clients", permiso: "Clientes" },
