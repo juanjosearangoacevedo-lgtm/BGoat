@@ -21,7 +21,7 @@ import {
  */
 export function LandingHero() {
   return (
-    <section className="fuente-bgoat relative isolate overflow-hidden bg-white">
+    <section className="fuente-bgoat relative isolate flex flex-1 flex-col overflow-hidden bg-white">
       {/* En movil y tableta la foto ocupa toda la caja; desde lg se recuesta a la
           derecha --como en el prototipo-- y le deja el tercio izquierdo
           al texto. */}
@@ -48,13 +48,13 @@ export function LandingHero() {
         }}
       />
 
-      <div className="relative mx-auto flex max-w-[1600px] flex-col px-5 pb-12 pt-10 sm:px-8 lg:min-h-[690px] lg:justify-center lg:px-12 lg:pb-16 lg:pt-14">
+      <div className="relative mx-auto flex max-w-[1600px] flex-col px-5 pb-12 pt-10 sm:px-8 w-full flex-1 lg:justify-center lg:px-12 lg:pb-16 lg:pt-14 lg:bajo:pb-6 lg:bajo:pt-6">
         <div className="max-w-[540px]">
           <span className="inline-flex items-center rounded-full bg-salvia/85 px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.14em] text-white sm:text-[13px]">
             Sistema ERP Industrial
           </span>
 
-          <h1 className="mt-5 text-[40px] font-extrabold leading-[1.04] tracking-tight text-tinta-2 sm:text-[52px] xl:text-[62px]">
+          <h1 className="mt-5 text-[40px] font-extrabold leading-[1.04] tracking-tight text-tinta-2 sm:text-[52px] xl:text-[62px] xl:bajo:text-[50px]">
             {heroTitulo[0]}
             <br />
             {heroTitulo[1]}
@@ -63,7 +63,7 @@ export function LandingHero() {
           </h1>
         </div>
 
-        <ul className="mt-10 grid max-w-[600px] grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-4 lg:mt-14">
+        <ul className="mt-10 grid max-w-[600px] grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-4 lg:mt-14 lg:bajo:mt-8">
           {heroIndicadores.map(({ icon: Icon, valor, texto }) => (
             <li key={texto} className="flex flex-col items-center text-center">
               <Icon className="h-[30px] w-[30px] text-marca" strokeWidth={1.7} />
@@ -87,7 +87,7 @@ export function LandingHero() {
 
         {/* Hasta xl el feed va en el flujo, debajo del texto: flotando se
             sale de la pantalla o tapa a la operaria. */}
-        <div className="mt-10 w-full max-w-[470px] xl:absolute xl:right-12 xl:top-14 xl:mt-0">
+        <div className="mt-10 w-full max-w-[470px] xl:absolute xl:right-12 xl:top-14 xl:mt-0 xl:bajo:top-6 xl:bajo:origin-top-right xl:bajo:scale-[0.88]">
           <FeedFichas />
         </div>
 

@@ -25,7 +25,7 @@ export function LoginPage({ onNavigate }) {
   const login = useLoginForm(onNavigate);
 
   return (
-    <div className="fuente-bgoat relative min-h-screen w-full overflow-hidden bg-tinta-3">
+    <div className="fuente-bgoat relative h-dvh w-full overflow-hidden bg-tinta-3">
       <img
         src={authFoto}
         alt=""
@@ -61,20 +61,24 @@ export function LoginPage({ onNavigate }) {
         className="bottom-12 right-14 -rotate-3 text-right"
       />
 
-      <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10 sm:px-6">
-        <LoginFormPanel
-          dark={dark}
-          email={login.email}
-          password={login.password}
-          showPassword={login.showPassword}
-          error={login.error}
-          cargando={login.cargando}
-          onEmailChange={login.setEmail}
-          onNavigate={onNavigate}
-          onPasswordChange={login.setPassword}
-          onSubmit={login.handleLogin}
-          onTogglePassword={() => login.setShowPassword((value) => !value)}
-        />
+      {/* El fondo (foto ampliada al 110%) se queda recortado en la pantalla;
+          solo el contenido puede desplazarse, y sin barra visible. */}
+      <div className="sin-barra absolute inset-0 z-10 overflow-y-auto">
+        <div className="flex min-h-full items-center justify-center px-4 py-10 bajo:py-4 sm:px-6">
+          <LoginFormPanel
+            dark={dark}
+            email={login.email}
+            password={login.password}
+            showPassword={login.showPassword}
+            error={login.error}
+            cargando={login.cargando}
+            onEmailChange={login.setEmail}
+            onNavigate={onNavigate}
+            onPasswordChange={login.setPassword}
+            onSubmit={login.handleLogin}
+            onTogglePassword={() => login.setShowPassword((value) => !value)}
+          />
+        </div>
       </div>
     </div>
   );

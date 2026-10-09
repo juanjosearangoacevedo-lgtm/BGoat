@@ -174,3 +174,9 @@ html.dark header { transition-property: background-color, border-color, color, b
   .recharts-wrapper,
   .rounded-2xl { break-inside: avoid; page-break-inside: avoid; }
 }
+
+/* ── Sin barra de desplazamiento visible ─────────────────────────────────────
+   El login y la portada son una sola pantalla: no muestran la barra. Si en
+   un telefono el contenido no cabe, igual se puede deslizar con el dedo. */
+.sin-barra { scrollbar-width: none; }
+.sin-barra::-webkit-scrollbar { display: none; }

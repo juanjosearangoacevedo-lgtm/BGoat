@@ -43,14 +43,14 @@ export function LoginFormPanel({
       />
 
       <div
-        className={`fuente-bgoat relative w-full rounded-[26px] border border-white/60 p-6 shadow-[0_34px_90px_-24px_rgba(6,24,19,0.62)] backdrop-blur-xl sm:p-10 ${
+        className={`fuente-bgoat relative w-full rounded-[26px] border border-white/60 p-6 shadow-[0_34px_90px_-24px_rgba(6,24,19,0.62)] backdrop-blur-xl sm:p-10 sm:bajo:px-9 sm:bajo:py-6 ${
           dark ? "bg-white/74" : "bg-white/84"
         }`}
       >
         <div className="flex flex-col items-center text-center">
           <AuthBrand logo="image" nombre={null} orientacion="vertical" />
 
-        <h1 className="fuente-bienvenida mt-4 text-[29px] font-bold leading-tight text-tinta-5 sm:text-[33px]">
+        <h1 className="fuente-bienvenida mt-4 bajo:mt-2 text-[29px] font-bold leading-tight text-tinta-5 sm:text-[33px]">
           Bienvenido
         </h1>
         <p className="mt-1.5 text-[15px] text-pizarra-6">
@@ -59,7 +59,7 @@ export function LoginFormPanel({
       </div>
 
       <form
-        className="mt-7 flex flex-col gap-4"
+        className="mt-7 bajo:mt-5 flex flex-col gap-4 bajo:gap-3"
         onSubmit={(event) => {
           event.preventDefault();
           onSubmit();
@@ -150,7 +150,7 @@ export function LoginFormPanel({
         <button
           type="submit"
           disabled={cargando}
-          className="mt-1 flex h-[58px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-dorado-medio text-[16px] font-semibold text-white shadow-[0_16px_34px_-14px_rgba(200,144,31,0.95)] transition-colors hover:bg-dorado-hover disabled:cursor-wait disabled:opacity-70"
+          className="mt-1 flex h-[58px] bajo:h-[50px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-dorado-medio text-[16px] font-semibold text-white shadow-[0_16px_34px_-14px_rgba(200,144,31,0.95)] transition-colors hover:bg-dorado-hover disabled:cursor-wait disabled:opacity-70"
         >
           {cargando ? (
             "Ingresando..."
@@ -163,7 +163,7 @@ export function LoginFormPanel({
         </button>
       </form>
 
-      <div aria-hidden="true" className="mt-8 flex items-center">
+      <div aria-hidden="true" className="mt-8 bajo:mt-5 flex items-center">
         <span className="h-px flex-1 bg-linea-8" />
         <span className="mx-3 h-[3px] w-8 rounded-full bg-dorado-medio" />
         <span className="h-px flex-1 bg-linea-8" />

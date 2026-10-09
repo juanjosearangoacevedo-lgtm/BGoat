@@ -2,3 +2,7 @@
 @source '../../**/*.{js,ts,jsx,tsx}';
 
 @import 'tw-animate-css';
+
+/* Pantallas bajitas (laptop de 768px con la barra del navegador): el
+   login y la portada se compactan para caber completos, sin desplazarse. */
+@custom-variant bajo (@media (max-height: 760px));
