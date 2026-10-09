@@ -16,10 +16,10 @@ export function LandingHeader({ onNavigate }) {
         >
           <img
             src={bgoatLogo}
-            width={542}
-            height={140}
-            alt="BGoat ERP, industria textil inteligente"
-            className="h-9 w-auto sm:h-11 lg:h-[52px]"
+            width={470}
+            height={118}
+            alt="BGoat, gestion de produccion"
+            className="h-10 w-auto sm:h-12 lg:h-[54px]"
           />
         </button>
 

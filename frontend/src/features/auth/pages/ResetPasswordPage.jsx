@@ -1,8 +1,7 @@
-import { ArrowLeft, CheckCircle, Lock } from "lucide-react";
-import { Button } from "@/shared/components/button";
-import { Input } from "@/shared/components/input";
-import { Label } from "@/shared/components/label";
-import { AuthBrand } from "../components/AuthBrand";
+import { ArrowLeft, CheckCircle2, Lock } from "lucide-react";
+import { AuthEscena } from "../components/AuthEscena";
+import { botonDorado, campoVidrio, iconoCampo } from "../components/authEstilos";
+import { TarjetaBgoat } from "../components/TarjetaBgoat";
 import { useResetPasswordForm } from "../hooks/useResetPasswordForm";
 
 const CAMPOS = [
@@ -12,108 +11,83 @@ const CAMPOS = [
 
 /**
  * Pantalla a la que llega el enlace del correo de recuperacion: se escribe
- * la contrasena nueva dos veces. Mismo marco que "Recuperar contrasena".
+ * la contrasena nueva dos veces. Mismo fondo y misma tarjeta que el login
+ * y "Recuperar contrasena" (diseno A).
  */
 export function ResetPasswordPage({ token, onNavigate }) {
   const reset = useResetPasswordForm(token);
+  const alLogin = () => onNavigate("login");
+  const pedirOtro = () => onNavigate("recover-password");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-marca/5 via-white to-marca/5 p-8">
-      <div className="w-full max-w-md">
-        <div className="rounded-2xl bg-white p-10 shadow-xl">
-          <div className="mb-8">
-            <AuthBrand />
+    <AuthEscena>
+      {reset.listo ? (
+        <TarjetaBgoat titulo="Contrasena actualizada" descripcion="Ya puedes iniciar sesion con tu contrasena nueva.">
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-exito/15">
+              <CheckCircle2 className="h-8 w-8 text-exito" />
+            </div>
           </div>
-
-          {reset.listo ? (
-            <div className="text-center">
-              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle className="h-10 w-10 text-green-600" />
-              </div>
-              <h1 className="mb-2 text-2xl font-bold text-gray-900">Contrasena actualizada</h1>
-              <p className="mb-8 text-sm text-gray-600">Ya puedes iniciar sesion con tu contrasena nueva.</p>
-              <Button
-                className="h-12 w-full bg-dorado text-white hover:bg-dorado-hover"
-                onClick={() => onNavigate("login")}
-              >
-                Iniciar sesion
-              </Button>
-            </div>
-          ) : reset.sinToken ? (
-            <div className="text-center">
-              <h1 className="mb-2 text-2xl font-bold text-gray-900">Enlace incompleto</h1>
-              <p className="mb-8 text-sm text-gray-600">
-                Abre el enlace completo que llego a tu correo, o pide uno nuevo.
-              </p>
-              <Button
-                className="h-12 w-full bg-dorado text-white hover:bg-dorado-hover"
-                onClick={() => onNavigate("recover-password")}
-              >
-                Pedir un enlace nuevo
-              </Button>
-            </div>
-          ) : (
-            <>
-              <div className="mb-8">
-                <h1 className="mb-2 text-2xl font-bold text-gray-900">Nueva contrasena</h1>
-                <p className="text-sm text-gray-600">
-                  Escribe tu contrasena nueva. Debe tener al menos 8 caracteres.
-                </p>
-              </div>
-
-              <form onSubmit={reset.handleSubmit} className="space-y-5">
-                {CAMPOS.map(({ campo, etiqueta }) => (
-                  <div key={campo} className="space-y-2">
-                    <Label htmlFor={`reset-${campo}`}>{etiqueta}</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-                      <Input
-                        id={`reset-${campo}`}
-                        type="password"
-                        autoComplete="new-password"
-                        value={reset.form[campo]}
-                        onChange={(event) => reset.setCampo(campo, event.target.value)}
-                        className={`h-12 pl-10 ${reset.errores[campo] ? "border-red-400" : ""}`}
-                      />
-                    </div>
-                    {reset.errores[campo] && <p className="text-xs text-red-500">{reset.errores[campo]}</p>}
-                  </div>
-                ))}
-
-                {reset.error && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700">
-                    {reset.error}
-                    <button
-                      type="button"
-                      onClick={() => onNavigate("recover-password")}
-                      className="mt-1 block font-medium underline"
-                    >
-                      Pedir un enlace nuevo
-                    </button>
-                  </div>
+          <button type="button" onClick={alLogin} className={`${botonDorado} mt-6`}>
+            Iniciar sesion
+          </button>
+        </TarjetaBgoat>
+      ) : reset.sinToken ? (
+        <TarjetaBgoat titulo="Enlace incompleto" descripcion="Abre el enlace completo que llego a tu correo, o pide uno nuevo.">
+          <button type="button" onClick={pedirOtro} className={botonDorado}>
+            Pedir un enlace nuevo
+          </button>
+        </TarjetaBgoat>
+      ) : (
+        <TarjetaBgoat titulo="Nueva contrasena" descripcion="Escribe tu contrasena nueva dos veces. Debe tener al menos 8 caracteres.">
+          <form onSubmit={reset.handleSubmit} className="flex flex-col gap-4 bajo:gap-3">
+            {CAMPOS.map(({ campo, etiqueta }) => (
+              <div key={campo}>
+                <label htmlFor={`reset-${campo}`} className="sr-only">
+                  {etiqueta}
+                </label>
+                <div className="relative">
+                  <Lock aria-hidden="true" className={iconoCampo} />
+                  <input
+                    id={`reset-${campo}`}
+                    type="password"
+                    placeholder={etiqueta}
+                    autoComplete="new-password"
+                    value={reset.form[campo]}
+                    onChange={(event) => reset.setCampo(campo, event.target.value)}
+                    className={`${campoVidrio} ${reset.errores[campo] ? "border-peligro" : ""}`}
+                  />
+                </div>
+                {reset.errores[campo] && (
+                  <p className="mt-1.5 text-[13px] text-peligro-oscuro">{reset.errores[campo]}</p>
                 )}
+              </div>
+            ))}
 
-                <Button
-                  type="submit"
-                  disabled={reset.enviando}
-                  className="h-12 w-full bg-dorado text-white hover:bg-dorado-hover"
-                >
-                  {reset.enviando ? "Guardando..." : "Guardar contrasena"}
-                </Button>
-
-                <button
-                  type="button"
-                  onClick={() => onNavigate("login")}
-                  className="flex w-full items-center justify-center gap-2 text-sm text-gray-500 transition-colors hover:text-marca-letra"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Volver al inicio de sesion
+            {reset.error && (
+              <div className="rounded-[12px] border border-red-500/30 bg-red-500/10 px-3 py-2.5 text-[13px] text-peligro-oscuro">
+                {reset.error}
+                <button type="button" onClick={pedirOtro} className="mt-1 block font-semibold underline">
+                  Pedir un enlace nuevo
                 </button>
-              </form>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
+              </div>
+            )}
+
+            <button type="submit" disabled={reset.enviando} className={botonDorado}>
+              {reset.enviando ? "Guardando..." : "Guardar contrasena"}
+            </button>
+
+            <button
+              type="button"
+              onClick={alLogin}
+              className="flex items-center justify-center gap-2 text-[14px] text-pizarra-3 transition-colors hover:text-dorado-oscuro"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Volver al inicio de sesion
+            </button>
+          </form>
+        </TarjetaBgoat>
+      )}
+    </AuthEscena>
   );
 }

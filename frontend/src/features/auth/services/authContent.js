@@ -2,6 +2,9 @@ import { Factory, Package } from "lucide-react";
 
 export const authLogo = "/image.png";
 
+/** Logo oficial de BGoat (vector reconstruido): recuperar y nueva contrasena. */
+export const bgoatLogo = "/bgoat-logo.svg";
+
 /** Fondo del login: la misma planta del hero, aqui desenfocada. */
 export const authFoto = "/planta-hero.webp";
 

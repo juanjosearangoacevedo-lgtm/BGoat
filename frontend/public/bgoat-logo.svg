@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200" role="img" aria-label="BGoat, gestión de producción">
+  <!-- Logo oficial de BGoat reconstruido en vector a partir de la imagen
+       que entregó el cliente (no había archivo original). Version vertical. -->
+  <defs>
+    <linearGradient id="bgoat-oro" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F6B73C"/>
+      <stop offset="1" stop-color="#D98C14"/>
+    </linearGradient>
+    <linearGradient id="bgoat-cafe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7A5533"/>
+      <stop offset="1" stop-color="#4E3420"/>
+    </linearGradient>
+    <filter id="bgoat-sombra" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="-3" dy="2" stdDeviation="2" flood-color="#3A2410" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <text x="22" y="140" font-family="Didot, 'Bodoni MT', Georgia, 'Times New Roman', serif" font-size="150" font-weight="700" fill="url(#bgoat-oro)">G</text>
+  <text x="104" y="140" font-family="Didot, 'Bodoni MT', Georgia, 'Times New Roman', serif" font-size="128" font-weight="700" fill="url(#bgoat-cafe)" filter="url(#bgoat-sombra)">B</text>
+  <text x="120" y="172" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="17" font-weight="700" letter-spacing="5" fill="#3B2A1A">BGOAT</text>
+  <text x="120" y="188" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="8.5" letter-spacing="2.2" fill="#C98A1E">GESTIÓN DE PRODUCCIÓN</text>
+</svg>

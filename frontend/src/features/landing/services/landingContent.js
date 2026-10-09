@@ -30,7 +30,8 @@ import {
 export const plantaFoto = "/planta-hero.jpg";
 
 /** Logotipo completo (hexagono + BGoat ERP + bajada). */
-export const bgoatLogo = "/bgoat-erp-logo.webp";
+// Logo oficial de BGoat, version horizontal (vector reconstruido).
+export const bgoatLogo = "/bgoat-logo-horizontal.svg";
 
 /**
  * Menu del encabezado. `id` es la seccion a la que baja el enlace;

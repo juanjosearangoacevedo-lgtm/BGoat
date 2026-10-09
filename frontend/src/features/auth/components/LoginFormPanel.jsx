@@ -1,6 +1,7 @@
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { Checkbox } from "@/shared/components/checkbox";
 import { AuthBrand } from "./AuthBrand";
+import { botonDorado, campoVidrio, iconoCampo, tarjetaVidrio } from "./authEstilos";
 
 /**
  * Tarjeta del login, sobre la foto de la planta.
@@ -26,8 +27,7 @@ export function LoginFormPanel({
   onSubmit,
   onTogglePassword,
 }) {
-  const campo =
-    "h-[56px] w-full rounded-[14px] border border-white/70 bg-white/92 pl-[52px] pr-4 text-[15px] text-tinta-4 shadow-[0_2px_10px_-4px_rgba(14,38,32,0.25)] outline-none transition placeholder:text-pizarra-8 focus:border-dorado focus:ring-4 focus:ring-dorado/20";
+  const campo = campoVidrio;
 
   return (
     <div className="relative w-full max-w-[520px]">
@@ -43,9 +43,7 @@ export function LoginFormPanel({
       />
 
       <div
-        className={`fuente-bgoat relative w-full rounded-[26px] border border-white/60 p-6 shadow-[0_34px_90px_-24px_rgba(6,24,19,0.62)] backdrop-blur-xl sm:p-10 sm:bajo:px-9 sm:bajo:py-6 ${
-          dark ? "bg-white/74" : "bg-white/84"
-        }`}
+        className={tarjetaVidrio(dark)}
       >
         <div className="flex flex-col items-center text-center">
           <AuthBrand logo="image" nombre={null} orientacion="vertical" />
@@ -72,7 +70,7 @@ export function LoginFormPanel({
           <div className="relative">
             <Mail
               aria-hidden="true"
-              className="pointer-events-none absolute left-[18px] top-1/2 h-[19px] w-[19px] -translate-y-1/2 text-pizarra-5"
+              className={iconoCampo}
             />
             <input
               id="email"
@@ -93,7 +91,7 @@ export function LoginFormPanel({
           <div className="relative">
             <Lock
               aria-hidden="true"
-              className="pointer-events-none absolute left-[18px] top-1/2 h-[19px] w-[19px] -translate-y-1/2 text-pizarra-5"
+              className={iconoCampo}
             />
             <input
               id="password"
@@ -150,7 +148,7 @@ export function LoginFormPanel({
         <button
           type="submit"
           disabled={cargando}
-          className="mt-1 flex h-[58px] bajo:h-[50px] w-full items-center justify-center gap-2.5 rounded-[14px] bg-dorado-medio text-[16px] font-semibold text-white shadow-[0_16px_34px_-14px_rgba(200,144,31,0.95)] transition-colors hover:bg-dorado-hover disabled:cursor-wait disabled:opacity-70"
+          className={botonDorado}
         >
           {cargando ? (
             "Ingresando..."
