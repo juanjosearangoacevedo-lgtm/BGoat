@@ -48,7 +48,7 @@ export function LoginFormPanel({
         <div className="flex flex-col items-center text-center">
           <AuthBrand logo="image" nombre={null} orientacion="vertical" />
 
-        <h1 className="fuente-bienvenida mt-4 bajo:mt-2 text-[29px] font-bold leading-tight text-tinta-5 sm:text-[33px]">
+        <h1 className="mt-4 bajo:mt-2 text-[29px] font-bold leading-tight text-tinta-5 sm:text-[33px]">
           Bienvenido
         </h1>
         <p className="mt-1.5 text-[15px] text-pizarra-6">

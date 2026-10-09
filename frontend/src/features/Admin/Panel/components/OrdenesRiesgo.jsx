@@ -15,7 +15,7 @@ export function OrdenesRiesgo({ ordenes = [], onNavigate }) {
       <Card className="flex items-center gap-3 bg-green-50 p-5">
         <CheckCircle className="h-5 w-5 flex-shrink-0 text-green-600" />
         <p className="text-sm text-green-800">
-          Ninguna orden en riesgo: todas las fechas comprometidas estan a mas de 7 dias o al dia.
+          Ninguna orden en riesgo: todas las fechas comprometidas están a más de 7 días o al día.
         </p>
       </Card>
     );
@@ -26,7 +26,7 @@ export function OrdenesRiesgo({ ordenes = [], onNavigate }) {
       <div className="mb-4 flex items-center gap-2">
         <AlertTriangle className="h-5 w-5 text-dorado" />
         <h3 className="text-lg font-bold text-gray-900">
-          Ordenes en riesgo ({ordenes.length})
+          Órdenes en riesgo ({ordenes.length})
         </h3>
       </div>
 
@@ -61,7 +61,7 @@ export function OrdenesRiesgo({ ordenes = [], onNavigate }) {
 
               <div className="text-right">
                 <p className={`text-sm font-bold ${vencida ? "text-red-600" : "text-dorado-texto"}`}>
-                  {vencida ? `${Math.abs(dias)} dias vencida` : `${dias} dias`}
+                  {vencida ? `${Math.abs(dias)} días vencida` : `${dias} días`}
                 </p>
                 <p className="text-xs text-gray-400">{formatFecha(orden.fecha_fin_programada)}</p>
               </div>

@@ -68,7 +68,7 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
   return (
     <div className="p-4 md:p-8">
       <PageHeader
-        title="Registrar produccion"
+        title="Registrar producción"
         subtitle={
           esHoy
             ? "Recorrido de hoy: toca una celda para registrar la franja"
@@ -94,7 +94,7 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
           variant="outline"
           className="h-10 gap-2 rounded-xl"
           onClick={() => onNavigate?.("jornada", { fecha })}
-          title="Abrir, cerrar o corregir la jornada de un modulo"
+          title="Abrir, cerrar o corregir la jornada de un módulo"
         >
           <PlayCircle className="h-4 w-4" />
           Jornadas
@@ -121,7 +121,7 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
                 : `Faltan ${recordatorio.total} horas por registrar`}
             </p>
             <p className="truncate text-sm text-dorado-texto/80">
-              La mas atrasada: {recordatorio.siguiente?.etiqueta} en{" "}
+              La más atrasada: {recordatorio.siguiente?.etiqueta} en{" "}
               {recordatorio.siguiente?.codigo_lote} · toca para registrarla
             </p>
           </div>
@@ -140,11 +140,11 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-gray-800">
               {resumen.sinJornada === 1
-                ? "Un modulo todavia no tiene jornada"
-                : `${resumen.sinJornada} modulos todavia no tienen jornada`}
+                ? "Un módulo todavía no tiene jornada"
+                : `${resumen.sinJornada} módulos todavía no tienen jornada`}
             </p>
             <p className="text-sm text-gray-500">
-              Configura el lote y las operarias para poder registrarles la produccion.
+              Configura el lote y las operarias para poder registrarles la producción.
             </p>
           </div>
         </button>
@@ -184,13 +184,13 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
               <p className="font-semibold text-gray-900">{formatNumero(resumen.unidades)}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-400">Facturacion real</p>
+              <p className="text-xs text-gray-400">Facturación real</p>
               <p className="font-semibold text-green-600">
                 {formatMoneda(resumen.facturacionReal)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-400">Meta de facturacion</p>
+              <p className="text-xs text-gray-400">Meta de facturación</p>
               <p className="font-semibold text-gray-500">
                 {formatMoneda(resumen.facturacionMeta)}
                 {resumen.cumplimientoFacturacion !== null && (
@@ -237,17 +237,17 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
         !error && (
           <EmptyState
             icon={ClipboardList}
-            title="No hay modulos activos"
-            description="Crea los modulos de la planta para poder registrar la produccion por hora."
+            title="No hay módulos activos"
+            description="Crea los módulos de la planta para poder registrar la producción por hora."
           />
         )
       )}
 
       <p className="mt-4 text-xs leading-relaxed text-gray-400">
         La meta de cada franja se calcula como (personas x minutos de la franja) / SAM del lote:
-        las franjas cortas de cierre de turno tienen meta mas baja. Si la eficiencia cae por debajo
-        del umbral del modulo, el sistema pide la incidencia. Toca el codigo del modulo para ver su
-        tablero del dia.
+        las franjas cortas de cierre de turno tienen meta más baja. Si la eficiencia cae por debajo
+        del umbral del módulo, el sistema pide la incidencia. Toca el código del módulo para ver su
+        tablero del día.
       </p>
 
       <CapturaCeldaModal

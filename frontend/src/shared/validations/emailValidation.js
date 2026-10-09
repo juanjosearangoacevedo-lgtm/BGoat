@@ -10,14 +10,14 @@ const FORMATO = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 export const LARGO_MAXIMO_CORREO = 120;
 
 export const correo =
-  ({ mensaje = "Correo invalido (ejemplo: nombre@empresa.com)", max = LARGO_MAXIMO_CORREO } = {}) =>
+  ({ mensaje = "Correo inválido (ejemplo: nombre@empresa.com)", max = LARGO_MAXIMO_CORREO } = {}) =>
   (valor) => {
     if (estaVacio(valor)) return "";
 
     const texto = String(valor).trim();
     if (/\s/.test(String(valor))) return "El correo no puede contener espacios";
     if (!FORMATO.test(texto)) return mensaje;
-    if (texto.length > max) return `El correo admite maximo ${max} caracteres`;
+    if (texto.length > max) return `El correo admite máximo ${max} caracteres`;
 
     return "";
   };

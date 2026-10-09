@@ -55,11 +55,11 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
   return (
     <div className="p-4 md:p-8">
       <PageHeader
-        title="Tablero del Modulo"
+        title="Tablero del Módulo"
         subtitle={
           jornada?.codigo
             ? `${jornada.nombre} · ${franjas.length} franjas · ${jornada.minutos_totales} minutos`
-            : "Este dia no tiene jornada configurada"
+            : "Este día no tiene jornada configurada"
         }
       >
         <select
@@ -110,19 +110,19 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
       {/* Cierre del dia */}
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Indicador
-          etiqueta="Unidades del dia"
+          etiqueta="Unidades del día"
           valor={formatNumero(totales.unidades_producidas)}
           nota={`de ${formatNumero(Math.round(totales.meta_dia))} de meta`}
           tono="marca"
         />
         <Indicador
-          etiqueta="Eficiencia del dia"
+          etiqueta="Eficiencia del día"
           valor={`${totales.eficiencia.toFixed(1)}%`}
-          nota={`umbral del modulo ${umbral}%`}
+          nota={`umbral del módulo ${umbral}%`}
           tono={totales.eficiencia >= umbral ? "verde" : "rojo"}
         />
         <Indicador
-          etiqueta="Facturacion real"
+          etiqueta="Facturación real"
           valor={formatMoneda(totales.facturacion_real)}
           nota={`de ${formatMoneda(totales.facturacion_meta)} de meta`}
           tono="verde"
@@ -130,7 +130,7 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
         <Indicador
           etiqueta="Minutos-persona perdidos"
           valor={formatNumero(totales.minutos_perdidos_persona)}
-          nota={`${totales.minutos_perdidos} min de modulo detenido`}
+          nota={`${totales.minutos_perdidos} min de módulo detenido`}
           tono={totales.minutos_perdidos_persona > 0 ? "rojo" : "gris"}
         />
       </div>
@@ -142,9 +142,9 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
       ) : franjas.length === 0 ? (
         <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center">
           <Timer className="mx-auto mb-3 h-8 w-8 text-gray-300" />
-          <p className="font-medium text-gray-700">Este dia no tiene jornada configurada</p>
+          <p className="font-medium text-gray-700">Este día no tiene jornada configurada</p>
           <p className="mt-1 text-sm text-gray-400">
-            La planta no trabaja este dia, o falta definir su horario.
+            La planta no trabaja este día, o falta definir su horario.
           </p>
         </div>
       ) : (
@@ -158,8 +158,8 @@ export function TableroModuloPage({ onNavigate, modulo: moduloInicial, fecha: fe
 
       <p className="mt-4 text-xs leading-relaxed text-gray-400">
         La meta de cada franja es (personas x minutos de la franja) / SAM: por eso la franja de{" "}
-        {jornada?.franjas?.at(-1)?.minutos ?? 40} minutos tiene una meta mas baja que las de 60.
-        El % de cumplimiento de facturacion se mide contra la meta de la MISMA franja, no contra la
+        {jornada?.franjas?.at(-1)?.minutos ?? 40} minutos tiene una meta más baja que las de 60.
+        El % de cumplimiento de facturación se mide contra la meta de la MISMA franja, no contra la
         de la primera hora.
       </p>
     </div>

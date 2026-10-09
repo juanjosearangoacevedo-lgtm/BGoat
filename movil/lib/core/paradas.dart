@@ -46,9 +46,9 @@ String? problemaParadas(List<MinutosPerdidosEntity> paradas, FranjaEntity franja
     final desde = aMinutosDelDia(parada.horaDesde);
     final hasta = aMinutosDelDia(parada.horaHasta);
     if (desde == null || hasta == null) {
-      return 'Cada parada necesita la hora en que empezo y la hora en que termino';
+      return 'Cada parada necesita la hora en que empezó y la hora en que terminó';
     }
-    if (hasta <= desde) return 'En cada parada, la hora final va despues de la inicial';
+    if (hasta <= desde) return 'En cada parada, la hora final va después de la inicial';
     if (inicioFranja != null && finFranja != null && (desde < inicioFranja || hasta > finFranja)) {
       return 'Las paradas tienen que quedar dentro de la hora '
           '(${horaCorta(franja.horaInicio)} a ${horaCorta(franja.horaFin)})';
@@ -59,7 +59,7 @@ String? problemaParadas(List<MinutosPerdidosEntity> paradas, FranjaEntity franja
   rangos.sort((a, b) => a[0].compareTo(b[0]));
   for (var i = 1; i < rangos.length; i++) {
     if (rangos[i][0] < rangos[i - 1][1]) {
-      return 'Dos paradas se cruzan: el modulo no puede estar parado dos veces en el mismo minuto';
+      return 'Dos paradas se cruzan: el módulo no puede estar parado dos veces en el mismo minuto';
     }
   }
   return null;

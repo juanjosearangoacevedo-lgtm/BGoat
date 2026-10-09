@@ -54,7 +54,7 @@ export const requiereAuth = asyncHandler(async (req, _res, next) => {
   try {
     req.usuario = jwt.verify(token, env.jwt.secreto);
   } catch {
-    throw ApiError.unauthorized("Sesion expirada o token invalido");
+    throw ApiError.unauthorized("Sesión expirada o token inválido");
   }
 
   next();

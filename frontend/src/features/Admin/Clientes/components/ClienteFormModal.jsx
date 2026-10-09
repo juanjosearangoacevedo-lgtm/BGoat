@@ -19,7 +19,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
       open={open}
       icon={Building2}
       title={editing ? `Editar cliente: ${editing?.nombre}` : "Nuevo cliente"}
-      description="El nombre y la razon social son obligatorios. El resto de los datos fiscales se pueden completar despues."
+      description="El nombre y la razón social son obligatorios. El resto de los datos fiscales se pueden completar después."
       onClose={onClose}
       maxWidth="max-w-2xl"
       footer={
@@ -35,7 +35,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
       <div className="space-y-5">
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
-            Como lo conoce la planta
+            Cómo lo conoce la planta
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
@@ -52,8 +52,8 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
             </div>
             <div className="sm:col-span-2">
               <FormField
-                label="Descripcion"
-                placeholder="Ropa interior y basicos"
+                label="Descripción"
+                placeholder="Ropa interior y básicos"
                 value={form.descripcion ?? ""}
                 error={errors.descripcion}
                 onChange={(valor) => onChange("descripcion", valor)}
@@ -77,7 +77,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <FormField
-                label="Razon social"
+                label="Razón social"
                 required
                 placeholder="Crystal S.A.S."
                 value={form.razon_social ?? ""}
@@ -94,7 +94,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
               onChange={(valor) => onChange("tipo_documento", valor)}
             />
             <FormField
-              label="Numero de documento"
+              label="Número de documento"
               placeholder="900000000-0"
               value={form.numero_documento ?? ""}
               error={errors.numero_documento}
@@ -115,7 +115,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
               onChange={(valor) => onChange("correo", valor)}
             />
             <FormField
-              label="Telefono"
+              label="Teléfono"
               type="tel"
               placeholder="300 000 0000"
               value={form.telefono ?? ""}
@@ -124,7 +124,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
             />
             <div className="sm:col-span-2">
               <FormField
-                label="Direccion"
+                label="Dirección"
                 placeholder="Calle 00 # 00-00"
                 value={form.direccion ?? ""}
                 error={errors.direccion}

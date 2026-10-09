@@ -220,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   validator: (valor) {
                     final texto = (valor ?? '').trim();
                     if (texto.isEmpty) return 'Escriba su correo';
-                    if (!texto.contains('@')) return 'El correo no tiene un formato valido';
+                    if (!texto.contains('@')) return 'El correo no tiene un formato válido';
                     return null;
                   },
                 ),
@@ -242,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   validator: (valor) =>
-                      (valor ?? '').isEmpty ? 'Escriba su contrasena' : null,
+                      (valor ?? '').isEmpty ? 'Escriba su contraseña' : null,
                 ),
                 const SizedBox(height: 10),
                 Row(
@@ -271,7 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                       child: const Text(
-                        '¿Olvidaste tu contrasena?',
+                        '¿Olvidaste tu contraseña?',
                         style: TextStyle(fontSize: 12.5, color: Color(0xFF3D4A53)),
                       ),
                     ),
@@ -295,7 +295,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Iniciar sesion', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                              Text('Iniciar sesión', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                               SizedBox(width: 8),
                               Icon(Icons.arrow_forward, size: 19),
                             ],
@@ -320,7 +320,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 10),
                 const Text(
-                  'Al iniciar sesion, aceptas nuestros Terminos de Servicio y Politica de Privacidad',
+                  'Al iniciar sesión, aceptas nuestros Términos de Servicio y Política de Privacidad',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 11, color: Color(0xFF55636E), height: 1.4),
                 ),

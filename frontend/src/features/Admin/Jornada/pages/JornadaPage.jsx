@@ -65,7 +65,7 @@ export function JornadaPage({ onNavigate, moduloInicial = null, fechaInicial = n
         error={jornada.errors.cantidad_operarias}
       />
     ),
-    asignacion: (
+    asignación: (
       <PasoAsignacion
         cantidad={Number(jornada.form.cantidad_operarias) || 0}
         asignacion={jornada.asignacion}
@@ -91,7 +91,7 @@ export function JornadaPage({ onNavigate, moduloInicial = null, fechaInicial = n
     <div className="p-4 md:p-8">
       <PageHeader
         title="Inicio de jornada"
-        subtitle="Configura el modulo antes de empezar a registrar la produccion"
+        subtitle="Configura el módulo antes de empezar a registrar la producción"
       >
         <input
           type="date"
@@ -136,7 +136,7 @@ export function JornadaPage({ onNavigate, moduloInicial = null, fechaInicial = n
             className="h-11"
           >
             <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Atras
+            Atrás
           </Button>
 
           {jornada.esUltimoPaso ? (
@@ -146,7 +146,7 @@ export function JornadaPage({ onNavigate, moduloInicial = null, fechaInicial = n
               className="h-11 flex-1 bg-dorado text-white hover:bg-dorado-hover sm:flex-none sm:px-8"
             >
               <PlayCircle className="mr-2 h-5 w-5" />
-              {jornada.guardando ? "Iniciando..." : "Iniciar produccion"}
+              {jornada.guardando ? "Iniciando..." : "Iniciar producción"}
             </Button>
           ) : (
             <Button

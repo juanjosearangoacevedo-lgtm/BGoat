@@ -23,7 +23,7 @@ export function AuthEscena({ volver, decoracion = null, children }) {
   const { dark, toggleDark } = useDarkMode();
 
   return (
-    <div className="fuente-bgoat relative h-dvh w-full overflow-hidden bg-tinta-3">
+    <div className="relative h-dvh w-full overflow-hidden bg-tinta-3">
       <img
         src={authFoto}
         alt=""

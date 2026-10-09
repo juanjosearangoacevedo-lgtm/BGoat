@@ -68,12 +68,12 @@ export function UsuarioFormModal({
               onChange={(valor) => onChange("tipo_documento", valor)}
             />
             <FormField
-              label="Numero de documento"
+              label="Número de documento"
               required
               placeholder="1234567890"
               value={form.numero_documento ?? ""}
               error={errors.numero_documento}
-              hint={form.tipo_documento === "PASAPORTE" ? "Admite letras y numeros" : "Solo numeros"}
+              hint={form.tipo_documento === "PASAPORTE" ? "Admite letras y números" : "Solo números"}
               onChange={(valor) => onChange("numero_documento", valor)}
             />
             <FormField
@@ -83,11 +83,11 @@ export function UsuarioFormModal({
               placeholder="usuario@empresa.com"
               value={form.correo ?? ""}
               error={errors.correo}
-              hint="Con este correo inicia sesion."
+              hint="Con este correo inicia sesión."
               onChange={(valor) => onChange("correo", valor)}
             />
             <FormField
-              label="Telefono"
+              label="Teléfono"
               type="tel"
               placeholder="300 000 0000"
               value={form.telefono ?? ""}
@@ -109,7 +109,7 @@ export function UsuarioFormModal({
               options={roleOptions}
               emptyOption="Seleccionar rol"
               error={errors.id_rol}
-              hint="El rol define que modulos ve el usuario."
+              hint="El rol define qué módulos ve el usuario."
               onChange={(valor) => onChange("id_rol", valor)}
             />
             <FormField
@@ -121,27 +121,27 @@ export function UsuarioFormModal({
               onChange={(valor) => onChange("estado", valor)}
             />
             <FormField
-              label="Contrasena"
+              label="Contraseña"
               type="password"
               required={!editing}
-              placeholder={editing ? "Dejar vacio para no cambiarla" : "Minimo 8 caracteres"}
+              placeholder={editing ? "Dejar vacío para no cambiarla" : "Mínimo 8 caracteres"}
               value={form.clave ?? ""}
               error={errors.clave}
               hint={
                 editing
                   ? "Solo se cambia si escribes una nueva."
-                  : "Minimo 8 caracteres, con al menos una letra y un numero."
+                  : "Mínimo 8 caracteres, con al menos una letra y un número."
               }
               onChange={(valor) => onChange("clave", valor)}
             />
             <FormField
-              label="Confirmar contrasena"
+              label="Confirmar contraseña"
               type="password"
               required={!editing}
-              placeholder="Repite la contrasena"
+              placeholder="Repite la contraseña"
               value={form.confirmar_clave ?? ""}
               error={errors.confirmar_clave}
-              hint="Debe coincidir con la contrasena."
+              hint="Debe coincidir con la contraseña."
               onChange={(valor) => onChange("confirmar_clave", valor)}
             />
           </div>

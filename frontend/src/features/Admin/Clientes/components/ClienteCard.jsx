@@ -45,11 +45,11 @@ export function ClienteCard({ cliente, index = 0, onDetalle, onEdit, onToggleEst
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Phone className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-          {cliente.telefono || "Sin telefono"}
+          {cliente.telefono || "Sin teléfono"}
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-          <span className="truncate">{cliente.direccion || "Sin direccion"}</span>
+          <span className="truncate">{cliente.direccion || "Sin dirección"}</span>
         </div>
       </div>
 

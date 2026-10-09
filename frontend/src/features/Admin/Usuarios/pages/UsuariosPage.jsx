@@ -43,7 +43,7 @@ export function UsuariosPage() {
     icon: Users,
     title: hayBusqueda ? "Sin resultados" : "No hay usuarios cargados",
     description: hayBusqueda
-      ? "Ningun usuario coincide con la busqueda o los filtros aplicados."
+      ? "Ningún usuario coincide con la búsqueda o los filtros aplicados."
       : "Crea el primer usuario y asignale un rol para que pueda entrar al panel.",
     action: hayBusqueda ? (
       <Button
@@ -53,7 +53,7 @@ export function UsuariosPage() {
           usuarios.setSearch("");
         }}
       >
-        Limpiar busqueda y filtros
+        Limpiar búsqueda y filtros
       </Button>
     ) : (
       <Button onClick={usuarios.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
@@ -154,7 +154,7 @@ export function UsuariosPage() {
               label: "Rol",
               value: usuario.nombre_rol || usuarios.roleName?.(usuario.id_rol) || usuario.id_rol,
             },
-            { label: "Ultimo acceso", value: formatFechaHora(usuario.ultimo_acceso) },
+            { label: "Último acceso", value: formatFechaHora(usuario.ultimo_acceso) },
           ]}
           estado={(usuario) => usuario.estado}
           acciones={(usuario) => (
@@ -194,11 +194,11 @@ export function UsuariosPage() {
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
         tono={activando ? "exito" : "advertencia"}
-        title={activando ? "Activar usuario?" : "Desactivar usuario?"}
+        title={activando ? "¿Activar usuario?" : "¿Desactivar usuario?"}
         description={
           activando
-            ? `${nombreCompleto(objetivoEstado)} podra volver a iniciar sesion. Si estaba bloqueado, se limpian los intentos fallidos.`
-            : `${nombreCompleto(objetivoEstado)} no podra iniciar sesion, pero conserva su historial.`
+            ? `${nombreCompleto(objetivoEstado)} podrá volver a iniciar sesión. Si estaba bloqueado, se limpian los intentos fallidos.`
+            : `${nombreCompleto(objetivoEstado)} no podrá iniciar sesión, pero conserva su historial.`
         }
         confirmLabel={activando ? "Activar" : "Desactivar"}
         loading={usuarios.procesando}
@@ -208,8 +208,8 @@ export function UsuariosPage() {
 
       <ConfirmDialog
         open={Boolean(usuarios.deleteTarget)}
-        title="Eliminar usuario?"
-        description={`Se inactivara ${nombreCompleto(usuarios.deleteTarget)}. El sistema conserva el registro para no perder la trazabilidad.`}
+        title="¿Eliminar usuario?"
+        description={`Se inactivará ${nombreCompleto(usuarios.deleteTarget)}. El sistema conserva el registro para no perder la trazabilidad.`}
         loading={usuarios.procesando}
         onCancel={() => usuarios.setDeleteTarget(null)}
         onConfirm={() => usuarios.eliminar(usuarios.deleteTarget)}

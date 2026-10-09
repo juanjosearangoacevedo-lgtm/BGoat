@@ -77,7 +77,7 @@ export function JornadasAbiertas({ jornadas = [], onCapturar, onCerrar, onReabri
                     size="sm"
                     variant="outline"
                     onClick={() => onCerrar(modulo.id_jornada_modulo)}
-                    title="Cerrar la jornada del modulo"
+                    title="Cerrar la jornada del módulo"
                   >
                     <Lock className="h-4 w-4" />
                   </Button>

@@ -20,7 +20,7 @@ export const usuarioEstados = ["ACTIVO", "INACTIVO", "BLOQUEADO"];
 const documentoSegunTipo = (valor, form) =>
   form?.tipo_documento === "PASAPORTE"
     ? reglas.longitud({ ...usuarioLimites.documento, etiqueta: "El documento" })(valor, form)
-    : reglas.soloDigitos("El numero de documento")(valor, form);
+    : reglas.soloDigitos("El número de documento")(valor, form);
 
 /**
  * `lista` y `editing` vienen del listado en pantalla: sirven para detectar
@@ -44,9 +44,9 @@ export function crearUsuarioEsquema({ lista = [], editing = null, roleOptions = 
       reglas.opcionValida(usuarioTiposDocumento, "El tipo de documento"),
     ],
     numero_documento: [
-      reglas.requerido("El numero de documento"),
+      reglas.requerido("El número de documento"),
       documentoSegunTipo,
-      reglas.longitud({ ...usuarioLimites.documento, etiqueta: "El numero de documento" }),
+      reglas.longitud({ ...usuarioLimites.documento, etiqueta: "El número de documento" }),
       reglas.unico({
         lista,
         campo: "numero_documento",

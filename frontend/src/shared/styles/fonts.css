@@ -1,18 +1,15 @@
 /*
- * Tipografias de la landing y el login (prototipo aprobado).
+ * Tipografia unica del aplicativo: Archivo, en el panel, la portada, el
+ * login y los textos de apoyo. El archivo se carga desde index.html; aqui
+ * se vuelve la fuente por defecto de Tailwind (`--font-sans`), asi que
+ * cualquier texto nuevo la toma sin tener que poner una clase.
  *
- * Los archivos se cargan desde index.html; aqui solo quedan las clases
- * que las aplican, para no cambiar la tipografia del panel.
+ * Antes la portada y el login mezclaban tres (Archivo, Caveat y Playfair
+ * Display) y el panel usaba la del sistema.
  */
 
-.fuente-bgoat {
-  font-family: "Archivo", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
-}
-
-.fuente-manuscrita {
-  font-family: "Caveat", "Segoe Script", "Brush Script MT", cursive;
-}
-
-.fuente-bienvenida {
-  font-family: "Playfair Display", Georgia, "Times New Roman", serif;
+/* Las notificaciones (sonner) traen su propia fuente: que usen la misma. */
+[data-sonner-toaster],
+[data-sonner-toast] {
+  font-family: var(--font-sans);
 }

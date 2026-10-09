@@ -175,7 +175,7 @@ ordenesRouter.post(
     // mensaje que el error crudo del CHECK de la base.
     if (!(Number(lote.cantidad_programada) > 0)) {
       throw ApiError.badRequest(
-        "Ese lote todavia no tiene desglose por talla y color: agreguelo antes de crear la orden",
+        "Ese lote todavía no tiene desglose por talla y color: agréguelo antes de crear la orden",
       );
     }
     datos.cantidad_programada = lote.cantidad_programada;
@@ -268,7 +268,7 @@ ordenesRouter.put(
       if (!lote) throw ApiError.badRequest("El lote seleccionado no existe");
       if (!(Number(lote.cantidad_programada) > 0)) {
         throw ApiError.badRequest(
-          "Ese lote todavia no tiene desglose por talla y color: agreguelo antes de asignarlo a la orden",
+          "Ese lote todavía no tiene desglose por talla y color: agréguelo antes de asignarlo a la orden",
         );
       }
       datos.cantidad_programada = lote.cantidad_programada;
@@ -322,7 +322,7 @@ ordenesRouter.delete(
     // Finalizada a mano para "cerrarla": Finalizado es automatico.
     if (conProduccion.total > 0) {
       throw ApiError.conflict(
-        `No se puede eliminar: la orden tiene ${conProduccion.total} registro(s) de produccion, ` +
+        `No se puede eliminar: la orden tiene ${conProduccion.total} registro(s) de producción, ` +
           "y esa historia no se borra.",
       );
     }

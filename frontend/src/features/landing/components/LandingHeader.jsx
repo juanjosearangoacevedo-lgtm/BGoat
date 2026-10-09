@@ -6,19 +6,19 @@ export function LandingHeader({ onNavigate }) {
   const irArriba = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <header className="fuente-bgoat sticky top-0 z-50 border-b border-linea-5 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-linea-5 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-4 px-5 py-3 sm:px-8 lg:px-12">
         <button
           type="button"
           onClick={irArriba}
           className="flex-shrink-0 rounded-lg"
-          aria-label="Ir al inicio de la pagina"
+          aria-label="Ir al inicio de la página"
         >
           <img
             src={bgoatLogo}
             width={470}
             height={118}
-            alt="BGoat, gestion de produccion"
+            alt="BGoat, gestión de producción"
             className="h-10 w-auto sm:h-12 lg:h-[54px]"
           />
         </button>

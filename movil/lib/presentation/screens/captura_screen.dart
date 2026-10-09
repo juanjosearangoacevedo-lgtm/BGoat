@@ -54,7 +54,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
           title: Text(
             dentroDeModulo
                 ? '${provider.moduloActual!.modulo.codigo} · ${provider.moduloActual!.modulo.nombre}'
-                : 'Registro de produccion',
+                : 'Registro de producción',
           ),
           leading: dentroDeModulo
               ? IconButton(
@@ -98,7 +98,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
   // =====================================================================
   Widget _vistaPlanta(CapturaProvider provider) {
     if (provider.cargando && provider.rejilla == null) {
-      return const VistaCargando(mensaje: 'Armando la rejilla del dia...');
+      return const VistaCargando(mensaje: 'Armando la rejilla del día...');
     }
 
     if (provider.error != null && provider.rejilla == null) {
@@ -114,7 +114,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
       return VistaVacia(
         icono: Icons.weekend_outlined,
         titulo: 'El ${fechas.fechaLarga(provider.fecha)} no se trabaja',
-        detalle: 'Ese dia no tiene jornada configurada en el horario de la planta.',
+        detalle: 'Ese día no tiene jornada configurada en el horario de la planta.',
       );
     }
 
@@ -130,7 +130,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
           const SizedBox(height: 18),
           if (conJornada.isNotEmpty) ...[
             TituloSeccion(
-              'Modulos trabajando',
+              'Módulos trabajando',
               detalle: '${rejilla.horario.franjas.length} franjas · '
                   '${rejilla.horario.minutosTotales} minutos',
             ),
@@ -141,8 +141,8 @@ class _CapturaScreenState extends State<CapturaScreen> {
           ] else
             const VistaVacia(
               icono: Icons.play_circle_outline,
-              titulo: 'Ningun modulo abrio jornada',
-              detalle: 'Una hora solo se puede registrar si su modulo tiene '
+              titulo: 'Ningún módulo abrió jornada',
+              detalle: 'Una hora solo se puede registrar si su módulo tiene '
                   'jornada abierta: es la que dice que lote corre y con cuantas '
                   'operarias.',
             ),
@@ -150,7 +150,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
             const SizedBox(height: 14),
             TituloSeccion(
               'Sin jornada',
-              detalle: '${sinJornada.length} modulos no pueden capturar todavia',
+              detalle: '${sinJornada.length} módulos no pueden capturar todavía',
             ),
             ...sinJornada.map((modulo) => Padding(
                   padding: const EdgeInsets.only(bottom: 9),
@@ -308,7 +308,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
           ),
           FilaDeDatos([
             Dato(etiqueta: 'Unidades', valor: entero(resumen.unidadesProducidas)),
-            Dato(etiqueta: 'Meta dia', valor: entero(resumen.metaDia)),
+            Dato(etiqueta: 'Meta día', valor: entero(resumen.metaDia)),
             Dato(
               etiqueta: 'Facturado',
               valor: pesos(resumen.facturacionReal),
@@ -375,7 +375,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
           _cabeceraModulo(modulo),
           const SizedBox(height: 18),
           TituloSeccion(
-            'Las horas del dia',
+            'Las horas del día',
             detalle: jornada == null
                 ? null
                 : 'SAM ${sam(jornada.samPactado)} · '
@@ -428,7 +428,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
           ),
           FilaDeDatos([
             Dato(etiqueta: 'Unidades', valor: entero(resumen.unidadesProducidas)),
-            Dato(etiqueta: 'Meta del dia', valor: entero(resumen.metaDia)),
+            Dato(etiqueta: 'Meta del día', valor: entero(resumen.metaDia)),
             Dato(
               etiqueta: 'Minutos perdidos',
               valor: entero(resumen.minutosPerdidos),
@@ -438,7 +438,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
           const SizedBox(height: 12),
           FilaDeDatos([
             Dato(
-              etiqueta: 'Facturacion meta',
+              etiqueta: 'Facturación meta',
               valor: pesos(resumen.facturacionMeta),
             ),
             Dato(
@@ -546,7 +546,7 @@ class _CapturaScreenState extends State<CapturaScreen> {
                     const SizedBox(height: 2),
                     Text(
                       celda == null
-                          ? (vencida ? 'Esta hora ya vencio y falta' : 'Pendiente')
+                          ? (vencida ? 'Esta hora ya venció y falta' : 'Pendiente')
                           : '${entero(celda.unidadesProducidas)} de '
                               '${decimal(celda.metaHora, 1)} · '
                               '${celda.personasPresentes} operarias',

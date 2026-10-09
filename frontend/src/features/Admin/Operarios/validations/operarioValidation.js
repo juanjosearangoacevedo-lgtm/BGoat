@@ -20,20 +20,20 @@ export const operarioEstados = ["ACTIVO", "INACTIVO", "RETIRADO"];
 const documentoSegunTipo = (valor, form) =>
   form?.tipo_documento === "PASAPORTE"
     ? reglas.longitud({ ...operarioLimites.documento, etiqueta: "El documento" })(valor, form)
-    : reglas.soloDigitos("El numero de documento")(valor, form);
+    : reglas.soloDigitos("El número de documento")(valor, form);
 
 export function crearOperarioEsquema({ lista = [], editing = null } = {}) {
   return {
     codigo_operario: [
-      reglas.requerido("El codigo"),
-      reglas.longitud({ ...operarioLimites.codigo, etiqueta: "El codigo" }),
-      reglas.sinCaracteresEspeciales("El codigo"),
+      reglas.requerido("El código"),
+      reglas.longitud({ ...operarioLimites.codigo, etiqueta: "El código" }),
+      reglas.sinCaracteresEspeciales("El código"),
       reglas.unico({
         lista,
         campo: "codigo_operario",
         idField: "id_operario",
         actual: editing,
-        etiqueta: "Ese codigo de operario",
+        etiqueta: "Ese código de operario",
       }),
     ],
     cargo: [reglas.seleccionRequerida("El cargo"), reglas.opcionValida(operarioCargos, "El cargo")],
@@ -42,9 +42,9 @@ export function crearOperarioEsquema({ lista = [], editing = null } = {}) {
       reglas.opcionValida(operarioTiposDocumento, "El tipo de documento"),
     ],
     numero_documento: [
-      reglas.requerido("El numero de documento"),
+      reglas.requerido("El número de documento"),
       documentoSegunTipo,
-      reglas.longitud({ ...operarioLimites.documento, etiqueta: "El numero de documento" }),
+      reglas.longitud({ ...operarioLimites.documento, etiqueta: "El número de documento" }),
       reglas.unico({
         lista,
         campo: "numero_documento",

@@ -15,7 +15,7 @@ export function TallasPage() {
   return (
     <CrudPage
       titulo="Tallas"
-      subtitulo="El catalogo que usa el desglose de cada lote"
+      subtitulo="El catálogo que usa el desglose de cada lote"
       recurso={endpoints.tallas}
       idField="id_talla"
       etiquetaNuevo="Nueva talla"
@@ -55,7 +55,7 @@ export function TallasPage() {
           placeholder: "XL, 32, 2T...",
           required: true,
           maxLength: 20,
-          hint: "Adulto (XS-5XL), numerica (26-42) o infantil (1T-5T, 2-14): la que haga falta.",
+          hint: "Adulto (XS-5XL), numérica (26-42) o infantil (1T-5T, 2-14): la que haga falta.",
         },
         {
           name: "orden_visual",
@@ -63,7 +63,7 @@ export function TallasPage() {
           type: "number",
           min: 1,
           max: 999,
-          hint: "Define en que posicion aparece en el selector del desglose.",
+          hint: "Define en qué posición aparece en el selector del desglose.",
         },
         {
           name: "estado",

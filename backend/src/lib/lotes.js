@@ -20,7 +20,7 @@ export const CAMPOS_EN_MAYUSCULAS = ["numero_pedido", "codigo_referencia"];
 export const CAMPOS_IDENTIFICACION = ["numero_pedido", "codigo_referencia", "nombre_referencia"];
 
 export const MENSAJE_IDENTIFICACION =
-  "Hace falta al menos uno: numero de pedido, codigo de referencia o nombre de la referencia.";
+  "Hace falta al menos uno: número de pedido, código de referencia o nombre de la referencia.";
 
 const tieneValor = (valor) => valor !== undefined && valor !== null && String(valor).trim() !== "";
 

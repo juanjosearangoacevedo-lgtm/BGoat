@@ -45,7 +45,7 @@ export function ClientesPage() {
     icon: Building2,
     title: hayBusqueda ? "Sin resultados" : "No hay clientes cargados",
     description: hayBusqueda
-      ? "Ningun cliente coincide con la busqueda o los filtros aplicados."
+      ? "Ningún cliente coincide con la búsqueda o los filtros aplicados."
       : "Registra el primer cliente para poder cargarle lotes.",
     action: hayBusqueda ? (
       <Button
@@ -55,7 +55,7 @@ export function ClientesPage() {
           clientes.setSearch("");
         }}
       >
-        Limpiar busqueda y filtros
+        Limpiar búsqueda y filtros
       </Button>
     ) : (
       <Button onClick={clientes.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
@@ -159,8 +159,8 @@ export function ClientesPage() {
           secundario={(cliente) => documento(cliente)}
           meta={(cliente) => [
             { label: "Correo", value: cliente.correo || "—" },
-            { label: "Telefono", value: cliente.telefono || "—" },
-            { label: "Direccion", value: cliente.direccion || "—" },
+            { label: "Teléfono", value: cliente.telefono || "—" },
+            { label: "Dirección", value: cliente.direccion || "—" },
           ]}
           estado={(cliente) => cliente.estado}
           acciones={(cliente) => (
@@ -226,11 +226,11 @@ export function ClientesPage() {
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
         tono={activando ? "exito" : "advertencia"}
-        title={activando ? "Activar cliente?" : "Desactivar cliente?"}
+        title={activando ? "¿Activar cliente?" : "¿Desactivar cliente?"}
         description={
           activando
-            ? `${objetivoEstado?.nombre} volvera a aparecer al crear lotes y al iniciar la jornada.`
-            : `${objetivoEstado?.nombre} dejara de ofrecerse en los formularios, pero conserva su historia.`
+            ? `${objetivoEstado?.nombre} volverá a aparecer al crear lotes y al iniciar la jornada.`
+            : `${objetivoEstado?.nombre} dejará de ofrecerse en los formularios, pero conserva su historia.`
         }
         confirmLabel={activando ? "Activar" : "Desactivar"}
         loading={clientes.procesando}
@@ -240,8 +240,8 @@ export function ClientesPage() {
 
       <ConfirmDialog
         open={Boolean(clientes.deleteTarget)}
-        title="Eliminar cliente?"
-        description={`Se eliminara ${clientes.deleteTarget?.nombre}. Si tiene lotes registrados, el sistema lo inactiva en lugar de borrarlo.`}
+        title="¿Eliminar cliente?"
+        description={`Se eliminará ${clientes.deleteTarget?.nombre}. Si tiene lotes registrados, el sistema lo inactiva en lugar de borrarlo.`}
         loading={clientes.procesando}
         onCancel={() => clientes.setDeleteTarget(null)}
         onConfirm={() => clientes.eliminar(clientes.deleteTarget)}

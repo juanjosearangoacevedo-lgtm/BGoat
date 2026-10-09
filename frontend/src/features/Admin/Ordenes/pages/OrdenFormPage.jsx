@@ -49,12 +49,12 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
       <div className="mb-6">
         <Button variant="ghost" onClick={() => onNavigate?.("orders")} className="mb-4">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Volver a Ordenes
+          Volver a Órdenes
         </Button>
         <h1 className="text-3xl font-bold text-gray-900">
           {isEdit
             ? `Editar Orden ${orderData?.numero_orden ?? ""}`
-            : "Nueva Orden de Produccion"}
+            : "Nueva Orden de Producción"}
         </h1>
         <p className="mt-1 text-gray-600">
           {isEdit ? "Modifica los datos de la orden existente" : "Completa los datos para crear una nueva orden"}
@@ -62,7 +62,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <OrdenFormSection title="Informacion General">
+        <OrdenFormSection title="Información General">
           <OrdenSelectField
             label="Lote"
             placeholder="Seleccionar lote"
@@ -128,7 +128,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                   : "Al iniciar jornada"}
               </p>
               <p className="text-xs text-gray-400">
-                El dia en que un modulo abra jornada con esta orden.
+                El día en que un módulo abra jornada con esta orden.
               </p>
             </div>
             <div>
@@ -140,14 +140,14 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
               </p>
               <p className="text-xs text-gray-400">
                 {form.eficiencia_esperada
-                  ? "Formula de German desde el inicio. Queda fija como entrega del lote."
+                  ? "Fórmula de Germán desde el inicio. Queda fija como entrega del lote."
                   : "Falta la eficiencia esperada, abajo: sin ella no hay fecha."}
               </p>
             </div>
             <div>
-              <p className="mb-1.5 text-sm font-medium text-gray-700">Duracion estimada</p>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Duración estimada</p>
               <p className="flex h-10 items-center text-lg font-bold text-gray-800">
-                {diasProgramados ? `${diasProgramados} dia${diasProgramados === 1 ? "" : "s"}` : "—"}
+                {diasProgramados ? `${diasProgramados} día${diasProgramados === 1 ? "" : "s"}` : "—"}
               </p>
             </div>
           </OrdenFormSection>
@@ -162,7 +162,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                   supuesto de quien la programa, no un dato de la orden. Se
                   deja editable y se dice que es un supuesto. */}
               <label className="flex items-center gap-2 text-xs text-gray-600">
-                Si la toma un modulo de
+                Si la toma un módulo de
                 <input
                   type="number"
                   min={1}
@@ -184,13 +184,13 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                 <p className="text-lg font-bold text-gray-800">{estimacion.unidadesPorHora}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Unidades por dia ({estimacion.horasDia} h)</p>
+                <p className="text-xs text-gray-500">Unidades por día ({estimacion.horasDia} h)</p>
                 <p className="text-lg font-bold text-gray-800">{estimacion.unidadesPorDia}</p>
               </div>
             </div>
             <p className="mt-2 text-xs text-gray-500">
               Al 100% de eficiencia, con el SAM del lote y los minutos reales de la jornada de
-              planta. Que modulo la tome se decide despues, al abrir la jornada.
+              planta. Qué módulo la tome se decide después, al abrir la jornada.
             </p>
 
             <div className="mt-4 border-t border-marca/10 pt-4">
@@ -203,14 +203,14 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                   placeholder="65"
                   value={form.eficiencia_esperada}
                   error={errors.eficiencia_esperada}
-                  hint="Segun experiencia del modulo. Se puede ajustar dia a dia."
+                  hint="Según experiencia del módulo. Se puede ajustar día a día."
                   onChange={(valor) => setField("eficiencia_esperada", valor)}
                 />
               </div>
 
               <p className="mt-2 text-xs text-gray-400">
                 Con esto se calcula la duracion, contando dia por dia y saltando domingos y
-                festivos (de la pantalla "Dias no laborales"). Al iniciar jornada se calcula la
+                festivos (de la pantalla "Días no laborales"). Al iniciar jornada se calcula la
                 entrega con las personas de esa jornada. Si la orden ya inicio, cambiar la
                 eficiencia recalcula la entrega desde el mismo inicio (decision de German).
               </p>
@@ -218,7 +218,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
           </div>
         )}
 
-        <OrdenFormSection title="Configuracion" columns="md:grid-cols-2">
+        <OrdenFormSection title="Configuración" columns="md:grid-cols-2">
           {isEdit && orderData?.prioridad ? (
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">Prioridad</p>
@@ -233,7 +233,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">Prioridad</p>
               <p className="flex h-10 items-center text-xs text-gray-400">
-                Se asigna sola al guardar: la orden mas vieja va primero.
+                Se asigna sola al guardar: la orden más vieja va primero.
               </p>
             </div>
           )}
@@ -245,8 +245,8 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
                 {orderData?.estado === "FINALIZADO"
                   ? "Se completo solo al alcanzar la cantidad programada."
                   : orderData?.estado === "EN_PROCESO"
-                    ? "Un modulo ya la tomo."
-                    : "Pasa solo a En proceso cuando un modulo la tome."}
+                    ? "Un módulo ya la tomó."
+                    : "Pasa solo a En proceso cuando un módulo la tome."}
               </span>
             </div>
           </div>

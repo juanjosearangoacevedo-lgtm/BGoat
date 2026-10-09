@@ -23,7 +23,7 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
           onClick={() => onNavigate?.("orders")}
           className="mt-1 flex items-center gap-2 text-gray-500 transition-colors hover:text-marca-letra"
           type="button"
-          aria-label="Volver a ordenes"
+          aria-label="Volver a órdenes"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
@@ -54,8 +54,8 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
         <div className="rounded-2xl border border-gray-100 bg-white shadow-sm">
           <EmptyState
             icon={Package}
-            title="No se encontro la orden"
-            description="Vuelve al listado y selecciona una orden de produccion."
+            title="No se encontró la orden"
+            description="Vuelve al listado y selecciona una orden de producción."
           />
         </div>
       ) : (

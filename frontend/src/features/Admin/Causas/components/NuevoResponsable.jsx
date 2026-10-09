@@ -56,7 +56,7 @@ export function NuevoResponsable({ onCreado }) {
         autoFocus
         value={nombre}
         maxLength={80}
-        placeholder="Ej: Logistica"
+        placeholder="Ej: Logística"
         onChange={(evento) => setNombre(evento.target.value)}
         onKeyDown={(evento) => {
           if (evento.key === "Enter") {

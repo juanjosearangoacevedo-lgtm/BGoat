@@ -37,7 +37,7 @@ export function CapturaDesgloseTallaColor({ combos = [], valores = [], onChange 
   if (combos.length === 0) {
     return (
       <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4 text-center text-sm text-gray-400">
-        Este lote no tiene desglose por talla y color: no se puede capturar produccion.
+        Este lote no tiene desglose por talla y color: no se puede capturar producción.
       </div>
     );
   }

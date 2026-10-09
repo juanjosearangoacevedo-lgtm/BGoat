@@ -207,9 +207,9 @@ class _LotesScreenState extends State<LotesScreen> {
           Expanded(
             child: Text(
               cuantos == 1
-                  ? '1 lote no tiene SAM pactado: ningun modulo puede abrir '
-                      'jornada con el.'
-                  : '$cuantos lotes no tienen SAM pactado: ningun modulo puede '
+                  ? '1 lote no tiene SAM pactado: ningún módulo puede abrir '
+                      'jornada con él.'
+                  : '$cuantos lotes no tienen SAM pactado: ningún módulo puede '
                       'abrir jornada con ellos.',
               style: const TextStyle(fontSize: 12.5, height: 1.4),
             ),
@@ -443,9 +443,9 @@ class _HojaLote extends StatelessWidget {
                 Text(
                   lote.tieneSam
                       ? 'El SAM son los minutos que el cliente paga por prenda. '
-                          'De ahi sale la meta de cada hora.'
+                          'De ahí sale la meta de cada hora.'
                       : 'Sin SAM no se puede abrir jornada con este lote: no hay '
-                          'meta que calcular ni contra que medir al modulo.',
+                          'meta que calcular ni contra qué medir al módulo.',
                   style: TextStyle(
                     fontSize: 11.5,
                     height: 1.4,
@@ -484,7 +484,7 @@ class _HojaLote extends StatelessWidget {
                 const TituloSeccion('Fechas'),
                 FilaDeDatos([
                   Dato(
-                    etiqueta: 'Recepcion',
+                    etiqueta: 'Recepción',
                     valor: fechas.fechaCorta(lote.fechaRecepcion),
                   ),
                   Dato(
@@ -533,7 +533,6 @@ class _HojaLote extends StatelessWidget {
                                 fila.codigoHex!,
                                 style: const TextStyle(
                                   fontSize: 11,
-                                  fontFamily: 'monospace',
                                   color: Paleta.textoSuave,
                                 ),
                               ),
@@ -574,7 +573,7 @@ class _HojaLote extends StatelessWidget {
                   const SizedBox(width: 11),
                   const Expanded(
                     child: Text(
-                      'Ficha tecnica en PDF adjunta',
+                      'Ficha técnica en PDF adjunta',
                       style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                   ),

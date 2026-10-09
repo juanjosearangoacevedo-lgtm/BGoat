@@ -165,7 +165,7 @@ void main() {
 
       expect(find.text('Se asigna solo al guardar'), findsOneWidget);
       // No es un campo de texto: no hay donde escribirlo.
-      expect(campo('Codigo del lote'), findsNothing);
+      expect(campo('Código del lote'), findsNothing);
     });
 
     testWidgets('al editar se muestra el que tiene, sin poder cambiarlo', (tester) async {
@@ -174,7 +174,7 @@ void main() {
       // En el titulo y en el campo de solo lectura.
       expect(find.text('Editar LT-2026-0007'), findsOneWidget);
       expect(find.text('LT-2026-0007'), findsOneWidget);
-      expect(campo('Codigo del lote'), findsNothing);
+      expect(campo('Código del lote'), findsNothing);
     });
   });
 
@@ -182,10 +182,10 @@ void main() {
     testWidgets('el pedido y el codigo de referencia suben a mayuscula al escribirlos', (tester) async {
       await abrirFormulario(tester);
 
-      await tester.enterText(campo('Numero de pedido'), 'ped-2026-ab');
+      await tester.enterText(campo('Número de pedido'), 'ped-2026-ab');
       await tester.enterText(campo('Cod. referencia'), 'pb-450');
 
-      expect(textoDe(tester, 'Numero de pedido'), 'PED-2026-AB');
+      expect(textoDe(tester, 'Número de pedido'), 'PED-2026-AB');
       expect(textoDe(tester, 'Cod. referencia'), 'PB-450');
     });
 
@@ -200,7 +200,7 @@ void main() {
     testWidgets('un valor viejo en minuscula se carga ya en mayuscula', (tester) async {
       await abrirFormulario(tester, lote: _loteExistente);
 
-      expect(textoDe(tester, 'Numero de pedido'), 'PED-VIEJO');
+      expect(textoDe(tester, 'Número de pedido'), 'PED-VIEJO');
     });
   });
 
@@ -213,7 +213,7 @@ void main() {
 
       expect(
         find.text(
-          'Escriba al menos el numero de pedido, el codigo de referencia o el nombre de la referencia',
+          'Escriba al menos el número de pedido, el código de referencia o el nombre de la referencia',
         ),
         findsOneWidget,
       );
@@ -223,7 +223,7 @@ void main() {
     testWidgets('solo con espacios tampoco cuenta', (tester) async {
       final repositorio = await abrirFormulario(tester);
       await llenarLoQueSiempreSeExige(tester);
-      await tester.enterText(campo('Numero de pedido'), '   ');
+      await tester.enterText(campo('Número de pedido'), '   ');
 
       await guardar(tester);
 
@@ -245,7 +245,7 @@ void main() {
     testWidgets('con el pedido guarda en mayusculas y sin codigo de lote', (tester) async {
       final repositorio = await abrirFormulario(tester);
       await llenarLoQueSiempreSeExige(tester);
-      await tester.enterText(campo('Numero de pedido'), 'ped-77');
+      await tester.enterText(campo('Número de pedido'), 'ped-77');
 
       await guardar(tester);
 

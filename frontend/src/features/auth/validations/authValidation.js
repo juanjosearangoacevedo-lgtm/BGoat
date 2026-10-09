@@ -22,12 +22,12 @@ export const authTiposDocumento = ["CC", "CE", "TI", "PASAPORTE", "OTRO"];
 const documentoSegunTipo = (valor, form) =>
   form?.tipo_documento === "PASAPORTE"
     ? reglas.longitud({ ...authLimites.documento, etiqueta: "El documento" })(valor, form)
-    : reglas.soloDigitos("El numero de documento")(valor, form);
+    : reglas.soloDigitos("El número de documento")(valor, form);
 
 /** Login: aqui no se valida el formato de la clave, solo que venga. */
 export const loginEsquema = {
   correo: [reglas.requerido("El correo"), reglas.correo()],
-  clave: [reglas.requerido("La contrasena")],
+  clave: [reglas.requerido("La contraseña")],
 };
 
 export const registroEsquema = {
@@ -46,9 +46,9 @@ export const registroEsquema = {
     reglas.opcionValida(authTiposDocumento, "El tipo de documento"),
   ],
   numero_documento: [
-    reglas.requerido("El numero de documento"),
+    reglas.requerido("El número de documento"),
     documentoSegunTipo,
-    reglas.longitud({ ...authLimites.documento, etiqueta: "El numero de documento" }),
+    reglas.longitud({ ...authLimites.documento, etiqueta: "El número de documento" }),
   ],
   correo: [reglas.requerido("El correo"), reglas.correo()],
   telefono: [reglas.telefono({ ...authLimites.telefono })],

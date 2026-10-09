@@ -211,7 +211,7 @@ export function useCrudResource({
         setItems((previo) =>
           previo.map((fila) => (fila[idField] === id ? { ...fila, [campoEstado]: destino } : fila)),
         );
-        toast.success(activando ? `Se activo ${nombreDe(item)}` : `Se desactivo ${nombreDe(item)}`);
+        toast.success(activando ? `Se activó ${nombreDe(item)}` : `Se desactivó ${nombreDe(item)}`);
         await cargar();
         return true;
       } catch (problema) {

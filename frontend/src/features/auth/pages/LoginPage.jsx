@@ -55,7 +55,7 @@ function FraseManuscrita({ lineas, className }) {
       aria-hidden="true"
       className={`pointer-events-none absolute hidden select-none xl:block ${className}`}
     >
-      <p className="fuente-manuscrita text-[36px] leading-[1.05] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+      <p className="text-[27px] font-semibold italic leading-[1.15] tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
         {lineas[0]}
         <br />
         {lineas[1]}

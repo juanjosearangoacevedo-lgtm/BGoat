@@ -35,7 +35,7 @@ export function OrdenCurva({ curva = [], umbral = 85 }) {
         </h3>
         {conDatos && (
           <p className="text-xs text-gray-500">
-            Ultima hora <strong className="text-marca-letra">{ultima}%</strong> · maxima {maxima}%
+            Última hora <strong className="text-marca-letra">{ultima}%</strong> · máxima {maxima}%
           </p>
         )}
       </div>

@@ -17,7 +17,7 @@ export function ChartCard({ title, data = [], height = 300, children }) {
         >
           <BarChart3 className="mb-2 h-8 w-8 opacity-30" />
           <p className="text-sm">Sin datos para graficar</p>
-          <p className="text-xs">Se llenara al conectar la API</p>
+          <p className="text-xs">Se llenará al conectar la API</p>
         </div>
       ) : (
         children

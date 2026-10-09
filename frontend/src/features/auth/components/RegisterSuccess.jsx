@@ -16,10 +16,10 @@ export function RegisterSuccess({
           Tu cuenta ha sido creada para <span className="font-medium text-marca-letra">{email}</span>.
         </p>
         <p className="text-sm text-gray-500 mb-8">
-          Un administrador revisara tu solicitud y te notificara cuando tu acceso este activo.
+          Un administrador revisará tu solicitud y te notificará cuando tu acceso esté activo.
         </p>
         <Button className="w-full h-12 bg-dorado hover:bg-dorado-hover text-white" onClick={() => onNavigate("login")}>
-          Ir al inicio de sesion
+          Ir al inicio de sesión
         </Button>
       </div>
     </div>

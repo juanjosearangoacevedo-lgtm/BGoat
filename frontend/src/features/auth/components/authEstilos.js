@@ -5,7 +5,7 @@
 
 /** La tarjeta de vidrio claro sobre la foto. Es clara en los dos modos. */
 export const tarjetaVidrio = (dark) =>
-  `fuente-bgoat relative w-full rounded-[26px] border border-white/60 p-6 shadow-[0_34px_90px_-24px_rgba(6,24,19,0.62)] backdrop-blur-xl sm:p-10 sm:bajo:px-9 sm:bajo:py-6 ${
+  `relative w-full rounded-[26px] border border-white/60 p-6 shadow-[0_34px_90px_-24px_rgba(6,24,19,0.62)] backdrop-blur-xl sm:p-10 sm:bajo:px-9 sm:bajo:py-6 ${
     dark ? "bg-white/74" : "bg-white/84"
   }`;
 

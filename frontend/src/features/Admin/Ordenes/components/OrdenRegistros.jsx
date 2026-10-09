@@ -16,7 +16,7 @@ export function OrdenRegistros({ registros = [] }) {
 
       {registros.length === 0 ? (
         <p className="text-sm text-gray-400">
-          Todavia no hay horas capturadas para esta orden. Se registran desde la pantalla de Captura.
+          Todavía no hay horas capturadas para esta orden. Se registran desde la pantalla de Captura.
         </p>
       ) : (
         <div className="overflow-x-auto">

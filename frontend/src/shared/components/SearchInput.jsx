@@ -26,7 +26,7 @@ export function SearchInput({
           type="button"
           onClick={() => onChange?.("")}
           className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 transition-colors hover:text-gray-600"
-          aria-label="Limpiar busqueda"
+          aria-label="Limpiar búsqueda"
         >
           <X className="h-3.5 w-3.5" />
         </button>

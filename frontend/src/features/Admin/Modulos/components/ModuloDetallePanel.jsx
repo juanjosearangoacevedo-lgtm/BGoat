@@ -73,7 +73,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
       label: "Horas de la jornada",
       value: modulo.horas_horario ? `${modulo.horas_horario} h` : null,
     },
-    { label: "Meta del dia", value: formatNumero(Math.round(num("meta_dia"))), destacado: true },
+    { label: "Meta del día", value: formatNumero(Math.round(num("meta_dia"))), destacado: true },
     { label: "Producido", value: formatNumero(num("unidades_producidas")), destacado: true },
     { label: "Horas registradas", value: modulo.horas_registradas ?? 0 },
     { label: "Prendas por hora", value: Number(num("prendas_por_hora")).toFixed(1) },
@@ -103,7 +103,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
   ];
 
   const perdidas = [
-    { label: "Maquina", value: num("minutos_maquina") },
+    { label: "Máquina", value: num("minutos_maquina") },
     { label: "Calidad", value: num("minutos_calidad") },
     { label: "Montaje o insumos", value: num("minutos_montaje") },
     { label: "Otras causas", value: num("minutos_otras") },
@@ -117,7 +117,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
           <div>
             <h2 className="text-lg font-bold text-gray-900">{modulo.nombre}</h2>
             <p className="text-xs text-gray-500">
-              {modulo.codigo} · {modulo.ubicacion || "Sin ubicacion"}
+              {modulo.codigo} · {modulo.ubicacion || "Sin ubicación"}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
         <div className="flex-1 space-y-5 overflow-y-auto p-6">
           <div className="rounded-xl bg-marca/5 p-4">
             <div className="mb-2 flex justify-between text-sm">
-              <span className="font-medium text-marca-letra">Eficiencia del dia</span>
+              <span className="font-medium text-marca-letra">Eficiencia del día</span>
               <span className="font-bold text-marca-letra">{eficiencia}%</span>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-white">
@@ -153,7 +153,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
 
           {jornada ? (
             <Bloque
-              titulo="Lo que esta corriendo hoy"
+              titulo="Lo que está corriendo hoy"
               nota="Lo declara la digitadora al abrir la jornada."
             >
               {declarado.map((dato) => (
@@ -162,7 +162,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
             </Bloque>
           ) : (
             <div className="rounded-xl border border-dashed border-gray-200 p-4 text-sm text-gray-400">
-              Este modulo todavia no tiene jornada abierta hoy.
+              Este módulo todavía no tiene jornada abierta hoy.
             </div>
           )}
 
@@ -175,7 +175,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
             ))}
           </Bloque>
 
-          <Bloque titulo="Facturacion del dia" nota="Meta y real de las mismas franjas.">
+          <Bloque titulo="Facturación del día" nota="Meta y real de las mismas franjas.">
             {facturacion.map((dato) => (
               <Dato key={dato.label} {...dato} />
             ))}
@@ -184,7 +184,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
           {hayPerdidas && (
             <Bloque
               titulo="Minutos perdidos"
-              nota="Minutos de modulo por causa. El total va en minutos-persona, que es la unidad de los minutos puestos."
+              nota="Minutos de módulo por causa. El total va en minutos-persona, que es la unidad de los minutos puestos."
             >
               {perdidas.map((linea) => (
                 <Dato key={linea.label} label={linea.label} value={`${linea.value} min`} />
@@ -199,7 +199,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
             </Bloque>
           )}
 
-          <Bloque titulo="Configuracion" nota="Lo unico que se escribe a mano de este modulo.">
+          <Bloque titulo="Configuración" nota="Lo único que se escribe a mano de este módulo.">
             <Dato label="Puestos" value={modulo.capacidad_operarios ?? 0} />
             <Dato
               label="Umbral de cumplimiento"
@@ -227,7 +227,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-gray-900">
-                        {operario.id_operario ? nombreCompleto(operario) : "Operaria anonima"}
+                        {operario.id_operario ? nombreCompleto(operario) : "Operaria anónima"}
                       </p>
                       <p className="text-xs text-gray-500">
                         Puesto {operario.numero}

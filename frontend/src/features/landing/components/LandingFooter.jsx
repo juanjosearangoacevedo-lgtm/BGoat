@@ -18,8 +18,8 @@ const CONTACTO = [
 ];
 
 const INCLUYE = [
-  "Captura horaria de produccion",
-  "Ordenes, lotes y clientes",
+  "Captura horaria de producción",
+  "Órdenes, lotes y clientes",
   "Indicadores y reportes",
   "Control de accesos por rol",
 ];
@@ -37,12 +37,12 @@ export function LandingFooter() {
               <span className="text-xl font-bold">BGoat ERP</span>
             </div>
             <p className="text-white/80 text-sm">
-              Sistema de gestion de produccion textil profesional
+              Sistema de gestión de producción textil profesional
             </p>
           </div>
 
           <div>
-            <h4 className="font-bold mb-4">Que incluye</h4>
+            <h4 className="font-bold mb-4">Qué incluye</h4>
             <ul className="space-y-2 text-sm text-white/80">
               {INCLUYE.map((linea) => (
                 <li key={linea}>{linea}</li>

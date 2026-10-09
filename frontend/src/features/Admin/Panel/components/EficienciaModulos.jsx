@@ -29,7 +29,7 @@ const BANDAS = [
 
 const VISTAS = [
   { clave: "eficiencia", label: "% Eficiencia" },
-  { clave: "facturacion", label: "$ Facturacion" },
+  { clave: "facturacion", label: "$ Facturación" },
 ];
 
 function banda(valor) {
@@ -56,8 +56,8 @@ export function EficienciaModulos({ modules = [], loading = false, onNavigate })
           <h3 className="text-xl font-bold text-tinta">Eficiencia en Tiempo Real</h3>
           <p className="mt-1 text-sm text-texto-suave">
             {enDinero
-              ? "Cuanto ha facturado cada modulo frente a su propia meta del dia"
-              : "Cada modulo frente a su propia meta del dia"}
+              ? "Cuánto ha facturado cada módulo frente a su propia meta del día"
+              : "Cada módulo frente a su propia meta del día"}
           </p>
         </div>
 
@@ -82,8 +82,8 @@ export function EficienciaModulos({ modules = [], loading = false, onNavigate })
       {!loading && modules.length === 0 ? (
         <EmptyState
           icon={Factory}
-          title="Sin modulos con jornada abierta"
-          description="El semaforo se llena en cuanto un modulo registre su primera hora del dia."
+          title="Sin módulos con jornada abierta"
+          description="El semáforo se llena en cuanto un módulo registre su primera hora del día."
         />
       ) : (
         <div className="space-y-4">
@@ -94,7 +94,7 @@ export function EficienciaModulos({ modules = [], loading = false, onNavigate })
               </p>
 
               {grupos[bandaInfo.clave].length === 0 ? (
-                <p className="text-sm text-linea-9">Ningun modulo en este rango</p>
+                <p className="text-sm text-linea-9">Ningún módulo en este rango</p>
               ) : (
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
                   {grupos[bandaInfo.clave].map((modulo) => (

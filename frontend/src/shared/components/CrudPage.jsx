@@ -161,7 +161,7 @@ export function CrudPage({
         ancho: campo.ancho,
       }));
 
-    return [{ titulo: "Informacion del registro", filas: [...desdeColumnas, ...desdeCampos] }];
+    return [{ titulo: "Información del registro", filas: [...desdeColumnas, ...desdeCampos] }];
   };
 
   const estadoObjetivo = crud.estadoTarget;
@@ -172,7 +172,7 @@ export function CrudPage({
     title: listaAdmin.hayFiltros || crud.search ? "Sin resultados" : emptyTitle,
     description:
       listaAdmin.hayFiltros || crud.search
-        ? "Ningun registro coincide con la busqueda o los filtros aplicados."
+        ? "Ningún registro coincide con la búsqueda o los filtros aplicados."
         : emptyDescription,
     action:
       listaAdmin.hayFiltros || crud.search ? (
@@ -183,7 +183,7 @@ export function CrudPage({
             crud.setSearch("");
           }}
         >
-          Limpiar busqueda y filtros
+          Limpiar búsqueda y filtros
         </Button>
       ) : (
         <Button onClick={crud.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
@@ -385,11 +385,11 @@ export function CrudPage({
       <ConfirmDialog
         open={Boolean(estadoObjetivo)}
         tono={activandoObjetivo ? "exito" : "advertencia"}
-        title={activandoObjetivo ? "Activar registro?" : "Desactivar registro?"}
+        title={activandoObjetivo ? "¿Activar registro?" : "¿Desactivar registro?"}
         description={
           activandoObjetivo
-            ? `${nombreRegistro(estadoObjetivo)} volvera a estar disponible en los listados y formularios.`
-            : `${nombreRegistro(estadoObjetivo)} dejara de aparecer en los formularios, pero conserva su historia.`
+            ? `${nombreRegistro(estadoObjetivo)} volverá a estar disponible en los listados y formularios.`
+            : `${nombreRegistro(estadoObjetivo)} dejará de aparecer en los formularios, pero conserva su historia.`
         }
         confirmLabel={activandoObjetivo ? "Activar" : "Desactivar"}
         loading={crud.procesando}
@@ -400,7 +400,7 @@ export function CrudPage({
       <ConfirmDialog
         open={Boolean(crud.deleteTarget)}
         title={`Eliminar ${titulo.toLowerCase()}?`}
-        description={`Se eliminara ${nombreRegistro(crud.deleteTarget)}. Si el registro tiene historia, el sistema lo inactiva en lugar de borrarlo.`}
+        description={`Se eliminará ${nombreRegistro(crud.deleteTarget)}. Si el registro tiene historia, el sistema lo inactiva en lugar de borrarlo.`}
         loading={crud.procesando}
         onCancel={() => crud.setDeleteTarget(null)}
         onConfirm={() => crud.eliminar(crud.deleteTarget)}

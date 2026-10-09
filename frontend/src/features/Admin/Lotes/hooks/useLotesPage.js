@@ -163,7 +163,7 @@ export function useLotesPage() {
         comparar: (fila, valor) =>
           valor === "falta" ? !Number(fila.sam_pactado) : Boolean(Number(fila.sam_pactado)),
       },
-      { clave: "fecha_recepcion", label: "Recepcion", tipo: "fecha" },
+      { clave: "fecha_recepcion", label: "Recepción", tipo: "fecha" },
     ],
     [clientes.options, tiposPrenda.options],
   );

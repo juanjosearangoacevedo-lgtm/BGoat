@@ -200,7 +200,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
         title: const Text('Eliminar la orden'),
         content: Text(
           'Se va a eliminar ${orden.numeroOrden}.\n\n'
-          'Si ya tiene produccion registrada o jornadas configuradas, el sistema '
+          'Si ya tiene producción registrada o jornadas configuradas, el sistema '
           'no la deja borrar: en ese caso hay que cancelarla.',
         ),
         actions: [
@@ -279,7 +279,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
               const SizedBox(height: 6),
               const _Nota(
                 'La cantidad y el valor de maquila los trae el lote: un lote '
-                'corre en una sola orden, asi que no se vuelven a digitar aqui.',
+                'corre en una sola orden, así que no se vuelven a digitar aquí.',
               ),
             ],
             const SizedBox(height: 16),
@@ -295,7 +295,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
                               const SizedBox(width: 8),
                               const Expanded(
                                 child: Text(
-                                  'por fecha de recepcion del lote',
+                                  'por fecha de recepción del lote',
                                   style: TextStyle(fontSize: 11, color: Paleta.textoSuave),
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -360,7 +360,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
               decoration: const InputDecoration(
                 labelText: 'Eficiencia esperada (%)',
                 prefixIcon: Icon(Icons.insights_outlined),
-                helperText: 'La define German. Sin ella no se calcula la entrega.',
+                helperText: 'La define Germán. Sin ella no se calcula la entrega.',
               ),
             ),
             const SizedBox(height: 14),
@@ -435,7 +435,7 @@ class _OrdenFormScreenState extends State<OrdenFormScreen> {
             const SizedBox(height: 9),
             const Text(
               'Este lote no tiene SAM pactado. La orden se puede crear, pero '
-              'ningun modulo va a poder abrir jornada con el hasta que se le '
+              'ningún módulo va a poder abrir jornada con él hasta que se le '
               'ponga el SAM.',
               style: TextStyle(fontSize: 11.5, color: Paleta.error, height: 1.4),
             ),

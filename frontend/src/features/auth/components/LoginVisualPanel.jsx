@@ -14,10 +14,10 @@ export function LoginVisualPanel({ overlay }) {
       <div style={{ position: "relative", zIndex: 10, color: "var(--blanco)", maxWidth: "28rem" }}>
         <Factory style={{ width: 80, height: 80, marginBottom: "1.5rem", color: "var(--naranja)" }} />
         <h2 style={{ fontSize: "2.25rem", fontWeight: 700, marginBottom: "1rem", lineHeight: 1.2 }}>
-          Sistema de Gestion de Produccion Textil
+          Sistema de Gestión de Producción Textil
         </h2>
         <p style={{ fontSize: "1.25rem", color: "rgba(255,255,255,0.9)", marginBottom: "2rem" }}>
-          Controla tu produccion en tiempo real, optimiza recursos y maximiza tu eficiencia
+          Controla tu producción en tiempo real, optimiza recursos y maximiza tu eficiencia
         </p>
         <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           {loginHighlights.map(({ Icon, title, desc }) => (

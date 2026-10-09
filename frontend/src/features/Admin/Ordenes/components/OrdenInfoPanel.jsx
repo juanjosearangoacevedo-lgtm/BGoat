@@ -84,10 +84,10 @@ export function OrdenInfoPanel({ orden, lote }) {
           // La orden no se asigna a un modulo: nace libre y la toma el que
           // abre su jornada con ella. Mientras nadie la tome, esto dice
           // "Libre" y no un guion, que se leeria como un dato faltante.
-          label: "Modulo",
+          label: "Módulo",
           value: orden?.codigo_modulo
             ? `${orden.codigo_modulo} · ${orden.nombre_modulo}`
-            : "Libre - la toma el modulo que abra jornada con ella",
+            : "Libre - la toma el módulo que abra jornada con ella",
         },
       ],
     },
@@ -125,7 +125,7 @@ export function OrdenInfoPanel({ orden, lote }) {
     {
       titulo: "Entrega",
       filas: [
-        { label: "Recepcion del lote", value: orden?.fecha_recepcion ? formatFecha(orden.fecha_recepcion) : null },
+        { label: "Recepción del lote", value: orden?.fecha_recepcion ? formatFecha(orden.fecha_recepcion) : null },
         {
           // El dia en que un modulo abrio jornada con la orden por primera vez.
           label: "Inicio",
@@ -139,12 +139,12 @@ export function OrdenInfoPanel({ orden, lote }) {
         },
         {
           // Con cuantas personas salio la entrega (formula de German).
-          label: "Personas del calculo",
+          label: "Personas del cálculo",
           value: orden?.personas_entrega ? formatNumero(orden.personas_entrega) : null,
           soloSiHay: true,
         },
         {
-          label: "Termino",
+          label: "Terminó",
           value: orden?.fecha_fin_real ? formatFecha(orden.fecha_fin_real) : null,
           soloSiHay: true,
         },
@@ -154,7 +154,7 @@ export function OrdenInfoPanel({ orden, lote }) {
 
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-      <h3 className="mb-4 font-bold text-gray-900">Informacion de la orden</h3>
+      <h3 className="mb-4 font-bold text-gray-900">Información de la orden</h3>
 
       <div className="space-y-5">
         {grupos.map((grupo) => (
@@ -181,7 +181,7 @@ export function OrdenInfoPanel({ orden, lote }) {
         {(imagen || pdf) && (
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-marca-letra">
-              Ficha tecnica
+              Ficha técnica
             </p>
             <div className="flex flex-wrap gap-2">
               {imagen && (

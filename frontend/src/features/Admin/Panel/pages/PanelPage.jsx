@@ -43,7 +43,7 @@ const PESTANAS = [
  * pantalla no puedan contar cosas distintas.
  */
 const columnasModulo = [
-  { key: "codigo_modulo", header: "Modulo" },
+  { key: "codigo_modulo", header: "Módulo" },
   { key: "nombre_modulo", header: "Nombre" },
   { key: "total_producido", header: "Unidades producidas" },
   { key: "total_defectuoso", header: "Unidades defectuosas" },
@@ -105,7 +105,7 @@ function PestanaIndicadoresReportes() {
       toast.error("No hay datos en el periodo seleccionado para exportar");
       return;
     }
-    toast.success(`Se exportaron ${cantidad} modulos`);
+    toast.success(`Se exportaron ${cantidad} módulos`);
   };
 
   /**
@@ -171,7 +171,7 @@ export function PanelPage({ onNavigate }) {
     <div className="p-4 md:p-8">
       <PageHeader
         title="Panel"
-        subtitle="Como va la planta: resumen del dia, indicadores y reportes"
+        subtitle="Cómo va la planta: resumen del día, indicadores y reportes"
       >
         <nav className="flex gap-1 rounded-xl border border-linea bg-white p-1 no-print">
           {PESTANAS.map((entrada) => {

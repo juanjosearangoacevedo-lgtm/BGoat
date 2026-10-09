@@ -49,9 +49,9 @@ export function CapturaRejilla({
     return (
       <div className="rounded-2xl border border-gray-100 bg-white p-12 text-center">
         <Timer className="mx-auto mb-3 h-8 w-8 text-gray-300" />
-        <p className="font-medium text-gray-700">Este dia no tiene jornada configurada</p>
+        <p className="font-medium text-gray-700">Este día no tiene jornada configurada</p>
         <p className="mt-1 text-sm text-gray-400">
-          La planta no trabaja este dia. El horario se define en las jornadas.
+          La planta no trabaja este día. El horario se define en las jornadas.
         </p>
       </div>
     );
@@ -64,7 +64,7 @@ export function CapturaRejilla({
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50">
               <th className="sticky left-0 z-10 min-w-44 bg-gray-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
-                Modulo
+                Módulo
               </th>
               {franjas.map((franja) => (
                 <th
@@ -83,7 +83,7 @@ export function CapturaRejilla({
                 </th>
               ))}
               <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
-                Dia
+                Día
               </th>
             </tr>
           </thead>
@@ -109,7 +109,7 @@ export function CapturaRejilla({
                         className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 transition hover:border-marca hover:text-marca-letra disabled:cursor-default disabled:hover:border-gray-300 disabled:hover:text-gray-500"
                       >
                         <Lock className="h-4 w-4" />
-                        Abrir la jornada de este modulo para poder registrar
+                        Abrir la jornada de este módulo para poder registrar
                       </button>
                     </td>
                   </tr>

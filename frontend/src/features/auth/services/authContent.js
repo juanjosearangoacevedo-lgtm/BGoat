@@ -17,8 +17,8 @@ export const authFrases = {
 export const loginHighlights = [
   {
     Icon: Package,
-    title: "Gestion Completa",
-    desc: "Controla ordenes, operarios y modulos desde un solo lugar",
+    title: "Gestión Completa",
+    desc: "Controla órdenes, operarios y módulos desde un solo lugar",
   },
   {
     Icon: Factory,
@@ -28,7 +28,7 @@ export const loginHighlights = [
 ];
 
 export const registerBenefits = [
-  { color: "var(--dorado)", text: "Monitoreo de produccion en tiempo real" },
-  { color: "var(--dorado-claro)", text: "Reportes analiticos y exportacion de datos" },
-  { color: "var(--dorado)", text: "Gestion completa de ordenes y operarios" },
+  { color: "var(--dorado)", text: "Monitoreo de producción en tiempo real" },
+  { color: "var(--dorado-claro)", text: "Reportes analíticos y exportación de datos" },
+  { color: "var(--dorado)", text: "Gestión completa de órdenes y operarios" },
 ];

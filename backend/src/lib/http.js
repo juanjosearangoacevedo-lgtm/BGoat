@@ -14,7 +14,7 @@ export class ApiError extends Error {
     return new ApiError(401, mensaje);
   }
 
-  static forbidden(mensaje = "No tiene permisos para esta accion") {
+  static forbidden(mensaje = "No tiene permisos para esta acción") {
     return new ApiError(403, mensaje);
   }
 

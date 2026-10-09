@@ -79,20 +79,20 @@ class _MenuScreenState extends State<MenuScreen> {
               _opcion(
                 icono: Icons.inventory_2_outlined,
                 titulo: 'Lotes',
-                detalle: 'El producto: referencia, SAM pactado y ficha tecnica.',
+                detalle: 'El producto: referencia, SAM pactado y ficha técnica.',
                 color: Paleta.terciario,
                 permiso: sesion.puede('Lotes', 'VER'),
                 destino: const LotesScreen(),
               ),
               const SizedBox(height: 22),
               const TituloSeccion(
-                'Produccion',
-                detalle: 'En el orden en que ocurre el dia',
+                'Producción',
+                detalle: 'En el orden en que ocurre el día',
               ),
               _opcion(
                 icono: Icons.assignment_outlined,
-                titulo: 'Ordenes de produccion',
-                detalle: 'El compromiso sobre un lote. Nace libre y espera modulo.',
+                titulo: 'Órdenes de producción',
+                detalle: 'El compromiso sobre un lote. Nace libre y espera módulo.',
                 color: Paleta.primario,
                 permiso: sesion.puede('Ordenes', 'VER'),
                 destino: const OrdenesScreen(),
@@ -101,7 +101,7 @@ class _MenuScreenState extends State<MenuScreen> {
               _opcion(
                 icono: Icons.play_circle_outline,
                 titulo: 'Inicio de jornada',
-                detalle: 'Modulo, operarias y lote. Sin esto no se puede capturar.',
+                detalle: 'Módulo, operarias y lote. Sin esto no se puede capturar.',
                 color: Paleta.secundario,
                 permiso: sesion.puede('Jornada', 'VER'),
                 destino: const JornadaScreen(),
@@ -109,7 +109,7 @@ class _MenuScreenState extends State<MenuScreen> {
               const SizedBox(height: 10),
               _opcion(
                 icono: Icons.grid_on_outlined,
-                titulo: 'Registro de produccion',
+                titulo: 'Registro de producción',
                 detalle: 'La rejilla de la hora: unidades y la incidencia si la hubo.',
                 color: Paleta.exito,
                 permiso: sesion.puede('Captura', 'VER'),
@@ -119,8 +119,8 @@ class _MenuScreenState extends State<MenuScreen> {
               const SizedBox(height: 10),
               _opcion(
                 icono: Icons.dashboard_outlined,
-                titulo: 'Tablero por modulo',
-                detalle: 'Como le fue a un modulo hoy, franja por franja.',
+                titulo: 'Tablero por módulo',
+                detalle: 'Cómo le fue a un módulo hoy, franja por franja.',
                 color: Paleta.info,
                 permiso: sesion.puede('Captura', 'VER'),
                 destino: const TableroScreen(),
@@ -179,7 +179,7 @@ class _MenuScreenState extends State<MenuScreen> {
         IconButton(
           onPressed: _confirmarSalida,
           icon: const Icon(Icons.logout),
-          tooltip: 'Cerrar sesion',
+          tooltip: 'Cerrar sesión',
         ),
       ],
     );
@@ -204,7 +204,7 @@ class _MenuScreenState extends State<MenuScreen> {
         children: [
           FilaDeDatos([
             Dato(
-              etiqueta: 'Produccion diaria',
+              etiqueta: 'Producción diaria',
               valor: datos == null ? '—' : '${datos.produccionPeriodo}',
               color: Paleta.primario,
               destacado: true,
@@ -250,7 +250,7 @@ class _MenuScreenState extends State<MenuScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            datos == null ? '—' : '${datos.porcentajeDefectos.toStringAsFixed(1)}% de la produccion',
+            datos == null ? '—' : '${datos.porcentajeDefectos.toStringAsFixed(1)}% de la producción',
             style: const TextStyle(fontSize: 11, color: Paleta.textoSuave),
           ),
         ],
@@ -368,7 +368,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    permiso ? detalle : 'Su rol no tiene acceso a este modulo',
+                    permiso ? detalle : 'Su rol no tiene acceso a este módulo',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Paleta.textoSuave,
@@ -393,8 +393,8 @@ class _MenuScreenState extends State<MenuScreen> {
     final salir = await showDialog<bool>(
       context: context,
       builder: (dialogo) => AlertDialog(
-        title: const Text('Cerrar sesion'),
-        content: const Text('Va a salir de BGoat en este telefono.'),
+        title: const Text('Cerrar sesión'),
+        content: const Text('Va a salir de BGoat en este teléfono.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogo, false),

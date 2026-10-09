@@ -34,7 +34,7 @@ class BarraFecha extends StatelessWidget {
       initialDate: desdeTexto(fecha),
       firstDate: DateTime(2024),
       lastDate: DateTime.now(),
-      helpText: 'Dia de produccion',
+      helpText: 'Día de producción',
     );
 
     if (elegida != null) alCambiar(comoTexto(elegida));
@@ -53,7 +53,7 @@ class BarraFecha extends StatelessWidget {
           IconButton(
             onPressed: () => _mover(-1),
             icon: const Icon(Icons.chevron_left),
-            tooltip: 'Dia anterior',
+            tooltip: 'Día anterior',
           ),
           Expanded(
             child: InkWell(
@@ -84,7 +84,7 @@ class BarraFecha extends StatelessWidget {
             // Deshabilitado en hoy: no hay produccion del futuro que ver.
             onPressed: _esHoy ? null : () => _mover(1),
             icon: const Icon(Icons.chevron_right),
-            tooltip: 'Dia siguiente',
+            tooltip: 'Día siguiente',
           ),
           ?derecha,
         ],

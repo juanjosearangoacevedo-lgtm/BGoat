@@ -46,29 +46,29 @@ export function correoRecuperacion({ nombre, enlace }) {
   const saludo = nombre ? `Hola ${nombre},` : "Hola,";
   const saludoHtml = nombre ? `Hola ${escapar(nombre)},` : "Hola,";
   return {
-    asunto: "Restablece tu contrasena de BGoat",
+    asunto: "Restablece tu contraseña de BGoat",
     texto: [
       saludo,
       "",
-      "Recibimos una solicitud para restablecer la contrasena de tu cuenta en BGoat.",
+      "Recibimos una solicitud para restablecer la contraseña de tu cuenta en BGoat.",
       "Abre este enlace para escribir una nueva (vence en 1 hora):",
       "",
       enlace,
       "",
-      "Si no fuiste tu, ignora este correo: tu contrasena sigue igual.",
+      "Si no fuiste tú, ignora este correo: tu contraseña sigue igual.",
     ].join("\n"),
     html: `
       <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;color:#12201B">
-        <h2 style="color:#0F4C3F;margin-bottom:8px">Restablece tu contrasena</h2>
+        <h2 style="color:#0F4C3F;margin-bottom:8px">Restablece tu contraseña</h2>
         <p>${saludoHtml}</p>
-        <p>Recibimos una solicitud para restablecer la contrasena de tu cuenta en BGoat.</p>
+        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en BGoat.</p>
         <p style="margin:24px 0">
           <a href="${enlace}"
              style="background:#D08E10;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold">
-            Escribir una nueva contrasena
+            Escribir una nueva contraseña
           </a>
         </p>
-        <p style="font-size:13px;color:#5C6B64">El enlace vence en 1 hora. Si no fuiste tu, ignora este correo: tu contrasena sigue igual.</p>
+        <p style="font-size:13px;color:#5C6B64">El enlace vence en 1 hora. Si no fuiste tú, ignora este correo: tu contraseña sigue igual.</p>
       </div>`,
   };
 }

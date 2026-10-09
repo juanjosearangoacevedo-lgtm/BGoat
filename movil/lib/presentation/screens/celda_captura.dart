@@ -424,7 +424,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
         ),
         child: const Text(
           'Este lote no tiene desglose por talla y color: no se puede '
-          'capturar produccion.',
+          'capturar producción.',
           style: TextStyle(fontSize: 12, color: Paleta.textoSuave),
         ),
       );
@@ -629,7 +629,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
             SizedBox(width: 9),
             Expanded(
               child: Text(
-                'La jornada de este modulo no tiene SAM: sin el no hay meta que '
+                'La jornada de este módulo no tiene SAM: sin él no hay meta que '
                 'calcular.',
                 style: TextStyle(fontSize: 12, height: 1.4),
               ),
@@ -659,7 +659,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
               destacado: true,
             ),
             Dato(
-              etiqueta: 'Facturacion',
+              etiqueta: 'Facturación',
               valor: _precio > 0 ? pesos(_producidasN * _precio) : '—',
               color: Paleta.exito,
               destacado: true,
@@ -706,12 +706,12 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TituloSeccion(
-          obligatoria ? 'Que paso (obligatorio)' : 'Paradas del modulo',
+          obligatoria ? 'Qué pasó (obligatorio)' : 'Paradas del módulo',
           detalle: _minutosPerdidos > 0
               ? '$_minutosPerdidos de ${widget.franja.minutos} minutos de la hora'
               : obligatoria
                   ? 'Sin esto el sistema no puede decir en que se van los minutos.'
-                  : 'Opcional. De que hora a que hora estuvo parado el modulo y por que.',
+                  : 'Opcional. De qué hora a qué hora estuvo parado el módulo y por qué.',
           accion: TextButton.icon(
             onPressed: () => _editarParada(causas),
             icon: const Icon(Icons.add, size: 17),
@@ -870,7 +870,7 @@ class _CeldaCapturaHojaState extends State<CeldaCapturaHoja> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  minutos > 0 ? '$minutos minutos parado' : 'La hora final va despues de la inicial',
+                  minutos > 0 ? '$minutos minutos parado' : 'La hora final va después de la inicial',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

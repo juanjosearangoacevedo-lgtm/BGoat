@@ -90,7 +90,7 @@ export function TableroPreview() {
     <svg
       viewBox="0 0 620 380"
       role="img"
-      aria-label="Tablero de captura de BGoat: cuatro modulos de produccion con las unidades registradas en cada hora y su cumplimiento frente a la meta"
+      aria-label="Tablero de captura de BGoat: cuatro módulos de producción con las unidades registradas en cada hora y su cumplimiento frente a la meta"
       className="w-full h-auto"
     >
       <defs>
@@ -119,7 +119,7 @@ export function TableroPreview() {
       <circle cx="54" cy="24" r="4" fill="#34d399" />
 
       <text x="76" y="28" fontSize="13" fontWeight="700" fill="var(--neutro-900)">
-        Registrar produccion
+        Registrar producción
       </text>
 
       <rect x="452" y="13" width="152" height="22" rx="11" fill="var(--marca)" opacity="0.1" />

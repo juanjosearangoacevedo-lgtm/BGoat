@@ -77,7 +77,7 @@ const subida = multer({
     if (!TIPOS_IMAGEN.has(archivo.mimetype) && archivo.mimetype !== "application/pdf") {
       callback(
         ApiError.badRequest(
-          "La ficha tecnica debe ser una imagen (JPG, PNG, WEBP, HEIC) o un PDF",
+          "La ficha técnica debe ser una imagen (JPG, PNG, WEBP, HEIC) o un PDF",
         ),
       );
       return;
@@ -91,7 +91,7 @@ function recibirFicha(req, res, next) {
   subida.single("ficha")(req, res, (error) => {
     if (!error) return next();
     if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
-      return next(ApiError.badRequest("La ficha tecnica no puede pesar mas de 8 MB"));
+      return next(ApiError.badRequest("La ficha técnica no puede pesar más de 8 MB"));
     }
     return next(error);
   });
@@ -135,7 +135,7 @@ lotesRouter.post(
   requierePermiso("Lotes", "EDITAR"),
   recibirFicha,
   asyncHandler(async (req, res) => {
-    if (!req.file) throw ApiError.badRequest("No llego ningun archivo");
+    if (!req.file) throw ApiError.badRequest("No llegó ningún archivo");
 
     const esImagen = TIPOS_IMAGEN.has(req.file.mimetype);
     const columna = esImagen ? COLUMNA_POR_TIPO.imagen : COLUMNA_POR_TIPO.pdf;
@@ -287,8 +287,8 @@ lotesRouter.put(
       const cantidadNueva = nueva?.cantidad ?? 0;
       if (cantidadNueva < Number(fila.capturado)) {
         throw ApiError.badRequest(
-          `Esa talla y color ya tiene ${fila.capturado} unidades capturadas en produccion: ` +
-            "no se puede bajar de ahi ni quitar la fila",
+          `Esa talla y color ya tiene ${fila.capturado} unidades capturadas en producción: ` +
+            "no se puede bajar de ahí ni quitar la fila",
           { id_talla: fila.id_talla, id_color: fila.id_color, capturado: Number(fila.capturado) },
         );
       }

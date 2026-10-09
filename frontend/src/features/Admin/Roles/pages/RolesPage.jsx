@@ -60,7 +60,7 @@ export function RolesPage() {
     icon: Shield,
     title: hayBusqueda ? "Sin resultados" : "No hay roles cargados",
     description: hayBusqueda
-      ? "Ningun rol coincide con la busqueda o los filtros aplicados."
+      ? "Ningún rol coincide con la búsqueda o los filtros aplicados."
       : "Crea el primer rol y marca en el mismo formulario lo que puede hacer.",
     action: hayBusqueda ? (
       <Button
@@ -70,7 +70,7 @@ export function RolesPage() {
           roles.setSearch("");
         }}
       >
-        Limpiar busqueda y filtros
+        Limpiar búsqueda y filtros
       </Button>
     ) : (
       <Button onClick={roles.abrirCrear} className="bg-dorado text-white hover:bg-dorado-hover">
@@ -116,7 +116,7 @@ export function RolesPage() {
       <FilterBar
         search={roles.search}
         onSearch={roles.setSearch}
-        searchPlaceholder="Buscar rol por nombre o descripcion..."
+        searchPlaceholder="Buscar rol por nombre o descripción..."
         definiciones={lista.definiciones}
         filtros={lista.filtros}
         onFiltro={lista.setFiltro}
@@ -164,7 +164,7 @@ export function RolesPage() {
             </div>
           )}
           primario={(rol) => rol.nombre}
-          secundario={(rol) => rol.descripcion || "Sin descripcion"}
+          secundario={(rol) => rol.descripcion || "Sin descripción"}
           meta={(rol) => [
             { label: "Permisos", value: rol.total_permisos ?? 0 },
             { label: "Usuarios activos", value: rol.usuarios_activos ?? 0 },
@@ -213,11 +213,11 @@ export function RolesPage() {
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
         tono={activando ? "exito" : "advertencia"}
-        title={activando ? "Activar rol?" : "Desactivar rol?"}
+        title={activando ? "¿Activar rol?" : "¿Desactivar rol?"}
         description={
           activando
-            ? `El rol ${objetivoEstado?.nombre} volvera a poder asignarse a usuarios.`
-            : `El rol ${objetivoEstado?.nombre} dejara de poder asignarse, pero conserva sus permisos configurados.`
+            ? `El rol ${objetivoEstado?.nombre} volverá a poder asignarse a usuarios.`
+            : `El rol ${objetivoEstado?.nombre} dejará de poder asignarse, pero conserva sus permisos configurados.`
         }
         confirmLabel={activando ? "Activar" : "Desactivar"}
         loading={roles.procesando}
@@ -227,9 +227,9 @@ export function RolesPage() {
 
       <ConfirmDialog
         open={Boolean(roles.deleteTarget)}
-        title="Eliminar rol?"
+        title="¿Eliminar rol?"
         description={
-          `Se eliminara el rol ${roles.deleteTarget?.nombre || ""} y sus permisos. ` +
+          `Se eliminará el rol ${roles.deleteTarget?.nombre || ""} y sus permisos. ` +
           "No se puede eliminar un rol que tenga usuarios asignados."
         }
         loading={roles.procesando}

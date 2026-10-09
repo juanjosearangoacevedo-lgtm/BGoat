@@ -4,8 +4,8 @@ export function LandingModulesSection({ modules }) {
   return (
     <section id="modulos" className="max-w-7xl mx-auto px-6 py-20 scroll-mt-24">
       <div className="text-center mb-12">
-        <h2 className="text-4xl font-bold text-gray-900 mb-4">Modulos del Sistema</h2>
-        <p className="text-xl text-gray-600">Todo lo que necesitas para gestionar tu produccion</p>
+        <h2 className="text-4xl font-bold text-gray-900 mb-4">Módulos del Sistema</h2>
+        <p className="text-xl text-gray-600">Todo lo que necesitas para gestionar tu producción</p>
       </div>
       <div className="grid md:grid-cols-3 gap-6">
         {modules.map((module) => {

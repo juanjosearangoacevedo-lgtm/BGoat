@@ -39,14 +39,14 @@ export function useOrdenesPage() {
       },
       {
         clave: "id_modulo",
-        label: "Modulo",
-        etiquetaTodos: "Todos los modulos",
+        label: "Módulo",
+        etiquetaTodos: "Todos los módulos",
         opciones: modulos.options,
       },
       {
         // La pregunta de todos los dias: que hay sin coger.
         clave: "asignacion",
-        label: "Asignacion",
+        label: "Asignación",
         etiquetaTodos: "Libres y tomadas",
         opciones: [
           { value: "LIBRE", label: "Libres" },

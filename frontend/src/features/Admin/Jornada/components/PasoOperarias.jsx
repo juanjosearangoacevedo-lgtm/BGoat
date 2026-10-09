@@ -39,7 +39,7 @@ export function PasoOperarias({ valor, capacidad, onCambiar, error }) {
           type="button"
           onClick={() => onCambiar(cantidad + 1)}
           disabled={cantidad >= 99}
-          aria-label="Una operaria mas"
+          aria-label="Una operaria más"
           className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-gray-200 text-gray-600 transition hover:border-marca hover:text-marca-letra disabled:opacity-30"
         >
           <Plus className="h-7 w-7" />
@@ -50,7 +50,7 @@ export function PasoOperarias({ valor, capacidad, onCambiar, error }) {
         <p className="text-sm font-medium text-red-600">{error}</p>
       ) : (
         <p className="text-center text-sm text-gray-500">
-          {capacidad ? `El modulo tiene ${capacidad} puestos.` : null} Este numero fija los minutos
+          {capacidad ? `El módulo tiene ${capacidad} puestos.` : null} Este número fija los minutos
           disponibles de cada hora, y con ellos la meta.
         </p>
       )}

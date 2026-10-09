@@ -16,7 +16,7 @@ export const periodOptions = [
   { value: "hoy", label: "Hoy" },
   { value: "semana", label: "Esta Semana" },
   { value: "mes", label: "Este Mes" },
-  { value: "anio", label: "Este Ano" },
+  { value: "anio", label: "Este Año" },
   { value: "personalizado", label: "Personalizado" },
 ];
 

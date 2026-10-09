@@ -21,7 +21,7 @@ export function columnasClientes({ onDetalle, onEdit, onToggleEstado, onDelete }
           <div className="min-w-0">
             <p className="truncate font-medium text-gray-900">{cliente.nombre}</p>
             <p className="truncate text-xs text-gray-400">
-              {cliente.razon_social || cliente.descripcion || "Sin razon social"}
+              {cliente.razon_social || cliente.descripcion || "Sin razón social"}
             </p>
           </div>
         </div>
@@ -43,16 +43,16 @@ export function columnasClientes({ onDetalle, onEdit, onToggleEstado, onDelete }
     },
     {
       key: "telefono",
-      header: "Telefono",
+      header: "Teléfono",
       sortable: true,
-      render: (cliente) => cliente.telefono || <span className="text-gray-300">Sin telefono</span>,
+      render: (cliente) => cliente.telefono || <span className="text-gray-300">Sin teléfono</span>,
       exportar: (cliente) => cliente.telefono || "",
     },
     {
       key: "direccion",
-      header: "Direccion",
+      header: "Dirección",
       sortable: true,
-      render: (cliente) => cliente.direccion || <span className="text-gray-300">Sin direccion</span>,
+      render: (cliente) => cliente.direccion || <span className="text-gray-300">Sin dirección</span>,
       exportar: (cliente) => cliente.direccion || "",
     },
     {

@@ -75,7 +75,7 @@ function SelectorColor({ value, options, onChange }) {
           className="mt-1 max-h-56 overflow-y-auto rounded-lg border border-gray-200 bg-white py-1 shadow-sm"
         >
           {options.length === 0 && (
-            <li className="px-3 py-2 text-sm text-gray-400">No hay colores activos en el modulo Colores</li>
+            <li className="px-3 py-2 text-sm text-gray-400">No hay colores activos en el módulo Colores</li>
           )}
           {options.map((opcion) => {
             const activo = String(opcion.value) === String(value);
@@ -93,7 +93,7 @@ function SelectorColor({ value, options, onChange }) {
                 >
                   <Muestra hex={opcion.hex} className="h-5 w-5" />
                   <span className="flex-1 text-gray-800">{opcion.label}</span>
-                  <span className="font-mono text-xs text-gray-400">{opcion.hex || "—"}</span>
+                  <span className="tabular-nums text-xs text-gray-400">{opcion.hex || "—"}</span>
                   {activo && <Check className="h-4 w-4 text-marca-letra" />}
                 </button>
               </li>
@@ -166,7 +166,7 @@ export function DesgloseTallaColor({
 
       {filas.length === 0 ? (
         <p className="mb-3 text-sm text-gray-400">
-          Todavia no hay filas. Agrega una por cada talla y color que trae el lote: la suma es la
+          Todavía no hay filas. Agrega una por cada talla y color que trae el lote: la suma es la
           cantidad de prendas recibidas.
         </p>
       ) : (

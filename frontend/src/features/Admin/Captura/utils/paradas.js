@@ -49,9 +49,9 @@ export function problemaParadas(paradas = [], franja) {
     const desde = aMinutos(parada.hora_desde);
     const hasta = aMinutos(parada.hora_hasta);
     if (desde === null || hasta === null) {
-      return "Cada parada necesita la hora en que empezo y la hora en que termino";
+      return "Cada parada necesita la hora en que empezó y la hora en que terminó";
     }
-    if (hasta <= desde) return "En cada parada, la hora final va despues de la inicial";
+    if (hasta <= desde) return "En cada parada, la hora final va después de la inicial";
     if (inicio !== null && fin !== null && (desde < inicio || hasta > fin)) {
       return `Las paradas tienen que quedar dentro de la hora (${horaCorta(franja.hora_inicio)} a ${horaCorta(franja.hora_fin)})`;
     }
@@ -61,7 +61,7 @@ export function problemaParadas(paradas = [], franja) {
   rangos.sort((a, b) => a[0] - b[0]);
   for (let i = 1; i < rangos.length; i++) {
     if (rangos[i][0] < rangos[i - 1][1]) {
-      return "Dos paradas se cruzan: el modulo no puede estar parado dos veces en el mismo minuto";
+      return "Dos paradas se cruzan: el módulo no puede estar parado dos veces en el mismo minuto";
     }
   }
   return "";

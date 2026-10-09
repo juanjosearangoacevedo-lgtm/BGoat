@@ -18,7 +18,7 @@ export function crearDiaNoLaboralEsquema({ lista = [], editing = null } = {}) {
       }),
     ],
     descripcion: [
-      reglas.longitud({ ...diaNoLaboralLimites.descripcion, etiqueta: "La descripcion" }),
+      reglas.longitud({ ...diaNoLaboralLimites.descripcion, etiqueta: "La descripción" }),
     ],
   };
 }

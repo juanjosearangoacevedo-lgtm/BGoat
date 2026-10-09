@@ -23,10 +23,10 @@ export function TarjetaBgoat({ titulo, descripcion, children }) {
         <div className="flex flex-col items-center text-center">
           <img
             src={bgoatLogo}
-            alt="BGoat, gestion de produccion"
+            alt="BGoat, gestión de producción"
             className="h-[118px] w-auto bajo:h-[92px]"
           />
-          <h1 className="fuente-bienvenida mt-4 text-[27px] font-bold leading-tight text-tinta-5 bajo:mt-2 sm:text-[30px]">
+          <h1 className="mt-4 text-[27px] font-bold leading-tight text-tinta-5 bajo:mt-2 sm:text-[30px]">
             {titulo}
           </h1>
           {descripcion && <p className="mt-1.5 max-w-[360px] text-[15px] text-pizarra-6">{descripcion}</p>}

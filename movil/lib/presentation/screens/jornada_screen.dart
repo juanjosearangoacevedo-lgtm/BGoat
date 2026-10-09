@@ -43,7 +43,7 @@ class _JornadaScreenState extends State<JornadaScreen> {
     );
 
     if (guardada == true && mounted) {
-      avisar(context, 'Jornada abierta. Ya se puede registrar la produccion.');
+      avisar(context, 'Jornada abierta. Ya se puede registrar la producción.');
     }
   }
 
@@ -81,8 +81,8 @@ class _JornadaScreenState extends State<JornadaScreen> {
     if (abiertos.isEmpty && libres.isEmpty) {
       return const VistaVacia(
         icono: Icons.factory_outlined,
-        titulo: 'No hay modulos activos',
-        detalle: 'Registre los modulos de la planta desde el panel web.',
+        titulo: 'No hay módulos activos',
+        detalle: 'Registre los módulos de la planta desde el panel web.',
       );
     }
 
@@ -96,7 +96,7 @@ class _JornadaScreenState extends State<JornadaScreen> {
           if (abiertos.isNotEmpty) ...[
             TituloSeccion(
               'Trabajando',
-              detalle: '${abiertos.length} de ${abiertos.length + libres.length} modulos',
+              detalle: '${abiertos.length} de ${abiertos.length + libres.length} módulos',
             ),
             ...abiertos.map((modulo) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
@@ -107,7 +107,7 @@ class _JornadaScreenState extends State<JornadaScreen> {
           if (libres.isNotEmpty) ...[
             const TituloSeccion(
               'Sin jornada',
-              detalle: 'Estos modulos todavia no pueden registrar produccion',
+              detalle: 'Estos módulos todavía no pueden registrar producción',
             ),
             ...libres.map((modulo) => Padding(
                   padding: const EdgeInsets.only(bottom: 10),
@@ -138,7 +138,7 @@ class _JornadaScreenState extends State<JornadaScreen> {
               color: libres > 0 ? Paleta.alerta : Paleta.textoSuave,
               destacado: true,
             ),
-            Dato(etiqueta: 'Modulos', valor: '$total', destacado: true),
+            Dato(etiqueta: 'Módulos', valor: '$total', destacado: true),
           ]),
           const SizedBox(height: 12),
           BarraAvance(
@@ -347,9 +347,9 @@ class _HojaJornada extends StatelessWidget {
           if (jornada.sinOrden) ...[
             const SizedBox(height: 10),
             _aviso(
-              'Sin orden. La meta y la facturacion se calculan igual, porque '
+              'Sin orden. La meta y la facturación se calculan igual, porque '
               'salen del SAM y el valor de maquila del lote. Solo falta '
-              'sumar esta produccion al avance de una orden puntual.',
+              'sumar esta producción al avance de una orden puntual.',
             ),
           ],
           const SizedBox(height: 18),
@@ -404,7 +404,7 @@ class _HojaJornada extends StatelessWidget {
               );
             },
             icon: const Icon(Icons.dashboard_outlined),
-            label: const Text('Ver el tablero del modulo'),
+            label: const Text('Ver el tablero del módulo'),
           ),
           if (puedeEditar) ...[
             const SizedBox(height: 10),
@@ -472,7 +472,7 @@ class _HojaJornada extends StatelessWidget {
     Navigator.pop(context);
     avisar(
       context,
-      fallo ?? 'Jornada cerrada. El modulo sale de los recordatorios.',
+      fallo ?? 'Jornada cerrada. El módulo sale de los recordatorios.',
       esError: fallo != null,
     );
   }

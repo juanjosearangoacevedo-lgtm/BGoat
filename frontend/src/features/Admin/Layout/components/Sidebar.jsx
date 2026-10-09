@@ -60,7 +60,7 @@ export function Sidebar({ sidebar }) {
           {!colapsado && (
             <div className="min-w-0 flex-1 overflow-hidden">
               <h1 className="truncate text-base font-bold tracking-tight text-tinta">GOD&apos;S EYES SAS</h1>
-              <p className="truncate text-xs text-texto-suave">Sistema de Gestion</p>
+              <p className="truncate text-xs text-texto-suave">Sistema de Gestión</p>
             </div>
           )}
 
@@ -68,7 +68,7 @@ export function Sidebar({ sidebar }) {
             onClick={cerrarMovil}
             className="rounded-lg p-2 text-texto-suave transition-colors hover:bg-fondo hover:text-tinta lg:hidden"
             type="button"
-            aria-label="Cerrar menu"
+            aria-label="Cerrar menú"
           >
             <X className="h-4 w-4" />
           </button>
@@ -77,8 +77,8 @@ export function Sidebar({ sidebar }) {
             onClick={alternarColapso}
             className="hidden rounded-lg p-2 text-texto-suave transition-colors hover:bg-fondo hover:text-tinta lg:block"
             type="button"
-            title={colapsado ? "Expandir menu" : "Contraer menu"}
-            aria-label={colapsado ? "Expandir menu" : "Contraer menu"}
+            title={colapsado ? "Expandir menú" : "Contraer menú"}
+            aria-label={colapsado ? "Expandir menú" : "Contraer menú"}
           >
             {colapsado ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
           </button>
@@ -159,14 +159,14 @@ export function Sidebar({ sidebar }) {
         <div className="flex-shrink-0 border-t border-linea p-3">
           <button
             onClick={handleLogout}
-            title={colapsado ? "Cerrar sesion" : undefined}
+            title={colapsado ? "Cerrar sesión" : undefined}
             className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-texto-suave transition-all hover:bg-peligro/10 hover:text-peligro ${
               colapsado ? "justify-center" : ""
             }`}
             type="button"
           >
             <ArrowRightToLine className="h-4 w-4 flex-shrink-0" />
-            {!colapsado && <span className="truncate text-sm font-medium">Cerrar Sesion</span>}
+            {!colapsado && <span className="truncate text-sm font-medium">Cerrar Sesión</span>}
           </button>
         </div>
       </aside>

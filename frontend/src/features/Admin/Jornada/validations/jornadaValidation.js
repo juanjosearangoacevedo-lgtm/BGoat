@@ -15,17 +15,17 @@ export const jornadaLimites = {
 
 /** Pasos del asistente, en el orden del flujo real de la planta. */
 export const PASOS = [
-  { clave: "modulo", titulo: "Modulo", pregunta: "En que modulo vas a trabajar?" },
-  { clave: "operarias", titulo: "Operarias", pregunta: "Cuantas operarias hay en el modulo?" },
-  { clave: "asignacion", titulo: "Quienes", pregunta: "Quieres decir quienes estan?" },
-  { clave: "trabajo", titulo: "Cliente y lote", pregunta: "Que se va a producir?" },
+  { clave: "modulo", titulo: "Módulo", pregunta: "¿En qué módulo vas a trabajar?" },
+  { clave: "operarias", titulo: "Operarias", pregunta: "¿Cuántas operarias hay en el módulo?" },
+  { clave: "asignacion", titulo: "Quiénes", pregunta: "¿Quieres decir quiénes están?" },
+  { clave: "trabajo", titulo: "Cliente y lote", pregunta: "¿Qué se va a producir?" },
 ];
 
 export function crearJornadaEsquema({ moduloOptions = [], loteOptions = [] } = {}) {
   return {
     id_modulo: [
-      reglas.seleccionRequerida("El modulo"),
-      reglas.opcionValida(moduloOptions, "El modulo seleccionado"),
+      reglas.seleccionRequerida("El módulo"),
+      reglas.opcionValida(moduloOptions, "El módulo seleccionado"),
     ],
     cantidad_operarias: [
       reglas.requerido("La cantidad de operarias"),
@@ -76,6 +76,6 @@ export function validarPaso(paso, form, contexto = {}) {
 export function avisoNomina(operarias = [], cantidad = 0) {
   const anonimas = operarias.filter((entrada) => !entrada).length + Math.max(cantidad - operarias.length, 0);
   if (anonimas === 0) return null;
-  if (anonimas === cantidad) return "Ninguna operaria quedo identificada: la jornada se registra como anonima.";
-  return `${anonimas} de ${cantidad} operarias quedan anonimas.`;
+  if (anonimas === cantidad) return "Ninguna operaria quedó identificada: la jornada se registra como anónima.";
+  return `${anonimas} de ${cantidad} operarias quedan anónimas.`;
 }

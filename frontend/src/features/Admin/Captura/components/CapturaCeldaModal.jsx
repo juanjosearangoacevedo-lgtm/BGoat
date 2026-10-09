@@ -100,7 +100,7 @@ function PersonasFranja({ sugeridas, valor, cambio, onCambio, onCambiar }) {
         onClick={() => onCambio(!cambio)}
         className="mt-2 w-full text-center text-xs font-medium text-marca-letra underline underline-offset-2"
       >
-        {cambio ? "No, dejar la de la jornada" : "¿Cambio la cantidad esta hora?"}
+        {cambio ? "No, dejar la de la jornada" : "¿Cambió la cantidad esta hora?"}
       </button>
     </div>
   );
@@ -128,7 +128,7 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
       <div className="mb-3 flex items-center justify-between">
         <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-gray-500">
           <Timer className="h-3.5 w-3.5" />
-          Paradas del modulo
+          Paradas del módulo
         </p>
         <span className={`text-xs font-semibold ${problema ? "text-red-600" : "text-gray-500"}`}>
           {total} / {franja.minutos} min de la franja
@@ -137,7 +137,7 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
 
       {paradas.length === 0 ? (
         <p className="mb-3 text-xs text-gray-400">
-          Si el modulo se paro en esta hora ({minimo} a {maximo}), agrega cada parada con la hora
+          Si el módulo se paró en esta hora ({minimo} a {maximo}), agrega cada parada con la hora
           en que empezo y la hora en que termino.
         </p>
       ) : (
@@ -178,7 +178,7 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
                     value={parada.hora_desde}
                     min={minimo}
                     max={maximo}
-                    aria-label={`Hora en que empezo la parada ${indice + 1}`}
+                    aria-label={`Hora en que empezó la parada ${indice + 1}`}
                     onChange={(evento) => cambiar(indice, "hora_desde", evento.target.value)}
                     className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-marca"
                   />
@@ -188,7 +188,7 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
                     value={parada.hora_hasta}
                     min={minimo}
                     max={maximo}
-                    aria-label={`Hora en que termino la parada ${indice + 1}`}
+                    aria-label={`Hora en que terminó la parada ${indice + 1}`}
                     onChange={(evento) => cambiar(indice, "hora_hasta", evento.target.value)}
                     className="h-9 min-w-0 flex-1 rounded-lg border border-gray-200 px-2 text-sm outline-none focus:border-marca"
                   />
@@ -314,13 +314,13 @@ export function CapturaCeldaModal({
                   (calculo?.precio
                     ? ` · ${formatMoneda(calculo.precio)}/und`
                     : " · sin orden, no se factura")
-                : "Este modulo no tiene jornada configurada"}
+                : "Este módulo no tiene jornada configurada"}
             </p>
             <p className="mt-0.5 text-xs font-medium text-marca-letra">
               Franja de {franja.minutos} minutos
               {franja.minutos !== 60 && (
                 <span className="ml-1 font-normal text-gray-400">
-                  — la meta baja en proporcion
+                  — la meta baja en proporción
                 </span>
               )}
             </p>
@@ -363,7 +363,7 @@ export function CapturaCeldaModal({
           {/* Lo que esa franja factura */}
           {calculo?.precio > 0 && (
             <div className="flex items-center justify-between rounded-2xl border border-green-100 bg-green-50/60 px-4 py-3 text-sm">
-              <span className="text-gray-600">Facturacion de la franja</span>
+              <span className="text-gray-600">Facturación de la franja</span>
               <span className="font-semibold text-green-700">
                 {formatMoneda(calculo.facturacionReal)}
                 <span className="ml-1 font-normal text-gray-400">
@@ -400,7 +400,7 @@ export function CapturaCeldaModal({
           {calculo?.bajoUmbral && entradasPerdidos.length === 0 && (
             <p className="flex items-start gap-2 rounded-xl border border-dorado/30 bg-dorado/5 px-3 py-2.5 text-xs text-dorado-texto">
               <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
-              La hora quedo por debajo del umbral ({calculo.umbral}%): registra abajo de que hora a
+              La hora quedó por debajo del umbral ({calculo.umbral}%): registra abajo de que hora a
               que hora se paro el modulo y por que.
             </p>
           )}

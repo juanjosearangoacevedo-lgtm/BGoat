@@ -5,8 +5,8 @@ import { TarjetaBgoat } from "../components/TarjetaBgoat";
 import { useResetPasswordForm } from "../hooks/useResetPasswordForm";
 
 const CAMPOS = [
-  { campo: "clave", etiqueta: "Contrasena nueva" },
-  { campo: "confirmar_clave", etiqueta: "Repite la contrasena" },
+  { campo: "clave", etiqueta: "Contraseña nueva" },
+  { campo: "confirmar_clave", etiqueta: "Repite la contraseña" },
 ];
 
 /**
@@ -22,24 +22,24 @@ export function ResetPasswordPage({ token, onNavigate }) {
   return (
     <AuthEscena>
       {reset.listo ? (
-        <TarjetaBgoat titulo="Contrasena actualizada" descripcion="Ya puedes iniciar sesion con tu contrasena nueva.">
+        <TarjetaBgoat titulo="Contraseña actualizada" descripcion="Ya puedes iniciar sesión con tu contraseña nueva.">
           <div className="flex justify-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-exito/15">
               <CheckCircle2 className="h-8 w-8 text-exito" />
             </div>
           </div>
           <button type="button" onClick={alLogin} className={`${botonDorado} mt-6`}>
-            Iniciar sesion
+            Iniciar sesión
           </button>
         </TarjetaBgoat>
       ) : reset.sinToken ? (
-        <TarjetaBgoat titulo="Enlace incompleto" descripcion="Abre el enlace completo que llego a tu correo, o pide uno nuevo.">
+        <TarjetaBgoat titulo="Enlace incompleto" descripcion="Abre el enlace completo que llegó a tu correo, o pide uno nuevo.">
           <button type="button" onClick={pedirOtro} className={botonDorado}>
             Pedir un enlace nuevo
           </button>
         </TarjetaBgoat>
       ) : (
-        <TarjetaBgoat titulo="Nueva contrasena" descripcion="Escribe tu contrasena nueva dos veces. Debe tener al menos 8 caracteres.">
+        <TarjetaBgoat titulo="Nueva contraseña" descripcion="Escribe tu contraseña nueva dos veces. Debe tener al menos 8 caracteres.">
           <form onSubmit={reset.handleSubmit} className="flex flex-col gap-4 bajo:gap-3">
             {CAMPOS.map(({ campo, etiqueta }) => (
               <div key={campo}>
@@ -74,7 +74,7 @@ export function ResetPasswordPage({ token, onNavigate }) {
             )}
 
             <button type="submit" disabled={reset.enviando} className={botonDorado}>
-              {reset.enviando ? "Guardando..." : "Guardar contrasena"}
+              {reset.enviando ? "Guardando..." : "Guardar contraseña"}
             </button>
 
             <button
@@ -83,7 +83,7 @@ export function ResetPasswordPage({ token, onNavigate }) {
               className="flex items-center justify-center gap-2 text-[14px] text-pizarra-3 transition-colors hover:text-dorado-oscuro"
             >
               <ArrowLeft className="h-4 w-4" />
-              Volver al inicio de sesion
+              Volver al inicio de sesión
             </button>
           </form>
         </TarjetaBgoat>

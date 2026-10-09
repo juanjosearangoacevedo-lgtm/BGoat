@@ -29,7 +29,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
             <h3 className="font-bold text-gray-900">{modulo.nombre}</h3>
           </div>
           <p className="ml-10 mt-1 text-xs text-gray-400">
-            {modulo.codigo} · {modulo.ubicacion || "Sin ubicacion"}
+            {modulo.codigo} · {modulo.ubicacion || "Sin ubicación"}
           </p>
         </button>
         <StatusBadge status={modulo.estado} />
@@ -37,7 +37,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
 
       <div className="mb-4">
         <div className="mb-1 flex justify-between text-xs">
-          <span className="text-gray-500">Eficiencia del dia</span>
+          <span className="text-gray-500">Eficiencia del día</span>
           <span className="font-medium text-gray-700">
             {formatNumero(modulo.unidades_producidas)} de {formatNumero(meta)} und
           </span>
@@ -53,7 +53,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
 
       <dl className="mb-4 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div>
-          <dt className="text-xs text-gray-400">Meta del dia</dt>
+          <dt className="text-xs text-gray-400">Meta del día</dt>
           <dd className="font-medium text-gray-800">{formatNumero(meta)}</dd>
         </div>
         <div>
@@ -63,7 +63,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
           </dd>
         </div>
         <div>
-          <dt className="text-xs text-gray-400">Facturacion</dt>
+          <dt className="text-xs text-gray-400">Facturación</dt>
           <dd className="truncate font-medium text-gray-800">
             {formatMoneda(modulo.facturacion_real)}
           </dd>

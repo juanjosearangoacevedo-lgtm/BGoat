@@ -23,7 +23,7 @@ function PermisosPorModulo({ permisos = [] }) {
   if (grupos.length === 0) {
     return (
       <p className="rounded-xl border border-dashed border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
-        Este rol no tiene permisos asignados: quien lo tenga no vera ningun modulo del panel.
+        Este rol no tiene permisos asignados: quien lo tenga no verá ningún módulo del panel.
       </p>
     );
   }
@@ -55,7 +55,7 @@ export function RolDetalleModal({ rol, permisos = [], onClose, onEditar }) {
           filas: [
             { label: "Nombre", value: rol.nombre },
             { label: "Creado", value: formatFecha(rol.fecha_creacion) },
-            { label: "Descripcion", value: rol.descripcion, ancho: "completo" },
+            { label: "Descripción", value: rol.descripcion, ancho: "completo" },
             { label: "Usuarios activos", value: Number(rol.usuarios_activos || 0) },
             { label: "Permisos asignados", value: Number(rol.total_permisos || 0) },
           ],
@@ -64,7 +64,7 @@ export function RolDetalleModal({ rol, permisos = [], onClose, onEditar }) {
           titulo: "Permisos concedidos",
           filas: [
             {
-              label: "Por modulo",
+              label: "Por módulo",
               ancho: "completo",
               value: <PermisosPorModulo permisos={permisos} />,
             },

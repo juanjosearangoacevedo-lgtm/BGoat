@@ -27,10 +27,10 @@ export const fecha =
     return aFecha(valor)
       ? ""
       : concordar(etiqueta, {
-          singular: "no es valido",
-          plural: "no son validos",
+          singular: "no es válido",
+          plural: "no son válidos",
           femenino: "no es valida",
-          femeninoPlural: "no son validas",
+          femeninoPlural: "no son válidas",
         });
   };
 
@@ -80,7 +80,7 @@ export const posteriorA =
 
 /** La fecha de inicio no puede quedar despues que la de fin. */
 export const anteriorA =
-  (campo, etiqueta = "La fecha", nombreFin = "la fecha de finalizacion") =>
+  (campo, etiqueta = "La fecha", nombreFin = "la fecha de finalización") =>
   (valor, form) => {
     const valida = aFecha(valor);
     const fin = aFecha(form?.[campo]);
@@ -102,8 +102,8 @@ export const edad =
     const mes = referencia.getMonth() - nacimiento.getMonth();
     if (mes < 0 || (mes === 0 && referencia.getDate() < nacimiento.getDate())) anios -= 1;
 
-    if (min !== undefined && anios < min) return `${etiqueta} minima es ${min} anios`;
-    if (max !== undefined && anios > max) return `${etiqueta} maxima es ${max} anios`;
+    if (min !== undefined && anios < min) return `${etiqueta} mínima es ${min} años`;
+    if (max !== undefined && anios > max) return `${etiqueta} máxima es ${max} años`;
 
     return "";
   };

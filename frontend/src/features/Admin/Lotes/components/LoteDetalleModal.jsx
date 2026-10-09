@@ -32,13 +32,13 @@ export function LoteDetalleModal({
         {
           titulo: "Origen del lote",
           filas: [
-            { label: "Codigo del lote", value: lote.codigo_lote },
-            { label: "Numero de pedido", value: lote.numero_pedido },
+            { label: "Código del lote", value: lote.codigo_lote },
+            { label: "Número de pedido", value: lote.numero_pedido },
             { label: "Cliente", value: lote.nombre_cliente || nombreCliente?.(lote.id_cliente) },
           ],
         },
         {
-          titulo: "Que se confecciona",
+          titulo: "Qué se confecciona",
           filas: [
             { label: "Referencia", value: lote.codigo_referencia },
             { label: "Nombre de la referencia", value: lote.nombre_referencia },
@@ -69,7 +69,7 @@ export function LoteDetalleModal({
           ],
         },
         {
-          titulo: "Ficha tecnica",
+          titulo: "Ficha técnica",
           filas: [
             {
               label: "",
@@ -116,11 +116,11 @@ export function LoteDetalleModal({
         {
           titulo: "Fechas y notas",
           filas: [
-            { label: "Recepcion", value: formatFecha(lote.fecha_recepcion) },
+            { label: "Recepción", value: formatFecha(lote.fecha_recepcion) },
             { label: "Estado", value: <StatusBadge status={lote.estado} /> },
             {
               label: "Activo",
-              value: Number(lote.activo ?? 1) ? "Si, se sigue ofreciendo" : "No, apagado",
+              value: Number(lote.activo ?? 1) ? "Sí, se sigue ofreciendo" : "No, apagado",
             },
             {
               label: "Registrado en el sistema",
@@ -137,7 +137,7 @@ export function LoteDetalleModal({
       open={Boolean(lote)}
       icon={Package2}
       title={lote?.codigo_lote || ""}
-      subtitle="Lote de produccion"
+      subtitle="Lote de producción"
       estado={lote?.estado}
       secciones={secciones}
       onClose={onClose}

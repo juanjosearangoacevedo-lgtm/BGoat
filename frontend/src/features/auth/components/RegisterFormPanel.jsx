@@ -25,7 +25,7 @@ export function RegisterFormPanel({
             <AuthBrand />
           </div>
           <h1 className="mb-2 text-3xl font-bold text-gray-900">Crear cuenta</h1>
-          <p className="text-gray-600">Completa la informacion para registrarte en el sistema</p>
+          <p className="text-gray-600">Completa la información para registrarte en el sistema</p>
         </div>
 
         <form className="space-y-5" onSubmit={onSubmit}>
@@ -34,7 +34,7 @@ export function RegisterFormPanel({
               <Label htmlFor="nombres">Nombres</Label>
               <Input
                 id="nombres"
-                placeholder="Juan Jose"
+                placeholder="Juan José"
                 value={form.nombres}
                 onChange={setField("nombres")}
                 className={`h-12 ${errors.nombres ? "border-red-400" : ""}`}
@@ -71,7 +71,7 @@ export function RegisterFormPanel({
               </select>
             </div>
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="numero_documento">Numero de documento</Label>
+              <Label htmlFor="numero_documento">Número de documento</Label>
               <Input
                 id="numero_documento"
                 placeholder="1017925610"
@@ -86,7 +86,7 @@ export function RegisterFormPanel({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="correo">Correo electronico</Label>
+            <Label htmlFor="correo">Correo electrónico</Label>
             <Input
               id="correo"
               type="email"
@@ -99,7 +99,7 @@ export function RegisterFormPanel({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="telefono">Telefono</Label>
+            <Label htmlFor="telefono">Teléfono</Label>
             <Input
               id="telefono"
               placeholder="300 000 0000"
@@ -110,12 +110,12 @@ export function RegisterFormPanel({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clave">Contrasena</Label>
+            <Label htmlFor="clave">Contraseña</Label>
             <div className="relative">
               <Input
                 id="clave"
                 type={showPassword ? "text" : "password"}
-                placeholder="Minimo 8 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 value={form.clave}
                 onChange={setField("clave")}
                 className={`h-12 pr-10 ${errors.clave ? "border-red-400" : ""}`}
@@ -132,12 +132,12 @@ export function RegisterFormPanel({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmar_clave">Confirmar contrasena</Label>
+            <Label htmlFor="confirmar_clave">Confirmar contraseña</Label>
             <div className="relative">
               <Input
                 id="confirmar_clave"
                 type={showConfirm ? "text" : "password"}
-                placeholder="Repite tu contrasena"
+                placeholder="Repite tu contraseña"
                 value={form.confirmar_clave}
                 onChange={setField("confirmar_clave")}
                 className={`h-12 pr-10 ${errors.confirmar_clave ? "border-red-400" : ""}`}
@@ -154,7 +154,7 @@ export function RegisterFormPanel({
           </div>
 
           <p className="text-xs text-gray-500">
-            El rol de acceso lo asigna un administrador desde el modulo Usuarios.
+            El rol de acceso lo asigna un administrador desde el módulo Usuarios.
           </p>
 
           <Button type="submit" className="h-12 w-full bg-dorado text-white hover:bg-dorado-hover">
@@ -168,7 +168,7 @@ export function RegisterFormPanel({
               onClick={() => onNavigate("login")}
               className="font-medium text-marca-letra hover:text-marca-letra/80"
             >
-              Iniciar sesion
+              Iniciar sesión
             </button>
           </p>
         </form>

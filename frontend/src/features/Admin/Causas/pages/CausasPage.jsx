@@ -16,7 +16,7 @@ import { crearCausaEsquema } from "../validations/causaValidation";
  * `responsables` (y si falta, se agrega desde el mismo formulario).
  */
 const tipos = [
-  { value: "PLANEADA", label: "Planeada (se sabia que iba a pasar)" },
+  { value: "PLANEADA", label: "Planeada (se sabía que iba a pasar)" },
   { value: "INTERNA", label: "Interna (responsabilidad de la empresa)" },
   { value: "EXTERNA", label: "Externa (del cliente, es negociable)" },
 ];
@@ -36,16 +36,16 @@ export function CausasPage() {
 
   return (
     <CrudPage
-      titulo="Causas de desviacion"
+      titulo="Causas de desviación"
       subtitulo="Motivos por los que una hora no alcanza la meta"
       recurso={endpoints.causas}
       idField="id_causa"
       etiquetaNuevo="Nueva causa"
-      busquedaPlaceholder="Buscar por codigo, descripcion o responsable..."
+      busquedaPlaceholder="Buscar por código, descripción o responsable..."
       nombreRegistro={(fila) => (fila?.codigo ? `la causa ${fila.codigo}` : "la causa")}
       emptyIcon={AlertTriangle}
       emptyTitle="No hay causas configuradas"
-      emptyDescription="Sin causas, la digitadora no puede explicar por que una hora quedo por debajo de la meta."
+      emptyDescription="Sin causas, la digitadora no puede explicar por qué una hora quedó por debajo de la meta."
       ordenInicial={{ campo: "orden_visual", direccion: "asc" }}
       filtrosLista={[
         {
@@ -77,10 +77,10 @@ export function CausasPage() {
         },
       ]}
       columnas={[
-        { key: "codigo", header: "Codigo" },
+        { key: "codigo", header: "Código" },
         {
           key: "descripcion",
-          header: "Descripcion",
+          header: "Descripción",
           render: (fila) => fila.descripcion || <span className="text-gray-300">{GUION}</span>,
           exportar: (fila) => fila.descripcion || "",
         },
@@ -123,19 +123,19 @@ export function CausasPage() {
       campos={[
         {
           name: "codigo",
-          label: "Codigo",
-          placeholder: "Dano de maquina",
+          label: "Código",
+          placeholder: "Daño de máquina",
           required: true,
           maxLength: 100,
-          hint: "Es el nombre de la causa: lo que la digitadora ve en el boton.",
+          hint: "Es el nombre de la causa: lo que la digitadora ve en el botón.",
         },
         { name: "tipo", label: "Tipo", options: tipos, required: true },
         {
           name: "descripcion",
-          label: "Descripcion",
+          label: "Descripción",
           type: "textarea",
           rows: 2,
-          placeholder: "Que significa esta causa y cuando se usa",
+          placeholder: "Qué significa esta causa y cuándo se usa",
           maxLength: 255,
           ancho: "completo",
         },
@@ -168,7 +168,7 @@ export function CausasPage() {
           type: "number",
           min: 1,
           max: 99,
-          hint: "Define en que posicion aparece el boton.",
+          hint: "Define en qué posición aparece el botón.",
         },
         {
           name: "estado",

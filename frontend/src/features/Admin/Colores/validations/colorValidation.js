@@ -22,7 +22,7 @@ export function crearColorEsquema({ lista = [], editing = null } = {}) {
         etiqueta: "Ese color",
       }),
     ],
-    codigo_hex: [reglas.patron(HEX, "El color debe ser un hexadecimal valido (#RRGGBB)")],
+    codigo_hex: [reglas.patron(HEX, "El color debe ser un hexadecimal válido (#RRGGBB)")],
     estado: [reglas.seleccionRequerida("El estado"), reglas.opcionValida(colorEstados, "El estado")],
   };
 }

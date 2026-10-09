@@ -30,7 +30,7 @@ const columnas = [
   },
   {
     key: "desviacion_porcentaje",
-    header: "Desviacion",
+    header: "Desviación",
     align: "center",
     render: (fila) => {
       const valor = Number(fila.desviacion_porcentaje || 0);
@@ -64,8 +64,8 @@ export function TablaSam({ datos = [], loading }) {
     <div className="mt-6">
       <h3 className="mb-1 font-bold text-gray-900">SAM pactado vs SAM real</h3>
       <p className="mb-4 text-sm text-gray-500">
-        Una desviacion positiva significa que la prenda toma mas minutos de los que el cliente paga.
-        Es el argumento con datos para la proxima negociacion.
+        Una desviación positiva significa que la prenda toma más minutos de los que el cliente paga.
+        Es el argumento con datos para la proxima negociación.
       </p>
       <DataTable
         columns={columnas}
@@ -74,9 +74,9 @@ export function TablaSam({ datos = [], loading }) {
         rowKey="codigo_referencia"
         empty={{
           icon: Scale,
-          title: "Sin datos de SAM todavia",
+          title: "Sin datos de SAM todavía",
           description:
-            "El SAM real se calcula con la produccion registrada. Captura horas para que aparezca la comparacion.",
+            "El SAM real se calcula con la producción registrada. Captura horas para que aparezca la comparación.",
         }}
       />
     </div>

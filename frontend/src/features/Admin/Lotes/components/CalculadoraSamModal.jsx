@@ -95,7 +95,7 @@ export function CalculadoraSamModal({ open, precioInicial, onClose, onUsar }) {
             <span>{minutosReales.toFixed(2)} min</span>
           </div>
           <div className="flex justify-between border-t border-gray-100 pt-2">
-            <span>− Terminacion y empaque</span>
+            <span>− Terminación y empaque</span>
             <span>{MINUTOS_TERMINACION_EMPAQUE.toFixed(2)} min</span>
           </div>
         </div>

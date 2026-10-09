@@ -172,11 +172,11 @@ function normalizarPerdidas(crudo, franja) {
 
     if (!idCausa) throw ApiError.badRequest("Cada parada necesita su causa");
     if (desde === null || hasta === null) {
-      throw ApiError.badRequest("Cada parada necesita la hora en que empezo y la hora en que termino");
+      throw ApiError.badRequest("Cada parada necesita la hora en que empezó y la hora en que terminó");
     }
     if (hasta <= desde) {
       throw ApiError.badRequest(
-        `La parada de ${aHora(desde)} a ${aHora(hasta)}: la hora final tiene que ser despues de la inicial`,
+        `La parada de ${aHora(desde)} a ${aHora(hasta)}: la hora final tiene que ser después de la inicial`,
       );
     }
     if (inicioFranja !== null && finFranja !== null && (desde < inicioFranja || hasta > finFranja)) {
@@ -200,7 +200,7 @@ function normalizarPerdidas(crudo, franja) {
     if (lineas[i].desde < lineas[i - 1].hasta) {
       throw ApiError.badRequest(
         `Las paradas de ${lineas[i - 1].hora_desde} a ${lineas[i - 1].hora_hasta} y de ` +
-          `${lineas[i].hora_desde} a ${lineas[i].hora_hasta} se cruzan: el modulo no puede ` +
+          `${lineas[i].hora_desde} a ${lineas[i].hora_hasta} se cruzan: el módulo no puede ` +
           "estar parado dos veces en el mismo minuto",
       );
     }
@@ -307,7 +307,7 @@ async function validarDetalleTallaColor(detalle, idLote, idRegistroExcluir) {
     const fila = porClave.get(clave);
     if (!fila) {
       throw ApiError.badRequest(
-        "Ese lote no tiene asignada esa combinacion de talla y color",
+        "Ese lote no tiene asignada esa combinación de talla y color",
         { id_talla: linea.id_talla, id_color: linea.id_color },
       );
     }
@@ -555,14 +555,14 @@ capturaRouter.put(
       throw ApiError.badRequest("La fecha debe tener formato YYYY-MM-DD");
     }
     if (fecha > hoy()) {
-      throw ApiError.badRequest("No se puede registrar produccion de una fecha futura");
+      throw ApiError.badRequest("No se puede registrar producción de una fecha futura");
     }
 
     const modulo = await queryOne(
       "SELECT id_modulo, codigo, umbral_cumplimiento FROM modulos WHERE id_modulo = ?",
       [id_modulo],
     );
-    if (!modulo) throw ApiError.notFound("El modulo no existe");
+    if (!modulo) throw ApiError.notFound("El módulo no existe");
 
     // La jornada es el requisito de entrada: es la que dice que lote se
     // esta produciendo y con cuantas operarias. Sin ella no hay SAM, y
@@ -570,7 +570,7 @@ capturaRouter.put(
     const suya = await jornadaDelModulo(id_modulo, fecha);
     if (!suya) {
       throw ApiError.badRequest(
-        `El modulo ${modulo.codigo} no tiene jornada configurada para el ${fecha}`,
+        `El módulo ${modulo.codigo} no tiene jornada configurada para el ${fecha}`,
         { requiere_jornada: true, id_modulo: Number(id_modulo), fecha },
       );
     }
@@ -578,7 +578,7 @@ capturaRouter.put(
     // La franja manda: si ese dia no existe, no hay nada que capturar.
     const jornada = await jornadaDeLaFecha(fecha);
     if (jornada.franjas.length === 0) {
-      throw ApiError.badRequest(`El ${fecha} no tiene jornada configurada: no es un dia laboral`);
+      throw ApiError.badRequest(`El ${fecha} no tiene jornada configurada: no es un día laboral`);
     }
 
     const franja = jornada.franjas.find((f) => f.orden_franja === Number(hora_jornada));
@@ -658,7 +658,7 @@ capturaRouter.put(
       );
       if (!causa) throw ApiError.badRequest("La incidencia indicada no existe o esta inactiva");
       if (causa.requiere_nota && !String(nota || "").trim()) {
-        throw ApiError.badRequest("Esta incidencia exige una explicacion de lo que paso", {
+        throw ApiError.badRequest("Esta incidencia exige una explicación de lo que pasó", {
           requiere_nota: true,
         });
       }
@@ -805,7 +805,7 @@ capturaRouter.get(
        FROM modulos WHERE id_modulo = ?`,
       [req.params.id],
     );
-    if (!modulo) throw ApiError.notFound("El modulo no existe");
+    if (!modulo) throw ApiError.notFound("El módulo no existe");
 
     const jornada = await jornadaDeLaFecha(fecha);
     const suya = await jornadaDelModulo(req.params.id, fecha);

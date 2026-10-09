@@ -15,7 +15,7 @@ export function PasoModulo({ modulos = [], seleccionado, onSeleccionar, onContin
   if (modulos.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-gray-200 p-8 text-center text-sm text-gray-400">
-        No hay modulos activos. Registralos primero en Planta &gt; Modulos.
+        No hay módulos activos. Regístralos primero en Planta &gt; Módulos.
       </p>
     );
   }

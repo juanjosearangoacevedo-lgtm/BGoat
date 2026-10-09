@@ -28,7 +28,7 @@ export function ModulosKpis({ totals = {} }) {
       bg: "bg-dorado/10",
     },
     {
-      label: "Facturacion real",
+      label: "Facturación real",
       value: formatMoneda(totals.facturacionReal),
       nota: `meta ${formatMoneda(totals.facturacionMeta)}`,
       icon: Banknote,
@@ -36,7 +36,7 @@ export function ModulosKpis({ totals = {} }) {
       bg: "bg-green-50",
     },
     {
-      label: "Cumplimiento facturacion",
+      label: "Cumplimiento facturación",
       value: `${totals.cumplimientoFacturacion ?? 0}%`,
       nota: "pesos reales sobre pesos meta",
       icon: Banknote,
@@ -46,7 +46,7 @@ export function ModulosKpis({ totals = {} }) {
     {
       label: "Operarias en planta",
       value: `${totals.operariosAsignados ?? 0}/${totals.capacidad ?? 0}`,
-      nota: `${totals.modulos ?? 0} modulos`,
+      nota: `${totals.modulos ?? 0} módulos`,
       icon: Users,
       color: "text-marca-letra",
       bg: "bg-marca/10",

@@ -19,7 +19,7 @@ import '../widgets/vistas_estado.dart';
 ///
 /// El campo que manda es el SAM pactado: son los minutos que el cliente paga
 /// por prenda, y de ahi sale la meta de cada hora. Sin el, el lote se guarda
-/// pero ningun modulo puede abrir jornada con el.
+/// pero ningun modulo puede abrir jornada con él.
 ///
 /// El codigo de lote no se digita: lo asigna el backend al crear
 /// (`LT-2026-0001`...) y no cambia, asi que aqui solo se muestra. Lo que
@@ -108,7 +108,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     if (sinIdentificacion) {
       avisar(
         context,
-        'Escriba al menos el numero de pedido, el codigo de referencia o el nombre de la referencia',
+        'Escriba al menos el número de pedido, el código de referencia o el nombre de la referencia',
         esError: true,
       );
       return;
@@ -216,7 +216,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       initialDate: fechas.desdeTexto(_fechaRecepcion),
       firstDate: DateTime(2024),
       lastDate: DateTime(2030),
-      helpText: 'Fecha de recepcion',
+      helpText: 'Fecha de recepción',
     );
 
     if (elegida == null) return;
@@ -247,8 +247,8 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
           children: [
             const TituloSeccion(
-              'Identificacion',
-              detalle: 'Escriba al menos uno: numero de pedido, codigo de '
+              'Identificación',
+              detalle: 'Escriba al menos uno: número de pedido, código de '
                   'referencia o nombre de la referencia. Puede llenar los tres.',
             ),
             _campoCodigoSoloLectura(),
@@ -276,9 +276,9 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
               textCapitalization: TextCapitalization.characters,
               inputFormatters: const [MayusculasFormatter()],
               decoration: const InputDecoration(
-                labelText: 'Numero de pedido',
+                labelText: 'Número de pedido',
                 prefixIcon: Icon(Icons.receipt_long_outlined),
-                helperText: 'El folio con el que llego el trabajo, en mayusculas',
+                helperText: 'El folio con el que llegó el trabajo, en mayúsculas',
               ),
             ),
             const SizedBox(height: 22),
@@ -327,7 +327,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
             const TituloSeccion(
               'Lo que se negocio',
               detalle: 'El SAM fija la meta y el valor de maquila la '
-                  'facturacion: los dos vienen de la ficha del cliente.',
+                  'facturación: los dos vienen de la ficha del cliente.',
             ),
             Row(
               children: [
@@ -353,7 +353,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                       final texto = (valor ?? '').trim();
                       if (texto.isEmpty) return null;
                       final numero = leerDecimal(texto);
-                      if (numero == null || numero <= 0) return 'SAM invalido';
+                      if (numero == null || numero <= 0) return 'SAM inválido';
                       return null;
                     },
                     onChanged: (_) => setState(() {}),
@@ -378,7 +378,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                       final texto = (valor ?? '').trim();
                       if (texto.isEmpty) return 'Use la calculadora del SAM';
                       final numero = leerDecimal(texto);
-                      if (numero == null || numero <= 0) return 'Valor invalido';
+                      if (numero == null || numero <= 0) return 'Valor inválido';
                       return null;
                     },
                   ),
@@ -402,7 +402,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
                     SizedBox(width: 9),
                     Expanded(
                       child: Text(
-                        'Sin SAM el lote se guarda, pero ningun modulo va a poder '
+                        'Sin SAM el lote se guarda, pero ningún módulo va a poder '
                         'abrir jornada con el: no hay meta que calcular.',
                         style: TextStyle(fontSize: 12, height: 1.4),
                       ),
@@ -461,9 +461,9 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
     final codigo = widget.lote?.codigoLote;
     return InputDecorator(
       decoration: const InputDecoration(
-        labelText: 'Codigo del lote',
+        labelText: 'Código del lote',
         prefixIcon: Icon(Icons.qr_code),
-        helperText: 'Consecutivo automatico: no se digita ni se cambia',
+        helperText: 'Consecutivo automático: no se digita ni se cambia',
       ),
       child: Text(
         codigo ?? 'Se asigna solo al guardar',
@@ -482,7 +482,7 @@ class _LoteFormScreenState extends State<LoteFormScreen> {
       borderRadius: BorderRadius.circular(12),
       child: InputDecorator(
         decoration: const InputDecoration(
-          labelText: 'Recepcion *',
+          labelText: 'Recepción *',
           prefixIcon: Icon(Icons.event_outlined, size: 19),
         ),
         child: Text(fechas.fechaCorta(_fechaRecepcion), style: const TextStyle(fontSize: 14)),
@@ -616,7 +616,7 @@ class _CalculadoraSamHojaState extends State<_CalculadoraSamHoja> {
                     child: Divider(height: 1),
                   ),
                   _filaCalculo(
-                    '− Terminacion y empaque',
+                    '− Terminación y empaque',
                     '${_minutosTerminacionEmpaque.toStringAsFixed(2)} min',
                   ),
                 ],
@@ -744,7 +744,7 @@ class _CantidadRecibidaInfo extends StatelessWidget {
                 const Text(
                   'Se arma desde el panel web agregando filas de talla, color y '
                   'cantidad (las tres obligatorias): es la suma de esas filas, no un '
-                  'numero que se digite aqui. Sin eso, ningun modulo va a poder abrir '
+                  'número que se digite aquí. Sin eso, ningún módulo va a poder abrir '
                   'jornada con este lote.',
                   style: TextStyle(fontSize: 11.5, color: Paleta.textoSuave, height: 1.4),
                 ),
@@ -770,9 +770,9 @@ class _NotaFicha extends StatelessWidget {
           const SizedBox(width: 10),
           const Expanded(
             child: Text(
-              'La ficha tecnica (la foto de la prenda y el PDF del cliente) se '
+              'La ficha técnica (la foto de la prenda y el PDF del cliente) se '
               'sube desde el panel web. La app la muestra donde haga falta: al '
-              'escoger el lote y en el tablero del modulo.',
+              'escoger el lote y en el tablero del módulo.',
               style: TextStyle(fontSize: 11.5, color: Paleta.textoSuave, height: 1.4),
             ),
           ),

@@ -13,7 +13,7 @@ export function UsuarioDetalleModal({ usuario, roleName, onClose, onEditar }) {
             { label: "Nombres", value: usuario.nombres },
             { label: "Apellidos", value: usuario.apellidos },
             { label: "Documento", value: documento(usuario) },
-            { label: "Telefono", value: usuario.telefono },
+            { label: "Teléfono", value: usuario.telefono },
             { label: "Correo", value: usuario.correo, ancho: "completo" },
           ],
         },
@@ -21,7 +21,7 @@ export function UsuarioDetalleModal({ usuario, roleName, onClose, onEditar }) {
           titulo: "Acceso al sistema",
           filas: [
             { label: "Rol", value: usuario.nombre_rol || roleName?.(usuario.id_rol) },
-            { label: "Ultimo acceso", value: formatFechaHora(usuario.ultimo_acceso) },
+            { label: "Último acceso", value: formatFechaHora(usuario.ultimo_acceso) },
             { label: "Intentos fallidos", value: Number(usuario.intentos_fallidos || 0) },
             {
               label: "Bloqueado hasta",

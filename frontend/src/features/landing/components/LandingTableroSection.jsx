@@ -17,8 +17,8 @@ export function LandingTableroSection() {
             El tablero de la pared, en la pantalla
           </h2>
           <p className="mx-auto max-w-2xl text-xl text-gray-600">
-            Una celda por modulo y por hora. La digitadora solo escribe las unidades; la meta, la
-            eficiencia y la facturacion las calcula el sistema.
+            Una celda por módulo y por hora. La digitadora solo escribe las unidades; la meta, la
+            eficiencia y la facturación las calcula el sistema.
           </p>
         </div>
 
@@ -34,13 +34,13 @@ export function LandingTableroSection() {
           <div>
             <p className="text-3xl font-bold text-marca-letra">520 min</p>
             <p className="mt-1 text-sm text-gray-600">
-              la jornada real, con la ultima franja mas corta: la meta se ajusta sola
+              la jornada real, con la última franja más corta: la meta se ajusta sola
             </p>
           </div>
           <div>
             <p className="text-3xl font-bold text-marca-letra">0 cuentas</p>
             <p className="mt-1 text-sm text-gray-600">
-              a mano al cerrar el dia, frente a las 200 que hoy se hacen con calculadora
+              a mano al cerrar el día, frente a las 200 que hoy se hacen con calculadora
             </p>
           </div>
         </div>

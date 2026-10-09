@@ -21,7 +21,7 @@ import {
  */
 export function LandingHero() {
   return (
-    <section className="fuente-bgoat relative isolate flex flex-1 flex-col overflow-hidden bg-white">
+    <section className="relative isolate flex flex-1 flex-col overflow-hidden bg-white">
       {/* En movil y tableta la foto ocupa toda la caja; desde lg se recuesta a la
           derecha --como en el prototipo-- y le deja el tercio izquierdo
           al texto. */}
@@ -277,7 +277,7 @@ function FraseTejemos() {
       aria-hidden="true"
       className="pointer-events-none absolute bottom-10 right-14 hidden -rotate-3 select-none text-right xl:block"
     >
-      <p className="fuente-manuscrita text-[44px] leading-[0.92] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
+      <p className="text-[33px] font-semibold italic leading-[1.05] tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
         {heroFrase[0]}
         <br />
         <span className="ml-8">{heroFrase[1]}</span>

@@ -190,7 +190,7 @@ export async function decidirEntrega(idOrden, { accion, eficiencia_esperada } = 
   );
   if (!orden) throw ApiError.notFound("La orden no existe");
   if (!orden.fecha_inicio_real) {
-    throw ApiError.badRequest("La orden todavia no ha iniciado jornada: no tiene entrega que ajustar");
+    throw ApiError.badRequest("La orden todavía no ha iniciado jornada: no tiene entrega que ajustar");
   }
 
   const personas = await personasDeJornada(idOrden, "ultima");
@@ -203,7 +203,7 @@ export async function decidirEntrega(idOrden, { accion, eficiencia_esperada } = 
     return;
   }
 
-  if (accion !== "ajustar") throw ApiError.badRequest('La accion debe ser "ajustar" o "dejar"');
+  if (accion !== "ajustar") throw ApiError.badRequest('La acción debe ser "ajustar" o "dejar"');
 
   const eficiencia = Number(eficiencia_esperada);
   if (!(eficiencia > 0 && eficiencia <= 100)) {
@@ -232,7 +232,7 @@ export async function actualizarPlanSinFallar() {
   try {
     await actualizarPlan();
   } catch (error) {
-    console.error("[BGoat] No se pudo actualizar el plan de produccion:", error.message);
+    console.error("[BGoat] No se pudo actualizar el plan de producción:", error.message);
   }
 }
 

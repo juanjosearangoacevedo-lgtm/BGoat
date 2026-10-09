@@ -83,7 +83,7 @@ export function validarCaptura({ valores, bajoUmbral, causaPrincipal, problemaPa
     errores.minutos_perdidos = problemaParadas;
   } else if (bajoUmbral && !hayParadas) {
     errores.minutos_perdidos =
-      "La hora quedo bajo la meta: registra de que hora a que hora se paro el modulo y por que";
+      "La hora quedó bajo la meta: registra de qué hora a qué hora se paró el módulo y por qué";
   }
 
   return {

@@ -143,7 +143,7 @@ class ApiCliente {
     try {
       respuesta = await peticion().timeout(const Duration(seconds: 25));
     } on SocketException catch (error) {
-      throw ApiError.sinConexion('Revise la direccion en Ajustes. (${error.message})');
+      throw ApiError.sinConexion('Revise la dirección en Ajustes. (${error.message})');
     } catch (error) {
       throw ApiError.sinConexion(error.toString());
     }
@@ -151,7 +151,7 @@ class ApiCliente {
     // 204 (borrado sin soft delete) no trae cuerpo.
     if (respuesta.statusCode == 204 || respuesta.body.isEmpty) {
       if (respuesta.statusCode >= 400) {
-        throw ApiError(respuesta.statusCode, 'El servidor respondio ${respuesta.statusCode}');
+        throw ApiError(respuesta.statusCode, 'El servidor respondió ${respuesta.statusCode}');
       }
       return null;
     }
@@ -163,7 +163,7 @@ class ApiCliente {
       // Nginx y los proxys contestan HTML cuando la ruta no llega al backend.
       throw ApiError(
         respuesta.statusCode,
-        'El servidor no respondio en JSON. Revise que la direccion apunte a la API de BGoat.',
+        'El servidor no respondió en JSON. Revise que la dirección apunte a la API de BGoat.',
       );
     }
 

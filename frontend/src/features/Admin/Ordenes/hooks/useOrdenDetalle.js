@@ -72,7 +72,7 @@ export function useOrdenDetalle(orderId) {
           accion,
           eficiencia_esperada: eficienciaEsperada,
         });
-        toast.success(accion === "ajustar" ? "Entrega recalculada" : "Se deja la entrega como esta");
+        toast.success(accion === "ajustar" ? "Entrega recalculada" : "Se deja la entrega como está");
         setVersion((previa) => previa + 1);
       } catch (problema) {
         toast.error(problema.message);

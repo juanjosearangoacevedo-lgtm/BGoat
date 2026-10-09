@@ -34,8 +34,8 @@ export function OrdenAvisoEntrega({ orden, decidiendo, onDecidir }) {
       <div className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-white p-4 text-sm shadow-sm">
         <CalendarClock className="mt-0.5 h-5 w-5 flex-shrink-0 text-gray-400" />
         <p className="text-gray-600">
-          En cola con prioridad <strong>#{orden.prioridad}</strong>. La entrega se calcula el dia
-          en que un modulo inicie jornada con esta orden.
+          En cola con prioridad <strong>#{orden.prioridad}</strong>. La entrega se calcula el día
+          en que un módulo inicie jornada con esta orden.
         </p>
       </div>
     );
@@ -61,7 +61,7 @@ export function OrdenAvisoEntrega({ orden, decidiendo, onDecidir }) {
     <div className="rounded-2xl border border-dorado/30 bg-dorado/5 p-4 text-sm">
       <p className="flex items-start gap-2 font-medium text-dorado-texto">
         <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
-        Cambio el numero de personas ({personasEntrega} → {personasAhora}). ¿Ajustar la eficiencia
+        Cambio el número de personas ({personasEntrega} → {personasAhora}). ¿Ajustar la eficiencia
         esperada?
       </p>
       <p className="mt-1 pl-6 text-xs text-gray-600">
@@ -106,7 +106,7 @@ export function OrdenAvisoEntrega({ orden, decidiendo, onDecidir }) {
             Ajustar
           </Button>
           <Button size="sm" variant="outline" disabled={decidiendo} onClick={() => onDecidir?.("dejar")}>
-            Dejar como esta
+            Dejar como está
           </Button>
         </div>
       )}

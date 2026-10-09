@@ -235,7 +235,7 @@ class JornadaProvider extends ChangeNotifier {
   /// que se abrio el asistente y se pulso guardar, el backend responde 409.
   Future<String?> guardar() async {
     if (idModulo == null || idLote == null) {
-      return 'Faltan el modulo y el lote que se va a producir';
+      return 'Faltan el módulo y el lote que se va a producir';
     }
 
     guardando = true;

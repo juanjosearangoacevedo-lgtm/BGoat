@@ -37,10 +37,10 @@ export const longitud =
     }
     if (max !== undefined && largo > max) {
       return concordar(etiqueta, {
-        singular: `admite maximo ${max} caracteres`,
-        plural: `admiten maximo ${max} caracteres`,
-        femenino: `admite maximo ${max} caracteres`,
-        femeninoPlural: `admiten maximo ${max} caracteres`,
+        singular: `admite máximo ${max} caracteres`,
+        plural: `admiten máximo ${max} caracteres`,
+        femenino: `admite máximo ${max} caracteres`,
+        femeninoPlural: `admiten máximo ${max} caracteres`,
       });
     }
     return "";
@@ -74,7 +74,7 @@ export const sinCaracteresEspeciales =
 
 /** Regla libre para codigos y formatos propios del negocio. */
 export const patron =
-  (expresion, mensaje = "El formato no es valido") =>
+  (expresion, mensaje = "El formato no es válido") =>
   (valor) =>
     estaVacio(valor) || expresion.test(String(valor).trim()) ? "" : mensaje;
 

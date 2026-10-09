@@ -42,14 +42,14 @@ export function PanelHero({ summary = {}, modules = [], onNavigate }) {
               <Activity className="h-4 w-4" />
               Sistema en Tiempo Real
             </span>
-            <h2 className="mb-2 text-3xl font-bold">Bienvenido al Sistema de Gestion de Produccion</h2>
+            <h2 className="mb-2 text-3xl font-bold">Bienvenido al Sistema de Gestión de Producción</h2>
             <p className="mb-6 text-lg text-white/90">
-              Monitorea, controla y optimiza tu produccion textil en tiempo real
+              Monitorea, controla y optimiza tu producción textil en tiempo real
             </p>
 
             <div className="mb-6 grid grid-cols-2 gap-6">
-              <HeroStat label="Ordenes en Proceso" value={summary.ordenes_en_proceso} />
-              <HeroStat label="Modulos Cumpliendo Meta" value={enMeta} />
+              <HeroStat label="Órdenes en Proceso" value={summary.ordenes_en_proceso} />
+              <HeroStat label="Módulos Cumpliendo Meta" value={enMeta} />
             </div>
 
             <div className="flex gap-4">
@@ -65,7 +65,7 @@ export function PanelHero({ summary = {}, modules = [], onNavigate }) {
                 className="border border-linea bg-white text-marca-profundo hover:bg-fondo"
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Nueva Orden de Produccion
+                Nueva Orden de Producción
               </Button>
             </div>
           </div>

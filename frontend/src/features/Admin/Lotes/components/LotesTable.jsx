@@ -19,10 +19,10 @@ export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado
   return [
     {
       key: "codigo_lote",
-      header: "Codigo",
+      header: "Código",
       sortable: true,
       render: (lote) => (
-        <span className="font-mono text-sm font-medium text-marca-letra">{lote.codigo_lote}</span>
+        <span className="tabular-nums text-sm font-medium text-marca-letra">{lote.codigo_lote}</span>
       ),
       exportar: (lote) => lote.codigo_lote,
     },
@@ -98,7 +98,7 @@ export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado
     },
     {
       key: "fecha_recepcion",
-      header: "Recepcion",
+      header: "Recepción",
       sortable: true,
       oculta: true,
       render: (lote) => formatFecha(lote.fecha_recepcion),

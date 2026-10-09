@@ -182,7 +182,7 @@ class TotalesDiaEntity {
   /// Es el Pareto del dia del modulo: en que se nos van los minutos.
   List<MapEntry<String, int>> get perdidasPorCausa {
     final lineas = <MapEntry<String, int>>[
-      MapEntry('Maquina', minutosMaquina),
+      MapEntry('Máquina', minutosMaquina),
       MapEntry('Calidad', minutosCalidad),
       MapEntry('Montaje e insumos', minutosMontaje),
       MapEntry('Otras', minutosOtras),

@@ -68,7 +68,7 @@ export function LoteFormModal({
       open={open}
       icon={Package2}
       title={editing ? `Editar lote: ${editing.codigo_lote}` : "Nuevo lote"}
-      description="Los campos marcados con * son obligatorios. Ademas hace falta al menos uno de estos tres: numero de pedido, codigo de referencia o nombre de la referencia."
+      description="Los campos marcados con * son obligatorios. Además hace falta al menos uno de estos tres: número de pedido, código de referencia o nombre de la referencia."
       onClose={onClose}
       maxWidth="max-w-3xl"
       footer={
@@ -84,17 +84,17 @@ export function LoteFormModal({
       <div className="space-y-5">
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
-            De quien viene
+            De quién viene
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <Label>Codigo de lote</Label>
+              <Label>Código de lote</Label>
               {editing ? (
-                <p className="mt-1 font-mono text-sm font-medium text-marca-letra">{editing.codigo_lote}</p>
+                <p className="mt-1 tabular-nums text-sm font-medium text-marca-letra">{editing.codigo_lote}</p>
               ) : (
                 <p className="mt-1 text-sm text-gray-400">Se asigna solo al guardar</p>
               )}
-              <p className="text-xs text-gray-400">Es un consecutivo automatico: no se digita ni se cambia.</p>
+              <p className="text-xs text-gray-400">Es un consecutivo automático: no se digita ni se cambia.</p>
             </div>
             <FormField
               label="Cliente"
@@ -106,13 +106,13 @@ export function LoteFormModal({
               onChange={(valor) => onChange("id_cliente", valor)}
             />
             <FormField
-              label="Numero de pedido"
+              label="Número de pedido"
               autoFocus
               mayusculas
               placeholder="PED-2026-000"
               value={form.numero_pedido ?? ""}
               error={errors.numero_pedido}
-              hint="El folio con el que el cliente lo pidio. Se guarda en mayusculas."
+              hint="El folio con el que el cliente lo pidió. Se guarda en mayúsculas."
               onChange={(valor) => onChange("numero_pedido", valor)}
             />
           </div>
@@ -120,16 +120,16 @@ export function LoteFormModal({
 
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
-            Que se va a confeccionar
+            Qué se va a confeccionar
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
-              label="Codigo de referencia"
+              label="Código de referencia"
               mayusculas
               placeholder="9703"
               value={form.codigo_referencia ?? ""}
               error={errors.codigo_referencia}
-              hint="El codigo que trae la hoja del cliente. Se guarda en mayusculas."
+              hint="El código que trae la hoja del cliente. Se guarda en mayúsculas."
               onChange={(valor) => onChange("codigo_referencia", valor)}
             />
             <FormField
@@ -227,23 +227,23 @@ export function LoteFormModal({
               {form.fecha_entrega_programada ? formatFecha(form.fecha_entrega_programada) : "—"}
             </p>
             <p className="text-xs text-gray-400">
-              Se calcula sola cuando su orden de produccion inicia jornada (formula de German).
+              Se calcula sola cuando su orden de producción inicia jornada (fórmula de Germán).
             </p>
           </div>
         </section>
 
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
-            Recepcion
+            Recepción
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
-              label="Fecha de recepcion"
+              label="Fecha de recepción"
               type="date"
               required
               value={form.fecha_recepcion ?? ""}
               error={errors.fecha_recepcion}
-              hint="Cuando llego la mercancia a la planta -- no cuando se empieza a producir."
+              hint="Cuándo llegó la mercancía a la planta -- no cuándo se empieza a producir."
               onChange={(valor) => onChange("fecha_recepcion", valor)}
             />
             {/* No se digita: lo que llego es exactamente lo que se desgloso

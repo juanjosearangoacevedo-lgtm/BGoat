@@ -32,7 +32,7 @@ export function TableroCabecera({ cabecera, jornada, modulo }) {
 
   return (
     <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-      <Dato etiqueta="Modulo" valor={modulo?.codigo ?? "—"} nota={modulo?.nombre} />
+      <Dato etiqueta="Módulo" valor={modulo?.codigo ?? "—"} nota={modulo?.nombre} />
       <Dato etiqueta="Personas" valor={cabecera.personas} tono="marca" />
       <Dato
         etiqueta="Lote"
@@ -61,14 +61,14 @@ export function TableroCabecera({ cabecera, jornada, modulo }) {
           modulo puede dar hoy. Lo capturado hasta ahora va en el pie de
           la tabla. En la hoja de la empresa esta celda quedo vacia. */}
       <Dato
-        etiqueta="Meta / dia"
+        etiqueta="Meta / día"
         valor={formatNumero(Math.round(cabecera.meta_dia))}
         nota={`Jornada completa · ${jornada?.franjas?.length ?? 0} franjas`}
         tono="marca"
       />
       <Dato etiqueta="$ / unidad" valor={formatMoneda(cabecera.precio_unidad)} tono="verde" />
       <Dato
-        etiqueta="Meta facturacion / dia"
+        etiqueta="Meta facturación / día"
         valor={formatMoneda(cabecera.facturacion_meta_dia)}
         nota={`${formatMoneda(cabecera.facturacion_meta_hora)} por hora plena`}
         tono="verde"

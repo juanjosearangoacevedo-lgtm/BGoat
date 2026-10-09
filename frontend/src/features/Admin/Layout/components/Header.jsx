@@ -29,7 +29,7 @@ export function Header({ currentPage, sidebar }) {
           onClick={sidebar?.abrirMovil}
           className="rounded-lg p-2 text-texto-suave transition-colors hover:bg-fondo lg:hidden"
           type="button"
-          aria-label="Abrir menu"
+          aria-label="Abrir menú"
         >
           <Menu className="h-5 w-5" />
         </button>

@@ -25,16 +25,16 @@ export const clave =
     exigeEspecial = false,
   } = {}) =>
   (valor) => {
-    if (estaVacio(valor)) return opcional ? "" : "La contrasena es obligatoria";
+    if (estaVacio(valor)) return opcional ? "" : "La contraseña es obligatoria";
 
     const texto = String(valor);
-    if (texto.length < min) return `La contrasena requiere minimo ${min} caracteres`;
-    if (texto.length > max) return `La contrasena admite maximo ${max} caracteres`;
-    if (exigeLetra && !/[A-Za-z]/.test(texto)) return "La contrasena debe incluir al menos una letra";
-    if (exigeNumero && !/\d/.test(texto)) return "La contrasena debe incluir al menos un numero";
-    if (exigeMayuscula && !/[A-Z]/.test(texto)) return "La contrasena debe incluir una mayuscula";
+    if (texto.length < min) return `La contraseña requiere mínimo ${min} caracteres`;
+    if (texto.length > max) return `La contraseña admite máximo ${max} caracteres`;
+    if (exigeLetra && !/[A-Za-z]/.test(texto)) return "La contraseña debe incluir al menos una letra";
+    if (exigeNumero && !/\d/.test(texto)) return "La contraseña debe incluir al menos un número";
+    if (exigeMayuscula && !/[A-Z]/.test(texto)) return "La contraseña debe incluir una mayúscula";
     if (exigeEspecial && !/[^A-Za-z0-9]/.test(texto)) {
-      return "La contrasena debe incluir un caracter especial";
+      return "La contraseña debe incluir un carácter especial";
     }
 
     return "";
@@ -46,9 +46,9 @@ export const confirmacion =
   (valor, form) => {
     const original = form?.[campo];
     if (estaVacio(original) && opcional) return "";
-    if (estaVacio(valor)) return "Confirma la contrasena";
+    if (estaVacio(valor)) return "Confirma la contraseña";
 
-    return valor === original ? "" : "Las contrasenas no coinciden";
+    return valor === original ? "" : "Las contraseñas no coinciden";
   };
 
 /** Dos valores cualesquiera que deben ser iguales. */

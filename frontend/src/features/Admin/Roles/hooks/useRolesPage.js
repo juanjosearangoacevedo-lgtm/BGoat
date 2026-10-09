@@ -138,7 +138,7 @@ export function useRolesPage() {
         );
       } catch (problema) {
         // El rol quedo guardado: el usuario debe saber que falto la matriz.
-        toast.error(`El rol se guardo, pero los permisos no: ${problema.message}`);
+        toast.error(`El rol se guardó, pero los permisos no: ${problema.message}`);
       }
 
       crud.closeModal();

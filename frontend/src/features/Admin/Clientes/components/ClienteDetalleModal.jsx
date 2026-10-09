@@ -8,11 +8,11 @@ export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
   const secciones = cliente
     ? [
         {
-          titulo: "Identificacion",
+          titulo: "Identificación",
           filas: [
             { label: "Nombre", value: cliente.nombre },
-            { label: "Descripcion", value: cliente.descripcion, ancho: "completo" },
-            { label: "Razon social", value: cliente.razon_social, ancho: "completo" },
+            { label: "Descripción", value: cliente.descripcion, ancho: "completo" },
+            { label: "Razón social", value: cliente.razon_social, ancho: "completo" },
             { label: "Documento", value: documento(cliente) },
           ],
         },
@@ -20,8 +20,8 @@ export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
           titulo: "Contacto",
           filas: [
             { label: "Correo", value: cliente.correo },
-            { label: "Telefono", value: cliente.telefono },
-            { label: "Direccion", value: cliente.direccion, ancho: "completo" },
+            { label: "Teléfono", value: cliente.telefono },
+            { label: "Dirección", value: cliente.direccion, ancho: "completo" },
             { label: "Registrado el", value: formatFecha(cliente.fecha_creacion) },
           ],
         },

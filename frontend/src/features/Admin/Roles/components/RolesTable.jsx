@@ -29,11 +29,11 @@ export function columnasRoles({ onDetalle, onEdit, onToggleEstado, onDelete } = 
     },
     {
       key: "descripcion",
-      header: "Descripcion",
+      header: "Descripción",
       sortable: true,
       render: (rol) => (
         <span className={rol.descripcion ? "" : "text-gray-300"}>
-          {rol.descripcion || "Sin descripcion"}
+          {rol.descripcion || "Sin descripción"}
         </span>
       ),
       exportar: (rol) => rol.descripcion || "",

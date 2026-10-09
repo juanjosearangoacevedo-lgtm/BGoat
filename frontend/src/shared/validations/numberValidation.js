@@ -16,10 +16,10 @@ export const numero =
     const cantidad = Number(valor);
     if (!Number.isFinite(cantidad)) {
       return concordar(etiqueta, {
-        singular: "debe ser un numero",
-        plural: "deben ser numeros",
-        femenino: "debe ser un numero",
-        femeninoPlural: "deben ser numeros",
+        singular: "debe ser un número",
+        plural: "deben ser números",
+        femenino: "debe ser un número",
+        femeninoPlural: "deben ser números",
       });
     }
     if (min !== undefined && cantidad < min) return `${etiqueta} no puede ser menor que ${min}`;
@@ -36,10 +36,10 @@ export const entero =
     return Number.isInteger(Number(valor))
       ? ""
       : concordar(etiqueta, {
-          singular: "debe ser un numero entero",
-          plural: "deben ser numeros enteros",
-          femenino: "debe ser un numero entero",
-          femeninoPlural: "deben ser numeros enteros",
+          singular: "debe ser un número entero",
+          plural: "deben ser números enteros",
+          femenino: "debe ser un número entero",
+          femeninoPlural: "deben ser números enteros",
         });
   };
 
@@ -66,10 +66,10 @@ export const soloDigitos =
     estaVacio(valor) || SOLO_DIGITOS.test(String(valor).trim())
       ? ""
       : concordar(etiqueta, {
-          singular: "solo admite numeros",
-          plural: "solo admiten numeros",
-          femenino: "solo admite numeros",
-          femeninoPlural: "solo admiten numeros",
+          singular: "solo admite números",
+          plural: "solo admiten números",
+          femenino: "solo admite números",
+          femeninoPlural: "solo admiten números",
         });
 
 /** Cantidad de digitos permitida, contando solo los numeros del valor. */
@@ -79,8 +79,8 @@ export const digitos =
     if (estaVacio(valor)) return "";
 
     const cantidad = String(valor).replace(/\D/g, "").length;
-    if (min !== undefined && cantidad < min) return `${etiqueta} requiere al menos ${min} digitos`;
-    if (max !== undefined && cantidad > max) return `${etiqueta} admite maximo ${max} digitos`;
+    if (min !== undefined && cantidad < min) return `${etiqueta} requiere al menos ${min} dígitos`;
+    if (max !== undefined && cantidad > max) return `${etiqueta} admite máximo ${max} dígitos`;
 
     return "";
   };
@@ -90,7 +90,7 @@ export const digitos =
  * Sin letras, entre 7 (fijo) y 15 digitos (con indicativo).
  */
 export const telefono =
-  ({ min = 7, max = 15, etiqueta = "El telefono" } = {}) =>
+  ({ min = 7, max = 15, etiqueta = "El teléfono" } = {}) =>
   (valor) => {
     if (estaVacio(valor)) return "";
 
@@ -106,7 +106,7 @@ export const noMenorQue =
   (campo, etiqueta = "Este valor") =>
   (valor, form) => {
     if (estaVacio(valor) || estaVacio(form?.[campo])) return "";
-    return Number(valor) < Number(form[campo]) ? `${etiqueta} no puede ser menor que el minimo` : "";
+    return Number(valor) < Number(form[campo]) ? `${etiqueta} no puede ser menor que el mínimo` : "";
   };
 
 /** Tope contra otro campo: lo solicitado no puede superar lo disponible. */

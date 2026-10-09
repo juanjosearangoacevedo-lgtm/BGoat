@@ -8,7 +8,7 @@ import { trustBeneficios, trustEmpresas } from "../services/landingContent";
  */
 export function LandingTrustBar() {
   return (
-    <section className="fuente-bgoat border-t border-linea-3 bg-fondo">
+    <section className="border-t border-linea-3 bg-fondo">
       <div className="mx-auto max-w-[1600px] px-5 py-7 sm:px-8 lg:px-12">
         <div className="flex flex-col items-center gap-7 lg:flex-row lg:gap-7 xl:gap-9">
           <p className="max-w-[175px] text-center text-[10.5px] font-semibold uppercase leading-relaxed tracking-[0.16em] text-pizarra-2 lg:text-left">

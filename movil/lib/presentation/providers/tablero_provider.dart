@@ -81,9 +81,9 @@ enum VistaTablero {
   String get titulo {
     switch (this) {
       case VistaTablero.produccion:
-        return 'Produccion';
+        return 'Producción';
       case VistaTablero.dinero:
-        return 'Facturacion';
+        return 'Facturación';
       case VistaTablero.perdidas:
         return 'Tiempo perdido';
     }

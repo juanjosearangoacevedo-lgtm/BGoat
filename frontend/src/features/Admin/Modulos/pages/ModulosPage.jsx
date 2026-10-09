@@ -42,10 +42,10 @@ export function ModulosPage() {
 
   const vacio = {
     icon: Factory,
-    title: hayBusqueda ? "Sin resultados" : "No hay modulos configurados",
+    title: hayBusqueda ? "Sin resultados" : "No hay módulos configurados",
     description: hayBusqueda
-      ? "Ningun modulo coincide con la busqueda o los filtros aplicados."
-      : "Configura los modulos de la planta para poder asignarles ordenes y capturar produccion.",
+      ? "Ningún módulo coincide con la búsqueda o los filtros aplicados."
+      : "Configura los módulos de la planta para poder asignarles órdenes y capturar producción.",
     action: hayBusqueda ? (
       <Button
         variant="outline"
@@ -54,12 +54,12 @@ export function ModulosPage() {
           modulos.setSearch("");
         }}
       >
-        Limpiar busqueda y filtros
+        Limpiar búsqueda y filtros
       </Button>
     ) : (
       <Button onClick={modulos.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
         <Plus className="mr-2 h-4 w-4" />
-        Nuevo modulo
+        Nuevo módulo
       </Button>
     ),
   };
@@ -79,13 +79,13 @@ export function ModulosPage() {
 
   return (
     <div className="p-4 md:p-8">
-      <PageHeader title="Modulos y Empleados" subtitle="Tablero de control de la planta de produccion">
+      <PageHeader title="Módulos y Empleados" subtitle="Tablero de control de la planta de producción">
         <Button
           onClick={modulos.openCreate}
           className="h-10 gap-2 rounded-xl bg-dorado px-5 text-white hover:bg-dorado-hover"
         >
           <Plus className="h-4 w-4" />
-          Nuevo modulo
+          Nuevo módulo
         </Button>
       </PageHeader>
 
@@ -100,7 +100,7 @@ export function ModulosPage() {
       <FilterBar
         search={modulos.search}
         onSearch={modulos.setSearch}
-        searchPlaceholder="Buscar por codigo, nombre o ubicacion..."
+        searchPlaceholder="Buscar por código, nombre o ubicación..."
         definiciones={lista.definiciones}
         filtros={lista.filtros}
         onFiltro={lista.setFiltro}
@@ -146,7 +146,7 @@ export function ModulosPage() {
             </div>
           )}
           primario={(modulo) => modulo.nombre}
-          secundario={(modulo) => `${modulo.codigo} · ${modulo.ubicacion || "Sin ubicacion"}`}
+          secundario={(modulo) => `${modulo.codigo} · ${modulo.ubicacion || "Sin ubicación"}`}
           meta={(modulo) => [
             {
               label: "Personal",
@@ -161,7 +161,7 @@ export function ModulosPage() {
               )}`,
             },
             { label: "Eficiencia", value: `${Math.round(Number(modulo.eficiencia || 0))}%` },
-            { label: "Facturacion", value: formatMoneda(modulo.facturacion_real) },
+            { label: "Facturación", value: formatMoneda(modulo.facturacion_real) },
           ]}
           estado={(modulo) => modulo.estado}
           acciones={(modulo) => <RowActions acciones={accionesEstandar({ fila: modulo, ...manejadores })} />}
@@ -224,11 +224,11 @@ export function ModulosPage() {
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
         tono={activando ? "exito" : "advertencia"}
-        title={activando ? "Activar modulo?" : "Desactivar modulo?"}
+        title={activando ? "¿Activar módulo?" : "¿Desactivar módulo?"}
         description={
           activando
-            ? `El modulo ${objetivoEstado?.codigo} volvera a recibir ordenes de produccion.`
-            : `El modulo ${objetivoEstado?.codigo} dejara de ofrecerse al crear ordenes, pero conserva su historia.`
+            ? `El módulo ${objetivoEstado?.codigo} volverá a recibir órdenes de producción.`
+            : `El módulo ${objetivoEstado?.codigo} dejará de ofrecerse al crear órdenes, pero conserva su historia.`
         }
         confirmLabel={activando ? "Activar" : "Desactivar"}
         loading={modulos.procesando}
@@ -238,10 +238,10 @@ export function ModulosPage() {
 
       <ConfirmDialog
         open={Boolean(modulos.deleteTarget)}
-        title="Eliminar modulo?"
+        title="¿Eliminar módulo?"
         description={
-          `Se eliminara el modulo ${modulos.deleteTarget?.codigo || ""}. ` +
-          "No se puede eliminar un modulo con ordenes de produccion asociadas."
+          `Se eliminará el módulo ${modulos.deleteTarget?.codigo || ""}. ` +
+          "No se puede eliminar un módulo con órdenes de producción asociadas."
         }
         loading={modulos.procesando}
         onCancel={() => modulos.setDeleteTarget(null)}

@@ -12,7 +12,7 @@ import { formatNumero } from "@/shared/utils/formatters";
  * encontraba.
  */
 const columns = [
-  { key: "codigo_modulo", header: "Modulo" },
+  { key: "codigo_modulo", header: "Módulo" },
   {
     key: "nombre_modulo",
     header: "Nombre",
@@ -80,7 +80,7 @@ const columns = [
 export function ResumenModulos({ modules = [], loading }) {
   return (
     <div className="mt-6">
-      <h3 className="mb-4 font-bold text-gray-900">Resumen por modulo</h3>
+      <h3 className="mb-4 font-bold text-gray-900">Resumen por módulo</h3>
       <DataTable
         columns={columns}
         rows={modules}
@@ -88,8 +88,8 @@ export function ResumenModulos({ modules = [], loading }) {
         rowKey="id_modulo"
         empty={{
           icon: Factory,
-          title: "Sin produccion en el periodo",
-          description: "Ningun modulo registro horas en el rango de fechas seleccionado.",
+          title: "Sin producción en el periodo",
+          description: "Ningún módulo registró horas en el rango de fechas seleccionado.",
         }}
       />
     </div>

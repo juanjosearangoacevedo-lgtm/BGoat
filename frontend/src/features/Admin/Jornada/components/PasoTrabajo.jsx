@@ -29,7 +29,7 @@ export function PasoTrabajo({
         <Package2 className="mx-auto mb-3 h-10 w-10 text-gray-300" />
         <p className="font-medium text-gray-600">No hay lotes disponibles para producir</p>
         <p className="mt-1 text-sm text-gray-400">
-          Registra el lote que llego del cliente en Planta &gt; Lotes y vuelve aqui.
+          Registra el lote que llegó del cliente en Planta &gt; Lotes y vuelve aquí.
         </p>
       </div>
     );
@@ -99,7 +99,7 @@ export function PasoTrabajo({
             htmlFor="jornada-orden"
             className="mb-2 block text-sm font-medium text-gray-700"
           >
-            Orden de produccion
+            Orden de producción
           </label>
           <select
             id="jornada-orden"
@@ -116,7 +116,7 @@ export function PasoTrabajo({
             ))}
           </select>
           <p className="mt-1 text-xs text-gray-400">
-            Al iniciar, este modulo toma la orden y ningun otro podra cogerla.
+            Al iniciar, este módulo toma la orden y ningún otro podrá cogerla.
           </p>
         </div>
       )}
@@ -130,11 +130,11 @@ export function PasoTrabajo({
                 target="_blank"
                 rel="noreferrer"
                 className="shrink-0 self-start"
-                title="Abrir la ficha tecnica"
+                title="Abrir la ficha técnica"
               >
                 <img
                   src={ficha}
-                  alt={`Ficha tecnica del lote ${loteSeleccionado.codigo_lote}`}
+                  alt={`Ficha técnica del lote ${loteSeleccionado.codigo_lote}`}
                   className="h-28 w-28 rounded-xl border border-gray-200 bg-white object-cover"
                 />
               </a>
@@ -196,8 +196,8 @@ export function PasoTrabajo({
           {!loteSeleccionado.sam_pactado && (
             <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              Este lote no tiene SAM pactado. Sin el no se puede calcular la meta de la hora:
-              completalo en Planta &gt; Lotes antes de iniciar.
+              Este lote no tiene SAM pactado. Sin él no se puede calcular la meta de la hora:
+              complétalo en Planta &gt; Lotes antes de iniciar.
             </p>
           )}
 
@@ -207,8 +207,8 @@ export function PasoTrabajo({
           {loteSeleccionado.sam_pactado && !loteSeleccionado.valor_maquila_unidad && (
             <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-sm text-amber-800">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              Este lote no tiene valor de maquila. La meta funciona igual, pero la facturacion del
-              modulo quedara en cero: completalo en Planta &gt; Lotes.
+              Este lote no tiene valor de maquila. La meta funciona igual, pero la facturación del
+              módulo quedará en cero: complétalo en Planta &gt; Lotes.
             </p>
           )}
 
@@ -218,8 +218,8 @@ export function PasoTrabajo({
           {ordenes.length === 0 && (
             <p className="mt-3 flex items-start gap-2 rounded-xl bg-gray-100 p-3 text-sm text-gray-600">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-              No hay ordenes libres para este lote. La jornada arranca igual y la meta se calcula,
-              pero la facturacion queda en cero hasta que exista una orden.
+              No hay órdenes libres para este lote. La jornada arranca igual y la meta se calcula,
+              pero la facturación queda en cero hasta que exista una orden.
             </p>
           )}
         </div>

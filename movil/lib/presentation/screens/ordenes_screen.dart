@@ -48,7 +48,7 @@ class _OrdenesScreenState extends State<OrdenesScreen> {
     final puedeCrear = context.read<SesionProvider>().puede('Ordenes', 'CREAR');
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Ordenes de produccion')),
+      appBar: AppBar(title: const Text('Órdenes de producción')),
       floatingActionButton: puedeCrear
           ? FloatingActionButton.extended(
               onPressed: () => _abrirFormulario(),
@@ -78,7 +78,7 @@ class _OrdenesScreenState extends State<OrdenesScreen> {
             controller: _buscador,
             decoration: InputDecoration(
               isDense: true,
-              hintText: 'Numero de orden, lote, cliente...',
+              hintText: 'Número de orden, lote, cliente...',
               prefixIcon: const Icon(Icons.search, size: 20),
               suffixIcon: _buscador.text.isEmpty
                   ? null
@@ -180,7 +180,7 @@ class _OrdenesScreenState extends State<OrdenesScreen> {
     if (provider.ordenes.isEmpty) {
       return const VistaVacia(
         icono: Icons.assignment_outlined,
-        titulo: 'No hay ordenes con ese filtro',
+        titulo: 'No hay órdenes con ese filtro',
         detalle: 'La orden es el compromiso sobre un lote: de ella sale el valor '
             'de maquila con el que se factura cada prenda.',
       );
@@ -256,7 +256,7 @@ class _OrdenesScreenState extends State<OrdenesScreen> {
               valor: pesos(orden.valorMaquilaUnidad),
             ),
             Dato(
-              etiqueta: orden.estaLibre ? 'Modulo' : 'La tomo',
+              etiqueta: orden.estaLibre ? 'Módulo' : 'La tomó',
               valor: orden.codigoModulo ?? 'Libre',
               color: orden.estaLibre ? Paleta.secundario : Paleta.exito,
               icono: orden.estaLibre ? Icons.lock_open : Icons.precision_manufacturing,
@@ -431,7 +431,7 @@ class _HojaOrden extends StatelessWidget {
                   Text(
                     orden.desviacionSam! > 0
                         ? 'Cada prenda esta costando '
-                            '${decimal(orden.desviacionSam!, 3)} minutos mas de los '
+                            '${decimal(orden.desviacionSam!, 3)} minutos más de los '
                             'pactados. Esa diferencia la absorbe la empresa.'
                         : 'Cada prenda esta saliendo en menos minutos de los '
                             'pactados: hay margen para renegociar el SAM.',
@@ -474,10 +474,10 @@ class _HojaOrden extends StatelessWidget {
             hijo: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TituloSeccion('Fechas y asignacion'),
+                const TituloSeccion('Fechas y asignación'),
                 FilaDeDatos([
                   Dato(
-                    etiqueta: 'Recepcion',
+                    etiqueta: 'Recepción',
                     valor: fechas.fechaCorta(orden.fechaRecepcion),
                   ),
                   Dato(
@@ -489,20 +489,20 @@ class _HojaOrden extends StatelessWidget {
                 const SizedBox(height: 12),
                 FilaDeDatos([
                   Dato(
-                    etiqueta: 'Asignacion',
+                    etiqueta: 'Asignación',
                     valor: orden.estaLibre ? 'Libre' : 'Tomada',
                     color: orden.estaLibre ? Paleta.secundario : Paleta.exito,
                   ),
                   Dato(
-                    etiqueta: 'Modulo',
-                    valor: orden.codigoModulo ?? 'Ninguno todavia',
+                    etiqueta: 'Módulo',
+                    valor: orden.codigoModulo ?? 'Ninguno todavía',
                   ),
                 ]),
                 if (orden.estaLibre) ...[
                   const SizedBox(height: 10),
                   const Text(
-                    'Esta orden esta esperando. La toma el modulo que abra su '
-                    'jornada con ella, y desde ese momento ningun otro puede '
+                    'Esta orden está esperando. La toma el módulo que abra su '
+                    'jornada con ella, y desde ese momento ningún otro puede '
                     'cogerla.',
                     style: TextStyle(
                       fontSize: 11.5,

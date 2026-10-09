@@ -20,11 +20,11 @@ export function OperariosPage() {
       recurso={endpoints.operarios}
       idField="id_operario"
       etiquetaNuevo="Nuevo operario"
-      busquedaPlaceholder="Buscar por codigo, nombre o documento..."
+      busquedaPlaceholder="Buscar por código, nombre o documento..."
       nombreRegistro={(fila) => nombreCompleto(fila)}
       emptyIcon={Users}
       emptyTitle="No hay operarios registrados"
-      emptyDescription="Registra el personal de planta para poder asignarlo a los modulos."
+      emptyDescription="Registra el personal de planta para poder asignarlo a los módulos."
       ordenInicial={{ campo: "nombre", direccion: "asc" }}
       filtrosLista={[
         {
@@ -45,7 +45,7 @@ export function OperariosPage() {
         },
       ]}
       columnas={[
-        { key: "codigo_operario", header: "Codigo" },
+        { key: "codigo_operario", header: "Código" },
         {
           key: "nombre",
           header: "Nombre",
@@ -76,7 +76,7 @@ export function OperariosPage() {
       required={["codigo_operario", "numero_documento", "nombres", "apellidos", "fecha_ingreso"]}
       esquema={({ items, editing }) => crearOperarioEsquema({ lista: items, editing })}
       campos={[
-        { name: "codigo_operario", label: "Codigo", placeholder: "OP-001", required: true, maxLength: 20 },
+        { name: "codigo_operario", label: "Código", placeholder: "OP-001", required: true, maxLength: 20 },
         { name: "cargo", label: "Cargo", options: cargos, required: true },
         {
           name: "tipo_documento",
@@ -86,7 +86,7 @@ export function OperariosPage() {
         },
         {
           name: "numero_documento",
-          label: "Numero documento",
+          label: "Número documento",
           placeholder: "1234567890",
           required: true,
           minLength: 5,
@@ -94,7 +94,7 @@ export function OperariosPage() {
         },
         { name: "nombres", label: "Nombres", required: true, minLength: 2, maxLength: 60 },
         { name: "apellidos", label: "Apellidos", required: true, minLength: 2, maxLength: 60 },
-        { name: "telefono", label: "Telefono", type: "tel", placeholder: "300 000 0000" },
+        { name: "telefono", label: "Teléfono", type: "tel", placeholder: "300 000 0000" },
         { name: "correo", label: "Correo", type: "email", placeholder: "operario@empresa.com" },
         { name: "fecha_ingreso", label: "Fecha de ingreso", type: "date", required: true },
         {

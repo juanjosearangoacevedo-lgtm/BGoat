@@ -29,7 +29,7 @@ export function crearRolEsquema({ lista = [], editing = null } = {}) {
         etiqueta: "Ese nombre de rol",
       }),
     ],
-    descripcion: [reglas.longitud({ ...rolLimites.descripcion, etiqueta: "La descripcion" })],
+    descripcion: [reglas.longitud({ ...rolLimites.descripcion, etiqueta: "La descripción" })],
     estado: [reglas.seleccionRequerida("El estado"), reglas.opcionValida(rolEstados, "El estado")],
   };
 }
@@ -38,6 +38,6 @@ export function crearRolEsquema({ lista = [], editing = null } = {}) {
 export function avisoSinPermisos(seleccionados) {
   const cantidad = seleccionados instanceof Set ? seleccionados.size : 0;
   return cantidad === 0
-    ? "El rol se guardara sin permisos: nadie con ese rol podra entrar a un modulo"
+    ? "El rol se guardará sin permisos: nadie con ese rol podrá entrar a un módulo"
     : "";
 }

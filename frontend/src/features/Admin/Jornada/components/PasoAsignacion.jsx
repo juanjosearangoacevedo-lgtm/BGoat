@@ -28,7 +28,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
     return (
       <div className="rounded-2xl border border-dashed border-gray-200 p-8 text-center">
         <UserCircle2 className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-        <p className="font-medium text-gray-600">No hay operarias en el catalogo</p>
+        <p className="font-medium text-gray-600">No hay operarias en el catálogo</p>
         <p className="mt-1 text-sm text-gray-400">
           Las {cantidad} operarias quedan anonimas. La jornada arranca igual y el catalogo se puede
           llenar despues en Planta &gt; Operarias.
@@ -49,9 +49,9 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
             <UserPlus className="h-6 w-6" />
           </span>
           <span className="min-w-0">
-            <span className="block font-semibold text-gray-900">Si, decir quienes estan</span>
+            <span className="block font-semibold text-gray-900">Sí, decir quiénes están</span>
             <span className="block text-sm text-gray-500">
-              Escoge las {cantidad} de la lista. Sirve para repartirles la produccion del modulo.
+              Escoge las {cantidad} de la lista. Sirve para repartirles la producción del módulo.
             </span>
           </span>
         </button>
@@ -62,7 +62,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
           </span>
           <span className="min-w-0">
             <span className="block font-semibold text-gray-900">
-              No, dejarlas anonimas
+              No, dejarlas anónimas
             </span>
             <span className="block text-sm text-gray-500">
               Es lo que esta puesto. Las {cantidad} cuentan para la meta igual; solo no hay a quien
@@ -72,7 +72,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
         </div>
 
         <p className="pt-1 text-center text-sm text-gray-400">
-          Se puede completar mas tarde sin detener la captura.
+          Se puede completar más tarde sin detener la captura.
         </p>
       </div>
     );
@@ -95,7 +95,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
           }}
           className="text-sm font-medium text-marca-letra hover:underline"
         >
-          Dejarlas anonimas
+          Dejarlas anónimas
         </button>
       </div>
 
@@ -137,7 +137,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
       <p className="flex items-start gap-2 pt-1 text-sm text-gray-500">
         <UserPlus className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
         {aviso
-          ? `${aviso} Se pueden completar mas tarde sin detener la captura.`
+          ? `${aviso} Se pueden completar más tarde sin detener la captura.`
           : "Todas las operarias quedaron identificadas."}
       </p>
     </div>

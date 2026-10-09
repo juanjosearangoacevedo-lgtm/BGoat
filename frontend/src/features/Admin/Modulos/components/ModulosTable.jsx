@@ -17,7 +17,7 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
   return [
     {
       key: "codigo",
-      header: "Modulo",
+      header: "Módulo",
       sortable: true,
       render: (modulo) => (
         <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
     },
     {
       key: "ubicacion",
-      header: "Ubicacion",
+      header: "Ubicación",
       sortable: true,
       render: (modulo) => modulo.ubicacion || <span className="text-gray-300">{GUION}</span>,
       exportar: (modulo) => modulo.ubicacion || "",
@@ -70,7 +70,7 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
     },
     {
       key: "meta_dia",
-      header: "Meta del dia",
+      header: "Meta del día",
       align: "right",
       sortable: true,
       exportable: true,
@@ -127,7 +127,7 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
     },
     {
       key: "facturacion_real",
-      header: "Facturacion",
+      header: "Facturación",
       align: "right",
       sortable: true,
       render: (modulo) => {
@@ -148,7 +148,7 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
     },
     {
       key: "facturacion_meta",
-      header: "Meta facturacion",
+      header: "Meta facturación",
       oculta: true,
       exportar: (modulo) => Number(modulo.facturacion_meta || 0),
     },

@@ -19,18 +19,18 @@ export const seleccionRequerida =
 
 /** El valor enviado debe existir en las opciones del catalogo. */
 export const opcionValida =
-  (opciones = [], etiqueta = "La opcion seleccionada") =>
+  (opciones = [], etiqueta = "La opción seleccionada") =>
   (valor) => {
     if (estaVacio(valor)) return "";
     if (opciones.length === 0) return "";
 
     const valores = opciones.map((opcion) => String(opcion?.value ?? opcion));
-    return valores.includes(String(valor)) ? "" : `${etiqueta} ya no esta disponible`;
+    return valores.includes(String(valor)) ? "" : `${etiqueta} ya no está disponible`;
   };
 
 /** Al menos una casilla marcada (permisos de un rol, prendas de una orden). */
 export const seleccionMinima =
-  ({ min = 1, etiqueta = "Selecciona al menos una opcion" } = {}) =>
+  ({ min = 1, etiqueta = "Selecciona al menos una opción" } = {}) =>
   (valor) => {
     const cantidad = valor instanceof Set ? valor.size : Array.isArray(valor) ? valor.length : 0;
     return cantidad >= min ? "" : etiqueta;

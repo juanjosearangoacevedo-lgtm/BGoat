@@ -54,13 +54,13 @@ class _TableroScreenState extends State<TableroScreen> {
       appBar: AppBar(
         title: Text(
           tablero == null
-              ? 'Tablero por modulo'
+              ? 'Tablero por módulo'
               : '${tablero.modulo.codigo} · ${tablero.modulo.nombre}',
         ),
         actions: [
           if (tablero != null)
             IconButton(
-              tooltip: 'Cambiar de modulo',
+              tooltip: 'Cambiar de módulo',
               onPressed: provider.limpiar,
               icon: const Icon(Icons.swap_horiz),
             ),
@@ -77,7 +77,7 @@ class _TableroScreenState extends State<TableroScreen> {
     final captura = context.watch<CapturaProvider>();
 
     if (captura.cargando && captura.rejilla == null) {
-      return const VistaCargando(mensaje: 'Leyendo los modulos...');
+      return const VistaCargando(mensaje: 'Leyendo los módulos...');
     }
 
     if (captura.error != null && captura.rejilla == null) {
@@ -88,7 +88,7 @@ class _TableroScreenState extends State<TableroScreen> {
     if (modulos.isEmpty) {
       return const VistaVacia(
         icono: Icons.dashboard_outlined,
-        titulo: 'No hay modulos para mostrar',
+        titulo: 'No hay módulos para mostrar',
       );
     }
 
@@ -96,8 +96,8 @@ class _TableroScreenState extends State<TableroScreen> {
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
       children: [
         const TituloSeccion(
-          'De que modulo',
-          detalle: 'Se puede ver el tablero de cualquier dia, con o sin jornada.',
+          'De qué módulo',
+          detalle: 'Se puede ver el tablero de cualquier día, con o sin jornada.',
         ),
         ...modulos.map((modulo) => Padding(
               padding: const EdgeInsets.only(bottom: 9),
@@ -185,7 +185,7 @@ class _TableroScreenState extends State<TableroScreen> {
       return VistaVacia(
         icono: Icons.weekend_outlined,
         titulo: 'El ${fechas.fechaLarga(tablero.fecha)} no se trabaja',
-        detalle: 'Ese dia no tiene franjas en el horario de la planta.',
+        detalle: 'Ese día no tiene franjas en el horario de la planta.',
       );
     }
 
@@ -225,7 +225,7 @@ class _TableroScreenState extends State<TableroScreen> {
             SizedBox(width: 11),
             Expanded(
               child: Text(
-                'Este modulo no abrio jornada ese dia, asi que no hay nada que '
+                'Este módulo no abrió jornada ese día, así que no hay nada que '
                 'capturar ni que medir.',
                 style: TextStyle(fontSize: 13, height: 1.4, color: Paleta.textoSuave),
               ),
@@ -291,7 +291,7 @@ class _TableroScreenState extends State<TableroScreen> {
               valor: decimal(cabecera.metaHora, 1),
             ),
             Dato(
-              etiqueta: 'Meta del dia',
+              etiqueta: 'Meta del día',
               valor: decimal(cabecera.metaDia, 0),
               color: Paleta.primario,
               destacado: true,
@@ -508,7 +508,7 @@ class _TableroScreenState extends State<TableroScreen> {
       hijo: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const TituloSeccion('Cierre del dia'),
+          const TituloSeccion('Cierre del día'),
           FilaDeDatos([
             Dato(
               etiqueta: 'Unidades',
@@ -558,10 +558,10 @@ class _TableroScreenState extends State<TableroScreen> {
             const SizedBox(height: 8),
             Text(
               totales.samObservado! > tablero.cabecera.sam
-                  ? 'El modulo gasto ${decimal(totales.samObservado! - tablero.cabecera.sam, 3)} '
-                      'minutos mas por prenda de los que el cliente paga: esa '
+                  ? 'El módulo gastó ${decimal(totales.samObservado! - tablero.cabecera.sam, 3)} '
+                      'minutos más por prenda de los que el cliente paga: esa '
                       'diferencia la absorbe la empresa.'
-                  : 'El modulo gasto menos minutos por prenda de los pactados: '
+                  : 'El módulo gastó menos minutos por prenda de los pactados: '
                       'hay margen para cotizar mejor.',
               style: const TextStyle(fontSize: 11, color: Paleta.textoSuave, height: 1.4),
             ),
@@ -571,7 +571,7 @@ class _TableroScreenState extends State<TableroScreen> {
             child: Divider(height: 1),
           ),
           FilaDeDatos([
-            Dato(etiqueta: 'Facturacion meta', valor: pesos(totales.facturacionMeta)),
+            Dato(etiqueta: 'Facturación meta', valor: pesos(totales.facturacionMeta)),
             Dato(
               etiqueta: 'Facturado',
               valor: pesos(totales.facturacionReal),

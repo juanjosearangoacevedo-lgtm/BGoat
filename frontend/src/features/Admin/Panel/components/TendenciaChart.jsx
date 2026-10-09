@@ -12,7 +12,7 @@ import { ChartCard } from "@/shared/components/ChartCard";
  */
 export function TendenciaEficienciaChart({ data = [] }) {
   return (
-    <ChartCard title="Eficiencia por dia" data={data}>
+    <ChartCard title="Eficiencia por día" data={data}>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--rejilla)" />
@@ -36,7 +36,7 @@ export function TendenciaEficienciaChart({ data = [] }) {
 
 export function TendenciaUnidadesChart({ data = [] }) {
   return (
-    <ChartCard title="Unidades producidas por dia" data={data}>
+    <ChartCard title="Unidades producidas por día" data={data}>
       <ResponsiveContainer width="100%" height={260}>
         <AreaChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--rejilla)" />

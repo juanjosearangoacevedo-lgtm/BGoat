@@ -51,7 +51,7 @@ export const loteEstados = ["PENDIENTE", "EN_PROCESO", "FINALIZADO"];
 export const camposIdentificacionLote = ["numero_pedido", "codigo_referencia", "nombre_referencia"];
 
 export const MENSAJE_IDENTIFICACION_LOTE =
-  "Hace falta al menos uno: numero de pedido, codigo de referencia o nombre de la referencia.";
+  "Hace falta al menos uno: número de pedido, código de referencia o nombre de la referencia.";
 
 function identificacionLote(_valor, form = {}) {
   return camposIdentificacionLote.some((campo) => !estaVacio(form[campo]))
@@ -69,25 +69,25 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
     ],
     numero_pedido: [
       identificacionLote,
-      reglas.longitud({ ...loteLimites.pedido, etiqueta: "El numero de pedido" }),
+      reglas.longitud({ ...loteLimites.pedido, etiqueta: "El número de pedido" }),
       reglas.unico({
         lista,
         campo: "numero_pedido",
         idField: "id_lote",
         actual: editing,
-        etiqueta: "Ese numero de pedido",
+        etiqueta: "Ese número de pedido",
       }),
     ],
     codigo_referencia: [
       identificacionLote,
-      reglas.longitud({ ...loteLimites.referencia, etiqueta: "El codigo de referencia" }),
+      reglas.longitud({ ...loteLimites.referencia, etiqueta: "El código de referencia" }),
     ],
     nombre_referencia: [
       identificacionLote,
       reglas.longitud({ ...loteLimites.nombreReferencia, etiqueta: "El nombre de la referencia" }),
     ],
     // El SAM no es obligatorio para GUARDAR el lote --a veces llega antes
-    // que el acuerdo-- pero si para iniciar la jornada: sin el no hay meta.
+    // que el acuerdo-- pero si para iniciar la jornada: sin él no hay meta.
     // El aviso lo da la pantalla, aqui solo se valida que sea un numero.
     sam_pactado: [
       reglas.numero({ ...loteLimites.sam, etiqueta: "El SAM pactado" }),
@@ -103,9 +103,9 @@ export function crearLoteEsquema({ lista = [], editing = null, clienteOptions = 
       reglas.numero({ ...loteLimites.valorMaquila, etiqueta: "El valor de maquila" }),
     ],
     fecha_recepcion: [
-      reglas.requerido("La fecha de recepcion"),
-      reglas.fecha({ etiqueta: "La fecha de recepcion" }),
-      reglas.noFutura({ etiqueta: "La fecha de recepcion" }),
+      reglas.requerido("La fecha de recepción"),
+      reglas.fecha({ etiqueta: "La fecha de recepción" }),
+      reglas.noFutura({ etiqueta: "La fecha de recepción" }),
     ],
     // Ya no se digita: la suma la define el desglose por talla y color.
     cantidad_programada: [

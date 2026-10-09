@@ -3,6 +3,12 @@
 
 @import 'tw-animate-css';
 
+/* Archivo es la unica tipografia del aplicativo (ver fonts.css). */
+@theme {
+  --font-sans: "Archivo", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+  --font-mono: "Archivo", ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+}
+
 /* Pantallas bajitas (laptop de 768px con la barra del navegador): el
    login y la portada se compactan para caber completos, sin desplazarse. */
 @custom-variant bajo (@media (max-height: 760px));

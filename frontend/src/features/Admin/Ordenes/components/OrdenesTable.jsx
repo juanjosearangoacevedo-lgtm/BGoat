@@ -32,7 +32,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
     { key: "codigo_lote", header: "Lote", sortable: true },
     {
       key: "codigo_modulo",
-      header: "Modulo",
+      header: "Módulo",
       sortable: true,
       // La orden no pertenece a un modulo: o esta libre, o la tomo uno al
       // abrir su jornada. Mientras este libre cualquiera puede cogerla.
@@ -103,7 +103,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
         orden.dias_atraso === null || orden.dias_atraso === undefined
           ? ""
           : Number(orden.dias_atraso) > 0
-            ? `+${orden.dias_atraso} dias tarde`
+            ? `+${orden.dias_atraso} días tarde`
             : "A tiempo",
     },
     {
@@ -119,7 +119,7 @@ export function columnasOrdenes({ onView, onEdit, onDelete } = {}) {
       // se digito la orden) con el rotulo "Emision", y convivian dos
       // fechas de ingreso con nombres distintos.
       key: "fecha_recepcion",
-      header: "Recepcion",
+      header: "Recepción",
       sortable: true,
       oculta: true,
       render: (orden) => formatFecha(orden.fecha_recepcion),

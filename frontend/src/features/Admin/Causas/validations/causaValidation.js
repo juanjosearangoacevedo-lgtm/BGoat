@@ -18,18 +18,18 @@ export const causaEstados = ["ACTIVO", "INACTIVO"];
 export function crearCausaEsquema({ lista = [], editing = null, responsableOptions = [] } = {}) {
   return {
     codigo: [
-      reglas.requerido("El codigo"),
-      reglas.longitud({ ...causaLimites.codigo, etiqueta: "El codigo" }),
-      reglas.sinCaracteresEspeciales("El codigo"),
+      reglas.requerido("El código"),
+      reglas.longitud({ ...causaLimites.codigo, etiqueta: "El código" }),
+      reglas.sinCaracteresEspeciales("El código"),
       reglas.unico({
         lista,
         campo: "codigo",
         idField: "id_causa",
         actual: editing,
-        etiqueta: "Ese codigo de causa",
+        etiqueta: "Ese código de causa",
       }),
     ],
-    descripcion: [reglas.longitud({ ...causaLimites.descripcion, etiqueta: "La descripcion" })],
+    descripcion: [reglas.longitud({ ...causaLimites.descripcion, etiqueta: "La descripción" })],
     tipo: [reglas.seleccionRequerida("El tipo"), reglas.opcionValida(causaTipos, "El tipo")],
     id_responsable: [
       (valor) =>

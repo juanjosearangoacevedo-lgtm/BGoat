@@ -24,7 +24,7 @@ import '../widgets/vistas_estado.dart';
 class AsistenteJornadaScreen extends StatelessWidget {
   const AsistenteJornadaScreen({super.key});
 
-  static const _titulos = ['Modulo', 'Trabajo', 'Operarias'];
+  static const _titulos = ['Módulo', 'Trabajo', 'Operarias'];
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +116,7 @@ class AsistenteJornadaScreen extends StatelessWidget {
             Expanded(
               child: OutlinedButton(
                 onPressed: provider.guardando ? null : provider.retroceder,
-                child: const Text('Atras'),
+                child: const Text('Atrás'),
               ),
             ),
           if (provider.paso > 0) const SizedBox(width: 10),
@@ -163,8 +163,8 @@ class AsistenteJornadaScreen extends StatelessWidget {
           title: const Text('Esa orden ya la tomaron'),
           content: Text(
             '${provider.conflicto}\n\n'
-            'Una orden la trabaja un solo modulo. Vuelva a intentar: la meta y '
-            'la facturacion se calculan igual con el SAM del lote.',
+            'Una orden la trabaja un solo módulo. Vuelva a intentar: la meta y '
+            'la facturación se calculan igual con el SAM del lote.',
           ),
           actions: [
             FilledButton(
@@ -201,8 +201,8 @@ class _PasoModulo extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         const _Enunciado(
-          titulo: 'Que modulo va a trabajar',
-          detalle: 'Un modulo abre una sola jornada por dia.',
+          titulo: 'Qué módulo va a trabajar',
+          detalle: 'Un módulo abre una sola jornada por día.',
         ),
         ...libres.map((modulo) => Padding(
               padding: const EdgeInsets.only(bottom: 9),
@@ -299,7 +299,7 @@ class _PasoTrabajo extends StatelessWidget {
       children: [
         const _Enunciado(
           titulo: 'Que se va a producir',
-          detalle: 'El lote trae la referencia, el SAM pactado y su ficha tecnica.',
+          detalle: 'El lote trae la referencia, el SAM pactado y su ficha técnica.',
         ),
         DropdownButtonFormField<int>(
           initialValue: provider.idCliente,
@@ -402,8 +402,8 @@ class _PasoTrabajo extends StatelessWidget {
           if (!lote.tieneSam) ...[
             const SizedBox(height: 9),
             const _Nota(
-              'Este lote no tiene SAM pactado. Sin el no se puede calcular la '
-              'meta de la hora, asi que no se puede abrir jornada con el.',
+              'Este lote no tiene SAM pactado. Sin él no se puede calcular la '
+              'meta de la hora, así que no se puede abrir jornada con él.',
               esError: true,
             ),
           ],
@@ -435,7 +435,7 @@ class _PasoOperarias extends StatelessWidget {
       children: [
         const _Enunciado(
           titulo: 'Cuantas operarias hay',
-          detalle: 'De aqui sale la meta: personas por minutos de la franja, '
+          detalle: 'De aquí sale la meta: personas por minutos de la franja, '
               'dividido el SAM.',
         ),
         Tarjeta(
@@ -443,7 +443,7 @@ class _PasoOperarias extends StatelessWidget {
             children: [
               const Expanded(
                 child: Text(
-                  'Operarias en el modulo',
+                  'Operarias en el módulo',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -475,8 +475,8 @@ class _PasoOperarias extends StatelessWidget {
         const SizedBox(height: 18),
         const TituloSeccion(
           'Quienes son',
-          detalle: 'Se puede dejar en blanco: una operaria anonima cuenta igual '
-              'para los minutos, solo no recibe atribucion individual.',
+          detalle: 'Se puede dejar en blanco: una operaria anónima cuenta igual '
+              'para los minutos, solo no recibe atribución individual.',
         ),
         ...List.generate(provider.cantidadOperarias, (indice) {
           return Padding(
@@ -510,14 +510,14 @@ class _PasoOperarias extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Con esta configuracion',
+            'Con esta configuración',
             style: TextStyle(fontSize: 12, color: Paleta.textoSuave),
           ),
           const SizedBox(height: 10),
           FilaDeDatos([
             Dato(etiqueta: 'SAM', valor: sam(lote?.samPactado)),
             Dato(
-              etiqueta: 'Meta del dia',
+              etiqueta: 'Meta del día',
               valor: meta > 0 ? entero(meta) : '—',
               color: Paleta.primario,
               destacado: true,
@@ -530,7 +530,7 @@ class _PasoOperarias extends StatelessWidget {
           const SizedBox(height: 8),
           const Text(
             'Estimada sobre los 520 minutos de martes a viernes. El dato exacto '
-            'lo pone la rejilla segun el horario del dia.',
+            'lo pone la rejilla según el horario del día.',
             style: TextStyle(fontSize: 11, color: Paleta.textoSuave, height: 1.35),
           ),
         ],

@@ -70,7 +70,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final mapa = aMapaNulo(respuesta) ?? const {};
     return aTexto(
       mapa['mensaje'],
-      'Si el correo existe, se enviaron las instrucciones de recuperacion.',
+      'Si el correo existe, se enviaron las instrucciones de recuperación.',
     );
   }
 }

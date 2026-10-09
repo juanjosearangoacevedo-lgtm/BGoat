@@ -11,7 +11,7 @@ import { transparente } from "@/shared/styles/paleta";
  */
 export const KPIS = {
   produccion_periodo: {
-    titulo: "Produccion del periodo",
+    titulo: "Producción del periodo",
     unidad: "unidades",
     icono: Package,
     color: "var(--ambar)",

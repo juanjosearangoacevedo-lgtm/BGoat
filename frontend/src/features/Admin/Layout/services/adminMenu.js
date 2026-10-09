@@ -43,15 +43,15 @@ import {
  */
 export const adminMenuItems = [
   { icon: LayoutDashboard, label: "Panel", page: "panel", permiso: "Panel" },
-  { icon: Table2, label: "Tablero por modulo", page: "tablero-modulo", permiso: "Captura" },
+  { icon: Table2, label: "Tablero por módulo", page: "tablero-modulo", permiso: "Captura" },
   {
     icon: Factory,
-    label: "Produccion",
+    label: "Producción",
     children: [
       { icon: Package2, label: "Lotes", page: "lotes", permiso: "Lotes" },
-      { icon: Package, label: "Ordenes de produccion", page: "orders", permiso: "Ordenes" },
+      { icon: Package, label: "Órdenes de producción", page: "orders", permiso: "Ordenes" },
       { icon: PlayCircle, label: "Inicio de jornada", page: "jornada", permiso: "Jornada" },
-      { icon: ClipboardCheck, label: "Registrar produccion", page: "captura", permiso: "Captura" },
+      { icon: ClipboardCheck, label: "Registrar producción", page: "captura", permiso: "Captura" },
     ],
   },
   {
@@ -61,12 +61,12 @@ export const adminMenuItems = [
       { icon: Tag, label: "Clientes", page: "clients", permiso: "Clientes" },
       { icon: Ruler, label: "Tallas", page: "tallas", permiso: "Lotes" },
       { icon: Palette, label: "Colores", page: "colores", permiso: "Lotes" },
-      { icon: UserCog, label: "Modulos", page: "modulos", permiso: "Modulos" },
+      { icon: UserCog, label: "Módulos", page: "modulos", permiso: "Modulos" },
       { icon: Users, label: "Operarias", page: "operarios", permiso: "Operarios" },
       { icon: AlertTriangle, label: "Incidencias", page: "causas", permiso: "Causas" },
       {
         icon: CalendarOff,
-        label: "Dias no laborales",
+        label: "Días no laborales",
         page: "dias-no-laborales",
         permiso: "Ordenes",
       },
@@ -74,7 +74,7 @@ export const adminMenuItems = [
   },
   {
     icon: Cog,
-    label: "Configuracion",
+    label: "Configuración",
     children: [
       { icon: Users, label: "Usuarios", page: "users", permiso: "Usuarios" },
       // El formulario de rol incluye la matriz de permisos, y el ojo de
@@ -105,8 +105,8 @@ export function filtrarMenu(items, puede) {
  * Sin esto el breadcrumb las mostraba todas como "Inicio".
  */
 const paginasSinMenu = {
-  "create-order": "Nueva orden de produccion",
-  "edit-order": "Editar orden de produccion",
+  "create-order": "Nueva orden de producción",
+  "edit-order": "Editar orden de producción",
   "order-detail": "Detalle de la orden",
 };
 

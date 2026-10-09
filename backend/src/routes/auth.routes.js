@@ -49,7 +49,7 @@ authRouter.post(
     const correo = String(req.body?.correo || "").trim().toLowerCase();
     const clave = String(req.body?.clave || "");
 
-    if (!correo || !clave) throw ApiError.badRequest("Correo y contrasena son obligatorios");
+    if (!correo || !clave) throw ApiError.badRequest("Correo y contraseña son obligatorios");
 
     const usuario = await queryOne(
       `SELECT u.*, r.nombre AS nombre_rol
@@ -68,7 +68,7 @@ authRouter.post(
         idUsuario: usuario.id_usuario, correo, evento: "LOGIN_FALLIDO", detalle: "Cuenta bloqueada",
       });
       throw ApiError.forbidden(
-        `Cuenta bloqueada temporalmente. Intente despues de ${usuario.bloqueado_hasta}`,
+        `Cuenta bloqueada temporalmente. Intente después de ${usuario.bloqueado_hasta}`,
       );
     }
 
@@ -177,7 +177,7 @@ authRouter.post(
       throw ApiError.badRequest("Faltan datos obligatorios del registro");
     }
     if (String(clave).length < 8) {
-      throw ApiError.badRequest("La contrasena debe tener al menos 8 caracteres");
+      throw ApiError.badRequest("La contraseña debe tener al menos 8 caracteres");
     }
 
     const rol = await queryOne("SELECT id_rol FROM roles WHERE nombre = 'Operario' LIMIT 1");
@@ -242,14 +242,14 @@ authRouter.post(
       try {
         const enviado = await enviarCorreo({ para: correo, ...correoRecuperacion({ nombre: usuario.nombres, enlace }) });
         // Sin correo configurado (desarrollo) el enlace queda en la consola.
-        if (!enviado) console.log(`[BGoat] Sin correo configurado. Enlace de recuperacion para ${correo}: ${enlace}`);
+        if (!enviado) console.log(`[BGoat] Sin correo configurado. Enlace de recuperación para ${correo}: ${enlace}`);
       } catch (error) {
         // Se responde igual: decir "fallo el envio" confirmaria que la cuenta existe.
-        console.error(`[BGoat] No se pudo enviar el correo de recuperacion a ${correo}:`, error.message);
+        console.error(`[BGoat] No se pudo enviar el correo de recuperación a ${correo}:`, error.message);
       }
     }
 
-    res.json({ mensaje: "Si el correo existe, se enviaron las instrucciones de recuperacion." });
+    res.json({ mensaje: "Si el correo existe, se enviaron las instrucciones de recuperación." });
   }),
 );
 
@@ -260,8 +260,8 @@ authRouter.post(
   "/restablecer",
   asyncHandler(async (req, res) => {
     const { token, clave } = req.body || {};
-    if (!token || !clave) throw ApiError.badRequest("Token y contrasena son obligatorios");
-    if (String(clave).length < 8) throw ApiError.badRequest("La contrasena debe tener al menos 8 caracteres");
+    if (!token || !clave) throw ApiError.badRequest("Token y contraseña son obligatorios");
+    if (String(clave).length < 8) throw ApiError.badRequest("La contraseña debe tener al menos 8 caracteres");
 
     const tokenHash = crypto.createHash("sha256").update(String(token)).digest("hex");
 
@@ -270,7 +270,7 @@ authRouter.post(
        WHERE token_hash = ? AND estado = 'PENDIENTE' AND fecha_expiracion > NOW()`,
       [tokenHash],
     );
-    if (!solicitud) throw ApiError.badRequest("El enlace de recuperacion no es valido o ya vencio");
+    if (!solicitud) throw ApiError.badRequest("El enlace de recuperación no es válido o ya venció");
 
     await execute(
       `UPDATE usuarios
@@ -290,6 +290,6 @@ authRouter.post(
       idUsuario: solicitud.id_usuario, correo: duenio?.correo, evento: "CAMBIO_CLAVE",
     });
 
-    res.json({ mensaje: "Contrasena actualizada correctamente" });
+    res.json({ mensaje: "Contraseña actualizada correctamente" });
   }),
 );

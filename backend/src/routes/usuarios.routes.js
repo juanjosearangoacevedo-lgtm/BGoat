@@ -58,7 +58,7 @@ usuariosRouter.post(
       );
     }
     if (String(clave).length < 8) {
-      throw ApiError.badRequest("La contrasena debe tener al menos 8 caracteres");
+      throw ApiError.badRequest("La contraseña debe tener al menos 8 caracteres");
     }
 
     const resultado = await execute(
@@ -104,7 +104,7 @@ usuariosRouter.put(
     // La contrasena solo se toca si viene: dejarla vacia no la borra.
     if (req.body?.clave) {
       if (String(req.body.clave).length < 8) {
-        throw ApiError.badRequest("La contrasena debe tener al menos 8 caracteres");
+        throw ApiError.badRequest("La contraseña debe tener al menos 8 caracteres");
       }
       columnas.push("clave_hash = ?");
       valores.push(await bcrypt.hash(String(req.body.clave), 10));

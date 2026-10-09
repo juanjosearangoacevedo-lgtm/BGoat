@@ -137,7 +137,7 @@ export function RolPermisosSelector({
 
       {error && (
         <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
-          No se pudo cargar el catalogo de permisos: {error}
+          No se pudo cargar el catálogo de permisos: {error}
         </p>
       )}
 
@@ -158,11 +158,11 @@ export function RolPermisosSelector({
         <EmptyState
           compacto
           icon={Lock}
-          title={busqueda ? "Ningun permiso coincide" : "No hay permisos configurados"}
+          title={busqueda ? "Ningún permiso coincide" : "No hay permisos configurados"}
           description={
             busqueda
               ? "Prueba con otro texto o limpia el filtro."
-              : "El catalogo de la tabla permisos esta vacio."
+              : "El catálogo de la tabla permisos está vacío."
           }
         />
       ) : (
@@ -180,7 +180,7 @@ export function RolPermisosSelector({
       )}
 
       <p className="mt-3 text-xs text-gray-400">
-        Los usuarios con este rol deberan volver a iniciar sesion para que los cambios tomen efecto.
+        Los usuarios con este rol deberán volver a iniciar sesión para que los cambios tomen efecto.
       </p>
     </div>
   );

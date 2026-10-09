@@ -50,7 +50,7 @@ export function PanelFiltros({
         <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           <FilterSelect label="Periodo" value={filters.period} onChange={onPeriod} options={periodOptions} />
           <FilterSelect
-            label="Modulo"
+            label="Módulo"
             value={filters.idModulo}
             onChange={onModulo}
             options={moduloOptions}

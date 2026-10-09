@@ -128,7 +128,7 @@ async function resolverOrden(idLote, idModulo, idOrdenPedida) {
     const duena = await moduloQueTomoLaOrden(idOrdenPedida);
     if (duena && Number(duena.id_modulo) !== Number(idModulo)) {
       throw ApiError.conflict(
-        `Esa orden ya la tomo el modulo ${duena.codigo}: una orden la trabaja un solo modulo`,
+        `Esa orden ya la tomó el módulo ${duena.codigo}: una orden la trabaja un solo módulo`,
         { id_orden_produccion: Number(idOrdenPedida), id_modulo: duena.id_modulo },
       );
     }
@@ -180,7 +180,7 @@ function normalizarOperarias(crudo, cantidad) {
   const identificadas = filas.filter((fila) => fila.id_operario !== null);
   const unicas = new Set(identificadas.map((fila) => fila.id_operario));
   if (unicas.size !== identificadas.length) {
-    throw ApiError.badRequest("Una misma operaria no puede ocupar dos puestos del modulo");
+    throw ApiError.badRequest("Una misma operaria no puede ocupar dos puestos del módulo");
   }
 
   return filas;
@@ -385,24 +385,24 @@ jornadaRouter.post(
       observaciones = null,
     } = req.body || {};
 
-    if (!id_modulo) throw ApiError.badRequest("Falta el modulo");
+    if (!id_modulo) throw ApiError.badRequest("Falta el módulo");
     if (!id_lote) throw ApiError.badRequest("Falta el lote que se va a producir");
     if (!fechaValida(fecha)) throw ApiError.badRequest("La fecha debe tener formato YYYY-MM-DD");
     if (fecha > hoy()) throw ApiError.badRequest("No se puede abrir una jornada de una fecha futura");
 
     const cantidad = Number(cantidad_operarias ?? operarias.length ?? 0);
     if (!Number.isInteger(cantidad) || cantidad < 1) {
-      throw ApiError.badRequest("Indique cuantas operarias trabajan en el modulo");
+      throw ApiError.badRequest("Indique cuántas operarias trabajan en el módulo");
     }
-    if (cantidad > 99) throw ApiError.badRequest("Un modulo no puede tener mas de 99 operarias");
+    if (cantidad > 99) throw ApiError.badRequest("Un módulo no puede tener más de 99 operarias");
 
     const modulo = await queryOne(
       "SELECT id_modulo, codigo, estado FROM modulos WHERE id_modulo = ?",
       [id_modulo],
     );
-    if (!modulo) throw ApiError.notFound("El modulo no existe");
+    if (!modulo) throw ApiError.notFound("El módulo no existe");
     if (modulo.estado !== "ACTIVO") {
-      throw ApiError.badRequest(`El modulo ${modulo.codigo} no esta activo`);
+      throw ApiError.badRequest(`El módulo ${modulo.codigo} no está activo`);
     }
 
     const lote = await queryOne(
@@ -445,7 +445,7 @@ jornadaRouter.post(
     );
     if (existente) {
       throw ApiError.conflict(
-        `El modulo ${modulo.codigo} ya tiene la jornada abierta para esa fecha`,
+        `El módulo ${modulo.codigo} ya tiene la jornada abierta para esa fecha`,
         { id_jornada_modulo: existente.id_jornada_modulo },
       );
     }

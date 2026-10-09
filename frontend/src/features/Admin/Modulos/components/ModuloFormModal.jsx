@@ -10,7 +10,7 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
     <Modal
       open={open}
       icon={Factory}
-      title={editing ? `Editar modulo: ${editing.codigo}` : "Nuevo modulo"}
+      title={editing ? `Editar módulo: ${editing.codigo}` : "Nuevo módulo"}
       description="Los campos marcados con * son obligatorios."
       onClose={onClose}
       maxWidth="max-w-2xl"
@@ -27,11 +27,11 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
       <div className="space-y-5">
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
-            Identificacion
+            Identificación
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <FormField
-              label="Codigo"
+              label="Código"
               required
               autoFocus
               placeholder="MOD-01"
@@ -43,17 +43,17 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
             <FormField
               label="Nombre"
               required
-              placeholder="Modulo 01"
+              placeholder="Módulo 01"
               value={form.nombre ?? ""}
               error={errors.nombre}
               onChange={(valor) => onChange("nombre", valor)}
             />
             <FormField
-              label="Ubicacion"
-              placeholder="Seccion A"
+              label="Ubicación"
+              placeholder="Sección A"
               value={form.ubicacion ?? ""}
               error={errors.ubicacion}
-              hint="Agrupa los modulos en el tablero."
+              hint="Agrupa los módulos en el tablero."
               onChange={(valor) => onChange("ubicacion", valor)}
             />
             <FormField
@@ -116,7 +116,7 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
         <FormField
           label="Observaciones"
           type="textarea"
-          placeholder="Observaciones del modulo"
+          placeholder="Observaciones del módulo"
           value={form.observaciones ?? ""}
           error={errors.observaciones}
           onChange={(valor) => onChange("observaciones", valor)}

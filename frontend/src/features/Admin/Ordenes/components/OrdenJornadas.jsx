@@ -23,7 +23,7 @@ export function OrdenJornadas({ jornadas = [] }) {
           icon={CalendarDays}
           compacto
           title="Sin jornadas registradas"
-          description="Ningun modulo ha abierto jornada con esta orden todavia."
+          description="Ningún módulo ha abierto jornada con esta orden todavía."
         />
       ) : (
         <ul className="divide-y divide-gray-50">
@@ -43,14 +43,14 @@ export function OrdenJornadas({ jornadas = [] }) {
                 </div>
 
                 <div className="flex shrink-0 items-center gap-3 text-xs text-gray-600">
-                  <span className="flex items-center gap-1" title="Operarias en el modulo">
+                  <span className="flex items-center gap-1" title="Operarias en el módulo">
                     <Users className="h-3.5 w-3.5 text-gray-400" />
                     {jornada.cantidad_operarias}
                   </span>
                   {anonimas > 0 && (
-                    <span className="flex items-center gap-1 text-gray-400" title="Operarias anonimas">
+                    <span className="flex items-center gap-1 text-gray-400" title="Operarias anónimas">
                       <UserCircle2 className="h-3.5 w-3.5" />
-                      {anonimas} anonimas
+                      {anonimas} anónimas
                     </span>
                   )}
                 </div>

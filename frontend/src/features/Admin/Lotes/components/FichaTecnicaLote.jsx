@@ -31,7 +31,7 @@ const RANURAS = [
     titulo: "Ficha en PDF",
     icono: FileText,
     accept: "application/pdf",
-    ayuda: "El PDF que mando el cliente",
+    ayuda: "El PDF que mandó el cliente",
   },
 ];
 
@@ -163,13 +163,13 @@ export function FichaTecnicaLote({
     <div className={compacto ? "" : "rounded-2xl border border-gray-200 bg-gray-50/60 p-4"}>
       {!compacto && (
         <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
-          Ficha tecnica
+          Ficha técnica
         </h4>
       )}
 
       {modoPendiente && (
         <p className="mb-3 text-xs text-gray-400">
-          Se suben apenas guardes el lote -- la revisadora ya podra ver la prenda desde el listado.
+          Se suben apenas guardes el lote -- la revisadora ya podrá ver la prenda desde el listado.
         </p>
       )}
 

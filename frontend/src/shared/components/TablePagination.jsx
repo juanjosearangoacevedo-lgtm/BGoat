@@ -64,7 +64,7 @@ export function TablePagination({
 
         {onPageSizeChange && (
           <label className="flex items-center gap-2 text-xs text-gray-400">
-            Por pagina
+            Por página
             <select
               value={pageSize}
               onChange={(evento) => onPageSizeChange(Number(evento.target.value))}
@@ -87,7 +87,7 @@ export function TablePagination({
             disabled={page <= 1}
             className="rounded-lg p-2 transition-colors hover:bg-gray-100 disabled:opacity-30"
             type="button"
-            aria-label="Primera pagina"
+            aria-label="Primera página"
           >
             <ChevronsLeft className="h-4 w-4 text-gray-600" />
           </button>
@@ -96,7 +96,7 @@ export function TablePagination({
             disabled={page <= 1}
             className="rounded-lg p-2 transition-colors hover:bg-gray-100 disabled:opacity-30"
             type="button"
-            aria-label="Pagina anterior"
+            aria-label="Página anterior"
           >
             <ChevronLeft className="h-4 w-4 text-gray-600" />
           </button>
@@ -126,7 +126,7 @@ export function TablePagination({
             disabled={page >= totalPages}
             className="rounded-lg p-2 transition-colors hover:bg-gray-100 disabled:opacity-30"
             type="button"
-            aria-label="Pagina siguiente"
+            aria-label="Página siguiente"
           >
             <ChevronRight className="h-4 w-4 text-gray-600" />
           </button>
@@ -135,7 +135,7 @@ export function TablePagination({
             disabled={page >= totalPages}
             className="rounded-lg p-2 transition-colors hover:bg-gray-100 disabled:opacity-30"
             type="button"
-            aria-label="Ultima pagina"
+            aria-label="Última página"
           >
             <ChevronsRight className="h-4 w-4 text-gray-600" />
           </button>

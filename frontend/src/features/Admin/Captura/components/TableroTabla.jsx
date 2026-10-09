@@ -36,7 +36,7 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
     { clave: "efac", etiqueta: "% Efic. acum." },
     { clave: "fmeta", etiqueta: "$ Meta" },
     { clave: "freal", etiqueta: "$ Real" },
-    { clave: "maquina", etiqueta: "Maquina" },
+    { clave: "maquina", etiqueta: "Máquina" },
     { clave: "calidad", etiqueta: "Calidad" },
     { clave: "montaje", etiqueta: "Montaje/insumos" },
     { clave: "total", etiqueta: "Total min." },
@@ -103,7 +103,7 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
 
                   <Celda
                     className={franja.minutos === 60 ? "text-gray-400" : "font-semibold text-dorado"}
-                    titulo={franja.minutos === 60 ? undefined : "Franja mas corta: la meta baja igual"}
+                    titulo={franja.minutos === 60 ? undefined : "Franja más corta: la meta baja igual"}
                   >
                     {franja.minutos}
                   </Celda>
@@ -140,7 +140,7 @@ export function TableroTabla({ franjas, totales, umbral = 85, onEditarFranja }) 
                     className={perdidos ? "font-semibold text-red-600" : "text-gray-200"}
                     titulo={
                       perdidos
-                        ? `${r.minutos_perdidos} min de modulo x ${r.personas_presentes} personas`
+                        ? `${r.minutos_perdidos} min de módulo x ${r.personas_presentes} personas`
                         : undefined
                     }
                   >

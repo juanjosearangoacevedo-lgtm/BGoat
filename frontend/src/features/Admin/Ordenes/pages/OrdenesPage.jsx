@@ -31,10 +31,10 @@ export function OrdenesPage({ onNavigate }) {
 
   const vacio = {
     icon: Package,
-    title: hayBusqueda ? "Sin resultados" : "No hay ordenes cargadas",
+    title: hayBusqueda ? "Sin resultados" : "No hay órdenes cargadas",
     description: hayBusqueda
-      ? "Ninguna orden coincide con la busqueda o los filtros aplicados."
-      : "Crea la primera orden para asignar un lote a un modulo y empezar a capturar produccion.",
+      ? "Ninguna orden coincide con la búsqueda o los filtros aplicados."
+      : "Crea la primera orden para asignar un lote a un módulo y empezar a capturar producción.",
     action: hayBusqueda ? (
       <Button
         variant="outline"
@@ -43,7 +43,7 @@ export function OrdenesPage({ onNavigate }) {
           ordenes.setSearch("");
         }}
       >
-        Limpiar busqueda y filtros
+        Limpiar búsqueda y filtros
       </Button>
     ) : (
       <Button
@@ -72,8 +72,8 @@ export function OrdenesPage({ onNavigate }) {
   return (
     <div className="p-4 md:p-8">
       <PageHeader
-        title="Ordenes de Produccion"
-        subtitle="Lo que hay comprometido, quien lo tomo y como va"
+        title="Órdenes de Producción"
+        subtitle="Lo que hay comprometido, quién lo tomó y cómo va"
       >
         <Button
           onClick={() => onNavigate?.("create-order")}
@@ -93,7 +93,7 @@ export function OrdenesPage({ onNavigate }) {
       <StatsGrid
         columns={4}
         items={[
-          { label: "Total ordenes", value: ordenes.resumen.total },
+          { label: "Total órdenes", value: ordenes.resumen.total },
           { label: "En proceso", value: ordenes.resumen.enProceso, color: "var(--dorado)" },
           { label: "Pendientes", value: ordenes.resumen.pendientes, color: "var(--amarillo)" },
           { label: "Finalizadas", value: ordenes.resumen.finalizadas, color: "var(--exito-vivo)" },
@@ -156,7 +156,7 @@ export function OrdenesPage({ onNavigate }) {
             "Sin cliente"
           }
           meta={(orden) => [
-            { label: "Modulo", value: orden.codigo_modulo },
+            { label: "Módulo", value: orden.codigo_modulo },
             {
               label: "Avance",
               value: `${formatPorcentaje(orden.porcentaje_avance)} · ${formatNumero(
@@ -181,10 +181,10 @@ export function OrdenesPage({ onNavigate }) {
 
       <ConfirmDialog
         open={Boolean(ordenes.deleteTarget)}
-        title="Eliminar orden de produccion?"
+        title="¿Eliminar orden de producción?"
         description={
-          `Se eliminara la orden ${ordenes.deleteTarget?.numero_orden || ""}. ` +
-          "No se puede eliminar una orden con produccion registrada."
+          `Se eliminará la orden ${ordenes.deleteTarget?.numero_orden || ""}. ` +
+          "No se puede eliminar una orden con producción registrada."
         }
         confirmLabel="Confirmar"
         loading={ordenes.procesando}

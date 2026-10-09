@@ -40,7 +40,7 @@ export function OrdenProgresoHero({ orden, progress = 0 }) {
               ? "falta la eficiencia esperada"
               : "se calcula al iniciar jornada"}
         </span>
-        {dias && <span>Duracion: {dias} dia{dias === 1 ? "" : "s"}</span>}
+        {dias && <span>Duración: {dias} dia{dias === 1 ? "" : "s"}</span>}
       </div>
 
       {/* `dias_atraso` sale sola de `jornada_modulo`: el ultimo dia que un
@@ -49,7 +49,7 @@ export function OrdenProgresoHero({ orden, progress = 0 }) {
       {orden?.ultimo_dia_trabajado && (
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-white/10 pt-3 text-xs">
           <span className="text-white/60">
-            Ultimo dia trabajado: {formatFecha(orden.ultimo_dia_trabajado)}
+            Último día trabajado: {formatFecha(orden.ultimo_dia_trabajado)}
           </span>
           {Number(orden.dias_atraso) > 0 ? (
             <span className="rounded-full bg-peligro/25 px-2.5 py-1 font-semibold text-white">

@@ -58,8 +58,8 @@ export function LotesPage() {
     icon: Package2,
     title: hayBusqueda ? "Sin resultados" : "No hay lotes cargados",
     description: hayBusqueda
-      ? "Ningun lote coincide con la busqueda o los filtros aplicados."
-      : "Registra el lote que llega del cliente para poder iniciar la jornada del modulo.",
+      ? "Ningún lote coincide con la búsqueda o los filtros aplicados."
+      : "Registra el lote que llega del cliente para poder iniciar la jornada del módulo.",
     action: hayBusqueda ? (
       <Button
         variant="outline"
@@ -68,7 +68,7 @@ export function LotesPage() {
           lotes.setSearch("");
         }}
       >
-        Limpiar busqueda y filtros
+        Limpiar búsqueda y filtros
       </Button>
     ) : (
       <Button onClick={lotes.openCreate} className="bg-dorado text-white hover:bg-dorado-hover">
@@ -124,7 +124,7 @@ export function LotesPage() {
       <FilterBar
         search={lotes.search}
         onSearch={lotes.setSearch}
-        searchPlaceholder="Buscar por codigo, pedido o referencia..."
+        searchPlaceholder="Buscar por código, pedido o referencia..."
         definiciones={lista.definiciones}
         filtros={lista.filtros}
         onFiltro={lista.setFiltro}
@@ -180,7 +180,7 @@ export function LotesPage() {
           meta={(lote) => [
             { label: "Programada", value: formatNumero(lote.cantidad_programada) },
             { label: "Recibida", value: formatNumero(lote.cantidad_recibida) },
-            { label: "Recepcion", value: formatFecha(lote.fecha_recepcion) },
+            { label: "Recepción", value: formatFecha(lote.fecha_recepcion) },
           ]}
           estado={(lote) => lote.estado}
           acciones={(lote) => (
@@ -238,11 +238,11 @@ export function LotesPage() {
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
         tono={activando ? "exito" : "advertencia"}
-        title={activando ? "Reactivar lote?" : "Desactivar lote?"}
+        title={activando ? "¿Reactivar lote?" : "¿Desactivar lote?"}
         description={
           activando
-            ? `El lote ${objetivoEstado?.codigo_lote} vuelve a ofrecerse y podra usarse en ordenes de produccion.`
-            : `El lote ${objetivoEstado?.codigo_lote} dejara de ofrecerse al crear ordenes, pero conserva su historia.`
+            ? `El lote ${objetivoEstado?.codigo_lote} vuelve a ofrecerse y podrá usarse en órdenes de producción.`
+            : `El lote ${objetivoEstado?.codigo_lote} dejará de ofrecerse al crear órdenes, pero conserva su historia.`
         }
         confirmLabel={activando ? "Reactivar" : "Desactivar"}
         loading={lotes.procesando}
@@ -252,8 +252,8 @@ export function LotesPage() {
 
       <ConfirmDialog
         open={Boolean(lotes.deleteTarget)}
-        title="Eliminar lote?"
-        description={`Se eliminara el lote ${lotes.deleteTarget?.codigo_lote || ""}. Si tiene ordenes de produccion, el sistema lo inactiva en lugar de borrarlo.`}
+        title="¿Eliminar lote?"
+        description={`Se eliminará el lote ${lotes.deleteTarget?.codigo_lote || ""}. Si tiene órdenes de producción, el sistema lo inactiva en lugar de borrarlo.`}
         loading={lotes.procesando}
         onCancel={() => lotes.setDeleteTarget(null)}
         onConfirm={() => lotes.eliminar(lotes.deleteTarget)}

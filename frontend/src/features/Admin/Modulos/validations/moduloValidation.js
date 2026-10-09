@@ -28,22 +28,22 @@ const enteroEnRango = (rango, etiqueta) => [
 export function crearModuloEsquema({ lista = [], editing = null } = {}) {
   return {
     codigo: [
-      reglas.requerido("El codigo"),
-      reglas.longitud({ ...moduloLimites.codigo, etiqueta: "El codigo" }),
-      reglas.sinCaracteresEspeciales("El codigo"),
+      reglas.requerido("El código"),
+      reglas.longitud({ ...moduloLimites.codigo, etiqueta: "El código" }),
+      reglas.sinCaracteresEspeciales("El código"),
       reglas.unico({
         lista,
         campo: "codigo",
         idField: "id_modulo",
         actual: editing,
-        etiqueta: "Ese codigo de modulo",
+        etiqueta: "Ese código de módulo",
       }),
     ],
     nombre: [
       reglas.requerido("El nombre"),
       reglas.longitud({ ...moduloLimites.nombre, etiqueta: "El nombre" }),
     ],
-    ubicacion: [reglas.longitud({ ...moduloLimites.ubicacion, etiqueta: "La ubicacion" })],
+    ubicacion: [reglas.longitud({ ...moduloLimites.ubicacion, etiqueta: "La ubicación" })],
     capacidad_operarios: enteroEnRango(moduloLimites.capacidad, "La capacidad de operarios"),
     umbral_cumplimiento: [
       reglas.numero({ ...moduloLimites.umbral, etiqueta: "El umbral de cumplimiento" }),

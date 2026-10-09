@@ -37,23 +37,23 @@ export function crearClienteEsquema({ lista = [], editing = null } = {}) {
         etiqueta: "Ese nombre",
       }),
     ],
-    descripcion: [reglas.longitud({ ...clienteLimites.descripcion, etiqueta: "La descripcion" })],
+    descripcion: [reglas.longitud({ ...clienteLimites.descripcion, etiqueta: "La descripción" })],
     // Los clientes de hoy son de prueba; cuando la empresa empiece a
     // cargar los suyos, la razon social ya no puede faltar.
     razon_social: [
-      reglas.requerido("La razon social"),
-      reglas.longitud({ ...clienteLimites.razonSocial, etiqueta: "La razon social" }),
+      reglas.requerido("La razón social"),
+      reglas.longitud({ ...clienteLimites.razonSocial, etiqueta: "La razón social" }),
     ],
     tipo_documento: [
       reglas.seleccionRequerida("El tipo de documento"),
       reglas.opcionValida(clienteTiposDocumento, "El tipo de documento"),
     ],
     numero_documento: [
-      reglas.longitud({ ...clienteLimites.documento, etiqueta: "El numero de documento" }),
+      reglas.longitud({ ...clienteLimites.documento, etiqueta: "El número de documento" }),
     ],
     correo: [reglas.correo()],
     telefono: [reglas.telefono({ ...clienteLimites.telefono })],
-    direccion: [reglas.longitud({ ...clienteLimites.direccion, etiqueta: "La direccion" })],
+    direccion: [reglas.longitud({ ...clienteLimites.direccion, etiqueta: "La dirección" })],
     estado: [
       reglas.seleccionRequerida("El estado"),
       reglas.opcionValida(clienteEstados, "El estado"),

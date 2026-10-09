@@ -15,21 +15,21 @@ import { crearDiaNoLaboralEsquema } from "../validations/diaNoLaboralValidation"
 export function DiasNoLaboralesPage() {
   return (
     <CrudPage
-      titulo="Dias no laborales"
+      titulo="Días no laborales"
       subtitulo="Festivos y cierres que se restan al estimar fechas de entrega"
       recurso={endpoints.diasNoLaborales}
       idField="fecha"
       etiquetaNuevo="Nueva fecha"
-      busquedaPlaceholder="Buscar por descripcion..."
+      busquedaPlaceholder="Buscar por descripción..."
       nombreRegistro={(fila) => (fila?.descripcion ? fila.descripcion : "esa fecha")}
       emptyIcon={CalendarOff}
       emptyTitle="No hay fechas configuradas"
-      emptyDescription="Sin festivos cargados, la estimacion de fechas los va a contar como dias habiles."
+      emptyDescription="Sin festivos cargados, la estimación de fechas los va a contar como días hábiles."
       ordenInicial={{ campo: "fecha", direccion: "asc" }}
       permiteEstado={false}
       columnas={[
         { key: "fecha", header: "Fecha", render: (fila) => formatFecha(fila.fecha) },
-        { key: "descripcion", header: "Descripcion" },
+        { key: "descripcion", header: "Descripción" },
       ]}
       emptyForm={{ fecha: "", descripcion: "" }}
       required={["fecha"]}
@@ -38,8 +38,8 @@ export function DiasNoLaboralesPage() {
         { name: "fecha", label: "Fecha", type: "date", required: true },
         {
           name: "descripcion",
-          label: "Descripcion",
-          placeholder: "Dia de la Independencia",
+          label: "Descripción",
+          placeholder: "Día de la Independencia",
           maxLength: 100,
           ancho: "completo",
         },

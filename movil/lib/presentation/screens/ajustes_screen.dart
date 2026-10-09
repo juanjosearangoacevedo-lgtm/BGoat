@@ -54,7 +54,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
     if (!mounted) return;
 
     _direccion.text = sesion.servidor;
-    avisar(context, 'Servidor cambiado. Vuelva a iniciar sesion.');
+    avisar(context, 'Servidor cambiado. Vuelva a iniciar sesión.');
   }
 
   Future<bool> _confirmarCambio(String nueva) async {
@@ -64,8 +64,8 @@ class _AjustesScreenState extends State<AjustesScreen> {
         title: const Text('Cambiar de servidor'),
         content: Text(
           'La app va a apuntar a:\n\n$nueva\n\n'
-          'Es una base de datos distinta, asi que va a ver otros registros. '
-          'Se cerrara la sesion.',
+          'Es una base de datos distinta, así que va a ver otros registros. '
+          'Se cerrará la sesión.',
         ),
         actions: [
           TextButton(
@@ -98,7 +98,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
         children: [
           const TituloSeccion(
             'Servidor',
-            detalle: 'La direccion de la API de BGoat',
+            detalle: 'La dirección de la API de BGoat',
           ),
           Tarjeta(
             hijo: Column(
@@ -109,7 +109,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
                   keyboardType: TextInputType.url,
                   autocorrect: false,
                   decoration: const InputDecoration(
-                    labelText: 'Direccion',
+                    labelText: 'Dirección',
                     hintText: '192.168.1.2:4000',
                     prefixIcon: Icon(Icons.dns_outlined),
                     helperText: 'Si no escribe http:// ni /api, se completan solos',
@@ -141,7 +141,7 @@ class _AjustesScreenState extends State<AjustesScreen> {
           ),
           const SizedBox(height: 24),
           if (sesion.haySesion) ...[
-            const TituloSeccion('Sesion'),
+            const TituloSeccion('Sesión'),
             Tarjeta(
               hijo: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

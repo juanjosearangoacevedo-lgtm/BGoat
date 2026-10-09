@@ -34,7 +34,7 @@ export function useModulosPage() {
     recurso: endpoints.modulos,
     idField: "id_modulo",
     emptyForm: emptyModuloForm,
-    nombreRegistro: (modulo) => (modulo?.codigo ? `el modulo ${modulo.codigo}` : "el modulo"),
+    nombreRegistro: (modulo) => (modulo?.codigo ? `el módulo ${modulo.codigo}` : "el módulo"),
     esquema: ({ items, editing }) => crearModuloEsquema({ lista: items, editing }),
     transformarPayload: (datos) => ({
       ...datos,
@@ -115,13 +115,13 @@ export function useModulosPage() {
       },
       {
         clave: "ubicacion",
-        label: "Ubicacion",
+        label: "Ubicación",
         etiquetaTodos: "Todas las ubicaciones",
         opciones: ubicaciones.map((ubicacion) => ({ value: ubicacion, label: ubicacion })),
       },
       {
         clave: "ocupacion",
-        label: "Ocupacion",
+        label: "Ocupación",
         etiquetaTodos: "Con y sin personal",
         opciones: [
           { value: "con", label: "Con personal asignado" },

@@ -61,7 +61,7 @@ const columnas = [
   },
   {
     key: "facturacion_no_realizada",
-    header: "Facturacion no realizada",
+    header: "Facturación no realizada",
     align: "center",
     sortValue: (fila) => Number(fila.facturacion_no_realizada || 0),
     render: (fila) => (

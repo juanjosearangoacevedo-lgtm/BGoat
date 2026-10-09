@@ -47,7 +47,7 @@ export function useRecordatorioHora({ fecha, activo = true, onIr = null } = {}) 
         const [primera] = nuevas;
         toast.warning(
           nuevas.length === 1
-            ? `Falta registrar ${primera.etiqueta} en el modulo ${primera.id_modulo}`
+            ? `Falta registrar ${primera.etiqueta} en el módulo ${primera.id_modulo}`
             : `Hay ${nuevas.length} horas sin registrar`,
           {
             duration: 10000,

@@ -125,7 +125,7 @@ export function DataTable({
         <EmptyState
           icon={empty?.icon}
           title={empty?.title || "No hay registros"}
-          description={empty?.description || "Ajusta la busqueda o los filtros para ver resultados."}
+          description={empty?.description || "Ajusta la búsqueda o los filtros para ver resultados."}
           action={empty?.action}
         />
       )}

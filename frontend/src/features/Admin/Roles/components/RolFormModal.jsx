@@ -39,7 +39,7 @@ export function RolFormModal({
       open={open}
       icon={Shield}
       title={editing ? `Editar rol: ${editing.nombre}` : "Nuevo rol"}
-      description="Define el rol y marca lo que puede hacer en cada modulo."
+      description="Define el rol y marca lo que puede hacer en cada módulo."
       onClose={onClose}
       maxWidth="max-w-3xl"
       footer={
@@ -79,13 +79,13 @@ export function RolFormModal({
         </div>
 
         <FormField
-          label="Descripcion"
+          label="Descripción"
           type="textarea"
           rows={2}
-          placeholder="Que hace este rol dentro de la planta"
+          placeholder="Qué hace este rol dentro de la planta"
           value={form.descripcion ?? ""}
           error={errors.descripcion}
-          hint="Opcional. Ayuda a saber a quien se le asigna."
+          hint="Opcional. Ayuda a saber a quién se le asigna."
           onChange={(valor) => onChange("descripcion", valor)}
         />
 

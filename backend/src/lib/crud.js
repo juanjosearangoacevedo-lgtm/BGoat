@@ -12,7 +12,7 @@ const REINTENTOS_CONSECUTIVO = 2;
 /** Valida que un nombre de columna venga de la definicion y no del cliente. */
 function columnaSegura(nombre) {
   if (!IDENTIFICADOR.test(nombre)) {
-    throw new Error(`Nombre de columna invalido en la definicion del recurso: ${nombre}`);
+    throw new Error(`Nombre de columna inválido en la definición del recurso: ${nombre}`);
   }
   return `\`${nombre}\``;
 }

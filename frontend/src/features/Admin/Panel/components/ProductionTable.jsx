@@ -5,7 +5,7 @@ import { Progress } from "@/shared/components/progress";
 import { StatusBadge } from "@/shared/components/StatusBadge";
 import { formatNumero, GUION } from "@/shared/utils/formatters";
 
-const headers = ["Modulo", "Operarios", "Orden", "Referencia", "Avance orden", "Unidades", "Estado"];
+const headers = ["Módulo", "Operarios", "Orden", "Referencia", "Avance orden", "Unidades", "Estado"];
 
 /**
  * Produccion en tiempo real: vista `vw_estado_modulo_dia` cruzada con la
@@ -23,8 +23,8 @@ export function ProductionTable({ rows = [], loading = false }) {
     <Card className="bg-white p-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-bold text-gray-900">Produccion en Tiempo Real</h3>
-          <p className="mt-1 text-sm text-gray-500">Estado actual de los modulos de produccion</p>
+          <h3 className="text-xl font-bold text-gray-900">Producción en Tiempo Real</h3>
+          <p className="mt-1 text-sm text-gray-500">Estado actual de los módulos de producción</p>
         </div>
       </div>
 
@@ -85,8 +85,8 @@ export function ProductionTable({ rows = [], loading = false }) {
       {!loading && rows.length === 0 && (
         <EmptyState
           icon={Factory}
-          title="Sin produccion registrada"
-          description="La tabla queda lista para mostrar el estado de los modulos en cuanto se conecte la API."
+          title="Sin producción registrada"
+          description="La tabla queda lista para mostrar el estado de los módulos en cuanto se conecte la API."
         />
       )}
     </Card>
