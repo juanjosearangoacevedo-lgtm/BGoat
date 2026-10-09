@@ -33,6 +33,19 @@ export const env = {
     expiracion: requerido("JWT_EXPIRES_IN", "8h"),
   },
 
+  // Envio de correos (recuperacion de contrasena). Sin usuario y clave no
+  // se envia nada: el enlace se escribe en la consola del backend.
+  correo: {
+    host: requerido("SMTP_HOST", "smtp.gmail.com"),
+    puerto: Number(requerido("SMTP_PORT", 465)),
+    usuario: requerido("SMTP_USER", ""),
+    clave: requerido("SMTP_PASS", ""),
+    remitente: requerido("SMTP_FROM", ""),
+  },
+
+  // Direccion del web, para armar los enlaces que van en los correos.
+  appUrl: requerido("APP_URL", "http://localhost:5173").replace(/\/+$/, ""),
+
   seguridad: {
     // Bloqueo temporal por intentos fallidos (alcance del proyecto).
     maxIntentos: Number(requerido("MAX_INTENTOS_FALLIDOS", 5)),

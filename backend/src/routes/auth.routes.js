@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { env } from "../config/env.js";
 import { execute, queryOne } from "../config/db.js";
+import { correoRecuperacion, enviarCorreo } from "../lib/correo.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
 import { firmarToken, permisosDelUsuario, requiereAuth } from "../middleware/auth.js";
 
@@ -215,21 +216,37 @@ authRouter.post(
     const correo = String(req.body?.correo || "").trim().toLowerCase();
     if (!correo) throw ApiError.badRequest("El correo es obligatorio");
 
-    const usuario = await queryOne("SELECT id_usuario FROM usuarios WHERE correo = ?", [correo]);
+    const usuario = await queryOne(
+      "SELECT id_usuario, nombres FROM usuarios WHERE correo = ? AND estado <> 'INACTIVO'",
+      [correo],
+    );
 
     // Respuesta identica exista o no la cuenta: no se filtra quien esta registrado.
     if (usuario) {
       const token = crypto.randomBytes(32).toString("hex");
       const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
+      // Solo vale el ultimo enlace: pedir otro anula los anteriores.
+      await execute(
+        `UPDATE recuperacion_claves SET estado = 'ANULADO'
+          WHERE id_usuario = ? AND estado = 'PENDIENTE'`,
+        [usuario.id_usuario],
+      );
       await execute(
         `INSERT INTO recuperacion_claves (id_usuario, token_hash, fecha_expiracion)
          VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 1 HOUR))`,
         [usuario.id_usuario, tokenHash],
       );
 
-      // Sin servicio de correo configurado, el token se entrega por consola.
-      console.log(`[BGoat] Token de recuperacion para ${correo}: ${token}`);
+      const enlace = `${env.appUrl}/?restablecer=${token}`;
+      try {
+        const enviado = await enviarCorreo({ para: correo, ...correoRecuperacion({ nombre: usuario.nombres, enlace }) });
+        // Sin correo configurado (desarrollo) el enlace queda en la consola.
+        if (!enviado) console.log(`[BGoat] Sin correo configurado. Enlace de recuperacion para ${correo}: ${enlace}`);
+      } catch (error) {
+        // Se responde igual: decir "fallo el envio" confirmaria que la cuenta existe.
+        console.error(`[BGoat] No se pudo enviar el correo de recuperacion a ${correo}:`, error.message);
+      }
     }
 
     res.json({ mensaje: "Si el correo existe, se enviaron las instrucciones de recuperacion." });
@@ -264,12 +281,13 @@ authRouter.post(
     );
 
     await execute(
-      "UPDATE recuperacion_claves SET estado = 'UTILIZADO', fecha_uso = NOW() WHERE id_recuperacion = ?",
+      "UPDATE recuperacion_claves SET estado = 'USADO', fecha_uso = NOW() WHERE id_recuperacion = ?",
       [solicitud.id_recuperacion],
     );
 
+    const duenio = await queryOne("SELECT correo FROM usuarios WHERE id_usuario = ?", [solicitud.id_usuario]);
     await registrarEvento(req, {
-      idUsuario: solicitud.id_usuario, correo: "", evento: "CAMBIO_CLAVE",
+      idUsuario: solicitud.id_usuario, correo: duenio?.correo, evento: "CAMBIO_CLAVE",
     });
 
     res.json({ mensaje: "Contrasena actualizada correctamente" });

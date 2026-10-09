@@ -2,6 +2,7 @@ import { LandingPage } from "@/features/landing/pages/LandingPage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { RecoverPasswordPage } from "@/features/auth/pages/RecoverPasswordPage";
+import { ResetPasswordPage } from "@/features/auth/pages/ResetPasswordPage";
 import { PanelPage } from "@/features/Admin/Panel/pages/PanelPage";
 import { JornadaPage } from "@/features/Admin/Jornada/pages/JornadaPage";
 import { CapturaPage } from "@/features/Admin/Captura/pages/CapturaPage";
@@ -34,6 +35,8 @@ export const publicRoutes = {
   login: { component: LoginPage },
   register: { component: RegisterPage },
   "recover-password": { component: RecoverPasswordPage },
+  // A esta se llega desde el enlace del correo (`/?restablecer=<token>`).
+  "reset-password": { component: ResetPasswordPage, props: (data) => ({ token: data?.token }) },
 };
 
 export const adminRoutes = {

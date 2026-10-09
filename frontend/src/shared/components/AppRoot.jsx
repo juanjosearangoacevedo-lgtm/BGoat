@@ -5,10 +5,24 @@ import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
 import { AdminLayout } from "@/features/Admin/Layout/components/AdminLayout";
 import { defaultPage, isPublicPage, resolveRoute } from "@/routes";
 
+/**
+ * El enlace del correo de recuperacion abre `/?restablecer=<token>`: esa
+ * visita arranca en "Nueva contrasena". El token se saca de la direccion
+ * enseguida, para que no quede en el historial ni se comparta al copiarla.
+ */
+function paginaInicial() {
+  if (typeof window === "undefined") return { page: defaultPage, data: null };
+  const token = new URLSearchParams(window.location.search).get("restablecer");
+  if (!token) return { page: defaultPage, data: null };
+  window.history.replaceState(null, "", window.location.pathname);
+  return { page: "reset-password", data: { token } };
+}
+
 function AppInner() {
   const { autenticado, cargando } = useAuth();
-  const [currentPage, setCurrentPage] = useState(defaultPage);
-  const [pageData, setPageData] = useState(null);
+  const [inicio] = useState(paginaInicial);
+  const [currentPage, setCurrentPage] = useState(inicio.page);
+  const [pageData, setPageData] = useState(inicio.data);
 
   const handleNavigate = (page, data = null) => {
     setCurrentPage(page);

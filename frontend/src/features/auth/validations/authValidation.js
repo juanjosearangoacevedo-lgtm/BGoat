@@ -59,3 +59,9 @@ export const registroEsquema = {
 export const recuperarEsquema = {
   correo: [reglas.requerido("El correo"), reglas.correo()],
 };
+
+/** Nueva contrasena desde el enlace del correo: mismas reglas que el registro. */
+export const restablecerEsquema = {
+  clave: [reglas.clave()],
+  confirmar_clave: [reglas.confirmacion("clave")],
+};
