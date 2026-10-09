@@ -106,7 +106,7 @@ export function CapturaRejilla({
                         type="button"
                         disabled={soloLectura}
                         onClick={() => onAbrirJornada?.(modulo)}
-                        className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 transition hover:border-marca hover:text-marca disabled:cursor-default disabled:hover:border-gray-300 disabled:hover:text-gray-500"
+                        className="flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-3 py-2 text-sm text-gray-500 transition hover:border-marca hover:text-marca-letra disabled:cursor-default disabled:hover:border-gray-300 disabled:hover:text-gray-500"
                       >
                         <Lock className="h-4 w-4" />
                         Abrir la jornada de este modulo para poder registrar
@@ -134,7 +134,7 @@ export function CapturaRejilla({
                     <button
                       type="button"
                       onClick={() => onVerModulo?.(modulo)}
-                      className="text-left font-semibold text-gray-900 hover:text-marca hover:underline"
+                      className="text-left font-semibold text-gray-900 hover:text-marca-letra hover:underline"
                     >
                       {modulo.codigo}
                     </button>

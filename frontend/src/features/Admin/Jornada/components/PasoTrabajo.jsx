@@ -154,7 +154,7 @@ export function PasoTrabajo({
               </div>
               <div>
                 <dt className="text-xs text-gray-500">SAM pactado</dt>
-                <dd className="font-semibold text-marca">
+                <dd className="font-semibold text-marca-letra">
                   {loteSeleccionado.sam_pactado
                     ? `${loteSeleccionado.sam_pactado} min`
                     : "Sin SAM"}
@@ -162,7 +162,7 @@ export function PasoTrabajo({
               </div>
               <div>
                 <dt className="text-xs text-gray-500">Valor de maquila</dt>
-                <dd className="font-semibold text-marca">
+                <dd className="font-semibold text-marca-letra">
                   {loteSeleccionado.valor_maquila_unidad
                     ? `${formatMoneda(loteSeleccionado.valor_maquila_unidad)} / und`
                     : "Falta"}

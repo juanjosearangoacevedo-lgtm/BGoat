@@ -13,7 +13,7 @@ export function LandingModulesSection({ modules }) {
           return (
             <Card key={module.title} className="p-6 hover:shadow-lg transition-shadow border border-gray-200">
               <div className="w-12 h-12 bg-marca/10 rounded-lg flex items-center justify-center mb-4">
-                <Icon className="w-6 h-6 text-marca" />
+                <Icon className="w-6 h-6 text-marca-letra" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">{module.title}</h3>
               <p className="text-gray-600">{module.desc}</p>

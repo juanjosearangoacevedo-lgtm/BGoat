@@ -16,7 +16,7 @@ import { CapturaDesgloseTallaColor } from "./CapturaDesgloseTallaColor";
 function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca", soloTeclado = false, autoFocus = false }) {
   const numero = Number(valor || 0);
   const colores = {
-    marca: "text-marca",
+    marca: "text-marca-letra",
     naranja: "text-dorado",
     rojo: "text-red-500",
   };
@@ -44,7 +44,7 @@ function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca
           <button
             type="button"
             onClick={() => onCambiar(Math.max(numero - paso, min))}
-            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-marca hover:text-marca active:scale-95"
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-marca hover:text-marca-letra active:scale-95"
             aria-label={`Restar ${etiqueta || "cantidad"}`}
           >
             <span className="text-xl leading-none">−</span>
@@ -63,7 +63,7 @@ function Contador({ etiqueta, valor, onCambiar, min = 0, paso = 1, tono = "marca
           <button
             type="button"
             onClick={() => onCambiar(numero + paso)}
-            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-marca hover:text-marca active:scale-95"
+            className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:border-marca hover:text-marca-letra active:scale-95"
             aria-label={`Sumar ${etiqueta || "cantidad"}`}
           >
             <span className="text-xl leading-none">+</span>
@@ -98,7 +98,7 @@ function PersonasFranja({ sugeridas, valor, cambio, onCambio, onCambiar }) {
       <button
         type="button"
         onClick={() => onCambio(!cambio)}
-        className="mt-2 w-full text-center text-xs font-medium text-marca underline underline-offset-2"
+        className="mt-2 w-full text-center text-xs font-medium text-marca-letra underline underline-offset-2"
       >
         {cambio ? "No, dejar la de la jornada" : "¿Cambio la cantidad esta hora?"}
       </button>
@@ -215,7 +215,7 @@ function Paradas({ causas, paradas = [], franja, total, problema, onCambiar }) {
       <button
         type="button"
         onClick={agregar}
-        className="flex items-center gap-1.5 text-xs font-medium text-marca hover:underline"
+        className="flex items-center gap-1.5 text-xs font-medium text-marca-letra hover:underline"
       >
         <Plus className="h-3.5 w-3.5" />
         Agregar parada
@@ -316,7 +316,7 @@ export function CapturaCeldaModal({
                     : " · sin orden, no se factura")
                 : "Este modulo no tiene jornada configurada"}
             </p>
-            <p className="mt-0.5 text-xs font-medium text-marca">
+            <p className="mt-0.5 text-xs font-medium text-marca-letra">
               Franja de {franja.minutos} minutos
               {franja.minutos !== 60 && (
                 <span className="ml-1 font-normal text-gray-400">
@@ -339,13 +339,13 @@ export function CapturaCeldaModal({
           {/* Meta calculada por el sistema */}
           <div className="grid grid-cols-3 gap-3 rounded-2xl bg-marca/5 p-4 text-center">
             <div>
-              <p className="text-xs text-marca/70">Meta</p>
-              <p className="text-2xl font-bold text-marca">
+              <p className="text-xs text-marca-letra/70">Meta</p>
+              <p className="text-2xl font-bold text-marca-letra">
                 {Math.round(calculo?.meta ?? 0)}
               </p>
             </div>
             <div>
-              <p className="text-xs text-marca/70">Eficiencia</p>
+              <p className="text-xs text-marca-letra/70">Eficiencia</p>
               <p
                 className={`text-2xl font-bold ${
                   calculo?.bajoUmbral ? "text-dorado-texto" : "text-green-600"
@@ -355,7 +355,7 @@ export function CapturaCeldaModal({
               </p>
             </div>
             <div>
-              <p className="text-xs text-marca/70">SAM real</p>
+              <p className="text-xs text-marca-letra/70">SAM real</p>
               <p className="text-2xl font-bold text-gray-700">{calculo?.samObservado ?? "—"}</p>
             </div>
           </div>

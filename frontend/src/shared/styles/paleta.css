@@ -18,6 +18,7 @@
   /* ── Marca: el verde de God's Eyes ──────────────────────────────────────── */
   --marca: #0F4C3F;            /* principal: menu activo, titulos, botones */
   --marca-oscuro: #0C3D32;     /* hover del principal */
+  --marca-letra: #0F4C3F;      /* el verde de la marca usado como TEXTO */
   --marca-profundo: #0D2925;
   --marca-texto: #1F5C45;      /* texto verde sobre fondo claro */
   --marca-medio: #1B6B55;
@@ -106,23 +107,80 @@
   --anillo-bajo: #E24B4A;
   --anillo-bajo-texto: #B23A3A;
 
-  /* ── Modo oscuro (los usa globals.css) ──────────────────────────────────── */
-  --oscuro-fondo: #0A1512;
-  --oscuro-superficie: #12211D;
-  --oscuro-tarjeta: #17302A;
-  --oscuro-linea: #1F4037;
-  --oscuro-acento: #2E6B58;
-  --oscuro-texto: #E4EFE9;
-  --oscuro-texto-fuerte: #F1F7F3;
-  --oscuro-texto-2: #BCD3C8;
-  --oscuro-texto-3: #9CB5AB;
-  --oscuro-texto-4: #7A938A;
+  /* ── Modo oscuro: grafito (los usa globals.css) ─────────────────────────────
+     Gris carbon neutro; el verde y el dorado de la marca solo resaltan. */
+  --oscuro-fondo: #111315;       /* fondo de pagina */
+  --oscuro-superficie: #16191C;  /* cabecera, menu, encabezados de tabla */
+  --oscuro-tarjeta: #1A1D21;     /* tarjetas, modales, tablas */
+  --oscuro-linea: #2A2F35;       /* bordes y divisiones */
+  --oscuro-acento: #3A4048;      /* bordes de campos, hover */
+  --oscuro-texto: #E8EAED;       /* texto normal */
+  --oscuro-texto-fuerte: #F5F6F7;/* titulos */
+  --oscuro-texto-2: #C4CAD1;
+  --oscuro-texto-3: #9AA3AD;     /* texto secundario */
+  --oscuro-texto-4: #8E96A0;     /* pistas, iconos apagados */
+  --oscuro-marca-texto: #6CC79C; /* el verde de la marca como TEXTO sobre oscuro */
+}
+
+/* El modo oscuro del PANEL: los mismos nombres con valores de noche. Solo
+   aplica dentro del panel (AdminLayout pone `en-panel` en <html>); el login
+   y la portada tienen su propio diseno y no se tocan.
+   Lo que es fondo de boton (marca, dorado, ambar...) se queda casi igual:
+   ya lleva texto blanco encima. Lo que es texto oscuro pasa a claro. */
+html.dark.en-panel {
+  --marca: #1F6B54;              /* fondo de botones y menu activo */
+  --marca-oscuro: #185744;
+  --marca-texto: var(--oscuro-marca-texto);
+  --marca-letra: var(--oscuro-marca-texto);
+  --marca-suave: #1D3A2F;        /* fondos verdes claros -> verde profundo */
+  --marca-profundo: #CFE9DC;
+
+  --dorado-texto: #E3A81B;       /* texto dorado legible sobre oscuro */
+  --dorado-oscuro: #E3A81B;
+  --ambar-texto: #E8B64A;
+  --peligro: #E05A5A;
+  --peligro-oscuro: #F08A8A;
+
+  --tinta: var(--oscuro-texto);
+  --tinta-2: var(--oscuro-texto);
+  --tinta-4: var(--oscuro-texto-2);
+  --tinta-5: var(--oscuro-texto-fuerte);
+  --texto-suave: var(--oscuro-texto-3);
+  --gris: var(--oscuro-texto-4);
+  --pizarra-1: var(--oscuro-texto-2);
+  --pizarra-2: var(--oscuro-texto-2);
+  --pizarra-3: var(--oscuro-texto-3);
+  --pizarra-4: var(--oscuro-texto-3);
+  --pizarra-5: var(--oscuro-texto-3);
+  --pizarra-6: var(--oscuro-texto-3);
+  --pizarra-7: var(--oscuro-texto-4);
+  --pizarra-8: var(--oscuro-texto-4);
+
+  --fondo: var(--oscuro-superficie);
+  --neutro-25: var(--oscuro-superficie);
+  --neutro-50: var(--oscuro-superficie);
+  --rejilla: var(--oscuro-linea);
+  --neutro-200: var(--oscuro-linea);
+  --neutro-400: var(--oscuro-texto-4);
+  --neutro-500: var(--oscuro-texto-3);
+  --neutro-900: var(--oscuro-texto-fuerte);
+  --linea: var(--oscuro-linea);
+  --linea-2: var(--oscuro-linea);
+  --linea-3: var(--oscuro-linea);
+  --linea-4: var(--oscuro-linea);
+  --linea-5: var(--oscuro-linea);
+  --linea-6: var(--oscuro-acento);
+  --linea-7: var(--oscuro-acento);
+  --linea-8: var(--oscuro-acento);
+  --linea-9: var(--oscuro-texto-4);
+  --linea-10: var(--oscuro-acento);
 }
 
 /* Cada color de arriba como color de Tailwind: bg-marca, text-dorado... */
 @theme inline {
   --color-marca: var(--marca);
   --color-marca-oscuro: var(--marca-oscuro);
+  --color-marca-letra: var(--marca-letra);
   --color-marca-profundo: var(--marca-profundo);
   --color-marca-texto: var(--marca-texto);
   --color-marca-medio: var(--marca-medio);

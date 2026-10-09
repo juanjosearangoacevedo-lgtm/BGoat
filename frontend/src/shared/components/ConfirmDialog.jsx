@@ -30,7 +30,7 @@ const tonos = {
   info: {
     icono: AlertTriangle,
     circulo: "bg-marca/10",
-    color: "text-marca",
+    color: "text-marca-letra",
     boton: "bg-dorado text-white hover:bg-dorado-hover",
   },
 };

@@ -26,19 +26,19 @@ export function LandingTableroSection() {
 
         <div className="mt-10 grid gap-6 text-center sm:grid-cols-3">
           <div>
-            <p className="text-3xl font-bold text-marca">3 datos</p>
+            <p className="text-3xl font-bold text-marca-letra">3 datos</p>
             <p className="mt-1 text-sm text-gray-600">
               es todo lo que se digita por hora: unidades, defectuosas y la incidencia
             </p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-marca">520 min</p>
+            <p className="text-3xl font-bold text-marca-letra">520 min</p>
             <p className="mt-1 text-sm text-gray-600">
               la jornada real, con la ultima franja mas corta: la meta se ajusta sola
             </p>
           </div>
           <div>
-            <p className="text-3xl font-bold text-marca">0 cuentas</p>
+            <p className="text-3xl font-bold text-marca-letra">0 cuentas</p>
             <p className="mt-1 text-sm text-gray-600">
               a mano al cerrar el dia, frente a las 200 que hoy se hacen con calculadora
             </p>

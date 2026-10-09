@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useAdminSidebar } from "../hooks/useAdminSidebar";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
@@ -10,6 +11,14 @@ import { Sidebar } from "./Sidebar";
  * al ancho real del sidebar cuando el usuario lo contrae.
  */
 export function AdminLayout({ children, currentPage, onNavigate }) {
+  // El modo oscuro del panel (`html.dark.en-panel` en paleta.css) se
+  // activa solo mientras se esta dentro del panel. Va en <html> y no en
+  // este div para que tambien lo vean los modales, que se pintan fuera.
+  useEffect(() => {
+    document.documentElement.classList.add("en-panel");
+    return () => document.documentElement.classList.remove("en-panel");
+  }, []);
+
   const sidebar = useAdminSidebar({ currentPage, onNavigate });
   const margen = sidebar.colapsado ? "lg:ml-20" : "lg:ml-64";
 

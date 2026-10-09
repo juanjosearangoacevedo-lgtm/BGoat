@@ -16,7 +16,7 @@ export function ModulosKpis({ totals = {} }) {
       value: formatNumero(totals.producido),
       nota: `de ${formatNumero(totals.metaDia)} de meta`,
       icon: Target,
-      color: "text-marca",
+      color: "text-marca-letra",
       bg: "bg-marca/10",
     },
     {
@@ -48,7 +48,7 @@ export function ModulosKpis({ totals = {} }) {
       value: `${totals.operariosAsignados ?? 0}/${totals.capacidad ?? 0}`,
       nota: `${totals.modulos ?? 0} modulos`,
       icon: Users,
-      color: "text-marca",
+      color: "text-marca-letra",
       bg: "bg-marca/10",
     },
     {

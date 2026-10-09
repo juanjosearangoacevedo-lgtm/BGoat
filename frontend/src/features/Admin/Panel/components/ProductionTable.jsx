@@ -51,7 +51,7 @@ export function ProductionTable({ rows = [], loading = false }) {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-marca/10">
-                      <span className="text-sm font-medium text-marca">
+                      <span className="text-sm font-medium text-marca-letra">
                         {Math.round(Number(item.promedio_personas || 0))}
                       </span>
                     </div>

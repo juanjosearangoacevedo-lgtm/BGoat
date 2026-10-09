@@ -136,7 +136,7 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
           onClick={() => onNavigate?.("jornada", { fecha })}
           className="mb-6 flex w-full items-center gap-3 rounded-2xl border border-gray-200 bg-white p-4 text-left transition hover:border-dorado/40"
         >
-          <PlayCircle className="h-5 w-5 shrink-0 text-marca" />
+          <PlayCircle className="h-5 w-5 shrink-0 text-marca-letra" />
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-gray-800">
               {resumen.sinJornada === 1
@@ -156,13 +156,13 @@ export function CapturaPage({ onNavigate, moduloInicial = null, fechaInicial = n
           <span className="text-sm font-medium text-gray-700">
             Avance del recorrido
             {jornada?.codigo && (
-              <span className="ml-2 rounded-md bg-marca/10 px-2 py-0.5 text-xs font-medium text-marca">
+              <span className="ml-2 rounded-md bg-marca/10 px-2 py-0.5 text-xs font-medium text-marca-letra">
                 {jornada.nombre}
               </span>
             )}
           </span>
           <span className="text-sm text-gray-500">
-            <strong className="text-marca">{resumen.registradas}</strong> de {resumen.totales} celdas
+            <strong className="text-marca-letra">{resumen.registradas}</strong> de {resumen.totales} celdas
             {resumen.pendientes > 0 && (
               <span className="ml-2 text-dorado">· {resumen.pendientes} pendientes</span>
             )}

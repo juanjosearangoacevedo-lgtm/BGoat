@@ -48,7 +48,7 @@ export function RecoverPasswordForm({
         <button
           type="button"
           onClick={() => onNavigate("login")}
-          className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-marca transition-colors"
+          className="w-full flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-marca-letra transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Volver al inicio de sesion

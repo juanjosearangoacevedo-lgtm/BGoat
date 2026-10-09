@@ -133,7 +133,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             </div>
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">Entrega</p>
-              <p className="flex h-10 items-center text-lg font-bold text-marca">
+              <p className="flex h-10 items-center text-lg font-bold text-marca-letra">
                 {orderData?.fecha_fin_programada
                   ? formatFecha(orderData.fecha_fin_programada)
                   : "Al iniciar jornada"}
@@ -156,7 +156,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
         {estimacion && (
           <div className="rounded-2xl border border-marca/20 bg-marca/5 p-5">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm font-medium text-marca">Capacidad estimada</p>
+              <p className="text-sm font-medium text-marca-letra">Capacidad estimada</p>
 
               {/* La orden ya no nombra modulo, asi que las personas son un
                   supuesto de quien la programa, no un dato de la orden. Se
@@ -223,7 +223,7 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">Prioridad</p>
               <div className="flex h-10 items-center gap-2">
-                <span className="rounded-full bg-marca/10 px-3 py-1 text-sm font-semibold text-marca">
+                <span className="rounded-full bg-marca/10 px-3 py-1 text-sm font-semibold text-marca-letra">
                   #{orderData.prioridad}
                 </span>
                 <span className="text-xs text-gray-400">en la cola global, no se edita</span>

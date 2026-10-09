@@ -51,7 +51,7 @@ function GrupoModulo({ grupo, seleccionados, onTogglePermiso, onToggleModulo, di
 
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-            marcados > 0 ? "bg-marca/10 text-marca" : "bg-gray-100 text-gray-400"
+            marcados > 0 ? "bg-marca/10 text-marca-letra" : "bg-gray-100 text-gray-400"
           }`}
         >
           {marcados}/{grupo.permisos.length}
@@ -106,7 +106,7 @@ export function RolPermisosSelector({
     <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-4">
       <div className="mb-3 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-marca" />
+          <ShieldCheck className="h-4 w-4 text-marca-letra" />
           <span className="text-sm font-semibold text-gray-800">Permisos del rol</span>
           <span
             className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -129,7 +129,7 @@ export function RolPermisosSelector({
           type="button"
           onClick={onToggleTodos}
           disabled={cargando || total === 0}
-          className="h-8 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:border-marca hover:text-marca disabled:opacity-40"
+          className="h-8 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-600 transition-colors hover:border-marca hover:text-marca-letra disabled:opacity-40"
         >
           {marcados === total && total > 0 ? "Desmarcar todo" : "Marcar todo"}
         </button>

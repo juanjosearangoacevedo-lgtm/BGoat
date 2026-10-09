@@ -9,7 +9,7 @@ import { useTableroModulo } from "../hooks/useTableroModulo";
 function Indicador({ etiqueta, valor, nota, tono = "gris" }) {
   const tonos = {
     gris: "text-gray-900",
-    marca: "text-marca",
+    marca: "text-marca-letra",
     verde: "text-green-600",
     rojo: "text-red-600",
   };

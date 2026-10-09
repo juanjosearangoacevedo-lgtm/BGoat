@@ -66,7 +66,7 @@ export function LandingHero() {
         <ul className="mt-10 grid max-w-[600px] grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-4 lg:mt-14 lg:bajo:mt-8">
           {heroIndicadores.map(({ icon: Icon, valor, texto }) => (
             <li key={texto} className="flex flex-col items-center text-center">
-              <Icon className="h-[30px] w-[30px] text-marca" strokeWidth={1.7} />
+              <Icon className="h-[30px] w-[30px] text-marca-letra" strokeWidth={1.7} />
               {valor && (
                 <p className="mt-2.5 text-[26px] font-extrabold leading-none text-dorado-oscuro sm:text-[28px]">
                   {valor}

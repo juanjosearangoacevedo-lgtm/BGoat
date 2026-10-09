@@ -104,7 +104,7 @@ export function ResetPasswordPage({ token, onNavigate }) {
                 <button
                   type="button"
                   onClick={() => onNavigate("login")}
-                  className="flex w-full items-center justify-center gap-2 text-sm text-gray-500 transition-colors hover:text-marca"
+                  className="flex w-full items-center justify-center gap-2 text-sm text-gray-500 transition-colors hover:text-marca-letra"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   Volver al inicio de sesion

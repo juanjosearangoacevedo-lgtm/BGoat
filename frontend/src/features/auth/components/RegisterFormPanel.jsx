@@ -166,7 +166,7 @@ export function RegisterFormPanel({
             <button
               type="button"
               onClick={() => onNavigate("login")}
-              className="font-medium text-marca hover:text-marca/80"
+              className="font-medium text-marca-letra hover:text-marca-letra/80"
             >
               Iniciar sesion
             </button>

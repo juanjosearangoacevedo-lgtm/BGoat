@@ -151,7 +151,7 @@ export function ClientesPage() {
           footer={paginacion}
           onClick={clientes.verDetalle}
           avatar={(cliente) => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-marca/10 text-xs font-bold text-marca">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-marca/10 text-xs font-bold text-marca-letra">
               {iniciales(cliente.nombre)}
             </div>
           )}

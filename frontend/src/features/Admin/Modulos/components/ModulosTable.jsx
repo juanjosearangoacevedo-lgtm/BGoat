@@ -21,7 +21,7 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
       sortable: true,
       render: (modulo) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca">
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca-letra">
             <Factory className="h-4 w-4" />
           </div>
           <div className="min-w-0">

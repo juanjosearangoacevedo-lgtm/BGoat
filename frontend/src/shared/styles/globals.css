@@ -30,7 +30,7 @@ html.dark .text-gray-800                  { color: var(--oscuro-texto) !importan
 html.dark .text-gray-700                  { color: var(--oscuro-texto-2) !important; }
 html.dark .text-gray-600                  { color: var(--oscuro-texto-3) !important; }
 html.dark .text-gray-500                  { color: var(--oscuro-texto-4) !important; }
-html.dark .text-gray-400                  { color: var(--oscuro-acento) !important; }
+html.dark .text-gray-400                  { color: var(--oscuro-texto-4) !important; }
 
 /* ── Borders & dividers ───────────────────────────────────────────────────── */
 html.dark .border-gray-100               { border-color: var(--oscuro-linea) !important; }
@@ -89,6 +89,36 @@ html.dark .bg-blue-50                     { background-color: rgba(59,130,246,0.
 html.dark .bg-teal-50                     { background-color: rgba(20,184,166,0.1) !important; }
 html.dark .bg-yellow-50                   { background-color: rgba(234,179,8,0.1) !important; }
 html.dark .bg-purple-50                   { background-color: rgba(36,151,58,0.1) !important; }
+
+/* ── Textos de color de Tailwind: el tono claro de cada uno ────────────────
+   Los -600/-700 estan pensados para fondo blanco; sobre grafito se pierden. */
+html.dark .text-red-500,
+html.dark .text-red-600,
+html.dark .text-red-700                   { color: #F08A8A !important; }
+html.dark .text-green-600,
+html.dark .text-green-700,
+html.dark .text-emerald-600,
+html.dark .text-emerald-700               { color: var(--oscuro-marca-texto) !important; }
+html.dark .text-amber-600,
+html.dark .text-amber-700,
+html.dark .text-yellow-700                { color: #E8B64A !important; }
+html.dark .text-blue-600,
+html.dark .text-blue-700                  { color: #8AB8F5 !important; }
+html.dark .border-red-200                 { border-color: rgba(224,90,90,0.4) !important; }
+html.dark .border-green-200,
+html.dark .border-emerald-200             { border-color: rgba(108,199,156,0.35) !important; }
+html.dark .bg-emerald-50                  { background-color: rgba(16,185,129,0.1) !important; }
+html.dark .bg-amber-50                    { background-color: rgba(234,179,8,0.1) !important; }
+
+/* ── Grises claros con transparencia (bg-gray-50/60, bg-gray-100/40...) ─────
+   Las reglas de arriba solo cubren el color entero; estas, cualquier
+   opacidad, solo dentro del panel (el login tiene su tarjeta blanca a
+   proposito). `[class^=]` / `[class*=" "]` evita tomar `hover:bg-gray-50/..`. */
+html.dark.en-panel [class^="bg-gray-50/"], html.dark.en-panel [class*=" bg-gray-50/"],
+html.dark.en-panel [class^="bg-gray-100/"], html.dark.en-panel [class*=" bg-gray-100/"],
+html.dark.en-panel [class^="bg-white/"], html.dark.en-panel [class*=" bg-white/"] {
+  background-color: color-mix(in srgb, var(--oscuro-linea) 45%, transparent) !important;
+}
 
 /* ── Modal overlays ───────────────────────────────────────────────────────── */
 html.dark .fixed.inset-0.bg-black\/50    { background-color: rgba(0,0,0,0.75) !important; }

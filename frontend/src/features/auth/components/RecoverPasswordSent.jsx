@@ -12,7 +12,7 @@ export function RecoverPasswordSent({
       </div>
       <h2 className="text-2xl font-bold text-gray-900 mb-2">Revisa tu correo</h2>
       <p className="text-gray-600 text-sm mb-2">Hemos enviado las instrucciones de recuperacion a:</p>
-      <p className="font-medium text-marca mb-8">{email}</p>
+      <p className="font-medium text-marca-letra mb-8">{email}</p>
       <p className="text-xs text-gray-400 mb-8">
         Si no ves el correo en tu bandeja de entrada, revisa la carpeta de spam o correo no deseado.
       </p>

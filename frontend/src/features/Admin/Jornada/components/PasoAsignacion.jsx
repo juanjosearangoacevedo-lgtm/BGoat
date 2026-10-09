@@ -45,7 +45,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
           onClick={() => setAsignando(true)}
           className="flex w-full items-start gap-4 rounded-2xl border-2 border-gray-200 p-5 text-left transition hover:border-marca hover:bg-marca/5"
         >
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca-letra">
             <UserPlus className="h-6 w-6" />
           </span>
           <span className="min-w-0">
@@ -93,7 +93,7 @@ export function PasoAsignacion({ cantidad = 0, asignacion = [], operarias = [], 
             puestos.forEach((indice) => onAsignar(indice, ""));
             setAsignando(false);
           }}
-          className="text-sm font-medium text-marca hover:underline"
+          className="text-sm font-medium text-marca-letra hover:underline"
         >
           Dejarlas anonimas
         </button>

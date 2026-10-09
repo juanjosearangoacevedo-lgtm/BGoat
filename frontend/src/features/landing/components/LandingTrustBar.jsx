@@ -20,7 +20,7 @@ export function LandingTrustBar() {
           <ul className="flex flex-wrap items-start justify-center gap-x-5 gap-y-5 lg:flex-1">
             {trustEmpresas.map(({ icon: Icon, nombre }) => (
               <li key={nombre} className="flex w-[96px] flex-col items-center text-center">
-                <Icon className="h-[22px] w-[22px] text-marca" strokeWidth={1.6} />
+                <Icon className="h-[22px] w-[22px] text-marca-letra" strokeWidth={1.6} />
                 <span className="mt-2 text-[12.5px] leading-tight text-pizarra-2">{nombre}</span>
               </li>
             ))}
@@ -31,7 +31,7 @@ export function LandingTrustBar() {
           <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-5 xl:gap-x-7">
             {trustBeneficios.map(({ icon: Icon, lineas }) => (
               <li key={lineas[0]} className="flex items-center gap-2">
-                <Icon className="h-[26px] w-[26px] flex-shrink-0 text-marca" strokeWidth={1.6} />
+                <Icon className="h-[26px] w-[26px] flex-shrink-0 text-marca-letra" strokeWidth={1.6} />
                 <span className="text-[12.5px] leading-tight text-pizarra-2">
                   {lineas[0]}
                   <br />

@@ -141,7 +141,7 @@ export function ModulosPage() {
           footer={paginacion}
           onClick={modulos.setSelected}
           avatar={() => (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-marca/10 text-marca">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-marca/10 text-marca-letra">
               <Factory className="h-4 w-4" />
             </div>
           )}

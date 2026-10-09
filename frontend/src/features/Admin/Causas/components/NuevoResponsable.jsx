@@ -42,7 +42,7 @@ export function NuevoResponsable({ onCreado }) {
       <button
         type="button"
         onClick={() => setAbierto(true)}
-        className="mt-1 flex items-center gap-1 text-xs font-medium text-marca hover:underline"
+        className="mt-1 flex items-center gap-1 text-xs font-medium text-marca-letra hover:underline"
       >
         <Plus className="h-3.5 w-3.5" />
         Nuevo responsable

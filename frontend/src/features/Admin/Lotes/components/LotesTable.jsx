@@ -22,7 +22,7 @@ export function columnasLotes({ nombreCliente, onDetalle, onEdit, onToggleEstado
       header: "Codigo",
       sortable: true,
       render: (lote) => (
-        <span className="font-mono text-sm font-medium text-marca">{lote.codigo_lote}</span>
+        <span className="font-mono text-sm font-medium text-marca-letra">{lote.codigo_lote}</span>
       ),
       exportar: (lote) => lote.codigo_lote,
     },

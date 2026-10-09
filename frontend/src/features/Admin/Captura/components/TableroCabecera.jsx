@@ -3,7 +3,7 @@ import { formatMoneda, formatNumero } from "@/shared/utils/formatters";
 function Dato({ etiqueta, valor, nota, tono = "gris" }) {
   const tonos = {
     gris: "text-gray-900",
-    marca: "text-marca",
+    marca: "text-marca-letra",
     verde: "text-green-600",
     ambar: "text-dorado-texto",
   };

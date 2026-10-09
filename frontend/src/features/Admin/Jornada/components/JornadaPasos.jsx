@@ -42,7 +42,7 @@ export function JornadaPasos({ pasos = [], actual = 0, onIr }) {
               </span>
               <span
                 className={`hidden truncate text-sm sm:block ${
-                  activo ? "font-semibold text-marca" : "text-gray-500"
+                  activo ? "font-semibold text-marca-letra" : "text-gray-500"
                 }`}
               >
                 {paso.titulo}

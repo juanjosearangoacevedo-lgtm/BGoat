@@ -30,12 +30,12 @@ export function OrdenCurva({ curva = [], umbral = 85 }) {
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
         <h3 className="flex items-center gap-2 font-bold text-gray-900">
-          <TrendingUp className="h-4 w-4 text-marca" />
+          <TrendingUp className="h-4 w-4 text-marca-letra" />
           Curva de arranque
         </h3>
         {conDatos && (
           <p className="text-xs text-gray-500">
-            Ultima hora <strong className="text-marca">{ultima}%</strong> · maxima {maxima}%
+            Ultima hora <strong className="text-marca-letra">{ultima}%</strong> · maxima {maxima}%
           </p>
         )}
       </div>

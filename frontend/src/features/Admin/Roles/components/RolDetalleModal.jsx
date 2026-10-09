@@ -36,7 +36,7 @@ function PermisosPorModulo({ permisos = [] }) {
           {acciones.map((accion) => (
             <span
               key={accion}
-              className="rounded-full bg-marca/10 px-2 py-0.5 text-xs font-medium text-marca"
+              className="rounded-full bg-marca/10 px-2 py-0.5 text-xs font-medium text-marca-letra"
             >
               {accion}
             </span>

@@ -22,7 +22,7 @@ function Dato({ label, value, destacado = false }) {
     <div className="flex justify-between gap-3 text-sm">
       <span className="flex-shrink-0 text-gray-500">{label}</span>
       <span
-        className={`truncate text-right font-medium ${destacado ? "text-marca" : "text-gray-800"}`}
+        className={`truncate text-right font-medium ${destacado ? "text-marca-letra" : "text-gray-800"}`}
       >
         {value ?? GUION}
       </span>
@@ -136,8 +136,8 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
         <div className="flex-1 space-y-5 overflow-y-auto p-6">
           <div className="rounded-xl bg-marca/5 p-4">
             <div className="mb-2 flex justify-between text-sm">
-              <span className="font-medium text-marca">Eficiencia del dia</span>
-              <span className="font-bold text-marca">{eficiencia}%</span>
+              <span className="font-medium text-marca-letra">Eficiencia del dia</span>
+              <span className="font-bold text-marca-letra">{eficiencia}%</span>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-white">
               <div
@@ -145,7 +145,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
                 style={{ width: `${Math.min(eficiencia, 100)}%` }}
               />
             </div>
-            <div className="mt-1 flex justify-between text-xs text-marca/70">
+            <div className="mt-1 flex justify-between text-xs text-marca-letra/70">
               <span>{formatNumero(num("unidades_producidas"))} producidas</span>
               <span>umbral {Number(modulo.umbral_cumplimiento ?? 85)}%</span>
             </div>
@@ -222,7 +222,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
                     key={operario.id_jornada_operaria}
                     className="flex items-center gap-3 rounded-xl bg-gray-50 p-3"
                   >
-                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-marca/10 text-sm font-bold text-marca">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-marca/10 text-sm font-bold text-marca-letra">
                       {operario.id_operario ? iniciales(nombreCompleto(operario)) : operario.numero}
                     </div>
                     <div className="min-w-0 flex-1">

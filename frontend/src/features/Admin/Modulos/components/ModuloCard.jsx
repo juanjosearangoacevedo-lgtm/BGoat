@@ -24,7 +24,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
         <button onClick={() => onSelect?.(modulo)} className="text-left" type="button">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-marca/10">
-              <Factory className="h-4 w-4 text-marca" />
+              <Factory className="h-4 w-4 text-marca-letra" />
             </div>
             <h3 className="font-bold text-gray-900">{modulo.nombre}</h3>
           </div>
@@ -77,7 +77,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
       </dl>
 
       <div className="flex items-center justify-between border-t border-gray-50 pt-3">
-        <span className="text-sm font-bold text-marca">
+        <span className="text-sm font-bold text-marca-letra">
           {Number(modulo.prendas_por_hora || 0).toFixed(1)} prendas/hora
         </span>
         <RowActions

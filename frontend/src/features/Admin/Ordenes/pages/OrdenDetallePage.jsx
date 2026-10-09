@@ -21,7 +21,7 @@ export function OrdenDetallePage({ orderId, onNavigate }) {
       <div className="flex flex-wrap items-start gap-4">
         <button
           onClick={() => onNavigate?.("orders")}
-          className="mt-1 flex items-center gap-2 text-gray-500 transition-colors hover:text-marca"
+          className="mt-1 flex items-center gap-2 text-gray-500 transition-colors hover:text-marca-letra"
           type="button"
           aria-label="Volver a ordenes"
         >

@@ -22,7 +22,7 @@ export function StatsGrid({ items = [], columns = 4, variant = "verde" }) {
           key={item.label}
           className={`rounded-2xl bg-white p-4 ${borde[variant] || borde.verde}`}
         >
-          <div className="text-2xl font-bold" style={{ color: item.color || "var(--marca)" }}>
+          <div className="text-2xl font-bold" style={{ color: item.color || "var(--marca-letra)" }}>
             {item.value}
           </div>
           <div className="mt-1 text-sm text-gray-500">{item.label}</div>

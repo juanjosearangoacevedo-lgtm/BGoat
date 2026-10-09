@@ -20,7 +20,7 @@ export function LandingTestimonialsSection({ testimonials }) {
               <div>
                 <p className="font-bold text-gray-900">{testimonial.name}</p>
                 <p className="text-sm text-gray-600">{testimonial.role}</p>
-                <p className="text-sm text-marca">{testimonial.company}</p>
+                <p className="text-sm text-marca-letra">{testimonial.company}</p>
               </div>
             </Card>
           ))}

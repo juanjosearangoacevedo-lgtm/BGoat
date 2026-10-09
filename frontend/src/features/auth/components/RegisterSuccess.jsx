@@ -13,7 +13,7 @@ export function RegisterSuccess({
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Registro exitoso</h2>
         <p className="text-gray-600 mb-2">
-          Tu cuenta ha sido creada para <span className="font-medium text-marca">{email}</span>.
+          Tu cuenta ha sido creada para <span className="font-medium text-marca-letra">{email}</span>.
         </p>
         <p className="text-sm text-gray-500 mb-8">
           Un administrador revisara tu solicitud y te notificara cuando tu acceso este activo.

@@ -26,7 +26,7 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
     >
       <div className="space-y-5">
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
             Identificacion
           </h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -68,7 +68,7 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
         </section>
 
         <section>
-          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca">
+          <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
             Capacidad y regla de alerta
           </h3>
 

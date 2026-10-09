@@ -115,7 +115,7 @@ export function FilterBar({
           {filtrosActivos.map((activo) => (
             <span
               key={activo.clave}
-              className="flex items-center gap-1 rounded-full bg-marca/10 py-1 pl-3 pr-1 text-xs font-medium text-marca"
+              className="flex items-center gap-1 rounded-full bg-marca/10 py-1 pl-3 pr-1 text-xs font-medium text-marca-letra"
             >
               {activo.label}: {activo.texto}
               <button
@@ -132,7 +132,7 @@ export function FilterBar({
           <button
             type="button"
             onClick={onLimpiar}
-            className="text-xs font-medium text-gray-400 underline-offset-2 hover:text-marca hover:underline"
+            className="text-xs font-medium text-gray-400 underline-offset-2 hover:text-marca-letra hover:underline"
           >
             Limpiar todo
           </button>

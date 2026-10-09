@@ -48,7 +48,7 @@ export function Modal({
         <div className="flex flex-shrink-0 items-start justify-between gap-4 border-b border-gray-100 p-6">
           <div className="flex items-start gap-3">
             {Icono && (
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-marca/10 text-marca-letra">
                 <Icono className="h-5 w-5" />
               </div>
             )}

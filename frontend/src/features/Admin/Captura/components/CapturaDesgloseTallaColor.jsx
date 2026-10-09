@@ -49,7 +49,7 @@ export function CapturaDesgloseTallaColor({ combos = [], valores = [], onChange 
           <Layers className="h-3.5 w-3.5" />
           Unidades producidas
         </span>
-        <span className="text-xl font-bold text-marca">{total}</span>
+        <span className="text-xl font-bold text-marca-letra">{total}</span>
       </div>
 
       <div className="space-y-2">
@@ -90,7 +90,7 @@ export function CapturaDesgloseTallaColor({ combos = [], valores = [], onChange 
                 }
                 className={`h-11 w-20 flex-shrink-0 rounded-lg border text-center text-lg font-bold outline-none focus:border-marca ${
                   cantidad > 0
-                    ? "border-marca/40 bg-marca/5 text-marca"
+                    ? "border-marca/40 bg-marca/5 text-marca-letra"
                     : "border-gray-200 text-gray-400"
                 } ${completo ? "cursor-not-allowed opacity-60" : ""}`}
               />

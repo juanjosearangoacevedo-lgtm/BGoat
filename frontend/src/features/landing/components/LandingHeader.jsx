@@ -26,7 +26,7 @@ export function LandingHeader({ onNavigate }) {
         <button
           type="button"
           onClick={() => onNavigate("login")}
-          className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border-2 border-marca bg-transparent px-5 py-2.5 text-[15px] font-semibold text-marca transition-colors hover:bg-marca hover:text-white sm:px-7 sm:py-3"
+          className="inline-flex flex-shrink-0 items-center gap-2 rounded-full border-2 border-marca bg-transparent px-5 py-2.5 text-[15px] font-semibold text-marca-letra transition-colors hover:bg-marca hover:text-white sm:px-7 sm:py-3"
         >
           <UserRound className="h-[18px] w-[18px]" />
           Iniciar Sesión

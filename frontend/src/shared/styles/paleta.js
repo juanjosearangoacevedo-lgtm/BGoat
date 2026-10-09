@@ -9,7 +9,7 @@
  *   transparente(paleta.exito, 10)  -> el color al 10% de opacidad
  */
 const nombres = [
-  "marca", "marca-oscuro", "marca-profundo", "marca-texto", "marca-medio", "marca-medio-2",
+  "marca", "marca-oscuro", "marca-letra", "marca-profundo", "marca-texto", "marca-medio", "marca-medio-2",
   "marca-claro", "marca-suave", "salvia", "salvia-claro",
   "exito", "exito-vivo", "exito-anillo", "exito-anillo-claro", "exito-barra",
   "dorado", "dorado-hover", "dorado-texto", "dorado-oscuro", "dorado-medio", "dorado-claro",

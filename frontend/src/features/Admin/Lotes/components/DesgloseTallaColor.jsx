@@ -94,7 +94,7 @@ function SelectorColor({ value, options, onChange }) {
                   <Muestra hex={opcion.hex} className="h-5 w-5" />
                   <span className="flex-1 text-gray-800">{opcion.label}</span>
                   <span className="font-mono text-xs text-gray-400">{opcion.hex || "—"}</span>
-                  {activo && <Check className="h-4 w-4 text-marca" />}
+                  {activo && <Check className="h-4 w-4 text-marca-letra" />}
                 </button>
               </li>
             );
@@ -155,11 +155,11 @@ export function DesgloseTallaColor({
   return (
     <div className="rounded-2xl border border-emerald-200 bg-white p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-marca">
+        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-marca-letra">
           <Layers className="h-4 w-4" />
           Talla y color
         </span>
-        <span className="text-sm font-bold text-marca">
+        <span className="text-sm font-bold text-marca-letra">
           {formatNumero(suma)} {suma === 1 ? "unidad" : "unidades"}
         </span>
       </div>
