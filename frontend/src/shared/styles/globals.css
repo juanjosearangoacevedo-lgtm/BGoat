@@ -41,19 +41,19 @@ html.dark .border-l.border-gray-200      { border-color: var(--oscuro-linea) !im
 html.dark .divide-gray-50 > *            { border-color: var(--oscuro-linea) !important; }
 html.dark .divide-y > *                  { border-color: var(--oscuro-linea) !important; }
 
-/* ── Input fields ─────────────────────────────────────────────────────────── */
-html.dark input[type="text"],
-html.dark input[type="email"],
-html.dark input[type="password"],
-html.dark input[type="number"],
-html.dark input[type="date"],
-html.dark select,
-html.dark textarea                        {
+/* ── Input fields (solo el panel: el login tiene campos de vidrio claro) ──── */
+html.dark.en-panel input[type="text"],
+html.dark.en-panel input[type="email"],
+html.dark.en-panel input[type="password"],
+html.dark.en-panel input[type="number"],
+html.dark.en-panel input[type="date"],
+html.dark.en-panel select,
+html.dark.en-panel textarea                        {
   background-color: var(--oscuro-linea) !important;
   border-color: var(--oscuro-acento) !important;
   color: var(--oscuro-texto) !important;
 }
-html.dark input::placeholder              { color: var(--oscuro-texto-4) !important; }
+html.dark.en-panel input::placeholder              { color: var(--oscuro-texto-4) !important; }
 
 /* ── Table elements ───────────────────────────────────────────────────────── */
 html.dark table                           { background-color: var(--oscuro-tarjeta) !important; }

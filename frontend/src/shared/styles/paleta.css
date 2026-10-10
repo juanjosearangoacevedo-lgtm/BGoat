@@ -107,19 +107,20 @@
   --anillo-bajo: #E24B4A;
   --anillo-bajo-texto: #B23A3A;
 
-  /* ── Modo oscuro: grafito (los usa globals.css) ─────────────────────────────
-     Gris carbon neutro; el verde y el dorado de la marca solo resaltan. */
-  --oscuro-fondo: #111315;       /* fondo de pagina */
-  --oscuro-superficie: #16191C;  /* cabecera, menu, encabezados de tabla */
-  --oscuro-tarjeta: #1A1D21;     /* tarjetas, modales, tablas */
-  --oscuro-linea: #2A2F35;       /* bordes y divisiones */
-  --oscuro-acento: #3A4048;      /* bordes de campos, hover */
-  --oscuro-texto: #E8EAED;       /* texto normal */
-  --oscuro-texto-fuerte: #F5F6F7;/* titulos */
-  --oscuro-texto-2: #C4CAD1;
-  --oscuro-texto-3: #9AA3AD;     /* texto secundario */
-  --oscuro-texto-4: #8E96A0;     /* pistas, iconos apagados */
-  --oscuro-marca-texto: #6CC79C; /* el verde de la marca como TEXTO sobre oscuro */
+  /* ── Modo oscuro: verde bosque (los usa globals.css) ───────────────────────
+     Verdes muy oscuros de la familia de la marca (no negro): fondo, tarjetas
+     y bordes suben de tono para que se distingan. El dorado resalta. */
+  --oscuro-fondo: #12211C;       /* fondo de pagina */
+  --oscuro-superficie: #172923;  /* cabecera, menu, encabezados de tabla */
+  --oscuro-tarjeta: #1C3029;     /* tarjetas, modales, tablas */
+  --oscuro-linea: #2B453B;       /* bordes y divisiones */
+  --oscuro-acento: #3B5A4E;      /* bordes de campos, hover */
+  --oscuro-texto: #E6EFEA;       /* texto normal */
+  --oscuro-texto-fuerte: #F4F8F6;/* titulos */
+  --oscuro-texto-2: #C6D6CE;
+  --oscuro-texto-3: #AABFB5;     /* texto secundario */
+  --oscuro-texto-4: #9AB2A7;     /* pistas, iconos apagados */
+  --oscuro-marca-texto: #5FD39F; /* el verde de la marca como TEXTO sobre oscuro */
 }
 
 /* El modo oscuro del PANEL: los mismos nombres con valores de noche. Solo
@@ -128,11 +129,11 @@
    Lo que es fondo de boton (marca, dorado, ambar...) se queda casi igual:
    ya lleva texto blanco encima. Lo que es texto oscuro pasa a claro. */
 html.dark.en-panel {
-  --marca: #1F6B54;              /* fondo de botones y menu activo */
-  --marca-oscuro: #185744;
+  --marca: #23795E;              /* fondo de botones y menu activo */
+  --marca-oscuro: #1C6550;
   --marca-texto: var(--oscuro-marca-texto);
   --marca-letra: var(--oscuro-marca-texto);
-  --marca-suave: #1D3A2F;        /* fondos verdes claros -> verde profundo */
+  --marca-suave: #23493B;        /* fondos verdes claros -> verde profundo */
   --marca-profundo: #CFE9DC;
 
   --dorado-texto: #E3A81B;       /* texto dorado legible sobre oscuro */
@@ -140,6 +141,7 @@ html.dark.en-panel {
   --ambar-texto: #E8B64A;
   --peligro: #E05A5A;
   --peligro-oscuro: #F08A8A;
+  --peligro-vivo: #F27474;       /* numeros rojos legibles sobre oscuro */
 
   --tinta: var(--oscuro-texto);
   --tinta-2: var(--oscuro-texto);
