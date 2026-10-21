@@ -105,7 +105,7 @@ sam_observado       = minutos_disponibles / unidades_producidas
 | Lotes | `/lotes`, `POST /lotes/:id/ficha`, `PUT /lotes/:id/detalle` | `lotes` (pedido, referencia, SAM y ficha técnica incluidos) + `lote_detalle_talla_color` |
 | Catálogos del producto | `/tallas`, `/colores`, `/tipos-prenda` | tablas homónimas — **sin pantalla propia**, se usan dentro del formulario de Lote |
 | Clientes | `/clientes` | `clientes` (cliente-marca unificado) |
-| Usuarios / Roles / Permisos | `/usuarios`, `/roles`, `/permisos` | `usuarios`, `roles`, `permisos`, `rol_permiso` |
+| Usuarios · Roles y permisos | `/usuarios`, `/roles`, `/permisos` | `usuarios`, `roles`, `permisos`, `rol_permiso` |
 
 ---
 
@@ -135,6 +135,12 @@ vacía significa "no cambiarla".
 `intentos_fallidos` y `bloqueado_hasta` los administra el backend.
 
 ### Permisos → `permisos` + `rol_permiso`
+
+Sin pantalla propia: se consultan y se editan desde **Roles y permisos** (el ojo
+de cada rol muestra lo concedido por módulo y el formulario trae la matriz). El
+permiso `Permisos` sigue en el catálogo porque protege ver y guardar los
+permisos de un rol (`GET` y `PUT /roles/:id/permisos`): quitarlo dejaría a Roles
+sin poder cargar ni guardar la matriz.
 
 Matriz de `modulo` × `accion` (`VER, CREAR, EDITAR, ELIMINAR, EXPORTAR`).
 **51 permisos sobre 12 módulos.** No todos admiten las 5 acciones: `Panel`

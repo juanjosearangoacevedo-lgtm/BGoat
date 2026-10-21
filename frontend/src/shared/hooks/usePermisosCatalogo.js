@@ -5,9 +5,9 @@ import { endpoints } from "@/shared/services/endpoints";
 /**
  * Catalogo de la tabla `permisos`, agrupado por modulo.
  *
- * Lo consumen el formulario de roles (para marcar los permisos del rol) y la
- * pantalla de consulta de permisos, de modo que ambos hablen del mismo
- * catalogo sin pedirlo dos veces cada uno por su lado.
+ * Lo consume el modulo de roles: el formulario lo usa para marcar los
+ * permisos del rol y el detalle para nombrar las acciones. Es la unica
+ * puerta al catalogo: ya no hay una pantalla aparte de consulta de permisos.
  */
 export const acciones = ["VER", "CREAR", "EDITAR", "ELIMINAR", "EXPORTAR"];
 
