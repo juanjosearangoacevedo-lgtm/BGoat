@@ -1,6 +1,10 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { execute, query, queryOne } from "../config/db.js";
+import {
+  exigirAdministradorRestante,
+  exigirNoInactivarseASiMismo,
+} from "../lib/administradores.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
 import { filtrosDeListado } from "../lib/filtros.js";
 import { requierePermiso } from "../middleware/auth.js";
@@ -81,10 +85,24 @@ usuariosRouter.put(
   "/:id",
   requierePermiso("Usuarios", "EDITAR"),
   asyncHandler(async (req, res) => {
-    const existente = await queryOne("SELECT id_usuario FROM usuarios WHERE id_usuario = ?", [
-      req.params.id,
-    ]);
+    const existente = await queryOne(
+      "SELECT id_usuario, id_rol, estado FROM usuarios WHERE id_usuario = ?",
+      [req.params.id],
+    );
     if (!existente) throw ApiError.notFound();
+
+    // El interruptor de estado de la pantalla pasa por aqui, y por aqui un
+    // administrador se inactivaba a si mismo (o se cambiaba el rol) y dejaba
+    // al sistema sin nadie que pudiera reactivarlo.
+    exigirNoInactivarseASiMismo({
+      idObjetivo: req.params.id,
+      idSolicitante: req.usuario.id_usuario,
+      estado: req.body?.estado,
+    });
+    await exigirAdministradorRestante(existente, {
+      estado: req.body?.estado,
+      id_rol: req.body?.id_rol,
+    });
 
     const campos = [
       "id_rol", "tipo_documento", "numero_documento", "nombres",
@@ -130,14 +148,19 @@ usuariosRouter.delete(
   "/:id",
   requierePermiso("Usuarios", "ELIMINAR"),
   asyncHandler(async (req, res) => {
-    if (Number(req.params.id) === Number(req.usuario.id_usuario)) {
-      throw ApiError.badRequest("No puede inactivar su propio usuario");
-    }
+    exigirNoInactivarseASiMismo({
+      idObjetivo: req.params.id,
+      idSolicitante: req.usuario.id_usuario,
+      estado: "INACTIVO",
+    });
 
-    const existente = await queryOne("SELECT id_usuario FROM usuarios WHERE id_usuario = ?", [
-      req.params.id,
-    ]);
+    const existente = await queryOne(
+      "SELECT id_usuario, id_rol, estado FROM usuarios WHERE id_usuario = ?",
+      [req.params.id],
+    );
     if (!existente) throw ApiError.notFound();
+
+    await exigirAdministradorRestante(existente, { estado: "INACTIVO" });
 
     // El alcance pide conservar trazabilidad: se inactiva, no se borra.
     await execute("UPDATE usuarios SET estado = 'INACTIVO' WHERE id_usuario = ?", [req.params.id]);

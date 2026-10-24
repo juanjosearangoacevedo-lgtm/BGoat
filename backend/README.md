@@ -82,6 +82,7 @@ src/
     http.js         ApiError, asyncHandler y traduccion de errores de MySQL
     crud.js         Fabrica de routers REST a partir de resources.js
     lotes.js        Reglas del lote: mayusculas, "al menos uno de tres" y el consecutivo del codigo
+    administradores.js  Guarda: el sistema no se queda sin administrador activo
     filtros.js      El WHERE de un listado: buscar + filtros de igualdad
     fechas.js       hoy() en hora LOCAL (no UTC) y validacion de formato
   middleware/
@@ -103,6 +104,7 @@ scripts/
   hash.js           Genera un hash bcrypt
 test/
   lotes.test.js     Reglas del lote que no necesitan base de datos (`npm test`)
+  administradores.test.js  La guarda del ultimo administrador, con consultas falsas
 ```
 
 ### Por que un CRUD generico
@@ -211,3 +213,12 @@ crear; al editar, solo se rechaza si un lote que ya tenia uno se quedaria sin
 ninguno), y `numero_pedido` y `codigo_referencia` se guardan siempre en
 **mayusculas**. Todo vive en `src/lib/lotes.js`; la migracion
 `00j_migracion_lote_mayusculas.sql` sube a mayusculas lo que ya estaba guardado.
+
+**5. El sistema no se queda sin administrador.** Nadie puede inactivarse a si
+mismo (ni por `PUT` ni por `DELETE /api/usuarios/:id`), y no se puede inactivar,
+bloquear ni quitarle el rol al **ultimo administrador activo**. "Administrador"
+es quien puede editar usuarios (`Usuarios` + `EDITAR`), no un rol con ese
+nombre: es lo que hace falta para volver a activar a alguien. Sin esta guarda, el
+interruptor de estado de la pantalla de usuarios dejaba a un administrador
+inactivarse y, con el unico fuera, nadie podia entrar a reactivarlo (solo se
+arreglaba a mano en la base). Vive en `src/lib/administradores.js`.
