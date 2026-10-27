@@ -254,7 +254,10 @@ El **código** (`MOD-01`, `MOD-02`…) no se digita: lo asigna el sistema al cre
 con el siguiente número del consecutivo, y no cambia (`backend/src/lib/codigos.js`,
 el mismo mecanismo del código del lote). La **ubicación** ya no se pide: era un
 texto suelto que solo se mostraba; la columna `ubicacion` queda en la tabla, sin
-usarse. `orden_visual` es opcional: sin valor, el módulo queda al final.
+usarse. El **orden en el tablero** (`orden_visual`) también se retiró: con el
+código consecutivo, el orden natural es el del código, y los módulos salen así
+en el tablero, la captura, la jornada y el listado (`ordenModulosSql`); la
+columna queda en la tabla, sin usarse.
 
 ### Operarios → `operarios`
 
@@ -343,7 +346,14 @@ material, corte de energía). Esa última categoría es tiempo perdido negociabl
 y hoy la empresa lo absorbe en silencio porque nadie lo mide.
 
 `requiere_nota` obliga a escribir la explicación adicional, y se exige donde el
-nombre de la causa no alcanza para entender qué pasó.
+nombre de la causa no alcanza para entender qué pasó. El backend lo hace cumplir
+al guardar la hora (no es solo de la pantalla), y también lo piden la web y la
+app móvil.
+
+Las incidencias salen en **orden alfabético** (en la captura y en el listado): se
+retiró el "orden en pantalla" (`orden_visual`), que solo movía los botones; la
+columna queda en la tabla, sin usarse. El `id_responsable` se conserva: se muestra
+bajo cada causa en el panel y viaja en el Pareto.
 
 ---
 

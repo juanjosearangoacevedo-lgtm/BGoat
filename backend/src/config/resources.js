@@ -1,5 +1,5 @@
 import { queryOne } from "./db.js";
-import { generarCodigoModulo, generarCodigoOperario } from "../lib/codigos.js";
+import { generarCodigoModulo, generarCodigoOperario, ordenModulosSql } from "../lib/codigos.js";
 import { enlacesDe } from "../lib/enlaces.js";
 import { ApiError } from "../lib/http.js";
 import { prepararIdentidad } from "../lib/identidad.js";
@@ -74,18 +74,6 @@ async function prepararCliente(datos, { id }) {
   const oficial = buscarUbicacion(departamento, municipio);
   if (!oficial) throw ApiError.badRequest("El municipio no pertenece a ese departamento");
   return { ...listo, ...oficial };
-}
-
-/**
- * Un modulo nuevo sin "orden en el tablero" queda al final (el numero mas alto
- * mas uno). Sin esto quedaba con el valor por defecto (1) y se colaba entre los
- * primeros.
- */
-async function prepararModulo(datos, { id }) {
-  if (id || (datos.orden_visual !== undefined && datos.orden_visual !== null)) return datos;
-
-  const fila = await queryOne("SELECT COALESCE(MAX(orden_visual), 0) + 1 AS siguiente FROM modulos");
-  return { ...datos, orden_visual: Number(fila?.siguiente ?? 1) };
 }
 
 /** Documento, correo y telefono del operario. */
@@ -308,17 +296,17 @@ export const recursos = {
     // lo capturado; tenerlas tambien escritas a mano las contradecia.
     //
     // `codigo` no se digita: lo asigna el sistema al crear (MOD-01, MOD-02...)
-    // y despues no cambia. `ubicacion` ya no se pide (era un texto suelto que
-    // solo se mostraba): la columna queda en la tabla, sin usarse.
+    // y despues no cambia. `ubicacion` y `orden_visual` ya no se piden (la
+    // primera era un texto suelto que solo se mostraba; el orden sale del
+    // codigo, ver `ordenModulosSql`): las columnas quedan en la tabla, sin usarse.
     campos: [
       "nombre", "capacidad_operarios",
-      "umbral_cumplimiento", "orden_visual", "estado", "observaciones",
+      "umbral_cumplimiento", "estado", "observaciones",
     ],
     obligatorios: ["nombre"],
     buscables: ["codigo", "nombre"],
     filtros: ["estado"],
-    orden: "orden_visual ASC, codigo ASC",
-    antesDeGuardar: prepararModulo,
+    orden: ordenModulosSql("codigo"),
     consecutivo: { campo: "codigo", generar: generarCodigoModulo },
     // Con la jornada abierta el modulo esta trabajando: no sale de servicio.
     enlaces: enlacesDe.modulos,
@@ -336,11 +324,13 @@ export const recursos = {
     tabla: "causas_desviacion",
     pk: "id_causa",
     permiso: "Causas",
-    campos: ["codigo", "descripcion", "tipo", "id_responsable", "requiere_nota", "orden_visual", "estado"],
+    // Sin "orden en pantalla": las incidencias salen por orden alfabetico, en
+    // la captura y en el listado. `orden_visual` queda en la tabla, sin usarse.
+    campos: ["codigo", "descripcion", "tipo", "id_responsable", "requiere_nota", "estado"],
     obligatorios: ["codigo", "tipo"],
     buscables: ["codigo", "descripcion", "nombre_responsable"],
     filtros: ["estado", "tipo", "id_responsable"],
-    orden: "orden_visual ASC, codigo ASC",
+    orden: "codigo ASC",
     vista: `
       SELECT c.*, r.nombre AS nombre_responsable
       FROM causas_desviacion c

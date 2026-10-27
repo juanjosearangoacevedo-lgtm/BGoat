@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { query, queryOne } from "../config/db.js";
 import { asyncHandler } from "../lib/http.js";
+import { ordenModulosSql } from "../lib/codigos.js";
 import { fechaValida, hoy } from "../lib/fechas.js";
 import { requierePermiso } from "../middleware/auth.js";
 
@@ -177,7 +178,7 @@ indicadoresRouter.get(
          ) primera ON primera.id_orden_produccion = v.id_orden_produccion
        ) o ON o.id_modulo = m.id_modulo
        WHERE m.estado <> 'INACTIVO'
-       ORDER BY m.orden_visual ASC, m.codigo ASC`,
+       ORDER BY ${ordenModulosSql("m.codigo")}`,
       [fecha, fecha],
     );
 

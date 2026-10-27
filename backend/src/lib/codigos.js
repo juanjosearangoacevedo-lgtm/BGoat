@@ -49,6 +49,15 @@ export function generadorDeCodigo({ tabla, columna, prefijo, ancho }, consulta =
   };
 }
 
+/**
+ * El `ORDER BY` de los modulos (sin la palabra): por el numero del codigo, de
+ * modo que MOD-02 va antes que MOD-10. Ya no hay una columna de orden que
+ * alguien tenga que mantener: con el codigo consecutivo, el orden natural es
+ * el del codigo. `modulos.orden_visual` queda en la tabla, sin usarse.
+ */
+export const ordenModulosSql = (columna = "codigo") =>
+  `CAST(REGEXP_SUBSTR(${columna}, '[0-9]+') AS UNSIGNED), ${columna}`;
+
 export const generarCodigoModulo = generadorDeCodigo({
   tabla: "modulos", columna: "codigo", prefijo: "MOD-", ancho: 2,
 });

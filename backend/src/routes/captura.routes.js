@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { execute, query, queryOne } from "../config/db.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
+import { ordenModulosSql } from "../lib/codigos.js";
 import { fechaValida, hoy } from "../lib/fechas.js";
 import { requierePermiso } from "../middleware/auth.js";
 
@@ -352,7 +353,7 @@ capturaRouter.get(
               umbral_cumplimiento, estado
        FROM modulos
        WHERE estado <> 'INACTIVO'
-       ORDER BY orden_visual ASC, codigo ASC`,
+       ORDER BY ${ordenModulosSql("codigo")}`,
     );
 
     const [registros, causas, jornadasDia] = await Promise.all([
@@ -365,7 +366,7 @@ capturaRouter.get(
          FROM causas_desviacion c
          LEFT JOIN responsables r ON r.id_responsable = c.id_responsable
          WHERE c.estado = 'ACTIVO'
-         ORDER BY c.orden_visual ASC`,
+         ORDER BY nombre ASC`,
       ),
       query(`${SELECT_JORNADA_MODULO} WHERE jm.fecha = ?`, [fecha]),
     ]);

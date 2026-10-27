@@ -6,14 +6,13 @@ import { reglas } from "@/shared/validations";
  * Solo quedan los dos parametros que el negocio decide: cuantos puestos
  * tiene el modulo y bajo que % se pide la incidencia. Las horas del dia
  * y la eficiencia salen de lo capturado, asi que no se validan aqui
- * porque ya no se escriben. Tampoco el codigo (lo asigna el sistema) ni la
- * ubicacion (ya no se pide).
+ * porque ya no se escriben. Tampoco el codigo (lo asigna el sistema), ni la
+ * ubicacion ni el orden en el tablero (ya no se piden).
  */
 export const moduloLimites = {
   nombre: { min: 2, max: 60 },
   capacidad: { min: 0, max: 200 },
   umbral: { min: 1, max: 100 },
-  ordenVisual: { min: 1, max: 99 },
   observaciones: { max: 255 },
 };
 
@@ -34,7 +33,6 @@ export function crearModuloEsquema() {
     umbral_cumplimiento: [
       reglas.numero({ ...moduloLimites.umbral, etiqueta: "El umbral de cumplimiento" }),
     ],
-    orden_visual: enteroEnRango(moduloLimites.ordenVisual, "El orden en el tablero"),
     observaciones: [
       reglas.longitud({ ...moduloLimites.observaciones, etiqueta: "Las observaciones" }),
     ],

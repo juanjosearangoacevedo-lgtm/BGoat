@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { formatearCodigo, generadorDeCodigo, numeroDeCodigo } from "../src/lib/codigos.js";
+import {
+  formatearCodigo,
+  generadorDeCodigo,
+  numeroDeCodigo,
+  ordenModulosSql,
+} from "../src/lib/codigos.js";
 import { ESCALA_DE_LETRAS, ordenTallasSql } from "../src/lib/tallas.js";
 
 /**
@@ -54,6 +59,15 @@ test("formatearCodigo y numeroDeCodigo se corresponden", () => {
   assert.equal(numeroDeCodigo("MOD-", "M1"), null);
   assert.equal(numeroDeCodigo("MOD-", "MOD-7B"), null);
   assert.equal(numeroDeCodigo("MOD-", null), null);
+});
+
+test("los modulos se ordenan por el numero de su codigo, no por texto", () => {
+  // Por texto, MOD-100 quedaria antes que MOD-11; por el numero, despues.
+  assert.equal(ordenModulosSql(), "CAST(REGEXP_SUBSTR(codigo, '[0-9]+') AS UNSIGNED), codigo");
+  assert.equal(
+    ordenModulosSql("m.codigo"),
+    "CAST(REGEXP_SUBSTR(m.codigo, '[0-9]+') AS UNSIGNED), m.codigo",
+  );
 });
 
 test("un nombre de tabla o columna raro no se acepta", () => {

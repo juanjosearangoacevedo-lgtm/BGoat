@@ -9,7 +9,6 @@ import { reglas } from "@/shared/validations";
 export const causaLimites = {
   codigo: { min: 2, max: 100 },
   descripcion: { max: 255 },
-  ordenVisual: { min: 1, max: 99 },
 };
 
 export const causaTipos = ["PLANEADA", "INTERNA", "EXTERNA"];
@@ -36,10 +35,6 @@ export function crearCausaEsquema({ lista = [], editing = null, responsableOptio
         !valor || responsableOptions.some((opcion) => String(opcion.value) === String(valor))
           ? ""
           : "El responsable seleccionado no existe",
-    ],
-    orden_visual: [
-      reglas.entero({ etiqueta: "El orden en pantalla" }),
-      reglas.numero({ ...causaLimites.ordenVisual, etiqueta: "El orden en pantalla" }),
     ],
     estado: [reglas.seleccionRequerida("El estado"), reglas.opcionValida(causaEstados, "El estado")],
   };

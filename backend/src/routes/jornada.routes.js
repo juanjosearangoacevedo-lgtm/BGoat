@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { execute, query, queryOne, transaction } from "../config/db.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
+import { ordenModulosSql } from "../lib/codigos.js";
 import { fechaValida, hoy } from "../lib/fechas.js";
 import { requierePermiso } from "../middleware/auth.js";
 
@@ -232,7 +233,7 @@ jornadaRouter.get(
          LEFT JOIN lotes l ON l.id_lote = jm.id_lote
          LEFT JOIN clientes cl ON cl.id_cliente = l.id_cliente
          WHERE m.estado = 'ACTIVO'
-         ORDER BY m.orden_visual ASC, m.codigo ASC`,
+         ORDER BY ${ordenModulosSql("m.codigo")}`,
         [fecha],
       ),
       // Solo clientes que tienen al menos un lote utilizable: ofrecer un
@@ -339,7 +340,7 @@ jornadaRouter.get(
   requierePermiso("Jornada", "VER"),
   asyncHandler(async (req, res) => {
     const fecha = fechaValida(req.query.fecha) ? req.query.fecha : hoy();
-    const datos = await query(`${SELECT_JORNADA} WHERE jm.fecha = ? ORDER BY m.orden_visual`, [
+    const datos = await query(`${SELECT_JORNADA} WHERE jm.fecha = ? ORDER BY ${ordenModulosSql("m.codigo")}`, [
       fecha,
     ]);
 

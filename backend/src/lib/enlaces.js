@@ -172,7 +172,7 @@ export const enlacesDe = {
         q,
         `SELECT c.id_causa, c.codigo, c.tipo FROM causas_desviacion c
           WHERE c.id_responsable = ? AND c.estado = 'ACTIVO'
-          ORDER BY c.orden_visual, c.codigo`,
+          ORDER BY c.codigo`,
         [id],
         (fila) => ({ tipo: "causa", titulo: fila.codigo, detalle: `Causa ${String(fila.tipo).toLowerCase()}` }),
       ),

@@ -22,7 +22,6 @@ export const emptyModuloForm = {
   nombre: "",
   capacidad_operarios: "",
   umbral_cumplimiento: "85",
-  orden_visual: "",
   estado: "ACTIVO",
   observaciones: "",
 };
@@ -34,18 +33,12 @@ export function useModulosPage() {
     emptyForm: emptyModuloForm,
     nombreRegistro: (modulo) => (modulo?.codigo ? `el módulo ${modulo.codigo}` : "el módulo"),
     esquema: () => crearModuloEsquema(),
-    // El codigo lo asigna el backend: no viaja. Sin orden escrito, el backend
-    // deja el modulo al final.
-    transformarPayload: ({ codigo: _codigo, ubicacion: _ubicacion, ...datos }) => {
-      const payload = {
-        ...datos,
-        capacidad_operarios: Number(datos.capacidad_operarios || 0),
-        umbral_cumplimiento: Number(datos.umbral_cumplimiento || 85),
-      };
-      if (String(datos.orden_visual ?? "").trim() === "") delete payload.orden_visual;
-      else payload.orden_visual = Number(datos.orden_visual);
-      return payload;
-    },
+    // El codigo lo asigna el backend: no viaja.
+    transformarPayload: ({ codigo: _codigo, ubicacion: _ubicacion, orden_visual: _orden, ...datos }) => ({
+      ...datos,
+      capacidad_operarios: Number(datos.capacidad_operarios || 0),
+      umbral_cumplimiento: Number(datos.umbral_cumplimiento || 85),
+    }),
   });
 
   const [estado, setEstado] = useState([]);
@@ -131,7 +124,7 @@ export function useModulosPage() {
 
   const lista = useListaAdmin(modulos, {
     filtros: definicionesFiltro,
-    ordenInicial: { campo: "orden_visual", direccion: "asc" },
+    ordenInicial: { campo: "codigo", direccion: "asc" },
     pageSize: 12,
     extraReset: [crud.search],
   });

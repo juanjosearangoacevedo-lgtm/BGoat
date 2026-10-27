@@ -47,7 +47,6 @@ export function CausasPage() {
       emptyIcon={AlertTriangle}
       emptyTitle="No hay causas configuradas"
       emptyDescription="Sin causas, la digitadora no puede explicar por qué una hora quedó por debajo de la meta."
-      ordenInicial={{ campo: "orden_visual", direccion: "asc" }}
       filtrosLista={[
         {
           clave: "estado",
@@ -98,7 +97,6 @@ export function CausasPage() {
           align: "center",
           render: (fila) => (Number(fila.requiere_nota) === 1 ? "Si" : "No"),
         },
-        { key: "orden_visual", header: "Orden", align: "center" },
         { key: "estado", header: "Estado", tipo: "estado" },
       ]}
       emptyForm={{
@@ -107,7 +105,6 @@ export function CausasPage() {
         tipo: "INTERNA",
         id_responsable: "",
         requiere_nota: "0",
-        orden_visual: "1",
         estado: "ACTIVO",
       }}
       required={["codigo", "tipo"]}
@@ -119,7 +116,6 @@ export function CausasPage() {
         descripcion: String(datos.descripcion || "").trim() || null,
         id_responsable: datos.id_responsable ? Number(datos.id_responsable) : null,
         requiere_nota: Number(datos.requiere_nota) ? 1 : 0,
-        orden_visual: Number(datos.orden_visual || 1),
       })}
       campos={[
         {
@@ -153,14 +149,6 @@ export function CausasPage() {
             { value: "1", label: "Si" },
           ],
           hint: "Si la exige, la digitadora debe escribir el detalle.",
-        },
-        {
-          name: "orden_visual",
-          label: "Orden en pantalla",
-          type: "number",
-          min: 1,
-          max: 99,
-          hint: "Define en qué posición aparece el botón.",
         },
         {
           name: "estado",

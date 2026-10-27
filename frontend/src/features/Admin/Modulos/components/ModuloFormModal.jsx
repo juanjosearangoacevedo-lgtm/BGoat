@@ -8,7 +8,8 @@ import { moduloStatusOptions } from "../hooks/useModulosPage";
  * Formulario de la tabla `modulos`.
  *
  * El codigo (MOD-01, MOD-02...) no se digita: lo asigna el sistema al crear y
- * ya no cambia (al editar, va en el titulo). Tampoco se pide la ubicacion.
+ * ya no cambia (al editar, va en el titulo). Tampoco se pide la ubicacion ni el
+ * orden en el tablero: los modulos salen ordenados por su codigo.
  */
 export function ModuloFormModal({ open, editing, form, errors, guardando, onChange, onClose, onSave }) {
   return (
@@ -71,17 +72,6 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
           error={errors.umbral_cumplimiento}
           hint="Por debajo del umbral se pide la incidencia."
           onChange={(valor) => onChange("umbral_cumplimiento", valor)}
-        />
-        <FormField
-          label="Orden en el tablero"
-          type="number"
-          min={1}
-          max={99}
-          placeholder="Al final"
-          value={form.orden_visual ?? ""}
-          error={errors.orden_visual}
-          hint="Opcional: si lo dejas vacío, el módulo queda al final."
-          onChange={(valor) => onChange("orden_visual", valor)}
         />
         {/* El estado va al final, antes de las observaciones, como en todo el panel. */}
         <FormField

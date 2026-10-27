@@ -249,9 +249,11 @@ y `POST /api/operarios` ignoran cualquier `codigo` que llegue y asignan el sigui
 consecutivo (`MOD-01`, `MOD-02`... y `OP-001`, `OP-002`...): el mas alto que exista
 con ese formato, mas uno. Despues no cambian. Se conecta con `consecutivo` en
 `config/resources.js`, como el del lote, asi que dos altas simultaneas no se pisan.
-Vive en `src/lib/codigos.js`. Por la misma razon, `modulos.ubicacion` ya no se escribe
-(la columna queda sin usarse) y el orden de las tallas ya no se digita: sale del
-nombre (`src/lib/tallas.js`).
+Vive en `src/lib/codigos.js`. Por la misma razon, `modulos.ubicacion` y
+`modulos.orden_visual` ya no se escriben (las columnas quedan sin usarse): los
+modulos salen ordenados por el numero de su codigo (`ordenModulosSql`), las
+incidencias por orden alfabetico (se retiro su `orden_visual`) y las tallas por
+su nombre (`src/lib/tallas.js`).
 
 **6. Eliminar es dejar fuera de servicio, y lo que sigue en uso no sale.** En
 este sistema nada con historia se borra: `DELETE` inactiva el registro (solo se
