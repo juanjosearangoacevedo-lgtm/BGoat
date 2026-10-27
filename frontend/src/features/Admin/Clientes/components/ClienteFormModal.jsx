@@ -19,7 +19,17 @@ import { clienteDocumentTypes, clienteStatusOptions } from "../hooks/useClientes
  * Departamento y municipio se escogen de la lista de Colombia (el municipio
  * depende del departamento); la direccion es solo la calle.
  */
-export function ClienteFormModal({ open, editing, form, errors, guardando, onChange, onClose, onSave }) {
+export function ClienteFormModal({
+  open,
+  editing,
+  form,
+  errors,
+  guardando,
+  onChange,
+  onBlur,
+  onClose,
+  onSave,
+}) {
   const ubicaciones = useUbicaciones({ activo: open, departamento: form.departamento });
   const tipo = form.tipo_documento ?? "NIT";
 
@@ -52,6 +62,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
             error={errors.nombre}
             hint="Como se conoce en la planta: la marca, la empresa o la persona."
             onChange={(valor) => onChange("nombre", valor)}
+            onBlur={() => onBlur?.("nombre")}
           />
         </div>
 
@@ -73,6 +84,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
           error={errors.numero_documento}
           hint={pistaDocumento(tipo, form.numero_documento)}
           onChange={(valor) => onChange("numero_documento", normalizarDocumento(tipo, valor))}
+          onBlur={() => onBlur?.("numero_documento")}
         />
 
         <FormField
@@ -82,6 +94,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
           value={form.correo ?? ""}
           error={errors.correo}
           onChange={(valor) => onChange("correo", valor)}
+          onBlur={() => onBlur?.("correo")}
         />
         <FormField
           label="Teléfono"
@@ -90,6 +103,7 @@ export function ClienteFormModal({ open, editing, form, errors, guardando, onCha
           value={form.telefono ?? ""}
           error={errors.telefono}
           onChange={(valor) => onChange("telefono", valor)}
+          onBlur={() => onBlur?.("telefono")}
         />
 
         <FormField

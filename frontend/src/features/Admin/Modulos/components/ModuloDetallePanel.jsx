@@ -116,9 +116,7 @@ export function ModuloDetallePanel({ modulo, jornada = null, onClose }) {
         <div className="flex items-center justify-between border-b border-gray-100 p-6">
           <div>
             <h2 className="text-lg font-bold text-gray-900">{modulo.nombre}</h2>
-            <p className="text-xs text-gray-500">
-              {modulo.codigo} · {modulo.ubicacion || "Sin ubicación"}
-            </p>
+            <p className="text-xs text-gray-500">{modulo.codigo}</p>
           </div>
           <div className="flex items-center gap-2">
             <StatusBadge status={modulo.estado} />

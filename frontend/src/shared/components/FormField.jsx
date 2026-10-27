@@ -13,12 +13,21 @@ import { Label } from "./label";
  *
  * `type="textarea"` renderiza un area de texto; el resto son inputs nativos.
  *
+ * `type="color"` muestra el selector de color y, al lado, su codigo
+ * (#RRGGBB): se actualiza mientras se va eligiendo el color y tambien se puede
+ * escribir (solo admite los seis digitos hexadecimales).
+ *
  * `mayusculas` es para los codigos que se guardan en MAYUSCULAS SOSTENIDA
  * (pedido, referencia): lo que se digita o se pega ya queda en mayuscula
  * en el valor del formulario, no solo en como se ve. Solo aplica a los
  * campos de texto de una linea.
  */
 const claseError = "border-red-400 focus-visible:ring-red-300";
+
+const HEX_COMPLETO = /^#[0-9a-fA-F]{6}$/;
+
+/** Lo que se escribe en el codigo de un color: "#" y hasta seis digitos hexadecimales, en mayuscula. */
+const aHex = (texto) => `#${String(texto).replace(/[^0-9a-fA-F]/g, "").slice(0, 6).toUpperCase()}`;
 
 export function FormField({
   label,
@@ -110,6 +119,33 @@ export function FormField({
             </option>
           ))}
         </select>
+      ) : type === "color" ? (
+        <div className="flex items-center gap-3">
+          <input
+            type="color"
+            // El selector nativo solo acepta "#rrggbb" completo: mientras se
+            // escribe el codigo a medias, muestra negro.
+            value={HEX_COMPLETO.test(value ?? "") ? String(value).toLowerCase() : "#000000"}
+            disabled={disabled}
+            onChange={(event) => onChange?.(event.target.value.toUpperCase())}
+            aria-label={`${label}: elegir color`}
+            className="h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1 disabled:cursor-not-allowed"
+          />
+          <Input
+            type="text"
+            value={value ?? ""}
+            disabled={disabled}
+            onChange={(event) => onChange?.(aHex(event.target.value))}
+            onBlur={onBlur}
+            placeholder="#RRGGBB"
+            maxLength={7}
+            spellCheck={false}
+            aria-label={`${label}: código`}
+            aria-invalid={Boolean(error)}
+            aria-describedby={idAyuda}
+            className={`w-32 font-mono uppercase ${error ? claseError : ""}`.trim()}
+          />
+        </div>
       ) : type === "textarea" ? (
         <textarea
           rows={rows}

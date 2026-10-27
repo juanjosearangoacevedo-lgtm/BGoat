@@ -47,7 +47,7 @@ export function PasoModulo({ modulos = [], seleccionado, onSeleccionar, onContin
 
             <div className="min-w-0">
               <div className="text-lg font-bold text-gray-900">{modulo.codigo}</div>
-              <div className="truncate text-xs text-gray-500">{modulo.ubicacion || modulo.nombre}</div>
+              <div className="truncate text-xs text-gray-500">{modulo.nombre}</div>
             </div>
 
             {ocupado ? (

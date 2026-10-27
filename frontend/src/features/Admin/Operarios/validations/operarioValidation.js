@@ -2,10 +2,10 @@ import { reglas } from "@/shared/validations";
 
 /**
  * Reglas del formulario de operario -> tabla `operarios`.
- * Es el personal de planta: operarias y mecanicos.
+ * Es el personal de planta: operarias y mecanicos. El codigo (OP-001...) no
+ * se valida porque no se digita: lo asigna el sistema.
  */
 export const operarioLimites = {
-  codigo: { min: 2, max: 20 },
   nombres: { min: 2, max: 60 },
   apellidos: { min: 2, max: 60 },
   telefono: { min: 7, max: 15 },
@@ -17,18 +17,6 @@ export const operarioEstados = ["ACTIVO", "INACTIVO", "RETIRADO"];
 
 export function crearOperarioEsquema({ lista = [], editing = null } = {}) {
   return {
-    codigo_operario: [
-      reglas.requerido("El código"),
-      reglas.longitud({ ...operarioLimites.codigo, etiqueta: "El código" }),
-      reglas.sinCaracteresEspeciales("El código"),
-      reglas.unico({
-        lista,
-        campo: "codigo_operario",
-        idField: "id_operario",
-        actual: editing,
-        etiqueta: "Ese código de operario",
-      }),
-    ],
     cargo: [reglas.seleccionRequerida("El cargo"), reglas.opcionValida(operarioCargos, "El cargo")],
     tipo_documento: [
       reglas.seleccionRequerida("El tipo de documento"),

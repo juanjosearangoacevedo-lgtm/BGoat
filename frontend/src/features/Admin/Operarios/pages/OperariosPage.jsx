@@ -2,7 +2,7 @@ import { Users } from "lucide-react";
 import { CrudPage } from "@/shared/components/CrudPage";
 import { endpoints } from "@/shared/services/endpoints";
 import { formatFecha, nombreCompleto } from "@/shared/utils/formatters";
-import { ejemploDocumento, normalizarDocumento } from "@/shared/validations";
+import { ejemploDocumento, normalizarDocumento, pistaDocumento } from "@/shared/validations";
 import { crearOperarioEsquema } from "../validations/operarioValidation";
 
 /**
@@ -18,6 +18,7 @@ export function OperariosPage() {
     <CrudPage
       titulo="Operarios"
       entidad="operario"
+      ayudaCrear="El código (OP-001, OP-002…) lo asigna el sistema al guardar."
       subtitulo="Personal de planta"
       recurso={endpoints.operarios}
       idField="id_operario"
@@ -64,7 +65,6 @@ export function OperariosPage() {
         { key: "estado", header: "Estado", tipo: "estado" },
       ]}
       emptyForm={{
-        codigo_operario: "",
         tipo_documento: "CC",
         numero_documento: "",
         nombres: "",
@@ -75,12 +75,11 @@ export function OperariosPage() {
         cargo: "OPERARIO",
         estado: "ACTIVO",
       }}
-      required={["codigo_operario", "numero_documento", "nombres", "apellidos", "fecha_ingreso"]}
+      required={["numero_documento", "nombres", "apellidos", "fecha_ingreso"]}
       esquema={({ items, editing }) => crearOperarioEsquema({ lista: items, editing })}
       // Mismo orden en todo el panel: nombre, documento, contacto, lo propio
-      // del modulo y al final el estado.
+      // del modulo y al final el estado. El codigo no se pide: lo asigna el sistema.
       campos={[
-        { name: "codigo_operario", label: "Código", placeholder: "OP-001", required: true, maxLength: 20 },
         { name: "nombres", label: "Nombres", required: true, minLength: 2, maxLength: 60 },
         { name: "apellidos", label: "Apellidos", required: true, minLength: 2, maxLength: 60 },
         {
@@ -96,6 +95,7 @@ export function OperariosPage() {
           name: "numero_documento",
           label: "Número de documento",
           placeholder: (form) => ejemploDocumento(form.tipo_documento),
+          hint: (form) => pistaDocumento(form.tipo_documento, form.numero_documento),
           required: true,
           normalizar: (valor, form) => normalizarDocumento(form.tipo_documento, valor),
         },

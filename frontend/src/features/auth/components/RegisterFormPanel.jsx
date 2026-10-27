@@ -3,6 +3,7 @@ import { AuthBrand } from "./AuthBrand";
 import { Button } from "@/shared/components/button";
 import { Input } from "@/shared/components/input";
 import { Label } from "@/shared/components/label";
+import { ejemploDocumento, pistaDocumento } from "@/shared/validations";
 import { documentTypes } from "../hooks/useRegisterForm";
 
 /** Formulario de registro con los campos de la tabla `usuarios`. */
@@ -74,13 +75,17 @@ export function RegisterFormPanel({
               <Label htmlFor="numero_documento">Número de documento</Label>
               <Input
                 id="numero_documento"
-                placeholder="1017925610"
+                placeholder={ejemploDocumento(form.tipo_documento)}
                 value={form.numero_documento}
                 onChange={setField("numero_documento")}
                 className={`h-12 ${errors.numero_documento ? "border-red-400" : ""}`}
               />
-              {errors.numero_documento && (
+              {errors.numero_documento ? (
                 <p className="text-xs text-red-500">{errors.numero_documento}</p>
+              ) : (
+                <p className="text-xs text-gray-400">
+                  {pistaDocumento(form.tipo_documento, form.numero_documento)}
+                </p>
               )}
             </div>
           </div>

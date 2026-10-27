@@ -19,12 +19,10 @@ export const moduloStatusOptions = moduloEstados.map((estado) => ({
 }));
 
 export const emptyModuloForm = {
-  codigo: "",
   nombre: "",
-  ubicacion: "",
   capacidad_operarios: "",
   umbral_cumplimiento: "85",
-  orden_visual: "1",
+  orden_visual: "",
   estado: "ACTIVO",
   observaciones: "",
 };
@@ -35,13 +33,19 @@ export function useModulosPage() {
     idField: "id_modulo",
     emptyForm: emptyModuloForm,
     nombreRegistro: (modulo) => (modulo?.codigo ? `el módulo ${modulo.codigo}` : "el módulo"),
-    esquema: ({ items, editing }) => crearModuloEsquema({ lista: items, editing }),
-    transformarPayload: (datos) => ({
-      ...datos,
-      capacidad_operarios: Number(datos.capacidad_operarios || 0),
-      umbral_cumplimiento: Number(datos.umbral_cumplimiento || 85),
-      orden_visual: Number(datos.orden_visual || 1),
-    }),
+    esquema: () => crearModuloEsquema(),
+    // El codigo lo asigna el backend: no viaja. Sin orden escrito, el backend
+    // deja el modulo al final.
+    transformarPayload: ({ codigo: _codigo, ubicacion: _ubicacion, ...datos }) => {
+      const payload = {
+        ...datos,
+        capacidad_operarios: Number(datos.capacidad_operarios || 0),
+        umbral_cumplimiento: Number(datos.umbral_cumplimiento || 85),
+      };
+      if (String(datos.orden_visual ?? "").trim() === "") delete payload.orden_visual;
+      else payload.orden_visual = Number(datos.orden_visual);
+      return payload;
+    },
   });
 
   const [estado, setEstado] = useState([]);
@@ -100,11 +104,6 @@ export function useModulosPage() {
     return crud.items.map((modulo) => ({ ...modulo, ...(porId.get(modulo.id_modulo) || {}) }));
   }, [crud.items, estado]);
 
-  const ubicaciones = useMemo(
-    () => Array.from(new Set(modulos.map((modulo) => modulo.ubicacion).filter(Boolean))).sort(),
-    [modulos],
-  );
-
   const definicionesFiltro = useMemo(
     () => [
       {
@@ -112,12 +111,6 @@ export function useModulosPage() {
         label: "Estado",
         etiquetaTodos: "Todos los estados",
         opciones: moduloStatusOptions,
-      },
-      {
-        clave: "ubicacion",
-        label: "Ubicación",
-        etiquetaTodos: "Todas las ubicaciones",
-        opciones: ubicaciones.map((ubicacion) => ({ value: ubicacion, label: ubicacion })),
       },
       {
         clave: "ocupacion",
@@ -133,7 +126,7 @@ export function useModulosPage() {
             : Number(fila.promedio_personas || 0) === 0,
       },
     ],
-    [ubicaciones],
+    [],
   );
 
   const lista = useListaAdmin(modulos, {
@@ -194,7 +187,6 @@ export function useModulosPage() {
     ...crud,
     modulos,
     lista,
-    ubicaciones,
     selected,
     setSelected,
     jornadaSeleccionada,

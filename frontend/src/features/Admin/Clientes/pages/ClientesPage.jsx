@@ -211,6 +211,7 @@ export function ClientesPage() {
         errors={clientes.errors}
         guardando={clientes.guardando}
         onChange={clientes.setField}
+        onBlur={clientes.validarCampo}
         onClose={clientes.closeModal}
         onSave={handleSave}
       />

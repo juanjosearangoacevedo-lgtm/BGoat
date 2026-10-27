@@ -28,9 +28,7 @@ export function ModuloCard({ modulo, onSelect, onEdit, onToggleEstado, onDelete 
             </div>
             <h3 className="font-bold text-gray-900">{modulo.nombre}</h3>
           </div>
-          <p className="ml-10 mt-1 text-xs text-gray-400">
-            {modulo.codigo} · {modulo.ubicacion || "Sin ubicación"}
-          </p>
+          <p className="ml-10 mt-1 text-xs text-gray-400">{modulo.codigo}</p>
         </button>
         <StatusBadge status={modulo.estado} />
       </div>

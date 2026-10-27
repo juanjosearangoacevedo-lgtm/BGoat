@@ -216,8 +216,7 @@ class _JornadaScreenState extends State<JornadaScreen> {
                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                 ),
                 Text(
-                  '${modulo.modulo.capacidadOperarios} puestos'
-                  '${modulo.modulo.ubicacion != null ? ' · ${modulo.modulo.ubicacion}' : ''}',
+                  '${modulo.modulo.capacidadOperarios} puestos',
                   style: const TextStyle(fontSize: 12, color: Paleta.textoSuave),
                 ),
               ],

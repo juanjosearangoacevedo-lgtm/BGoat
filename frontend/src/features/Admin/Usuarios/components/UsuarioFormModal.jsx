@@ -3,7 +3,7 @@ import { FormField } from "@/shared/components/FormField";
 import { Modal } from "@/shared/components/Modal";
 import { ModalAcciones } from "@/shared/components/ModalAcciones";
 import { nombreCompleto } from "@/shared/utils/formatters";
-import { ejemploDocumento, normalizarDocumento } from "@/shared/validations";
+import { ejemploDocumento, normalizarDocumento, pistaDocumento } from "@/shared/validations";
 import { usuarioDocumentTypes, usuarioStatusOptions } from "../hooks/useUsuariosPage";
 
 /**
@@ -24,6 +24,7 @@ export function UsuarioFormModal({
   roleOptions = [],
   editandoseASiMismo = false,
   onChange,
+  onBlur,
   onClose,
   onSave,
 }) {
@@ -88,14 +89,9 @@ export function UsuarioFormModal({
               placeholder={ejemploDocumento(tipo)}
               value={form.numero_documento ?? ""}
               error={errors.numero_documento}
-              hint={
-                tipo === "PASAPORTE" || tipo === "OTRO"
-                  ? "Letras y números, sin espacios ni guiones."
-                  : tipo === "NIT"
-                    ? "Sin puntos. El dígito de verificación va tras un guion (900123456-8)."
-                    : "Solo números, sin puntos ni espacios."
-              }
+              hint={pistaDocumento(tipo, form.numero_documento)}
               onChange={(valor) => onChange("numero_documento", normalizarDocumento(tipo, valor))}
+              onBlur={() => onBlur?.("numero_documento")}
             />
             <FormField
               label="Correo"
@@ -106,6 +102,7 @@ export function UsuarioFormModal({
               error={errors.correo}
               hint="Con este correo inicia sesión."
               onChange={(valor) => onChange("correo", valor)}
+              onBlur={() => onBlur?.("correo")}
             />
             <FormField
               label="Teléfono"
@@ -114,6 +111,7 @@ export function UsuarioFormModal({
               value={form.telefono ?? ""}
               error={errors.telefono}
               onChange={(valor) => onChange("telefono", valor)}
+              onBlur={() => onBlur?.("telefono")}
             />
           </div>
         </section>

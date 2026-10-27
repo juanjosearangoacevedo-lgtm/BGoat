@@ -1,8 +1,10 @@
 import { queryOne } from "./db.js";
+import { generarCodigoModulo, generarCodigoOperario } from "../lib/codigos.js";
 import { enlacesDe } from "../lib/enlaces.js";
 import { ApiError } from "../lib/http.js";
 import { prepararIdentidad } from "../lib/identidad.js";
 import { generarCodigoLote, prepararLote } from "../lib/lotes.js";
+import { ordenTallasSql } from "../lib/tallas.js";
 import { buscarUbicacion } from "../lib/ubicaciones.js";
 
 /**
@@ -72,6 +74,18 @@ async function prepararCliente(datos, { id }) {
   const oficial = buscarUbicacion(departamento, municipio);
   if (!oficial) throw ApiError.badRequest("El municipio no pertenece a ese departamento");
   return { ...listo, ...oficial };
+}
+
+/**
+ * Un modulo nuevo sin "orden en el tablero" queda al final (el numero mas alto
+ * mas uno). Sin esto quedaba con el valor por defecto (1) y se colaba entre los
+ * primeros.
+ */
+async function prepararModulo(datos, { id }) {
+  if (id || (datos.orden_visual !== undefined && datos.orden_visual !== null)) return datos;
+
+  const fila = await queryOne("SELECT COALESCE(MAX(orden_visual), 0) + 1 AS siguiente FROM modulos");
+  return { ...datos, orden_visual: Number(fila?.siguiente ?? 1) };
 }
 
 /** Documento, correo y telefono del operario. */
@@ -225,11 +239,13 @@ export const recursos = {
     tabla: "tallas",
     pk: "id_talla",
     permiso: "Lotes",
-    campos: ["nombre", "orden_visual", "estado"],
+    // El orden ya no se digita: sale del nombre (letras, numericas de adulto,
+    // bebes, ninos), ver `lib/tallas.js`. `orden_visual` queda sin usarse.
+    campos: ["nombre", "estado"],
     obligatorios: ["nombre"],
     buscables: ["nombre"],
     filtros: ["estado"],
-    orden: "orden_visual ASC",
+    orden: ordenTallasSql("nombre"),
     enlaces: enlacesDe.tallas,
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
@@ -264,16 +280,19 @@ export const recursos = {
     tabla: "operarios",
     pk: "id_operario",
     permiso: "Operarios",
+    // `codigo_operario` no se digita: lo asigna el sistema al crear (OP-001,
+    // OP-002...) y despues no cambia, igual que el codigo del lote.
     campos: [
-      "id_usuario", "codigo_operario", "tipo_documento", "numero_documento",
+      "id_usuario", "tipo_documento", "numero_documento",
       "nombres", "apellidos", "telefono", "correo", "fecha_ingreso",
       "cargo", "estado",
     ],
-    obligatorios: ["codigo_operario", "numero_documento", "nombres", "apellidos", "fecha_ingreso"],
+    obligatorios: ["numero_documento", "nombres", "apellidos", "fecha_ingreso"],
     buscables: ["codigo_operario", "nombres", "apellidos", "numero_documento"],
     filtros: ["estado", "cargo"],
     orden: "nombres ASC, apellidos ASC",
     antesDeGuardar: prepararOperario,
+    consecutivo: { campo: "codigo_operario", generar: generarCodigoOperario },
     // Una operaria retirada tampoco puede estar en la nomina de una jornada abierta.
     enlaces: enlacesDe.operarios,
     estadosInactivos: ["INACTIVO", "RETIRADO"],
@@ -287,14 +306,20 @@ export const recursos = {
     // Solo dos parametros configurables: cuantos puestos tiene y bajo que
     // % se pide la incidencia. Las horas del dia y la eficiencia salen de
     // lo capturado; tenerlas tambien escritas a mano las contradecia.
+    //
+    // `codigo` no se digita: lo asigna el sistema al crear (MOD-01, MOD-02...)
+    // y despues no cambia. `ubicacion` ya no se pide (era un texto suelto que
+    // solo se mostraba): la columna queda en la tabla, sin usarse.
     campos: [
-      "codigo", "nombre", "ubicacion", "capacidad_operarios",
+      "nombre", "capacidad_operarios",
       "umbral_cumplimiento", "orden_visual", "estado", "observaciones",
     ],
-    obligatorios: ["codigo", "nombre"],
-    buscables: ["codigo", "nombre", "ubicacion"],
-    filtros: ["estado", "ubicacion"],
+    obligatorios: ["nombre"],
+    buscables: ["codigo", "nombre"],
+    filtros: ["estado"],
     orden: "orden_visual ASC, codigo ASC",
+    antesDeGuardar: prepararModulo,
+    consecutivo: { campo: "codigo", generar: generarCodigoModulo },
     // Con la jornada abierta el modulo esta trabajando: no sale de servicio.
     enlaces: enlacesDe.modulos,
     softDelete: { columna: "estado", valor: "INACTIVO" },

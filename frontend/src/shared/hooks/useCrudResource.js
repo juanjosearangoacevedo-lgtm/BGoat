@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { apiClient, withQuery } from "@/shared/services/apiClient";
-import { reglas, validarFormulario } from "@/shared/validations";
+import { estaVacio, reglas, validarFormulario } from "@/shared/validations";
 
 /**
  * Estado CRUD conectado a la API.
@@ -150,6 +150,20 @@ export function useCrudResource({
     return true;
   };
 
+  /**
+   * Valida UN campo al salir de el, para que el error aparezca ahi y no solo al
+   * guardar (un documento de mas digitos, un correo sin arroba...). Un campo
+   * vacio no se juzga: si es obligatorio lo dice "Guardar", y marcarle "es
+   * obligatorio" a quien solo paso por el campo estorba.
+   */
+  const validarCampo = (campo) => {
+    const reglasDelCampo = construirEsquema()[campo];
+    if (!reglasDelCampo || estaVacio(form[campo])) return;
+
+    const encontrados = validarFormulario(form, { [campo]: reglasDelCampo });
+    setErrors((previo) => ({ ...previo, [campo]: encontrados[campo] ?? "" }));
+  };
+
   /** Traduce un error del backend a un mensaje util, y lo ancla al campo si se puede. */
   const reportarError = useCallback((problema, camposUnicos = []) => {
     if (problema.status === 409 && camposUnicos[0]) {
@@ -275,6 +289,7 @@ export function useCrudResource({
     openEdit,
     closeModal,
     validate,
+    validarCampo,
     deleteTarget,
     setDeleteTarget,
     estadoTarget,

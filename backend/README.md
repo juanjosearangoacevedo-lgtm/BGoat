@@ -83,6 +83,8 @@ src/
     crud.js         Fabrica de routers REST a partir de resources.js
     lotes.js        Reglas del lote: mayusculas, "al menos uno de tres" y el consecutivo del codigo
     administradores.js  Guarda: el sistema no se queda sin administrador activo
+    codigos.js      Codigos que asigna el sistema: MOD-01 (modulo) y OP-001 (operario)
+    tallas.js       El orden de las tallas, sacado del nombre (ya no se digita)
     documentos.js   Documento de identidad: reglas por tipo y digito de verificacion del NIT
     identidad.js    Documento, correo y telefono: se normalizan y se validan antes de guardar
     enlaces.js      A que esta enlazado un registro antes de eliminarlo (lotes, jornadas...)
@@ -117,6 +119,7 @@ test/
   lotes.test.js     Reglas del lote que no necesitan base de datos (`npm test`)
   administradores.test.js  La guarda del ultimo administrador, con consultas falsas
   documentos.test.js  Documentos, correo y telefono; compara la regla con la de la pantalla
+  codigos.test.js   Los codigos automaticos y la expresion del orden de tallas
   enlaces.test.js   Lo que se le dice al usuario cuando algo esta enlazado
   prioridad.test.js La prioridad estimada de una orden nueva
 ```
@@ -240,6 +243,15 @@ nombre: es lo que hace falta para volver a activar a alguien. Sin esta guarda, e
 interruptor de estado de la pantalla de usuarios dejaba a un administrador
 inactivarse y, con el unico fuera, nadie podia entrar a reactivarlo (solo se
 arreglaba a mano en la base). Vive en `src/lib/administradores.js`.
+
+**5b. Los codigos de modulo y de operario los pone el sistema.** `POST /api/modulos`
+y `POST /api/operarios` ignoran cualquier `codigo` que llegue y asignan el siguiente
+consecutivo (`MOD-01`, `MOD-02`... y `OP-001`, `OP-002`...): el mas alto que exista
+con ese formato, mas uno. Despues no cambian. Se conecta con `consecutivo` en
+`config/resources.js`, como el del lote, asi que dos altas simultaneas no se pisan.
+Vive en `src/lib/codigos.js`. Por la misma razon, `modulos.ubicacion` ya no se escribe
+(la columna queda sin usarse) y el orden de las tallas ya no se digita: sale del
+nombre (`src/lib/tallas.js`).
 
 **6. Eliminar es dejar fuera de servicio, y lo que sigue en uso no sale.** En
 este sistema nada con historia se borra: `DELETE` inactiva el registro (solo se

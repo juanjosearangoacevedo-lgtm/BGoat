@@ -6,12 +6,11 @@ import { reglas } from "@/shared/validations";
  * Solo quedan los dos parametros que el negocio decide: cuantos puestos
  * tiene el modulo y bajo que % se pide la incidencia. Las horas del dia
  * y la eficiencia salen de lo capturado, asi que no se validan aqui
- * porque ya no se escriben.
+ * porque ya no se escriben. Tampoco el codigo (lo asigna el sistema) ni la
+ * ubicacion (ya no se pide).
  */
 export const moduloLimites = {
-  codigo: { min: 2, max: 20 },
   nombre: { min: 2, max: 60 },
-  ubicacion: { max: 60 },
   capacidad: { min: 0, max: 200 },
   umbral: { min: 1, max: 100 },
   ordenVisual: { min: 1, max: 99 },
@@ -25,25 +24,12 @@ const enteroEnRango = (rango, etiqueta) => [
   reglas.numero({ ...rango, etiqueta }),
 ];
 
-export function crearModuloEsquema({ lista = [], editing = null } = {}) {
+export function crearModuloEsquema() {
   return {
-    codigo: [
-      reglas.requerido("El código"),
-      reglas.longitud({ ...moduloLimites.codigo, etiqueta: "El código" }),
-      reglas.sinCaracteresEspeciales("El código"),
-      reglas.unico({
-        lista,
-        campo: "codigo",
-        idField: "id_modulo",
-        actual: editing,
-        etiqueta: "Ese código de módulo",
-      }),
-    ],
     nombre: [
       reglas.requerido("El nombre"),
       reglas.longitud({ ...moduloLimites.nombre, etiqueta: "El nombre" }),
     ],
-    ubicacion: [reglas.longitud({ ...moduloLimites.ubicacion, etiqueta: "La ubicación" })],
     capacidad_operarios: enteroEnRango(moduloLimites.capacidad, "La capacidad de operarios"),
     umbral_cumplimiento: [
       reglas.numero({ ...moduloLimites.umbral, etiqueta: "El umbral de cumplimiento" }),

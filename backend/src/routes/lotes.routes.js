@@ -6,6 +6,7 @@ import { dirname, extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execute, query, queryOne, transaction } from "../config/db.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
+import { ordenTallasSql } from "../lib/tallas.js";
 import { requierePermiso } from "../middleware/auth.js";
 
 /**
@@ -114,13 +115,13 @@ async function borrarArchivo(ruta) {
 async function detalleDe(idLote) {
   return query(
     `SELECT d.id_detalle, d.id_talla, d.id_color, d.cantidad,
-            t.nombre AS nombre_talla, t.orden_visual,
+            t.nombre AS nombre_talla,
             c.nombre AS nombre_color, c.codigo_hex
      FROM lote_detalle_talla_color d
      LEFT JOIN tallas t ON t.id_talla = d.id_talla
      LEFT JOIN colores c ON c.id_color = d.id_color
      WHERE d.id_lote = ?
-     ORDER BY t.orden_visual, c.nombre`,
+     ORDER BY ${ordenTallasSql("t.nombre")}, c.nombre`,
     [idLote],
   );
 }

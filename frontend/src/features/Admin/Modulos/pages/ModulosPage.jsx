@@ -147,7 +147,7 @@ export function ModulosPage() {
             </div>
           )}
           primario={(modulo) => modulo.nombre}
-          secundario={(modulo) => `${modulo.codigo} · ${modulo.ubicacion || "Sin ubicación"}`}
+          secundario={(modulo) => modulo.codigo}
           meta={(modulo) => [
             {
               label: "Personal",

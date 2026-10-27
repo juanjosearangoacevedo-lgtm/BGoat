@@ -48,14 +48,30 @@ const EJEMPLOS = {
 export const ejemploDocumento = (tipo) => EJEMPLOS[tipo] ?? "";
 
 /**
- * Consejo bajo el campo. Para un NIT escrito sin digito de verificacion dice
- * cual le corresponde, que es lo que mas se olvida al digitarlo.
+ * La regla de cada tipo dicha en una linea: es lo que va bajo el campo.
+ *
+ * No se corta el largo al escribir (ni con `maxLength`, que contaria los
+ * puntos de "1.017.925.610" al pegar, ni recortando): un numero de mas se
+ * deja ver y se marca como error, en vez de guardar uno distinto al pegado.
+ */
+const REGLA_EN_TEXTO = {
+  CC: "De 6 a 10 dígitos, solo números.",
+  TI: "10 u 11 dígitos, solo números.",
+  CE: "De 5 a 10 dígitos, solo números.",
+  NIT: "De 8 a 10 dígitos. El dígito de verificación (900123456-8) es opcional.",
+  PASAPORTE: "De 5 a 15 letras o números, sin espacios.",
+  OTRO: "De 5 a 15 letras o números, sin espacios.",
+};
+
+/**
+ * Consejo bajo el campo: la regla del tipo escogido. Para un NIT escrito sin
+ * digito de verificacion dice cual le corresponde, que es lo que mas se
+ * olvida al digitarlo.
  */
 export function pistaDocumento(tipo, valor) {
-  if (tipo !== "NIT") return "";
-
-  const base = /^(\d{8,10})-?$/.exec(String(valor ?? "").trim());
-  if (base) return `Con dígito de verificación: ${base[1]}-${digitoVerificacionNit(base[1])}`;
-
-  return "Sin puntos. El dígito de verificación va tras un guion (900123456-8) y es opcional.";
+  if (tipo === "NIT") {
+    const base = /^(\d{8,10})-?$/.exec(String(valor ?? "").trim());
+    if (base) return `Con dígito de verificación: ${base[1]}-${digitoVerificacionNit(base[1])}`;
+  }
+  return REGLA_EN_TEXTO[tipo] ?? "";
 }

@@ -32,6 +32,8 @@ import { MODOS, useViewMode } from "../hooks/useViewMode";
  *
  *   entidad: "talla"   -> como se llama un registro, en singular, para
  *                         "¿Eliminar talla?" (por defecto, el titulo en minuscula)
+ *   ayudaCrear: "..."  -> una linea mas bajo el titulo del formulario de CREAR
+ *                         (por ejemplo, que el codigo lo asigna el sistema)
  *
  *   columnas: [{ key, header, align, render(fila), sortable, tipo: "estado" }]
  *   campos:   [{ name, label, type, options, placeholder, ancho, required,
@@ -56,6 +58,7 @@ export function CrudPage({
   titulo,
   subtitulo,
   entidad = null,
+  ayudaCrear = null,
   recurso,
   idField,
   columnas = [],
@@ -324,7 +327,7 @@ export function CrudPage({
         description={
           crud.editing
             ? `Actualiza los datos de ${nombreRegistro(crud.editing)}.`
-            : "Los campos marcados con * son obligatorios."
+            : `${ayudaCrear ? `${ayudaCrear} ` : ""}Los campos marcados con * son obligatorios.`
         }
         onClose={crud.closeModal}
         maxWidth="max-w-2xl"
@@ -365,6 +368,7 @@ export function CrudPage({
                 emptyOption={campo.emptyOption}
                 value={crud.form[campo.name] ?? ""}
                 error={crud.errors[campo.name]}
+                onBlur={() => crud.validarCampo(campo.name)}
                 onChange={(valor) => {
                   crud.setField(
                     campo.name,

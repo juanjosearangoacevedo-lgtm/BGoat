@@ -10,7 +10,6 @@ import { reglas } from "@/shared/validations";
  */
 export const tallaLimites = {
   nombre: { min: 1, max: 20 },
-  ordenVisual: { min: 1, max: 999 },
 };
 
 export const tallaEstados = ["ACTIVO", "INACTIVO"];
@@ -27,10 +26,6 @@ export function crearTallaEsquema({ lista = [], editing = null } = {}) {
         actual: editing,
         etiqueta: "Esa talla",
       }),
-    ],
-    orden_visual: [
-      reglas.entero({ etiqueta: "El orden en pantalla" }),
-      reglas.numero({ ...tallaLimites.ordenVisual, etiqueta: "El orden en pantalla" }),
     ],
     estado: [reglas.seleccionRequerida("El estado"), reglas.opcionValida(tallaEstados, "El estado")],
   };

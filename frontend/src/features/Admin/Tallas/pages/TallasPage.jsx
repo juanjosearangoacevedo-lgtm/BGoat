@@ -10,6 +10,9 @@ import { crearTallaEsquema } from "../validations/tallaValidation";
  * forma de agregar una talla nueva sin tocar la base a mano: la unica
  * pantalla que las usaba (el desglose del lote) solo podia escoger entre
  * las que ya existian.
+ *
+ * El orden en que salen (en esta lista y en el desglose) no se digita: el
+ * backend lo saca del nombre, ver `backend/src/lib/tallas.js`.
  */
 export function TallasPage() {
   return (
@@ -25,7 +28,6 @@ export function TallasPage() {
       emptyIcon={Ruler}
       emptyTitle="No hay tallas configuradas"
       emptyDescription="Sin tallas, el desglose del lote no tiene de donde escoger."
-      ordenInicial={{ campo: "orden_visual", direccion: "asc" }}
       filtrosLista={[
         {
           clave: "estado",
@@ -39,16 +41,11 @@ export function TallasPage() {
       ]}
       columnas={[
         { key: "nombre", header: "Talla" },
-        { key: "orden_visual", header: "Orden", align: "center" },
         { key: "estado", header: "Estado", tipo: "estado" },
       ]}
-      emptyForm={{ nombre: "", orden_visual: "1", estado: "ACTIVO" }}
+      emptyForm={{ nombre: "", estado: "ACTIVO" }}
       required={["nombre"]}
       esquema={({ items, editing }) => crearTallaEsquema({ lista: items, editing })}
-      transformarPayload={(datos) => ({
-        ...datos,
-        orden_visual: Number(datos.orden_visual || 1),
-      })}
       campos={[
         {
           name: "nombre",
@@ -59,21 +56,12 @@ export function TallasPage() {
           hint: "Adulto (XS-5XL), numérica (26-42) o infantil (1T-5T, 2-14): la que haga falta.",
         },
         {
-          name: "orden_visual",
-          label: "Orden en pantalla",
-          type: "number",
-          min: 1,
-          max: 999,
-          hint: "Define en qué posición aparece en el selector del desglose.",
-        },
-        {
           name: "estado",
           label: "Estado",
           options: [
             { value: "ACTIVO", label: "Activo" },
             { value: "INACTIVO", label: "Inactivo" },
           ],
-          ancho: "completo",
         },
       ]}
     />

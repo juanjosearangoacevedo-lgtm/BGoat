@@ -185,6 +185,7 @@ export function UsuariosPage() {
         roleOptions={usuarios.roleOptions}
         editandoseASiMismo={Boolean(usuarios.editing) && esYo(usuarios.editing)}
         onChange={usuarios.setField}
+        onBlur={usuarios.validarCampo}
         onClose={usuarios.closeModal}
         onSave={handleSave}
       />

@@ -250,6 +250,26 @@ Las tres alimentaban una "capacidad semanal teórica" que no aparece en ningún
 tablero de la empresa. La migración `00b_migracion_modulos_calculados.sql` las
 suelta; no se pierde historia, porque ningún registro horario las guardó nunca.
 
+El **código** (`MOD-01`, `MOD-02`…) no se digita: lo asigna el sistema al crear,
+con el siguiente número del consecutivo, y no cambia (`backend/src/lib/codigos.js`,
+el mismo mecanismo del código del lote). La **ubicación** ya no se pide: era un
+texto suelto que solo se mostraba; la columna `ubicacion` queda en la tabla, sin
+usarse. `orden_visual` es opcional: sin valor, el módulo queda al final.
+
+### Operarios → `operarios`
+
+El código (`OP-001`, `OP-002`…) tampoco se digita: lo asigna el sistema al crear.
+El documento se valida según su tipo (ver Clientes).
+
+### Tallas → `tallas`
+
+El orden en que salen (en el catálogo y en el desglose del lote) ya no se digita:
+sale del nombre con el mismo criterio con que está cargado el catálogo (letras
+XS…5XL, numéricas de adulto 26…42, bebés 1T…5T, numéricas de niños 6…16, y
+cualquier otra al final), en una expresión de `ORDER BY` (`backend/src/lib/tallas.js`).
+Una talla nueva queda en su lugar sin que nadie la acomode. La columna
+`orden_visual` queda en la tabla, sin usarse.
+
 ### Jornadas → `jornadas` + `jornada_franjas` + `jornada_dia`
 
 Ojo con el nombre: esto es el **horario** de la planta, el patrón de franjas.

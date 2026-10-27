@@ -33,13 +33,6 @@ export function columnasModulos({ onDetalle, onEdit, onToggleEstado, onDelete } 
       exportar: (modulo) => modulo.codigo,
     },
     {
-      key: "ubicacion",
-      header: "Ubicación",
-      sortable: true,
-      render: (modulo) => modulo.ubicacion || <span className="text-gray-300">{GUION}</span>,
-      exportar: (modulo) => modulo.ubicacion || "",
-    },
-    {
       key: "capacidad_operarios",
       header: "Personal",
       align: "center",
