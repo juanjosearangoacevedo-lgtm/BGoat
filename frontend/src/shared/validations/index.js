@@ -17,8 +17,10 @@ import * as numeros from "./numberValidation";
 import * as fechas from "./dateValidation";
 import * as claves from "./passwordValidation";
 import * as selects from "./selectValidation";
+import * as documentos from "./documentValidation";
 
 export { estaVacio, concordar, validarFormulario, esValido, combinarEsquemas } from "./formValidation";
+export { ejemploDocumento, normalizarDocumento, pistaDocumento } from "./documentValidation";
 export { esCorreoValido, LARGO_MAXIMO_CORREO } from "./emailValidation";
 export { LARGO_MINIMO_CLAVE, LARGO_MAXIMO_CLAVE } from "./passwordValidation";
 
@@ -45,6 +47,8 @@ export const reglas = {
   telefono: numeros.telefono,
   noMenorQue: numeros.noMenorQue,
   noMayorQue: numeros.noMayorQue,
+  // Documento de identidad: la regla depende del tipo escogido (ver documentRules.js)
+  documento: documentos.documento,
 
   // Fechas
   fecha: fechas.fecha,

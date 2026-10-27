@@ -16,6 +16,7 @@ export function DiasNoLaboralesPage() {
   return (
     <CrudPage
       titulo="Días no laborales"
+      entidad="día no laboral"
       subtitulo="Festivos y cierres que se restan al estimar fechas de entrega"
       recurso={endpoints.diasNoLaborales}
       idField="fecha"

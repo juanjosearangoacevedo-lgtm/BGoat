@@ -2,6 +2,7 @@ import { Building2, Plus } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { DataList } from "@/shared/components/DataList";
+import { EliminarDialog } from "@/shared/components/EliminarDialog";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ExportMenu } from "@/shared/components/ExportMenu";
 import { FilterBar } from "@/shared/components/FilterBar";
@@ -11,7 +12,8 @@ import { StatsGrid } from "@/shared/components/StatsGrid";
 import { TablePagination } from "@/shared/components/TablePagination";
 import { ViewToggle } from "@/shared/components/ViewToggle";
 import { MODOS, useViewMode } from "@/shared/hooks/useViewMode";
-import { documento, iniciales } from "@/shared/utils/formatters";
+import { direccionCompleta, documento, iniciales } from "@/shared/utils/formatters";
+import { endpoints } from "@/shared/services/endpoints";
 import { ClienteCard } from "../components/ClienteCard";
 import { ClienteDetalleModal } from "../components/ClienteDetalleModal";
 import { ClienteFormModal } from "../components/ClienteFormModal";
@@ -38,7 +40,6 @@ export function ClientesPage() {
 
   const columnas = columnasClientes(manejadores);
   const objetivoEstado = clientes.estadoTarget;
-  const activando = objetivoEstado && String(objetivoEstado.estado).toUpperCase() !== "ACTIVO";
   const hayBusqueda = lista.hayFiltros || Boolean(clientes.search);
 
   const vacio = {
@@ -160,7 +161,7 @@ export function ClientesPage() {
           meta={(cliente) => [
             { label: "Correo", value: cliente.correo || "—" },
             { label: "Teléfono", value: cliente.telefono || "—" },
-            { label: "Dirección", value: cliente.direccion || "—" },
+            { label: "Dirección", value: direccionCompleta(cliente) || "—" },
           ]}
           estado={(cliente) => cliente.estado}
           acciones={(cliente) => (
@@ -223,25 +224,24 @@ export function ClientesPage() {
         }}
       />
 
+      {/* "Activar" es lo que queda en un cliente inactivo; eliminar lo inactiva (ver EliminarDialog). */}
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
-        tono={activando ? "exito" : "advertencia"}
-        title={activando ? "¿Activar cliente?" : "¿Desactivar cliente?"}
-        description={
-          activando
-            ? `${objetivoEstado?.nombre} volverá a aparecer al crear lotes y al iniciar la jornada.`
-            : `${objetivoEstado?.nombre} dejará de ofrecerse en los formularios, pero conserva su historia.`
-        }
-        confirmLabel={activando ? "Activar" : "Desactivar"}
+        tono="exito"
+        title="¿Activar cliente?"
+        description={`${objetivoEstado?.nombre} volverá a aparecer al crear lotes y al iniciar la jornada.`}
+        confirmLabel="Activar"
         loading={clientes.procesando}
         onCancel={() => clientes.setEstadoTarget(null)}
         onConfirm={() => clientes.cambiarEstado(objetivoEstado)}
       />
 
-      <ConfirmDialog
-        open={Boolean(clientes.deleteTarget)}
-        title="¿Eliminar cliente?"
-        description={`Se eliminará ${clientes.deleteTarget?.nombre}. Si tiene lotes registrados, el sistema lo inactiva en lugar de borrarlo.`}
+      <EliminarDialog
+        recurso={endpoints.clientes}
+        objetivo={clientes.deleteTarget}
+        idField="id_cliente"
+        entidad="cliente"
+        nombre={clientes.deleteTarget?.nombre}
         loading={clientes.procesando}
         onCancel={() => clientes.setDeleteTarget(null)}
         onConfirm={() => clientes.eliminar(clientes.deleteTarget)}

@@ -1,7 +1,7 @@
 import { Package, Plus } from "lucide-react";
 import { Button } from "@/shared/components/button";
-import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { DataList } from "@/shared/components/DataList";
+import { EliminarDialog } from "@/shared/components/EliminarDialog";
 import { ExportMenu } from "@/shared/components/ExportMenu";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
@@ -10,6 +10,7 @@ import { StatsGrid } from "@/shared/components/StatsGrid";
 import { TablePagination } from "@/shared/components/TablePagination";
 import { ViewToggle } from "@/shared/components/ViewToggle";
 import { MODOS, useViewMode } from "@/shared/hooks/useViewMode";
+import { endpoints } from "@/shared/services/endpoints";
 import { formatNumero, formatPorcentaje } from "@/shared/utils/formatters";
 import { OrdenesTable, columnasOrdenes } from "../components/OrdenesTable";
 import { useOrdenesPage } from "../hooks/useOrdenesPage";
@@ -179,14 +180,13 @@ export function OrdenesPage({ onNavigate }) {
         />
       )}
 
-      <ConfirmDialog
-        open={Boolean(ordenes.deleteTarget)}
-        title="¿Eliminar orden de producción?"
-        description={
-          `Se eliminará la orden ${ordenes.deleteTarget?.numero_orden || ""}. ` +
-          "No se puede eliminar una orden con producción registrada."
-        }
-        confirmLabel="Confirmar"
+      {/* Una orden sin producción ni jornadas se borra de verdad; con ellas, no se puede (ver EliminarDialog). */}
+      <EliminarDialog
+        recurso={endpoints.ordenes}
+        objetivo={ordenes.deleteTarget}
+        idField="id_orden_produccion"
+        entidad="orden de producción"
+        nombre={ordenes.deleteTarget ? `la orden ${ordenes.deleteTarget.numero_orden}` : ""}
         loading={ordenes.procesando}
         onCancel={() => ordenes.setDeleteTarget(null)}
         onConfirm={() => ordenes.eliminar(ordenes.deleteTarget)}

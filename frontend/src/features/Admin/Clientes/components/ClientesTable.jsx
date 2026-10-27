@@ -1,7 +1,7 @@
 import { DataTable } from "@/shared/components/DataTable";
 import { RowActions, accionesEstandar } from "@/shared/components/RowActions";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import { documento, iniciales } from "@/shared/utils/formatters";
+import { direccionCompleta, documento, iniciales } from "@/shared/utils/formatters";
 
 /**
  * Columnas del listado de la tabla `clientes`.
@@ -20,9 +20,9 @@ export function columnasClientes({ onDetalle, onEdit, onToggleEstado, onDelete }
           </div>
           <div className="min-w-0">
             <p className="truncate font-medium text-gray-900">{cliente.nombre}</p>
-            <p className="truncate text-xs text-gray-400">
-              {cliente.razon_social || cliente.descripcion || "Sin razón social"}
-            </p>
+            {cliente.descripcion && (
+              <p className="truncate text-xs text-gray-400">{cliente.descripcion}</p>
+            )}
           </div>
         </div>
       ),
@@ -52,8 +52,17 @@ export function columnasClientes({ onDetalle, onEdit, onToggleEstado, onDelete }
       key: "direccion",
       header: "Dirección",
       sortable: true,
-      render: (cliente) => cliente.direccion || <span className="text-gray-300">Sin dirección</span>,
-      exportar: (cliente) => cliente.direccion || "",
+      render: (cliente) => {
+        const lugar = [cliente.municipio, cliente.departamento].filter(Boolean).join(", ");
+        if (!cliente.direccion && !lugar) return <span className="text-gray-300">Sin dirección</span>;
+        return (
+          <div className="min-w-0">
+            <p className="truncate">{cliente.direccion || lugar}</p>
+            {cliente.direccion && lugar && <p className="truncate text-xs text-gray-400">{lugar}</p>}
+          </div>
+        );
+      },
+      exportar: (cliente) => direccionCompleta(cliente),
     },
     {
       key: "estado",

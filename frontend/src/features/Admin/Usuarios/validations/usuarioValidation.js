@@ -9,18 +9,11 @@ import { reglas } from "@/shared/validations";
 export const usuarioLimites = {
   nombres: { min: 2, max: 60 },
   apellidos: { min: 2, max: 60 },
-  documento: { min: 5, max: 20 },
   telefono: { min: 7, max: 15 },
 };
 
 export const usuarioTiposDocumento = ["CC", "CE", "TI", "NIT", "PASAPORTE", "OTRO"];
 export const usuarioEstados = ["ACTIVO", "INACTIVO", "BLOQUEADO"];
-
-/** El pasaporte admite letras; los demas documentos del pais no. */
-const documentoSegunTipo = (valor, form) =>
-  form?.tipo_documento === "PASAPORTE"
-    ? reglas.longitud({ ...usuarioLimites.documento, etiqueta: "El documento" })(valor, form)
-    : reglas.soloDigitos("El número de documento")(valor, form);
 
 /**
  * `lista` y `editing` vienen del listado en pantalla: sirven para detectar
@@ -45,8 +38,8 @@ export function crearUsuarioEsquema({ lista = [], editing = null, roleOptions = 
     ],
     numero_documento: [
       reglas.requerido("El número de documento"),
-      documentoSegunTipo,
-      reglas.longitud({ ...usuarioLimites.documento, etiqueta: "El número de documento" }),
+      // Segun el tipo: cédula solo números, NIT con su dígito de verificación... (ver documentRules.js)
+      reglas.documento({ actual: editing }),
       reglas.unico({
         lista,
         campo: "numero_documento",

@@ -2,7 +2,7 @@
  * Utilidades de presentacion.
  *
  * Las pantallas reciben los registros con los nombres de columna de la base
- * de datos (`nombres`, `apellidos`, `razon_social`, `fecha_recepcion`, ...).
+ * de datos (`nombres`, `apellidos`, `numero_documento`, `fecha_recepcion`, ...).
  * Aqui se concentra la unica capa que los convierte en texto para el usuario,
  * para que ningun modulo invente campos que la base no tiene.
  */
@@ -20,6 +20,14 @@ export function nombreCompleto(persona) {
 export function documento(registro) {
   if (!registro?.numero_documento) return GUION;
   return `${registro.tipo_documento || "CC"} ${registro.numero_documento}`;
+}
+
+/**
+ * "Calle 30 #45-12, Medellín, Antioquia": la calle y, si el registro la trae,
+ * el municipio y el departamento. Vacio si no tiene nada de eso.
+ */
+export function direccionCompleta(registro) {
+  return [registro?.direccion, registro?.municipio, registro?.departamento].filter(Boolean).join(", ");
 }
 
 /** Iniciales para los avatares. */

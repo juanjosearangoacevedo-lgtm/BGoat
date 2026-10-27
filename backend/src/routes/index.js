@@ -12,6 +12,7 @@ import { jornadaRouter } from "./jornada.routes.js";
 import { lotesRouter } from "./lotes.routes.js";
 import { ordenesRouter } from "./ordenes.routes.js";
 import { rolesRouter } from "./roles.routes.js";
+import { ubicacionesRouter } from "./ubicaciones.routes.js";
 import { usuariosRouter } from "./usuarios.routes.js";
 
 export const apiRouter = Router();
@@ -43,6 +44,9 @@ apiRouter.get(
 // abrir jornada, entrega con la formula de German) lo actualiza al
 // escribir. Ver `lib/plan.js`.
 apiRouter.use(["/captura", "/ordenes-produccion", "/jornada", "/lotes"], actualizarPlanAlEscribir);
+
+// Departamentos y municipios de Colombia, para el formulario de clientes.
+apiRouter.use("/ubicaciones", ubicacionesRouter);
 
 // Rutas con logica propia
 apiRouter.use("/usuarios", usuariosRouter);

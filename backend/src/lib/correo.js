@@ -19,10 +19,49 @@ const transporte = configurado
       // 465 es SSL directo; 587 arranca en claro y sube a TLS (STARTTLS).
       secure: env.correo.puerto === 465,
       auth: { user: env.correo.usuario, pass: env.correo.clave },
+      // Sin limites, un servidor de correo que no contesta dejaba colgada
+      // la peticion de "recuperar contraseña" por minutos.
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 20000,
     })
   : null;
 
 export const correoConfigurado = () => configurado;
+
+/** Lo que paso al enviar, dicho para quien administra el sistema (va a la consola, no a la pantalla). */
+export function describirErrorCorreo(error) {
+  if (error?.code === "EAUTH" || error?.responseCode === 535) {
+    return (
+      "el servidor de correo rechazó el usuario o la clave (535). Con Gmail, SMTP_PASS tiene que ser una " +
+      '"contraseña de aplicación" de 16 letras (Cuenta de Google > Seguridad > Verificación en 2 pasos > ' +
+      "Contraseñas de aplicaciones); deja de servir si se cambia la contraseña de la cuenta o se revoca. " +
+      "Crea una nueva, ponla en SMTP_PASS de backend/.env y reinicia el backend."
+    );
+  }
+  if (["ECONNECTION", "ETIMEDOUT", "ESOCKET", "EDNS", "ECONNREFUSED"].includes(error?.code)) {
+    return `no se pudo conectar a ${env.correo.host}:${env.correo.puerto} (${error.code}). Revisa la conexión a internet o SMTP_HOST y SMTP_PORT.`;
+  }
+  return error?.message ?? String(error);
+}
+
+/**
+ * Comprueba que el servidor de correo acepta el usuario y la clave. NO envia
+ * ningun mensaje. Lo usa `npm run correo:probar`; no corre al arrancar, porque
+ * con `node --watch` el backend reinicia a cada cambio y cada reinicio seria
+ * un inicio de sesion mas contra Gmail.
+ */
+export async function verificarCorreo() {
+  if (!transporte) {
+    return { configurado: false, ok: false, motivo: "falta SMTP_USER o SMTP_PASS en backend/.env" };
+  }
+  try {
+    await transporte.verify();
+    return { configurado: true, ok: true, motivo: null };
+  } catch (error) {
+    return { configurado: true, ok: false, motivo: describirErrorCorreo(error) };
+  }
+}
 
 /** Envia un correo. Devuelve true si salio, false si no hay correo configurado. */
 export async function enviarCorreo({ para, asunto, texto, html }) {

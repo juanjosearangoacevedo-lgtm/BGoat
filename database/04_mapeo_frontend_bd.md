@@ -157,13 +157,34 @@ El mismo catálogo protege cada ruta de la API (`requierePermiso`).
 
 ### Clientes → `clientes`
 
-El cliente-marca unificado. Lo identifica `nombre` —como la planta lo nombra,
-casi siempre la marca— y es lo único obligatorio; la razón social y el NIT son
-opcionales, para que un lote que llega a media mañana se pueda registrar con el
-nombre que trae la hoja.
+El cliente unificado. Lo identifica `nombre`, que es **"Nombre o razón social"**
+en un solo campo (la marca, la empresa o la persona, como la planta la nombra) y
+es lo único obligatorio; el documento, el contacto y la ubicación son opcionales,
+para que un lote que llega a media mañana se pueda registrar con el nombre que
+trae la hoja. La columna `razon_social` ya no se escribe ni se muestra: se
+conserva solo para no perder lo que ya estaba guardado.
+
+El orden del formulario es el de todo el panel: nombre, tipo y número de
+documento, correo, teléfono, departamento, municipio, dirección, estado y
+descripción. `departamento` y `municipio` salen del catálogo de Colombia
+(`GET /ubicaciones/departamentos` y `.../:id/municipios`, que consulta
+api-colombia.com con una copia local de respaldo) y van **juntos**; `direccion`
+es solo la calle. Los agregó la migración `00l_migracion_cliente_ubicacion.sql`.
+
+El número de documento se valida según su tipo (CC 6–10 dígitos, TI 10–11, CE
+5–10, NIT 8–10 con su dígito de verificación opcional comprobado con la fórmula
+de la DIAN, pasaporte y otro 5–15 letras y números), igual en la pantalla
+(`frontend/src/shared/validations/documentRules.js`) y en la API
+(`backend/src/lib/documentos.js`). Lo que ya estaba guardado y no se toca no se
+vuelve a juzgar.
 
 El documento **no es único**: un mismo cliente jurídico con varias marcas son
 varias filas con el mismo NIT.
+
+**Eliminar un cliente lo deja inactivo** (nada con historia se borra), y no se
+puede mientras tenga lotes activos sin finalizar: el mensaje dice a cuáles. Es la
+regla de todos los módulos (ver `backend/src/lib/enlaces.js`): en una fila
+inactiva el botón es "Activar".
 
 ### Lotes → `lotes` + `lote_detalle_talla_color`
 

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { execute, query, queryOne, transaction } from "../config/db.js";
+import { consultarEnlaces, enlacesDe, exigirSinEnlaces } from "../lib/enlaces.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
 import { invalidarCachePermisos, requierePermiso } from "../middleware/auth.js";
 
@@ -57,15 +58,10 @@ rolesRouter.put(
     const rol = await queryOne("SELECT * FROM roles WHERE id_rol = ?", [req.params.id]);
     if (!rol) throw ApiError.notFound();
 
-    // Regla del alcance: no se modifica un rol asignado a usuarios activos.
-    const enUso = await queryOne(
-      "SELECT COUNT(*) AS total FROM usuarios WHERE id_rol = ? AND estado = 'ACTIVO'",
-      [req.params.id],
-    );
-    if (enUso.total > 0 && req.body?.estado === "INACTIVO") {
-      throw ApiError.conflict(
-        `No se puede inactivar: hay ${enUso.total} usuario(s) activo(s) con este rol`,
-      );
+    // Regla del alcance: no se inactiva un rol asignado a usuarios activos.
+    // El error dice a cuales.
+    if (req.body?.estado === "INACTIVO" && rol.estado !== "INACTIVO") {
+      await exigirSinEnlaces(enlacesDe.roles, req.params.id, { accion: "desactivar" });
     }
 
     await execute("UPDATE roles SET nombre = ?, descripcion = ?, estado = ? WHERE id_rol = ?", [
@@ -79,25 +75,51 @@ rolesRouter.put(
   }),
 );
 
+const totalUsuariosDelRol = async (idRol) =>
+  Number((await queryOne("SELECT COUNT(*) AS total FROM usuarios WHERE id_rol = ?", [idRol])).total);
+
+// Antes de eliminar: que usuarios activos lo tienen, y si el DELETE lo borra de
+// verdad (nadie lo uso nunca) o solo lo inactiva (algun usuario, aunque inactivo,
+// lo tuvo: eso es historia).
+rolesRouter.get(
+  "/:id/enlaces",
+  requierePermiso("Roles", "ELIMINAR"),
+  asyncHandler(async (req, res) => {
+    const rol = await queryOne("SELECT id_rol, estado FROM roles WHERE id_rol = ?", [req.params.id]);
+    if (!rol) throw ApiError.notFound();
+
+    const resultado = await consultarEnlaces(enlacesDe.roles, req.params.id);
+    res.json({
+      ...resultado,
+      borra: (await totalUsuariosDelRol(req.params.id)) === 0,
+      yaInactivo: rol.estado === "INACTIVO",
+    });
+  }),
+);
+
 rolesRouter.delete(
   "/:id",
   requierePermiso("Roles", "ELIMINAR"),
   asyncHandler(async (req, res) => {
-    const enUso = await queryOne("SELECT COUNT(*) AS total FROM usuarios WHERE id_rol = ?", [
-      req.params.id,
-    ]);
-    if (enUso.total > 0) {
-      throw ApiError.conflict(
-        `No se puede eliminar: hay ${enUso.total} usuario(s) con este rol asignado`,
-      );
+    const rol = await queryOne("SELECT id_rol, estado FROM roles WHERE id_rol = ?", [req.params.id]);
+    if (!rol) throw ApiError.notFound();
+
+    // Con usuarios activos no se elimina; el error dice a cuales.
+    if (rol.estado !== "INACTIVO") {
+      await exigirSinEnlaces(enlacesDe.roles, req.params.id, { accion: "eliminar" });
     }
 
-    const existente = await queryOne("SELECT id_rol FROM roles WHERE id_rol = ?", [req.params.id]);
-    if (!existente) throw ApiError.notFound();
+    // Si algun usuario lo tuvo (aunque hoy este inactivo) tiene historia: se
+    // inactiva. Un rol que nadie uso nunca se borra de verdad.
+    if ((await totalUsuariosDelRol(req.params.id)) > 0) {
+      await execute("UPDATE roles SET estado = 'INACTIVO' WHERE id_rol = ?", [req.params.id]);
+      invalidarCachePermisos(req.params.id);
+      return res.json({ inactivado: true, id_rol: Number(req.params.id) });
+    }
 
     await execute("DELETE FROM roles WHERE id_rol = ?", [req.params.id]);
     invalidarCachePermisos(req.params.id);
-    res.json({ eliminado: true, id_rol: Number(req.params.id) });
+    return res.json({ eliminado: true, id_rol: Number(req.params.id) });
   }),
 );
 

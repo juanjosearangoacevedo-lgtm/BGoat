@@ -2,6 +2,7 @@ import { Factory, Plus } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { DataList } from "@/shared/components/DataList";
+import { EliminarDialog } from "@/shared/components/EliminarDialog";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { ExportMenu } from "@/shared/components/ExportMenu";
 import { FilterBar } from "@/shared/components/FilterBar";
@@ -10,6 +11,7 @@ import { RowActions, accionesEstandar } from "@/shared/components/RowActions";
 import { TablePagination } from "@/shared/components/TablePagination";
 import { ViewToggle } from "@/shared/components/ViewToggle";
 import { MODOS, useViewMode } from "@/shared/hooks/useViewMode";
+import { endpoints } from "@/shared/services/endpoints";
 import { formatMoneda, formatNumero } from "@/shared/utils/formatters";
 import { ModuloCard } from "../components/ModuloCard";
 import { ModuloDetallePanel } from "../components/ModuloDetallePanel";
@@ -37,7 +39,6 @@ export function ModulosPage() {
 
   const columnas = columnasModulos(manejadores);
   const objetivoEstado = modulos.estadoTarget;
-  const activando = objetivoEstado && String(objetivoEstado.estado).toUpperCase() !== "ACTIVO";
   const hayBusqueda = lista.hayFiltros || Boolean(modulos.search);
 
   const vacio = {
@@ -221,28 +222,24 @@ export function ModulosPage() {
         onClose={() => modulos.setSelected(null)}
       />
 
+      {/* "Activar" es lo que queda en un módulo inactivo; eliminar lo inactiva (ver EliminarDialog). */}
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
-        tono={activando ? "exito" : "advertencia"}
-        title={activando ? "¿Activar módulo?" : "¿Desactivar módulo?"}
-        description={
-          activando
-            ? `El módulo ${objetivoEstado?.codigo} volverá a recibir órdenes de producción.`
-            : `El módulo ${objetivoEstado?.codigo} dejará de ofrecerse al crear órdenes, pero conserva su historia.`
-        }
-        confirmLabel={activando ? "Activar" : "Desactivar"}
+        tono="exito"
+        title="¿Activar módulo?"
+        description={`El módulo ${objetivoEstado?.codigo} volverá a recibir órdenes de producción.`}
+        confirmLabel="Activar"
         loading={modulos.procesando}
         onCancel={() => modulos.setEstadoTarget(null)}
         onConfirm={() => modulos.cambiarEstado(objetivoEstado)}
       />
 
-      <ConfirmDialog
-        open={Boolean(modulos.deleteTarget)}
-        title="¿Eliminar módulo?"
-        description={
-          `Se eliminará el módulo ${modulos.deleteTarget?.codigo || ""}. ` +
-          "No se puede eliminar un módulo con órdenes de producción asociadas."
-        }
+      <EliminarDialog
+        recurso={endpoints.modulos}
+        objetivo={modulos.deleteTarget}
+        idField="id_modulo"
+        entidad="módulo"
+        nombre={modulos.deleteTarget ? `el módulo ${modulos.deleteTarget.codigo}` : ""}
         loading={modulos.procesando}
         onCancel={() => modulos.setDeleteTarget(null)}
         onConfirm={() => modulos.eliminar(modulos.deleteTarget)}

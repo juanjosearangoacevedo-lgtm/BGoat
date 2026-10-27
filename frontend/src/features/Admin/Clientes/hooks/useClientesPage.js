@@ -11,10 +11,10 @@ import {
 /**
  * Modulo Clientes -> tabla `clientes`.
  *
- * Es el cliente-marca unificado: antes eran dos modulos (Clientes y
- * Marcas) sin ninguna llave entre ellos, y la relacion solo aparecia
- * dentro de un pedido. En la planta nadie dice "el lote de Crystal para
- * la marca GEF": dice "el lote de GEF".
+ * Es el cliente unificado: antes eran dos modulos (Clientes y Marcas) sin
+ * ninguna llave entre ellos, y la relacion solo aparecia dentro de un
+ * pedido. En la planta nadie dice "el lote de Crystal para la marca GEF":
+ * dice "el lote de GEF". Por eso "Nombre o razon social" es un solo campo.
  */
 export const clienteDocumentTypes = clienteTiposDocumento;
 
@@ -25,14 +25,15 @@ export const clienteStatusOptions = clienteEstados.map((estado) => ({
 
 export const emptyClienteForm = {
   nombre: "",
-  descripcion: "",
-  razon_social: "",
   tipo_documento: "NIT",
   numero_documento: "",
-  telefono: "",
   correo: "",
+  telefono: "",
+  departamento: "",
+  municipio: "",
   direccion: "",
   estado: "ACTIVO",
+  descripcion: "",
 };
 
 export function useClientesPage() {
@@ -66,8 +67,8 @@ export function useClientesPage() {
           { value: "completos", label: "Con datos fiscales" },
           { value: "incompletos", label: "Sin datos fiscales" },
         ],
-        // La fusion de clientes y marcas dejo filas sin NIT ni razon
-        // social: este filtro es para encontrarlas y completarlas.
+        // La fusion de clientes y marcas dejo filas sin documento: este
+        // filtro es para encontrarlas y completarlas.
         comparar: (fila, valor) =>
           valor === "completos"
             ? Boolean(fila.numero_documento)

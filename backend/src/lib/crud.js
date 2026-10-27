@@ -2,6 +2,7 @@ import { Router } from "express";
 import { execute, query, queryOne } from "../config/db.js";
 import { requierePermiso } from "../middleware/auth.js";
 import { ApiError, asyncHandler } from "./http.js";
+import { consultarEnlaces, exigirSinEnlaces } from "./enlaces.js";
 import { filtrosDeListado } from "./filtros.js";
 
 const IDENTIFICADOR = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
@@ -16,6 +17,9 @@ function columnaSegura(nombre) {
   }
   return `\`${nombre}\``;
 }
+
+/** Un 1/0 de la base y un true/false del JSON son el mismo valor. */
+const comparable = (valor) => String(valor === true ? 1 : valor === false ? 0 : valor);
 
 /** Deja solo los campos declarados y convierte "" en NULL. */
 function limpiarCuerpo(cuerpo = {}, campos) {
@@ -37,6 +41,7 @@ function limpiarCuerpo(cuerpo = {}, campos) {
  *   POST   /            crear
  *   PUT    /:id         actualizar
  *   DELETE /:id         eliminar (o inactivar si el recurso usa softDelete)
+ *   GET    /:id/enlaces a que esta enlazado, antes de eliminarlo (ver `lib/enlaces.js`)
  */
 export function crudRouter(definicion) {
   const {
@@ -54,12 +59,30 @@ export function crudRouter(definicion) {
     // instante y las dos calculan el mismo, el indice rechaza a la segunda
     // y aqui se le pide otro en vez de fallarle al usuario.
     consecutivo = null,
+    // Que mantiene en uso al registro (ver `lib/enlaces.js`). Mientras algo
+    // lo mantenga, no se puede eliminar ni dejar inactivo: ni con el boton
+    // de eliminar ni cambiando el estado desde el formulario.
+    enlaces = null,
+    // Valores de la columna de `softDelete` que cuentan como "fuera de
+    // servicio". Por defecto, solo el del propio `softDelete`.
+    estadosInactivos = null,
   } = definicion;
 
   const router = Router();
   const tablaSegura = columnaSegura(tabla);
   const pkSegura = columnaSegura(pk);
   const prefijo = alias ? `${alias}.` : "";
+
+  const inactivos = (estadosInactivos ?? (softDelete ? [softDelete.valor] : [])).map(comparable);
+  const columnaEstado = softDelete ? columnaSegura(softDelete.columna) : null;
+  /** El registro (solo su llave y su estado) o null. */
+  const buscarParaBorrar = (id) =>
+    queryOne(
+      `SELECT ${pkSegura}${columnaEstado ? `, ${columnaEstado} AS estado_actual` : ""}
+         FROM ${tablaSegura} WHERE ${pkSegura} = ?`,
+      [id],
+    );
+  const estaInactivo = (fila) => columnaEstado !== null && inactivos.includes(comparable(fila.estado_actual));
 
   const origen = vista ? `(${vista}) AS sub` : tablaSegura;
   const origenPrefijo = vista ? "sub." : "";
@@ -147,6 +170,27 @@ export function crudRouter(definicion) {
     }),
   );
 
+  // --- A que esta enlazado ---------------------------------------------
+  // Lo pide la pantalla al abrir "Eliminar", para decir de entrada que
+  // lotes (u otros registros) lo mantienen en uso en vez de dejar que el
+  // usuario confirme y se encuentre con el error.
+  router.get(
+    "/:id/enlaces",
+    requierePermiso(permiso, "ELIMINAR"),
+    asyncHandler(async (req, res) => {
+      const existente = await buscarParaBorrar(req.params.id);
+      if (!existente) throw ApiError.notFound();
+
+      const resultado = await consultarEnlaces(enlaces, req.params.id);
+      res.json({
+        ...resultado,
+        // Sin softDelete, DELETE borra la fila de verdad; con el, la inactiva.
+        borra: !softDelete,
+        yaInactivo: estaInactivo(existente),
+      });
+    }),
+  );
+
   // --- Crear -----------------------------------------------------------
   router.post(
     "/",
@@ -184,11 +228,18 @@ export function crudRouter(definicion) {
       const columnas = Object.keys(datos);
       if (columnas.length === 0) throw ApiError.badRequest("No se enviaron datos");
 
-      const existente = await queryOne(
-        `SELECT ${pkSegura} FROM ${tablaSegura} WHERE ${pkSegura} = ?`,
-        [req.params.id],
-      );
+      const existente = await buscarParaBorrar(req.params.id);
       if (!existente) throw ApiError.notFound();
+
+      // Dejar el registro inactivo desde el formulario es lo mismo que
+      // eliminarlo: si algo lo mantiene en uso, no pasa.
+      if (enlaces && softDelete && datos[softDelete.columna] !== undefined) {
+        const pasaAInactivo =
+          inactivos.includes(comparable(datos[softDelete.columna])) && !estaInactivo(existente);
+        if (pasaAInactivo) {
+          await exigirSinEnlaces(enlaces, req.params.id, { accion: "desactivar" });
+        }
+      }
 
       await execute(
         `UPDATE ${tablaSegura} SET ${columnas.map((c) => `${columnaSegura(c)} = ?`).join(", ")}
@@ -209,11 +260,14 @@ export function crudRouter(definicion) {
     "/:id",
     requierePermiso(permiso, "ELIMINAR"),
     asyncHandler(async (req, res) => {
-      const existente = await queryOne(
-        `SELECT ${pkSegura} FROM ${tablaSegura} WHERE ${pkSegura} = ?`,
-        [req.params.id],
-      );
+      const existente = await buscarParaBorrar(req.params.id);
       if (!existente) throw ApiError.notFound();
+
+      // Un registro que ya esta fuera de servicio no se vuelve a juzgar:
+      // eliminarlo de nuevo no cambia nada.
+      if (enlaces && !estaInactivo(existente)) {
+        await exigirSinEnlaces(enlaces, req.params.id, { accion: "eliminar" });
+      }
 
       if (softDelete) {
         // Regla de negocio del alcance: no se borran registros con historia,

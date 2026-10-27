@@ -3,8 +3,9 @@ import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 import { env } from "../config/env.js";
 import { execute, queryOne } from "../config/db.js";
-import { correoRecuperacion, enviarCorreo } from "../lib/correo.js";
+import { correoRecuperacion, describirErrorCorreo, enviarCorreo } from "../lib/correo.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
+import { prepararIdentidad } from "../lib/identidad.js";
 import { firmarToken, permisosDelUsuario, requiereAuth } from "../middleware/auth.js";
 
 export const authRouter = Router();
@@ -180,6 +181,12 @@ authRouter.post(
       throw ApiError.badRequest("La contraseña debe tener al menos 8 caracteres");
     }
 
+    // Mismas reglas que el formulario de usuarios (el registro no ofrece NIT).
+    const identidad = prepararIdentidad(
+      { tipo_documento: tipo_documento || "CC", numero_documento, correo, telefono: telefono || null },
+      { tiposValidos: ["CC", "CE", "TI", "PASAPORTE", "OTRO"], tipoPorDefecto: "CC" },
+    );
+
     const rol = await queryOne("SELECT id_rol FROM roles WHERE nombre = 'Operario' LIMIT 1");
     if (!rol) throw ApiError.conflict("No existe un rol base para asignar. Ejecute el seed.");
 
@@ -189,12 +196,12 @@ authRouter.post(
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'INACTIVO')`,
       [
         rol.id_rol,
-        tipo_documento || "CC",
-        numero_documento,
+        identidad.tipo_documento,
+        identidad.numero_documento,
         nombres,
         apellidos,
-        String(correo).toLowerCase(),
-        telefono || null,
+        identidad.correo,
+        identidad.telefono,
         await bcrypt.hash(String(clave), 10),
       ],
     );
@@ -245,7 +252,13 @@ authRouter.post(
         if (!enviado) console.log(`[BGoat] Sin correo configurado. Enlace de recuperación para ${correo}: ${enlace}`);
       } catch (error) {
         // Se responde igual: decir "fallo el envio" confirmaria que la cuenta existe.
-        console.error(`[BGoat] No se pudo enviar el correo de recuperación a ${correo}:`, error.message);
+        // Por eso el motivo SOLO queda aqui, en la consola del backend.
+        console.error(`[BGoat] No se pudo enviar el correo de recuperación a ${correo}: ${describirErrorCorreo(error)}`);
+        console.error("        Para revisar el correo sin enviar nada: `npm run correo:probar` (en la carpeta backend).");
+        // En desarrollo, para no quedarse sin poder probar el cambio de clave, se deja el enlace en la consola.
+        if (process.env.NODE_ENV !== "production") {
+          console.log(`[BGoat] Enlace de recuperación para ${correo} (solo desarrollo): ${enlace}`);
+        }
       }
     }
 

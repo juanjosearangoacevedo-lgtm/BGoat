@@ -10,10 +10,9 @@ export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
         {
           titulo: "Identificación",
           filas: [
-            { label: "Nombre", value: cliente.nombre },
-            { label: "Descripción", value: cliente.descripcion, ancho: "completo" },
-            { label: "Razón social", value: cliente.razon_social, ancho: "completo" },
+            { label: "Nombre o razón social", value: cliente.nombre, ancho: "completo" },
             { label: "Documento", value: documento(cliente) },
+            { label: "Registrado el", value: formatFecha(cliente.fecha_creacion) },
           ],
         },
         {
@@ -21,9 +20,14 @@ export function ClienteDetalleModal({ cliente, onClose, onEditar }) {
           filas: [
             { label: "Correo", value: cliente.correo },
             { label: "Teléfono", value: cliente.telefono },
+            { label: "Departamento", value: cliente.departamento },
+            { label: "Municipio", value: cliente.municipio },
             { label: "Dirección", value: cliente.direccion, ancho: "completo" },
-            { label: "Registrado el", value: formatFecha(cliente.fecha_creacion) },
           ],
+        },
+        {
+          titulo: "Notas",
+          filas: [{ label: "Descripción", value: cliente.descripcion, ancho: "completo" }],
         },
       ]
     : [];

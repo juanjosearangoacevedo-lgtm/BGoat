@@ -36,6 +36,7 @@ const archivos = [
   "00i_migracion_eficiencia_y_festivos.sql",
   "00j_migracion_lote_mayusculas.sql",
   "00k_migracion_correcciones_octubre.sql",
+  "00l_migracion_cliente_ubicacion.sql",
   "01_schema_bgoat.sql",
   "02_seed_bgoat.sql",
 ];

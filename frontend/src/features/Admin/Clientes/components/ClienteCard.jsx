@@ -1,7 +1,7 @@
 import { AtSign, MapPin, Phone } from "lucide-react";
 import { RowActions, accionesEstandar } from "@/shared/components/RowActions";
 import { StatusBadge } from "@/shared/components/StatusBadge";
-import { documento, iniciales } from "@/shared/utils/formatters";
+import { direccionCompleta, documento, iniciales } from "@/shared/utils/formatters";
 
 const avatarColors = [
   "bg-dorado",
@@ -49,7 +49,7 @@ export function ClienteCard({ cliente, index = 0, onDetalle, onEdit, onToggleEst
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" />
-          <span className="truncate">{cliente.direccion || "Sin dirección"}</span>
+          <span className="truncate">{direccionCompleta(cliente) || "Sin dirección"}</span>
         </div>
       </div>
 

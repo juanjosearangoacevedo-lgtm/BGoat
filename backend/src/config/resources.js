@@ -1,4 +1,95 @@
+import { queryOne } from "./db.js";
+import { enlacesDe } from "../lib/enlaces.js";
+import { ApiError } from "../lib/http.js";
+import { prepararIdentidad } from "../lib/identidad.js";
 import { generarCodigoLote, prepararLote } from "../lib/lotes.js";
+import { buscarUbicacion } from "../lib/ubicaciones.js";
+
+/**
+ * Si `clientes` ya tiene las columnas `departamento` y `municipio`
+ * (migracion `00l`). Entre desplegar el codigo y aplicar la migracion, el
+ * backend corre sobre la tabla vieja: en vez de fallar al guardar un cliente
+ * ("Unknown column"), no guarda la ubicacion y avisa una vez. Mientras
+ * faltan se vuelve a mirar cada minuto, para notar la migracion sin reiniciar.
+ */
+const ubicacionDeClientes = { disponible: false, revisadaEn: 0, avisada: false };
+
+async function clientesTienenUbicacion() {
+  if (ubicacionDeClientes.disponible) return true;
+  if (Date.now() - ubicacionDeClientes.revisadaEn < 60_000) return false;
+
+  const fila = await queryOne(
+    `SELECT COUNT(*) AS total FROM information_schema.COLUMNS
+      WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'clientes'
+        AND COLUMN_NAME IN ('departamento', 'municipio')`,
+  );
+  ubicacionDeClientes.revisadaEn = Date.now();
+  ubicacionDeClientes.disponible = Number(fila?.total) === 2;
+
+  if (!ubicacionDeClientes.disponible && !ubicacionDeClientes.avisada) {
+    ubicacionDeClientes.avisada = true;
+    console.warn(
+      "[BGoat] La tabla clientes no tiene departamento ni municipio: falta aplicar " +
+        "database/00l_migracion_cliente_ubicacion.sql. Mientras tanto la ubicación no se guarda.",
+    );
+  }
+  return ubicacionDeClientes.disponible;
+}
+
+/**
+ * Documento, correo y telefono del cliente, y su departamento y municipio.
+ * Lo que no cambio no se vuelve a juzgar (ver `prepararIdentidad`).
+ */
+async function prepararCliente(datos, { id }) {
+  const conUbicacion = await clientesTienenUbicacion();
+
+  const existente = id
+    ? await queryOne(
+        `SELECT tipo_documento, numero_documento, correo, telefono${conUbicacion ? ", departamento, municipio" : ""}
+           FROM clientes WHERE id_cliente = ?`,
+        [id],
+      )
+    : null;
+
+  // Sin las columnas no hay donde guardar la ubicacion: se descarta.
+  const { departamento: _departamento, municipio: _municipio, ...sinUbicacion } = datos;
+  const listo = prepararIdentidad(conUbicacion ? datos : sinUbicacion, {
+    existente,
+    tiposValidos: ["CC", "CE", "NIT", "PASAPORTE", "OTRO"],
+    tipoPorDefecto: "NIT",
+  });
+
+  if (listo.departamento === undefined && listo.municipio === undefined) return listo;
+
+  // Departamento y municipio van juntos y el municipio tiene que ser de ese
+  // departamento. Se guardan con su escritura oficial ("Bogotá D.C.").
+  const departamento = listo.departamento !== undefined ? listo.departamento : existente?.departamento;
+  const municipio = listo.municipio !== undefined ? listo.municipio : existente?.municipio;
+  if (!departamento && !municipio) return { ...listo, departamento: null, municipio: null };
+  if (!departamento || !municipio) {
+    throw ApiError.badRequest("Elige el departamento y el municipio: van juntos");
+  }
+  const oficial = buscarUbicacion(departamento, municipio);
+  if (!oficial) throw ApiError.badRequest("El municipio no pertenece a ese departamento");
+  return { ...listo, ...oficial };
+}
+
+/** Documento, correo y telefono del operario. */
+async function prepararOperario(datos, { id }) {
+  const existente = id
+    ? await queryOne(
+        `SELECT tipo_documento, numero_documento, correo, telefono
+           FROM operarios WHERE id_operario = ?`,
+        [id],
+      )
+    : null;
+
+  return prepararIdentidad(datos, {
+    existente,
+    tiposValidos: ["CC", "CE", "TI", "PASAPORTE", "OTRO"],
+    tipoPorDefecto: "CC",
+  });
+}
 
 /**
  * Definicion declarativa de los recursos CRUD.
@@ -23,28 +114,35 @@ import { generarCodigoLote, prepararLote } from "../lib/lotes.js";
  * Los recursos con logica propia no estan aqui: la captura, la jornada,
  * las ordenes, los usuarios, los roles y los indicadores tienen su
  * archivo en `routes/`.
+ *
+ * `enlaces` (ver `lib/enlaces.js`) dice que mantiene en uso a un registro:
+ * mientras algo lo mantenga, no se puede eliminar ni dejar inactivo.
  */
 export const recursos = {
   /**
-   * Cliente-marca: para quien se confecciona.
+   * Cliente: para quien se confecciona.
    *
-   * `nombre` es como la planta lo nombra (la marca, casi siempre) y es
-   * lo unico obligatorio: cuando llega un lote a media manana, la
-   * digitadora tiene que poder registrar el cliente con el nombre que
-   * trae la hoja, sin buscar el NIT.
+   * `nombre` es "Nombre o razon social": un solo campo, el nombre con que la
+   * planta lo conoce (la marca, la empresa o la persona), y es lo unico
+   * obligatorio: cuando llega un lote a media manana, la digitadora tiene
+   * que poder registrar el cliente con lo que trae la hoja, sin buscar el
+   * NIT. La columna `razon_social` ya no se escribe ni se muestra; se deja
+   * en la tabla para no perder lo que ya habia.
    */
   clientes: {
     tabla: "clientes",
     pk: "id_cliente",
     permiso: "Clientes",
     campos: [
-      "nombre", "descripcion", "razon_social", "tipo_documento", "numero_documento",
-      "telefono", "correo", "direccion", "estado",
+      "nombre", "tipo_documento", "numero_documento", "correo", "telefono",
+      "direccion", "departamento", "municipio", "estado", "descripcion",
     ],
     obligatorios: ["nombre"],
-    buscables: ["nombre", "razon_social", "numero_documento", "correo"],
+    buscables: ["nombre", "numero_documento", "correo"],
     filtros: ["estado", "tipo_documento"],
     orden: "nombre ASC",
+    antesDeGuardar: prepararCliente,
+    enlaces: enlacesDe.clientes,
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 
@@ -94,6 +192,8 @@ export const recursos = {
     // del cliente, basta con uno (ver `lib/lotes.js`). Ahi mismo se
     // guardan los codigos en mayusculas.
     antesDeGuardar: prepararLote,
+    // Un lote con ordenes sin terminar o con la jornada abierta sigue en uso.
+    enlaces: enlacesDe.lotes,
     // El codigo de lote es el consecutivo del año: LT-2026-0001, 0002...
     consecutivo: { campo: "codigo_lote", generar: generarCodigoLote },
     buscables: [
@@ -130,6 +230,7 @@ export const recursos = {
     buscables: ["nombre"],
     filtros: ["estado"],
     orden: "orden_visual ASC",
+    enlaces: enlacesDe.tallas,
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 
@@ -142,6 +243,7 @@ export const recursos = {
     buscables: ["nombre"],
     filtros: ["estado"],
     orden: "nombre ASC",
+    enlaces: enlacesDe.colores,
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 
@@ -154,6 +256,7 @@ export const recursos = {
     buscables: ["nombre", "descripcion"],
     filtros: ["estado"],
     orden: "nombre ASC",
+    enlaces: enlacesDe["tipos-prenda"],
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 
@@ -170,6 +273,10 @@ export const recursos = {
     buscables: ["codigo_operario", "nombres", "apellidos", "numero_documento"],
     filtros: ["estado", "cargo"],
     orden: "nombres ASC, apellidos ASC",
+    antesDeGuardar: prepararOperario,
+    // Una operaria retirada tampoco puede estar en la nomina de una jornada abierta.
+    enlaces: enlacesDe.operarios,
+    estadosInactivos: ["INACTIVO", "RETIRADO"],
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 
@@ -188,6 +295,8 @@ export const recursos = {
     buscables: ["codigo", "nombre", "ubicacion"],
     filtros: ["estado", "ubicacion"],
     orden: "orden_visual ASC, codigo ASC",
+    // Con la jornada abierta el modulo esta trabajando: no sale de servicio.
+    enlaces: enlacesDe.modulos,
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 
@@ -231,6 +340,7 @@ export const recursos = {
     buscables: ["nombre"],
     filtros: ["estado"],
     orden: "nombre ASC",
+    enlaces: enlacesDe.responsables,
     softDelete: { columna: "estado", valor: "INACTIVO" },
   },
 

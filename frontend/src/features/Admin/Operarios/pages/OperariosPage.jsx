@@ -2,6 +2,7 @@ import { Users } from "lucide-react";
 import { CrudPage } from "@/shared/components/CrudPage";
 import { endpoints } from "@/shared/services/endpoints";
 import { formatFecha, nombreCompleto } from "@/shared/utils/formatters";
+import { ejemploDocumento, normalizarDocumento } from "@/shared/validations";
 import { crearOperarioEsquema } from "../validations/operarioValidation";
 
 /**
@@ -16,6 +17,7 @@ export function OperariosPage() {
   return (
     <CrudPage
       titulo="Operarios"
+      entidad="operario"
       subtitulo="Personal de planta"
       recurso={endpoints.operarios}
       idField="id_operario"
@@ -75,27 +77,31 @@ export function OperariosPage() {
       }}
       required={["codigo_operario", "numero_documento", "nombres", "apellidos", "fecha_ingreso"]}
       esquema={({ items, editing }) => crearOperarioEsquema({ lista: items, editing })}
+      // Mismo orden en todo el panel: nombre, documento, contacto, lo propio
+      // del modulo y al final el estado.
       campos={[
         { name: "codigo_operario", label: "Código", placeholder: "OP-001", required: true, maxLength: 20 },
-        { name: "cargo", label: "Cargo", options: cargos, required: true },
+        { name: "nombres", label: "Nombres", required: true, minLength: 2, maxLength: 60 },
+        { name: "apellidos", label: "Apellidos", required: true, minLength: 2, maxLength: 60 },
         {
           name: "tipo_documento",
-          label: "Tipo documento",
+          label: "Tipo de documento",
           options: ["CC", "CE", "TI", "PASAPORTE", "OTRO"],
           required: true,
+          // Lo que no cabe en el tipo nuevo (letras en una cédula) se quita del número.
+          alCambiar: ({ valor, form, setField }) =>
+            setField("numero_documento", normalizarDocumento(valor, form.numero_documento)),
         },
         {
           name: "numero_documento",
-          label: "Número documento",
-          placeholder: "1234567890",
+          label: "Número de documento",
+          placeholder: (form) => ejemploDocumento(form.tipo_documento),
           required: true,
-          minLength: 5,
-          maxLength: 20,
+          normalizar: (valor, form) => normalizarDocumento(form.tipo_documento, valor),
         },
-        { name: "nombres", label: "Nombres", required: true, minLength: 2, maxLength: 60 },
-        { name: "apellidos", label: "Apellidos", required: true, minLength: 2, maxLength: 60 },
-        { name: "telefono", label: "Teléfono", type: "tel", placeholder: "300 000 0000" },
         { name: "correo", label: "Correo", type: "email", placeholder: "operario@empresa.com" },
+        { name: "telefono", label: "Teléfono", type: "tel", placeholder: "300 000 0000" },
+        { name: "cargo", label: "Cargo", options: cargos, required: true },
         { name: "fecha_ingreso", label: "Fecha de ingreso", type: "date", required: true },
         {
           name: "estado",
@@ -105,7 +111,6 @@ export function OperariosPage() {
             { value: "INACTIVO", label: "Inactivo" },
             { value: "RETIRADO", label: "Retirado" },
           ],
-          ancho: "completo",
         },
       ]}
     />

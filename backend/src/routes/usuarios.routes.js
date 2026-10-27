@@ -7,6 +7,7 @@ import {
 } from "../lib/administradores.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
 import { filtrosDeListado } from "../lib/filtros.js";
+import { prepararIdentidad } from "../lib/identidad.js";
 import { requierePermiso } from "../middleware/auth.js";
 
 export const usuariosRouter = Router();
@@ -65,13 +66,20 @@ usuariosRouter.post(
       throw ApiError.badRequest("La contraseña debe tener al menos 8 caracteres");
     }
 
+    // El documento se guarda sin puntos ni espacios y tiene que cumplir las
+    // reglas de su tipo; el correo y el telefono tambien se revisan.
+    const identidad = prepararIdentidad(
+      { tipo_documento, numero_documento, correo, telefono },
+      { tipoPorDefecto: "CC" },
+    );
+
     const resultado = await execute(
       `INSERT INTO usuarios
          (id_rol, tipo_documento, numero_documento, nombres, apellidos, correo, telefono, clave_hash, estado)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        id_rol, tipo_documento, numero_documento, nombres, apellidos,
-        String(correo).toLowerCase(), telefono, await bcrypt.hash(String(clave), 10), estado,
+        id_rol, identidad.tipo_documento, identidad.numero_documento, nombres, apellidos,
+        identidad.correo, identidad.telefono, await bcrypt.hash(String(clave), 10), estado,
       ],
     );
 
@@ -86,7 +94,8 @@ usuariosRouter.put(
   requierePermiso("Usuarios", "EDITAR"),
   asyncHandler(async (req, res) => {
     const existente = await queryOne(
-      "SELECT id_usuario, id_rol, estado FROM usuarios WHERE id_usuario = ?",
+      `SELECT id_usuario, id_rol, estado, tipo_documento, numero_documento, correo, telefono
+         FROM usuarios WHERE id_usuario = ?`,
       [req.params.id],
     );
     if (!existente) throw ApiError.notFound();
@@ -112,10 +121,21 @@ usuariosRouter.put(
     const columnas = [];
     const valores = [];
 
+    // Documento, correo y telefono: normalizados y validados solo si cambian
+    // (un dato viejo que hoy no pasaria no impide, por ejemplo, reactivar).
+    const identidad = prepararIdentidad(
+      Object.fromEntries(
+        ["tipo_documento", "numero_documento", "correo", "telefono"]
+          .filter((campo) => req.body?.[campo] !== undefined)
+          .map((campo) => [campo, req.body[campo]]),
+      ),
+      { existente, tipoPorDefecto: "CC" },
+    );
+
     campos.forEach((campo) => {
       if (req.body?.[campo] !== undefined) {
         columnas.push(`${campo} = ?`);
-        valores.push(campo === "correo" ? String(req.body[campo]).toLowerCase() : req.body[campo]);
+        valores.push(campo in identidad ? identidad[campo] : req.body[campo]);
       }
     });
 
@@ -141,6 +161,40 @@ usuariosRouter.put(
     ]);
 
     res.json(await queryOne(`${SELECT_USUARIO} WHERE u.id_usuario = ?`, [req.params.id]));
+  }),
+);
+
+// Antes de eliminar: dice si el sistema lo permite. Un usuario no esta
+// "enlazado" a nada que lo detenga, pero hay dos reglas: nadie se inactiva a
+// si mismo y el sistema no se queda sin administrador activo.
+usuariosRouter.get(
+  "/:id/enlaces",
+  requierePermiso("Usuarios", "ELIMINAR"),
+  asyncHandler(async (req, res) => {
+    const existente = await queryOne(
+      "SELECT id_usuario, id_rol, estado FROM usuarios WHERE id_usuario = ?",
+      [req.params.id],
+    );
+    if (!existente) throw ApiError.notFound();
+
+    const respuesta = {
+      bloqueado: false, total: 0, mensaje: null, motivo: null, ayuda: null, enlaces: [],
+      borra: false, yaInactivo: existente.estado === "INACTIVO",
+    };
+
+    try {
+      exigirNoInactivarseASiMismo({
+        idObjetivo: req.params.id,
+        idSolicitante: req.usuario.id_usuario,
+        estado: "INACTIVO",
+      });
+      await exigirAdministradorRestante(existente, { estado: "INACTIVO" });
+    } catch (error) {
+      if (!(error instanceof ApiError) || error.status !== 400) throw error;
+      return res.json({ ...respuesta, bloqueado: true, mensaje: error.message, motivo: error.message });
+    }
+
+    return res.json(respuesta);
   }),
 );
 

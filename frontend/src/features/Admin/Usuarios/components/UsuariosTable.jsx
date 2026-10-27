@@ -7,7 +7,14 @@ import { documento, formatFechaHora, iniciales, nombreCompleto } from "@/shared/
  * Columnas del listado de la tabla `usuarios`.
  * Las comparte la tabla, el modo lista y la exportacion a CSV.
  */
-export function columnasUsuarios({ roleName, onDetalle, onEdit, onToggleEstado, onDelete } = {}) {
+export function columnasUsuarios({
+  roleName,
+  onDetalle,
+  onEdit,
+  onToggleEstado,
+  onDelete,
+  esYo = () => false,
+} = {}) {
   return [
     {
       key: "nombres",
@@ -82,7 +89,8 @@ export function columnasUsuarios({ roleName, onDetalle, onEdit, onToggleEstado, 
             onDetalle,
             onEdit,
             onToggleEstado,
-            onDelete,
+            // Nadie se elimina (se inactiva) a si mismo: ni se le ofrece.
+            onDelete: esYo(usuario) ? undefined : onDelete,
             activo: String(usuario.estado).toUpperCase() === "ACTIVO",
           })}
         />

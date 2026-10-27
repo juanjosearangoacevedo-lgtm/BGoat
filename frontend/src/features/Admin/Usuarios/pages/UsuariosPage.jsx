@@ -2,13 +2,16 @@ import { Plus, Users } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { DataList } from "@/shared/components/DataList";
+import { EliminarDialog } from "@/shared/components/EliminarDialog";
 import { ExportMenu } from "@/shared/components/ExportMenu";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { RowActions, accionesEstandar } from "@/shared/components/RowActions";
 import { TablePagination } from "@/shared/components/TablePagination";
 import { ViewToggle } from "@/shared/components/ViewToggle";
+import { useAuth } from "@/shared/contexts/AuthContext";
 import { MODOS, useViewMode } from "@/shared/hooks/useViewMode";
+import { endpoints } from "@/shared/services/endpoints";
 import { documento, formatFechaHora, iniciales, nombreCompleto } from "@/shared/utils/formatters";
 import { UsuarioDetalleModal } from "../components/UsuarioDetalleModal";
 import { UsuarioFormModal } from "../components/UsuarioFormModal";
@@ -20,6 +23,10 @@ export function UsuariosPage() {
   const usuarios = useUsuariosPage();
   const { lista } = usuarios;
   const vista = useViewMode("usuarios", MODOS.TABLA, [MODOS.TABLA, MODOS.LISTA]);
+  const { usuario: sesion } = useAuth();
+
+  /** Nadie puede inactivarse a si mismo: ni el backend lo deja ni la pantalla lo ofrece. */
+  const esYo = (usuario) => Number(usuario?.id_usuario) === Number(sesion?.id_usuario);
 
   const handleSave = () => {
     if (!usuarios.validate()) return;
@@ -33,10 +40,9 @@ export function UsuariosPage() {
     onDelete: usuarios.setDeleteTarget,
   };
 
-  const columnas = columnasUsuarios({ roleName: usuarios.roleName, ...manejadores });
+  const columnas = columnasUsuarios({ roleName: usuarios.roleName, esYo, ...manejadores });
 
   const objetivoEstado = usuarios.estadoTarget;
-  const activando = objetivoEstado && String(objetivoEstado.estado).toUpperCase() !== "ACTIVO";
   const hayBusqueda = lista.hayFiltros || Boolean(usuarios.search);
 
   const vacio = {
@@ -162,6 +168,7 @@ export function UsuariosPage() {
               acciones={accionesEstandar({
                 fila: usuario,
                 ...manejadores,
+                onDelete: esYo(usuario) ? undefined : manejadores.onDelete,
                 activo: String(usuario.estado).toUpperCase() === "ACTIVO",
               })}
             />
@@ -176,6 +183,7 @@ export function UsuariosPage() {
         errors={usuarios.errors}
         guardando={usuarios.guardando}
         roleOptions={usuarios.roleOptions}
+        editandoseASiMismo={Boolean(usuarios.editing) && esYo(usuarios.editing)}
         onChange={usuarios.setField}
         onClose={usuarios.closeModal}
         onSave={handleSave}
@@ -191,25 +199,24 @@ export function UsuariosPage() {
         }}
       />
 
+      {/* "Activar" es lo que queda en un usuario inactivo o bloqueado; eliminar lo inactiva (ver EliminarDialog). */}
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
-        tono={activando ? "exito" : "advertencia"}
-        title={activando ? "¿Activar usuario?" : "¿Desactivar usuario?"}
-        description={
-          activando
-            ? `${nombreCompleto(objetivoEstado)} podrá volver a iniciar sesión. Si estaba bloqueado, se limpian los intentos fallidos.`
-            : `${nombreCompleto(objetivoEstado)} no podrá iniciar sesión, pero conserva su historial.`
-        }
-        confirmLabel={activando ? "Activar" : "Desactivar"}
+        tono="exito"
+        title="¿Activar usuario?"
+        description={`${nombreCompleto(objetivoEstado)} podrá volver a iniciar sesión. Si estaba bloqueado, se limpian los intentos fallidos.`}
+        confirmLabel="Activar"
         loading={usuarios.procesando}
         onCancel={() => usuarios.setEstadoTarget(null)}
         onConfirm={() => usuarios.cambiarEstado(objetivoEstado)}
       />
 
-      <ConfirmDialog
-        open={Boolean(usuarios.deleteTarget)}
-        title="¿Eliminar usuario?"
-        description={`Se inactivará ${nombreCompleto(usuarios.deleteTarget)}. El sistema conserva el registro para no perder la trazabilidad.`}
+      <EliminarDialog
+        recurso={endpoints.usuarios}
+        objetivo={usuarios.deleteTarget}
+        idField="id_usuario"
+        entidad="usuario"
+        nombre={usuarios.deleteTarget ? nombreCompleto(usuarios.deleteTarget) : ""}
         loading={usuarios.procesando}
         onCancel={() => usuarios.setDeleteTarget(null)}
         onConfirm={() => usuarios.eliminar(usuarios.deleteTarget)}

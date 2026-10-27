@@ -1,4 +1,4 @@
-import { Edit2, Eye, Power, PowerOff, Trash2 } from "lucide-react";
+import { Edit2, Eye, Power, Trash2 } from "lucide-react";
 
 /**
  * Botonera de acciones de una fila o tarjeta.
@@ -51,9 +51,19 @@ export function RowActions({ acciones = [], align = "left", className = "" }) {
  * Set estandar de acciones de un registro administrativo.
  * Se omite la accion cuyo manejador no se entregue, de modo que un modulo sin
  * detalle o sin estado no muestre botones que no hacen nada.
+ *
+ * "Eliminar" y "Desactivar" eran el mismo boton (en este sistema eliminar solo
+ * deja el registro inactivo), asi que queda uno solo:
+ *   - registro activo   -> "Eliminar";
+ *   - registro inactivo -> "Activar" (volver a eliminar lo ya eliminado no
+ *                          tiene sentido; esto es lo que lo recupera).
+ * Un modulo sin estado (sin `onToggleEstado`) muestra siempre "Eliminar".
+ * Para quitar el boton de eliminar de una fila (por ejemplo, el propio
+ * usuario) basta no entregar `onDelete`.
  */
 export function accionesEstandar({ fila, onDetalle, onEdit, onToggleEstado, onDelete, activo }) {
   const estaActivo = activo ?? String(fila?.estado || "").toUpperCase().startsWith("ACTIV");
+  const recuperar = Boolean(onToggleEstado) && !estaActivo;
 
   return [
     onDetalle && {
@@ -68,17 +78,18 @@ export function accionesEstandar({ fila, onDetalle, onEdit, onToggleEstado, onDe
       tono: "primario",
       onClick: () => onEdit(fila),
     },
-    onToggleEstado && {
-      label: estaActivo ? "Desactivar" : "Activar",
-      icono: estaActivo ? PowerOff : Power,
-      tono: estaActivo ? "advertencia" : "exito",
+    recuperar && {
+      label: "Activar",
+      icono: Power,
+      tono: "exito",
       onClick: () => onToggleEstado(fila),
     },
-    onDelete && {
-      label: "Eliminar",
-      icono: Trash2,
-      tono: "peligro",
-      onClick: () => onDelete(fila),
-    },
+    !recuperar &&
+      onDelete && {
+        label: "Eliminar",
+        icono: Trash2,
+        tono: "peligro",
+        onClick: () => onDelete(fila),
+      },
   ].filter(Boolean);
 }

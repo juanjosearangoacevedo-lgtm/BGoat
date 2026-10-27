@@ -56,20 +56,12 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
               hint="Agrupa los módulos en el tablero."
               onChange={(valor) => onChange("ubicacion", valor)}
             />
-            <FormField
-              label="Estado"
-              required
-              value={form.estado ?? "ACTIVO"}
-              options={moduloStatusOptions}
-              error={errors.estado}
-              onChange={(valor) => onChange("estado", valor)}
-            />
           </div>
         </section>
 
         <section>
           <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-marca-letra">
-            Capacidad y regla de alerta
+            Capacidad, regla de alerta y estado
           </h3>
 
           {/* Aqui se pedian tambien las horas de jornada, las horas
@@ -109,6 +101,15 @@ export function ModuloFormModal({ open, editing, form, errors, guardando, onChan
               error={errors.umbral_cumplimiento}
               hint="Por debajo del umbral se pide la incidencia."
               onChange={(valor) => onChange("umbral_cumplimiento", valor)}
+            />
+            {/* El estado va al final, antes de las observaciones, como en todo el panel. */}
+            <FormField
+              label="Estado"
+              required
+              value={form.estado ?? "ACTIVO"}
+              options={moduloStatusOptions}
+              error={errors.estado}
+              onChange={(valor) => onChange("estado", valor)}
             />
           </div>
         </section>

@@ -2,6 +2,7 @@ import { Package2, Plus } from "lucide-react";
 import { Button } from "@/shared/components/button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { DataList } from "@/shared/components/DataList";
+import { EliminarDialog } from "@/shared/components/EliminarDialog";
 import { ExportMenu } from "@/shared/components/ExportMenu";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
@@ -10,6 +11,7 @@ import { StatsGrid } from "@/shared/components/StatsGrid";
 import { TablePagination } from "@/shared/components/TablePagination";
 import { ViewToggle } from "@/shared/components/ViewToggle";
 import { MODOS, useViewMode } from "@/shared/hooks/useViewMode";
+import { endpoints } from "@/shared/services/endpoints";
 import { formatFecha, formatNumero } from "@/shared/utils/formatters";
 import { LoteDetalleModal } from "../components/LoteDetalleModal";
 import { LoteFormModal } from "../components/LoteFormModal";
@@ -51,7 +53,6 @@ export function LotesPage() {
     : null;
 
   const objetivoEstado = lotes.estadoTarget;
-  const activando = objetivoEstado && estaInactivo(objetivoEstado);
   const hayBusqueda = lista.hayFiltros || Boolean(lotes.search);
 
   const vacio = {
@@ -235,25 +236,24 @@ export function LotesPage() {
         }}
       />
 
+      {/* "Reactivar" es lo que queda en un lote inactivo; eliminar lo inactiva (ver EliminarDialog). */}
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
-        tono={activando ? "exito" : "advertencia"}
-        title={activando ? "¿Reactivar lote?" : "¿Desactivar lote?"}
-        description={
-          activando
-            ? `El lote ${objetivoEstado?.codigo_lote} vuelve a ofrecerse y podrá usarse en órdenes de producción.`
-            : `El lote ${objetivoEstado?.codigo_lote} dejará de ofrecerse al crear órdenes, pero conserva su historia.`
-        }
-        confirmLabel={activando ? "Reactivar" : "Desactivar"}
+        tono="exito"
+        title="¿Reactivar lote?"
+        description={`El lote ${objetivoEstado?.codigo_lote} vuelve a ofrecerse y podrá usarse en órdenes de producción.`}
+        confirmLabel="Reactivar"
         loading={lotes.procesando}
         onCancel={() => lotes.setEstadoTarget(null)}
-        onConfirm={() => lotes.cambiarEstado(objetivoEstado, activando ? 1 : 0)}
+        onConfirm={() => lotes.cambiarEstado(objetivoEstado, 1)}
       />
 
-      <ConfirmDialog
-        open={Boolean(lotes.deleteTarget)}
-        title="¿Eliminar lote?"
-        description={`Se eliminará el lote ${lotes.deleteTarget?.codigo_lote || ""}. Si tiene órdenes de producción, el sistema lo inactiva en lugar de borrarlo.`}
+      <EliminarDialog
+        recurso={endpoints.lotes}
+        objetivo={lotes.deleteTarget}
+        idField="id_lote"
+        entidad="lote"
+        nombre={lotes.deleteTarget ? `el lote ${lotes.deleteTarget.codigo_lote}` : ""}
         loading={lotes.procesando}
         onCancel={() => lotes.setDeleteTarget(null)}
         onConfirm={() => lotes.eliminar(lotes.deleteTarget)}

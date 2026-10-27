@@ -42,9 +42,14 @@ export const endpoints = {
   causas: "/causas",                     // tabla causas_desviacion (incidencias)
   responsables: "/responsables",         // quien responde por una causa; vive en su formulario
   ordenes: "/ordenes-produccion",
+  prioridadEstimada: "/ordenes-produccion/prioridad-estimada", // ?id_lote= : el puesto que tendria una orden nueva
   curvaOrden: "/ordenes-produccion/:id/curva",
   entregaOrden: "/ordenes-produccion/:id/entrega", // German decide: ajustar o dejar la entrega
   diasNoLaborales: "/dias-no-laborales", // tabla dias_no_laborales: festivos y cierres
+
+  // --- Catalogos de consulta -------------------------------------------
+  departamentos: "/ubicaciones/departamentos",                  // departamentos de Colombia
+  municipios: "/ubicaciones/departamentos/:id/municipios",      // municipios de un departamento
 
   // --- Captura horaria (el nucleo) -------------------------------------
   captura: "/captura",                   // tabla registros_horarios

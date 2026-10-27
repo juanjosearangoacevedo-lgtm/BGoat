@@ -8,19 +8,12 @@ export const operarioLimites = {
   codigo: { min: 2, max: 20 },
   nombres: { min: 2, max: 60 },
   apellidos: { min: 2, max: 60 },
-  documento: { min: 5, max: 20 },
   telefono: { min: 7, max: 15 },
 };
 
 export const operarioTiposDocumento = ["CC", "CE", "TI", "PASAPORTE", "OTRO"];
 export const operarioCargos = ["OPERARIO", "MECANICO", "OTRO"];
 export const operarioEstados = ["ACTIVO", "INACTIVO", "RETIRADO"];
-
-/** El pasaporte admite letras; los demas documentos del pais no. */
-const documentoSegunTipo = (valor, form) =>
-  form?.tipo_documento === "PASAPORTE"
-    ? reglas.longitud({ ...operarioLimites.documento, etiqueta: "El documento" })(valor, form)
-    : reglas.soloDigitos("El número de documento")(valor, form);
 
 export function crearOperarioEsquema({ lista = [], editing = null } = {}) {
   return {
@@ -43,8 +36,8 @@ export function crearOperarioEsquema({ lista = [], editing = null } = {}) {
     ],
     numero_documento: [
       reglas.requerido("El número de documento"),
-      documentoSegunTipo,
-      reglas.longitud({ ...operarioLimites.documento, etiqueta: "El número de documento" }),
+      // Segun el tipo: cédula solo números, pasaporte letras y números... (ver documentRules.js)
+      reglas.documento({ actual: editing }),
       reglas.unico({
         lista,
         campo: "numero_documento",

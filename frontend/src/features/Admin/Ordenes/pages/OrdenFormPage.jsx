@@ -6,6 +6,7 @@ import { formatFecha, formatMoneda } from "@/shared/utils/formatters";
 import { OrdenFormSection } from "../components/OrdenFormSection";
 import { OrdenSelectField } from "../components/OrdenSelectField";
 import { useOrdenForm } from "../hooks/useOrdenForm";
+import { usePrioridadEstimada } from "../hooks/usePrioridadEstimada";
 
 /**
  * Formulario de `ordenes_produccion`.
@@ -37,6 +38,9 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
     personasSupuestas,
     setPersonasSupuestas,
   } = useOrdenForm({ orderData });
+
+  // Al crear, el puesto que le tocaria segun el lote elegido (al editar ya tiene el suyo).
+  const prioridad = usePrioridadEstimada(isEdit ? null : form.id_lote);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -232,9 +236,50 @@ export function OrdenFormPage({ onNavigate, orderData, isEdit = false }) {
           ) : (
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700">Prioridad</p>
-              <p className="flex h-10 items-center text-xs text-gray-400">
-                Se asigna sola al guardar: la orden más vieja va primero.
-              </p>
+              {!form.id_lote ? (
+                <p className="flex h-10 items-center text-xs text-gray-400">
+                  Elige el lote y aquí verás en qué puesto de la cola queda la orden.
+                </p>
+              ) : prioridad.cargando ? (
+                <p className="flex h-10 items-center text-xs text-gray-400">Calculando…</p>
+              ) : prioridad.datos ? (
+                <>
+                  <div className="flex h-10 flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-marca/10 px-3 py-1 text-sm font-semibold text-marca-letra">
+                      #{prioridad.datos.posicion}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      de {prioridad.datos.total} en la cola ·{" "}
+                      {prioridad.datos.ordenesAntes === 0
+                        ? "será la primera en producirse"
+                        : `hay ${prioridad.datos.ordenesAntes} ${
+                            prioridad.datos.ordenesAntes === 1 ? "orden" : "órdenes"
+                          } antes`}
+                    </span>
+                  </div>
+                  {prioridad.datos.totalDesplazadas > 0 && (
+                    <p className="text-xs text-gray-500">
+                      Al guardar, {prioridad.datos.totalDesplazadas}{" "}
+                      {prioridad.datos.totalDesplazadas === 1 ? "orden pasa" : "órdenes pasan"} un puesto
+                      atrás:{" "}
+                      {prioridad.datos.desplazadas
+                        .map(
+                          (orden) =>
+                            `${orden.numero_orden} (#${orden.prioridad_actual} → #${orden.prioridad_nueva})`,
+                        )
+                        .join(", ")}
+                      {prioridad.datos.totalDesplazadas > prioridad.datos.desplazadas.length ? "…" : "."}
+                    </p>
+                  )}
+                  <p className="mt-1 text-xs text-gray-400">
+                    Se calcula con la fecha de recepción del lote: el que llegó primero va primero. No se edita.
+                  </p>
+                </>
+              ) : (
+                <p className="flex h-10 items-center text-xs text-gray-400">
+                  Se asigna sola al guardar: la orden más vieja va primero.
+                </p>
+              )}
             </div>
           )}
           <div>

@@ -8,6 +8,7 @@ export function ColoresPage() {
   return (
     <CrudPage
       titulo="Colores"
+      entidad="color"
       subtitulo="El catálogo que usa el desglose de cada lote"
       recurso={endpoints.colores}
       idField="id_color"

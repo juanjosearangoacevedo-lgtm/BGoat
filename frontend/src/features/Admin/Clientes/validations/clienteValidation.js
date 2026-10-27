@@ -1,22 +1,16 @@
-import { reglas } from "@/shared/validations";
+import { estaVacio, reglas } from "@/shared/validations";
 
 /**
  * Reglas del formulario de cliente -> tabla `clientes`.
  *
- * `clientes` absorbio a `marcas`: una fila es un cliente-marca, y lo que
- * la identifica es `nombre` --como la planta lo nombra-- no el documento.
- * Por eso `nombre` es lo unico obligatorio y el NIT quedo opcional:
- * cuando llega un lote a media manana, la digitadora tiene que poder
- * registrar el cliente con el nombre que trae la hoja.
- *
- * Y por eso el documento ya NO es unico: un mismo cliente juridico puede
- * tener varias marcas, y son varias filas con el mismo NIT.
+ * El nombre y la razon social son UN solo campo ("Nombre o razon social"):
+ * `nombre`. Lo unico obligatorio es eso: cuando llega un lote a media
+ * manana, se registra el cliente con lo que trae la hoja y el resto se
+ * completa despues.
  */
 export const clienteLimites = {
   nombre: { min: 2, max: 120 },
   descripcion: { max: 255 },
-  razonSocial: { max: 160 },
-  documento: { min: 5, max: 30 },
   telefono: { min: 7, max: 15 },
   direccion: { max: 200 },
 };
@@ -24,11 +18,16 @@ export const clienteLimites = {
 export const clienteTiposDocumento = ["CC", "CE", "NIT", "PASAPORTE", "OTRO"];
 export const clienteEstados = ["ACTIVO", "INACTIVO"];
 
+/** Departamento y municipio van juntos: uno solo no dice dónde queda. */
+const juntoCon = (otro, mensaje) => (valor, form) =>
+  !estaVacio(form?.[otro]) && estaVacio(valor) ? mensaje : "";
+
 export function crearClienteEsquema({ lista = [], editing = null } = {}) {
   return {
     nombre: [
-      reglas.requerido("El nombre del cliente"),
-      reglas.longitud({ ...clienteLimites.nombre, etiqueta: "El nombre del cliente" }),
+      reglas.requerido("El nombre o la razón social"),
+      reglas.longitud({ ...clienteLimites.nombre, etiqueta: "El nombre o la razón social" }),
+      reglas.sinCaracteresEspeciales("El nombre o la razón social"),
       reglas.unico({
         lista,
         campo: "nombre",
@@ -37,26 +36,21 @@ export function crearClienteEsquema({ lista = [], editing = null } = {}) {
         etiqueta: "Ese nombre",
       }),
     ],
-    descripcion: [reglas.longitud({ ...clienteLimites.descripcion, etiqueta: "La descripción" })],
-    // Los clientes de hoy son de prueba; cuando la empresa empiece a
-    // cargar los suyos, la razon social ya no puede faltar.
-    razon_social: [
-      reglas.requerido("La razón social"),
-      reglas.longitud({ ...clienteLimites.razonSocial, etiqueta: "La razón social" }),
-    ],
     tipo_documento: [
       reglas.seleccionRequerida("El tipo de documento"),
       reglas.opcionValida(clienteTiposDocumento, "El tipo de documento"),
     ],
-    numero_documento: [
-      reglas.longitud({ ...clienteLimites.documento, etiqueta: "El número de documento" }),
-    ],
+    // Segun el tipo: NIT con su digito de verificacion, cédula solo números... (ver documentRules.js)
+    numero_documento: [reglas.documento({ actual: editing })],
     correo: [reglas.correo()],
     telefono: [reglas.telefono({ ...clienteLimites.telefono })],
+    departamento: [juntoCon("municipio", "Elige también el departamento")],
+    municipio: [juntoCon("departamento", "Elige el municipio")],
     direccion: [reglas.longitud({ ...clienteLimites.direccion, etiqueta: "La dirección" })],
     estado: [
       reglas.seleccionRequerida("El estado"),
       reglas.opcionValida(clienteEstados, "El estado"),
     ],
+    descripcion: [reglas.longitud({ ...clienteLimites.descripcion, etiqueta: "La descripción" })],
   };
 }

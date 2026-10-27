@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { apiClient } from "@/shared/services/apiClient";
 import { endpoints } from "@/shared/services/endpoints";
-import { validarFormulario } from "@/shared/validations";
+import { normalizarDocumento, validarFormulario } from "@/shared/validations";
 import { authTiposDocumento, registroEsquema } from "../validations/authValidation";
 
 /**
@@ -36,7 +36,18 @@ export function useRegisterForm() {
 
   const setField = (field) => (event) => {
     const value = event?.target ? event.target.value : event;
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const siguiente = { ...prev, [field]: value };
+      // El numero se limpia segun el tipo: lo que el tipo no admite (letras
+      // en una cedula, puntos) no aparece.
+      if (field === "numero_documento") {
+        siguiente.numero_documento = normalizarDocumento(prev.tipo_documento, value);
+      }
+      if (field === "tipo_documento") {
+        siguiente.numero_documento = normalizarDocumento(value, prev.numero_documento);
+      }
+      return siguiente;
+    });
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 

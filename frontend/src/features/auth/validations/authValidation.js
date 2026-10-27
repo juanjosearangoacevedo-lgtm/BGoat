@@ -12,17 +12,10 @@ import { reglas } from "@/shared/validations";
 export const authLimites = {
   nombres: { min: 2, max: 60 },
   apellidos: { min: 2, max: 60 },
-  documento: { min: 5, max: 20 },
   telefono: { min: 7, max: 15 },
 };
 
 export const authTiposDocumento = ["CC", "CE", "TI", "PASAPORTE", "OTRO"];
-
-/** El pasaporte admite letras; los demas documentos del pais no. */
-const documentoSegunTipo = (valor, form) =>
-  form?.tipo_documento === "PASAPORTE"
-    ? reglas.longitud({ ...authLimites.documento, etiqueta: "El documento" })(valor, form)
-    : reglas.soloDigitos("El número de documento")(valor, form);
 
 /** Login: aqui no se valida el formato de la clave, solo que venga. */
 export const loginEsquema = {
@@ -47,8 +40,8 @@ export const registroEsquema = {
   ],
   numero_documento: [
     reglas.requerido("El número de documento"),
-    documentoSegunTipo,
-    reglas.longitud({ ...authLimites.documento, etiqueta: "El número de documento" }),
+    // Segun el tipo: cédula solo números, pasaporte letras y números... (ver documentRules.js)
+    reglas.documento(),
   ],
   correo: [reglas.requerido("El correo"), reglas.correo()],
   telefono: [reglas.telefono({ ...authLimites.telefono })],

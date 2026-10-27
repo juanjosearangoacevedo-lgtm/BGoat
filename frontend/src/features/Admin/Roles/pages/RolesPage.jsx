@@ -1,8 +1,8 @@
 import { Plus, Shield } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/shared/components/button";
 import { ConfirmDialog } from "@/shared/components/ConfirmDialog";
 import { DataList } from "@/shared/components/DataList";
+import { EliminarDialog } from "@/shared/components/EliminarDialog";
 import { ExportMenu } from "@/shared/components/ExportMenu";
 import { FilterBar } from "@/shared/components/FilterBar";
 import { PageHeader } from "@/shared/components/PageHeader";
@@ -10,6 +10,7 @@ import { RowActions, accionesEstandar } from "@/shared/components/RowActions";
 import { TablePagination } from "@/shared/components/TablePagination";
 import { ViewToggle } from "@/shared/components/ViewToggle";
 import { MODOS, useViewMode } from "@/shared/hooks/useViewMode";
+import { endpoints } from "@/shared/services/endpoints";
 import { formatFecha } from "@/shared/utils/formatters";
 import { RolDetalleModal } from "../components/RolDetalleModal";
 import { RolFormModal } from "../components/RolFormModal";
@@ -28,32 +29,18 @@ export function RolesPage() {
   const { lista } = roles;
   const vista = useViewMode("roles", MODOS.TABLA, [MODOS.TABLA, MODOS.LISTA]);
 
-  /**
-   * El backend no deja inactivar un rol que tenga usuarios activos.
-   * Se avisa antes de pedirlo para no mostrar un error despues del clic.
-   */
-  const pedirCambioEstado = (rol) => {
-    const activo = String(rol.estado).toUpperCase() === "ACTIVO";
-    const enUso = Number(rol.usuarios_activos || 0);
-
-    if (activo && enUso > 0) {
-      toast.error(`No se puede desactivar: ${enUso} usuario(s) activo(s) tienen el rol ${rol.nombre}`);
-      return;
-    }
-    roles.setEstadoTarget(rol);
-  };
-
+  // El backend no deja eliminar ni inactivar un rol con usuarios activos: el
+  // dialogo de eliminar lo dice de entrada, listando a cuales (ver EliminarDialog).
   const manejadores = {
     onDetalle: roles.verDetalle,
     onEdit: roles.abrirEditar,
-    onToggleEstado: pedirCambioEstado,
+    onToggleEstado: roles.setEstadoTarget,
     onDelete: roles.setDeleteTarget,
   };
 
   const columnas = columnasRoles(manejadores);
 
   const objetivoEstado = roles.estadoTarget;
-  const activando = objetivoEstado && String(objetivoEstado.estado).toUpperCase() !== "ACTIVO";
   const hayBusqueda = lista.hayFiltros || Boolean(roles.search);
 
   const vacio = {
@@ -210,28 +197,24 @@ export function RolesPage() {
         }}
       />
 
+      {/* "Activar" es lo que queda en un rol inactivo; eliminar lo inactiva (ver EliminarDialog). */}
       <ConfirmDialog
         open={Boolean(objetivoEstado)}
-        tono={activando ? "exito" : "advertencia"}
-        title={activando ? "¿Activar rol?" : "¿Desactivar rol?"}
-        description={
-          activando
-            ? `El rol ${objetivoEstado?.nombre} volverá a poder asignarse a usuarios.`
-            : `El rol ${objetivoEstado?.nombre} dejará de poder asignarse, pero conserva sus permisos configurados.`
-        }
-        confirmLabel={activando ? "Activar" : "Desactivar"}
+        tono="exito"
+        title="¿Activar rol?"
+        description={`El rol ${objetivoEstado?.nombre} volverá a poder asignarse a usuarios.`}
+        confirmLabel="Activar"
         loading={roles.procesando}
         onCancel={() => roles.setEstadoTarget(null)}
         onConfirm={() => roles.cambiarEstado(objetivoEstado)}
       />
 
-      <ConfirmDialog
-        open={Boolean(roles.deleteTarget)}
-        title="¿Eliminar rol?"
-        description={
-          `Se eliminará el rol ${roles.deleteTarget?.nombre || ""} y sus permisos. ` +
-          "No se puede eliminar un rol que tenga usuarios asignados."
-        }
+      <EliminarDialog
+        recurso={endpoints.roles}
+        objetivo={roles.deleteTarget}
+        idField="id_rol"
+        entidad="rol"
+        nombre={roles.deleteTarget ? `el rol ${roles.deleteTarget.nombre}` : ""}
         loading={roles.procesando}
         onCancel={() => roles.setDeleteTarget(null)}
         onConfirm={() => roles.eliminar(roles.deleteTarget)}

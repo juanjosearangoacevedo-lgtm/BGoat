@@ -83,8 +83,16 @@ src/
     crud.js         Fabrica de routers REST a partir de resources.js
     lotes.js        Reglas del lote: mayusculas, "al menos uno de tres" y el consecutivo del codigo
     administradores.js  Guarda: el sistema no se queda sin administrador activo
+    documentos.js   Documento de identidad: reglas por tipo y digito de verificacion del NIT
+    identidad.js    Documento, correo y telefono: se normalizan y se validan antes de guardar
+    enlaces.js      A que esta enlazado un registro antes de eliminarlo (lotes, jornadas...)
+    prioridad.js    El puesto que tendria una orden nueva en la cola, antes de crearla
+    ubicaciones.js  Departamentos y municipios de Colombia (api-colombia.com + copia local)
+    correo.js       Envio de correos (recuperar contrasena) y su diagnostico
     filtros.js      El WHERE de un listado: buscar + filtros de igualdad
     fechas.js       hoy() en hora LOCAL (no UTC) y validacion de formato
+  data/
+    colombia.json   Copia de respaldo de departamentos y municipios (`npm run ubicaciones:generar`)
   middleware/
     auth.js         JWT + verificacion de permisos contra `rol_permiso`
   routes/
@@ -95,6 +103,7 @@ src/
     ordenes.routes.js     ordenes de produccion
     usuarios.routes.js    usuarios (hash de contrasena)
     roles.routes.js       roles + matriz de permisos
+    ubicaciones.routes.js departamentos y municipios para el formulario de clientes
     indicadores.routes.js todos los indicadores (leen las vistas)
     index.js              monta todo y aplica el CRUD generico
 uploads/
@@ -102,9 +111,14 @@ uploads/
 scripts/
   setup-db.js       Ejecuta los .sql de /database
   hash.js           Genera un hash bcrypt
+  probar-correo.js  Revisa el correo del sistema (`npm run correo:probar`)
+  generar-ubicaciones.js  Baja la lista de departamentos y municipios (`npm run ubicaciones:generar`)
 test/
   lotes.test.js     Reglas del lote que no necesitan base de datos (`npm test`)
   administradores.test.js  La guarda del ultimo administrador, con consultas falsas
+  documentos.test.js  Documentos, correo y telefono; compara la regla con la de la pantalla
+  enlaces.test.js   Lo que se le dice al usuario cuando algo esta enlazado
+  prioridad.test.js La prioridad estimada de una orden nueva
 ```
 
 ### Por que un CRUD generico
@@ -156,6 +170,10 @@ Los nombres de tabla y columna nunca vienen del cliente: salen de
 | `GET /api/indicadores/sam` | SAM pactado vs observado por referencia |
 | `GET /api/indicadores/ordenes-riesgo` | Ordenes que no llegan a la fecha comprometida |
 | `GET /api/ordenes-produccion` | Listado con el avance real (vista `vw_avance_orden`) |
+| `GET /api/ordenes-produccion/prioridad-estimada?id_lote=` | El puesto que tendria una orden nueva de ese lote y a cuales empuja atras (el formulario lo muestra al elegir el lote) |
+| `GET /api/<recurso>/:id/enlaces` | A que esta enlazado un registro antes de eliminarlo: `{ bloqueado, motivo, ayuda, total, enlaces[], borra, yaInactivo }`. Lo piden el dialogo de eliminar de cada modulo (clientes, lotes, tallas, colores, operarios, modulos, responsables, roles, usuarios, ordenes) |
+| `GET /api/ubicaciones/departamentos` | Los 33 departamentos de Colombia (api-colombia.com, con copia local si no responde) |
+| `GET /api/ubicaciones/departamentos/:id/municipios` | Los municipios de un departamento |
 
 El mapa completo esta en `frontend/src/shared/services/endpoints.js`.
 
@@ -222,3 +240,51 @@ nombre: es lo que hace falta para volver a activar a alguien. Sin esta guarda, e
 interruptor de estado de la pantalla de usuarios dejaba a un administrador
 inactivarse y, con el unico fuera, nadie podia entrar a reactivarlo (solo se
 arreglaba a mano en la base). Vive en `src/lib/administradores.js`.
+
+**6. Eliminar es dejar fuera de servicio, y lo que sigue en uso no sale.** En
+este sistema nada con historia se borra: `DELETE` inactiva el registro (solo se
+borra de verdad lo que nunca se uso: un rol sin usuarios, una orden sin
+produccion ni jornadas, un dia no laboral). Y un registro que algo mantiene en
+uso no se puede eliminar **ni dejar inactivo desde el formulario**: un cliente con
+lotes sin finalizar, una talla o un color del desglose de un lote activo, un
+lote con ordenes sin terminar o una jornada abierta, un modulo o un operario con
+la jornada abierta, un rol con usuarios activos. La respuesta es un `409` que
+nombra a cuales esta enlazado, y `GET /api/<recurso>/:id/enlaces` da la misma
+informacion antes de intentarlo (la pantalla la usa para avisar de entrada).
+Que cuenta como "en uso" de cada recurso esta declarado en `src/lib/enlaces.js`
+y se conecta con `enlaces:` en `config/resources.js`. En la pantalla, en una fila
+inactiva el boton es "Activar".
+
+**7. El documento se valida segun su tipo.** CC 6 a 10 digitos, TI 10 u 11, CE 5
+a 10, NIT 8 a 10 digitos con su digito de verificacion opcional (si viene, se
+comprueba con la formula de la DIAN), pasaporte y otro 5 a 15 letras y numeros.
+A la API le quita solo el formato (puntos, espacios): si trae letras en una
+cedula la rechaza en vez de borrarselas. Lo que ya estaba guardado y no se toca
+no se vuelve a juzgar, para que un dato viejo no impida, por ejemplo, reactivar
+un registro. Es la misma regla de la pantalla
+(`frontend/src/shared/validations/documentRules.js`) y `test/documentos.test.js`
+las corre con la misma tabla. El correo y el telefono se revisan igual
+(`src/lib/identidad.js`).
+
+---
+
+## Correo (recuperar contrasena)
+
+`POST /api/auth/recuperar` manda un enlace por correo (SMTP, ver `.env.example`).
+La pantalla responde lo mismo exista o no la cuenta, y funcione o no el envio, a
+proposito: decir "fallo" confirmaria que la cuenta existe. Por eso **el motivo de
+un fallo solo sale en la consola del backend**.
+
+Para revisar el correo sin enviar nada:
+
+```bash
+npm run correo:probar                  # comprueba el usuario y la clave contra el servidor
+npm run correo:probar -- tu@correo.com # ademas manda un correo de prueba
+```
+
+Un `535 Username and Password not accepted` con Gmail significa que
+`SMTP_PASS` ya no sirve: es una "contrasena de aplicacion" de 16 letras (Cuenta de
+Google > Seguridad > Verificacion en 2 pasos > Contrasenas de aplicaciones) y se
+invalida si se cambia la clave de la cuenta o se revoca. Se crea otra, se pone en
+`backend/.env` y se reinicia el backend. En desarrollo, si el envio falla, el
+enlace queda escrito en la consola para poder seguir probando el cambio de clave.

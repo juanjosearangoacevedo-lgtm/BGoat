@@ -15,6 +15,7 @@ export function TallasPage() {
   return (
     <CrudPage
       titulo="Tallas"
+      entidad="talla"
       subtitulo="El catálogo que usa el desglose de cada lote"
       recurso={endpoints.tallas}
       idField="id_talla"

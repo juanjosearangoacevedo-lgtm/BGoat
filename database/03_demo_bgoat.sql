@@ -17,17 +17,21 @@ USE `bgoat`;
 -- ---------------------------------------------------------------------
 -- Clientes
 --
---   Una fila = un cliente-marca. Las tres primeras marcas son de
---   Crystal S.A.S.: por eso comparten NIT y contacto, y por eso el
---   indice unico de la tabla va sobre el nombre y no sobre el documento.
+--   Una fila = un cliente, con el nombre (o razon social) con que la
+--   planta lo conoce. Las tres primeras son marcas de Crystal S.A.S.: por
+--   eso comparten NIT y contacto, y por eso el indice unico de la tabla va
+--   sobre el nombre y no sobre el documento.
+--
+--   Los NIT llevan su digito de verificacion bien calculado (900123456-8,
+--   860002964-4): el formulario lo comprueba con la formula de la DIAN.
 -- ---------------------------------------------------------------------
 INSERT IGNORE INTO `clientes`
-  (`nombre`, `descripcion`, `razon_social`, `tipo_documento`, `numero_documento`,
-   `telefono`, `correo`, `direccion`) VALUES
-  ('GEF',           'Ropa interior y basicos',            'Crystal S.A.S.',        'NIT', '900123456-1', '6044441122', 'compras@crystal.com.co',  'Calle 30 #45-12, Medellin'),
-  ('Punto Blanco',  'Ropa interior masculina y femenina', 'Crystal S.A.S.',        'NIT', '900123456-1', '6044441122', 'compras@crystal.com.co',  'Calle 30 #45-12, Medellin'),
-  ('Baby Fresh',    'Ropa infantil',                      'Crystal S.A.S.',        'NIT', '900123456-1', '6044441122', 'compras@crystal.com.co',  'Calle 30 #45-12, Medellin'),
-  ('Arturo Calle',  'Ropa exterior masculina',            'Arturo Calle S.A.S.',   'NIT', '860002964-4', '6044443344', 'maquila@arturocalle.com', 'Autopista Norte, Bogota');
+  (`nombre`, `descripcion`, `tipo_documento`, `numero_documento`,
+   `telefono`, `correo`, `direccion`, `departamento`, `municipio`) VALUES
+  ('GEF',           'Ropa interior y basicos',            'NIT', '900123456-8', '6044441122', 'compras@crystal.com.co',  'Calle 30 #45-12', 'Antioquia', 'Medellín'),
+  ('Punto Blanco',  'Ropa interior masculina y femenina', 'NIT', '900123456-8', '6044441122', 'compras@crystal.com.co',  'Calle 30 #45-12', 'Antioquia', 'Medellín'),
+  ('Baby Fresh',    'Ropa infantil',                      'NIT', '900123456-8', '6044441122', 'compras@crystal.com.co',  'Calle 30 #45-12', 'Antioquia', 'Medellín'),
+  ('Arturo Calle',  'Ropa exterior masculina',            'NIT', '860002964-4', '6044443344', 'maquila@arturocalle.com', 'Autopista Norte', 'Bogotá', 'Bogotá D.C.');
 
 -- ---------------------------------------------------------------------
 -- Modulos de la planta (12, como en la empresa real)

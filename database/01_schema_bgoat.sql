@@ -79,9 +79,16 @@ USE `bgoat`;
 --   una sola entidad, identificada por `nombre` --que es como la planta
 --   la nombra-- con los datos fiscales como acompanamiento opcional.
 --
+--   `nombre` es "Nombre o razon social": un solo campo. `razon_social` ya
+--   no se escribe ni se muestra (2026-10): se conserva solo para no perder
+--   lo que ya estaba guardado en las bases que la tenian.
+--
 --   Si un mismo cliente juridico maneja varias marcas son varias filas y
 --   el NIT se repite: por eso el indice unico va sobre `nombre` y no
 --   sobre el documento.
+--
+--   `departamento` y `municipio` salen del catalogo de Colombia
+--   (`backend/src/lib/ubicaciones.js`); `direccion` es solo la calle.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS `clientes` (
   `id_cliente` BIGINT NOT NULL AUTO_INCREMENT,
@@ -93,6 +100,8 @@ CREATE TABLE IF NOT EXISTS `clientes` (
   `telefono` VARCHAR(30) DEFAULT NULL,
   `correo` VARCHAR(150) DEFAULT NULL,
   `direccion` VARCHAR(200) DEFAULT NULL,
+  `departamento` VARCHAR(60) DEFAULT NULL,
+  `municipio` VARCHAR(80) DEFAULT NULL,
   `estado` ENUM('ACTIVO', 'INACTIVO') NOT NULL DEFAULT 'ACTIVO',
   `fecha_creacion` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_cliente`),

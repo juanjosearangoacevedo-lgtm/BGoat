@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { execute, query, queryOne } from "../config/db.js";
+import { consultarEnlaces, enlacesDe, exigirSinEnlaces } from "../lib/enlaces.js";
 import { ApiError, asyncHandler } from "../lib/http.js";
 import { filtrosDeListado } from "../lib/filtros.js";
 import { decidirEntrega } from "../lib/plan.js";
+import { estimarPrioridad } from "../lib/prioridad.js";
 import { requierePermiso } from "../middleware/auth.js";
 
 export const ordenesRouter = Router();
@@ -113,6 +115,36 @@ ordenesRouter.get(
       valores,
     );
     res.json({ datos, total: datos.length });
+  }),
+);
+
+// --- Prioridad que le tocaria a una orden nueva ------------------------
+//   GET /ordenes-produccion/prioridad-estimada?id_lote=N
+// La pide el formulario de "Nueva orden" apenas se elige el lote, para decir
+// de entrada en que puesto de la cola quedara y a cuales empuja atras. Va
+// ANTES de `/:id`, que de lo contrario la tomaria por un id.
+ordenesRouter.get(
+  "/prioridad-estimada",
+  requierePermiso("Ordenes", "VER"),
+  asyncHandler(async (req, res) => {
+    const idLote = Number(req.query.id_lote);
+    if (!Number.isInteger(idLote) || idLote <= 0) throw ApiError.badRequest("Falta el lote");
+
+    const lote = await queryOne(
+      "SELECT id_lote, codigo_lote, fecha_recepcion, fecha_creacion FROM lotes WHERE id_lote = ?",
+      [idLote],
+    );
+    if (!lote) throw ApiError.notFound("El lote no existe");
+
+    const pendientes = await query(
+      `SELECT o.id_orden_produccion, o.numero_orden, o.prioridad,
+              l.id_lote, l.codigo_lote, l.fecha_recepcion, l.fecha_creacion
+         FROM ordenes_produccion o
+         JOIN lotes l ON l.id_lote = o.id_lote
+        WHERE o.estado <> 'FINALIZADO'`,
+    );
+
+    res.json({ lote: lote.codigo_lote, ...estimarPrioridad(pendientes, lote) });
   }),
 );
 
@@ -307,41 +339,41 @@ ordenesRouter.post(
 );
 
 // --- Eliminar ----------------------------------------------------------
-ordenesRouter.delete(
-  "/:id",
+// Antes de eliminar: dice si se puede y por que no. La orden no tiene estado
+// "inactiva": o nadie la ha tocado y se borra de verdad, o tiene historia y
+// no se borra.
+ordenesRouter.get(
+  "/:id/enlaces",
   requierePermiso("Ordenes", "ELIMINAR"),
   asyncHandler(async (req, res) => {
-    const conProduccion = await queryOne(
-      `SELECT COUNT(*) AS total FROM registros_horarios
-       WHERE id_orden_produccion = ? AND estado <> 'ANULADO'`,
-      [req.params.id],
-    );
-
-    // Regla del alcance: no se elimina una orden con produccion registrada.
-    // Esa historia no se puede borrar, y la orden tampoco se puede marcar
-    // Finalizada a mano para "cerrarla": Finalizado es automatico.
-    if (conProduccion.total > 0) {
-      throw ApiError.conflict(
-        `No se puede eliminar: la orden tiene ${conProduccion.total} registro(s) de producción, ` +
-          "y esa historia no se borra.",
-      );
-    }
-
-    const enJornada = await queryOne(
-      "SELECT COUNT(*) AS total FROM jornada_modulo WHERE id_orden_produccion = ?",
-      [req.params.id],
-    );
-    if (enJornada.total > 0) {
-      throw ApiError.conflict(
-        "No se puede eliminar: hay jornadas configuradas con esta orden.",
-      );
-    }
-
     const existente = await queryOne(
       "SELECT id_orden_produccion FROM ordenes_produccion WHERE id_orden_produccion = ?",
       [req.params.id],
     );
     if (!existente) throw ApiError.notFound();
+
+    res.json({
+      ...(await consultarEnlaces(enlacesDe.ordenes, req.params.id)),
+      borra: true,
+      yaInactivo: false,
+    });
+  }),
+);
+
+ordenesRouter.delete(
+  "/:id",
+  requierePermiso("Ordenes", "ELIMINAR"),
+  asyncHandler(async (req, res) => {
+    const existente = await queryOne(
+      "SELECT id_orden_produccion FROM ordenes_produccion WHERE id_orden_produccion = ?",
+      [req.params.id],
+    );
+    if (!existente) throw ApiError.notFound();
+
+    // Regla del alcance: no se elimina una orden con produccion registrada
+    // ni con jornadas. Esa historia no se puede borrar, y la orden tampoco se
+    // puede marcar Finalizada a mano para "cerrarla": Finalizado es automatico.
+    await exigirSinEnlaces(enlacesDe.ordenes, req.params.id);
 
     await execute("DELETE FROM ordenes_produccion WHERE id_orden_produccion = ?", [req.params.id]);
     res.json({ eliminado: true, id_orden_produccion: Number(req.params.id) });

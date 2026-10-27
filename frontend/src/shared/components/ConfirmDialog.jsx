@@ -35,16 +35,26 @@ const tonos = {
   },
 };
 
+/**
+ * `children` va entre el texto y los botones (por ejemplo, la lista de lotes a
+ * los que esta enlazado un cliente). Con `ocultarConfirmar` solo queda el boton
+ * de cerrar: es el aviso de "esto no se puede hacer". `ancho="md"` ensancha la
+ * caja para que quepa una lista.
+ */
 export function ConfirmDialog({
   open,
   title,
   description,
+  children,
   confirmLabel = "Eliminar",
   cancelLabel = "Cancelar",
   onConfirm,
   onCancel,
   tono = "peligro",
   loading = false,
+  ocultarConfirmar = false,
+  confirmDisabled = false,
+  ancho = "sm",
 }) {
   useEffect(() => {
     if (!open) return undefined;
@@ -69,21 +79,32 @@ export function ConfirmDialog({
         if (evento.target === evento.currentTarget) onCancel?.();
       }}
     >
-      <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center shadow-2xl">
+      <div
+        className={`w-full rounded-2xl bg-white p-6 text-center shadow-2xl ${
+          ancho === "md" ? "max-w-md" : "max-w-sm"
+        }`}
+      >
         <div className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full ${estilo.circulo}`}>
           <Icono className={`h-7 w-7 ${estilo.color}`} />
         </div>
 
         <h2 className="mb-2 text-lg font-bold text-gray-900">{title}</h2>
-        {description && <p className="mb-6 text-sm text-gray-500">{description}</p>}
+        {description && <p className={`${children ? "mb-4" : "mb-6"} text-sm text-gray-500`}>{description}</p>}
+        {children}
 
         <div className="flex gap-3">
           <Button variant="outline" className="flex-1" onClick={onCancel} disabled={loading}>
             {cancelLabel}
           </Button>
-          <Button className={`flex-1 ${estilo.boton}`} onClick={onConfirm} disabled={loading}>
-            {loading ? "Procesando..." : confirmLabel}
-          </Button>
+          {!ocultarConfirmar && (
+            <Button
+              className={`flex-1 ${estilo.boton}`}
+              onClick={onConfirm}
+              disabled={loading || confirmDisabled}
+            >
+              {loading ? "Procesando..." : confirmLabel}
+            </Button>
+          )}
         </div>
       </div>
     </div>

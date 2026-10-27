@@ -5,6 +5,7 @@ import { ConfirmDialog } from "./ConfirmDialog";
 import { DataList } from "./DataList";
 import { DataTable } from "./DataTable";
 import { DetailModal } from "./DetailModal";
+import { EliminarDialog } from "./EliminarDialog";
 import { ExportMenu } from "./ExportMenu";
 import { FilterBar } from "./FilterBar";
 import { FormField } from "./FormField";
@@ -22,15 +23,26 @@ import { MODOS, useViewMode } from "../hooks/useViewMode";
  * Pagina CRUD estandar, construida a partir de una configuracion.
  *
  * Un modulo declara sus columnas y sus campos, y de ahi salen listado con
- * orden, filtros, paginacion, detalle, activar/desactivar, exportacion y
+ * orden, filtros, paginacion, detalle, eliminar/activar, exportacion y
  * formulario validado. Los modulos con diseno propio (Clientes, Marcas,
  * Lotes, Ordenes) arman lo mismo con las piezas sueltas de `shared`.
+ *
+ * "Eliminar" revisa primero a que esta enlazado el registro (`EliminarDialog`);
+ * en las filas inactivas, en su lugar, queda "Activar".
+ *
+ *   entidad: "talla"   -> como se llama un registro, en singular, para
+ *                         "¿Eliminar talla?" (por defecto, el titulo en minuscula)
  *
  *   columnas: [{ key, header, align, render(fila), sortable, tipo: "estado" }]
  *   campos:   [{ name, label, type, options, placeholder, ancho, required,
  *               minLength, maxLength, min, max, patron, hint,
  *               extra({ setField }) }]   -> algo debajo del campo, como un
  *                                          "+ agregar" al catalogo de un select
+ *             `hint` y `placeholder` pueden ser una funcion de `form` (cambian
+ *             con otro campo, como el ejemplo de documento segun su tipo);
+ *             `normalizar(valor, form)` limpia lo que se escribe antes de
+ *             guardarlo en el formulario; `alCambiar({ valor, form, setField })`
+ *             ajusta otros campos cuando este cambia.
  *   filtrosLista: [{ clave, label, tipo, opciones }]  -> filtros en pantalla
  *   filtros:      { estado: "ACTIVO" }                -> filtros del query
  */
@@ -43,6 +55,7 @@ function esActivo(fila) {
 export function CrudPage({
   titulo,
   subtitulo,
+  entidad = null,
   recurso,
   idField,
   columnas = [],
@@ -341,14 +354,24 @@ export function CrudPage({
                 min={campo.min}
                 max={campo.max}
                 step={campo.step}
-                hint={campo.hint}
+                hint={typeof campo.hint === "function" ? campo.hint(crud.form) : campo.hint}
                 required={campo.required || required.includes(campo.name)}
-                placeholder={campo.placeholder}
+                placeholder={
+                  typeof campo.placeholder === "function"
+                    ? campo.placeholder(crud.form)
+                    : campo.placeholder
+                }
                 options={campo.options}
                 emptyOption={campo.emptyOption}
                 value={crud.form[campo.name] ?? ""}
                 error={crud.errors[campo.name]}
-                onChange={(valor) => crud.setField(campo.name, valor)}
+                onChange={(valor) => {
+                  crud.setField(
+                    campo.name,
+                    campo.normalizar ? campo.normalizar(valor, crud.form) : valor,
+                  );
+                  campo.alCambiar?.({ valor, form: crud.form, setField: crud.setField });
+                }}
               />
               {campo.extra?.({ setField: crud.setField })}
             </div>
@@ -397,10 +420,12 @@ export function CrudPage({
         onConfirm={() => crud.cambiarEstado(estadoObjetivo)}
       />
 
-      <ConfirmDialog
-        open={Boolean(crud.deleteTarget)}
-        title={`Eliminar ${titulo.toLowerCase()}?`}
-        description={`Se eliminará ${nombreRegistro(crud.deleteTarget)}. Si el registro tiene historia, el sistema lo inactiva en lugar de borrarlo.`}
+      <EliminarDialog
+        recurso={recurso}
+        objetivo={crud.deleteTarget}
+        idField={idField}
+        entidad={entidad ?? titulo.toLowerCase()}
+        nombre={crud.deleteTarget ? nombreRegistro(crud.deleteTarget) : ""}
         loading={crud.procesando}
         onCancel={() => crud.setDeleteTarget(null)}
         onConfirm={() => crud.eliminar(crud.deleteTarget)}

@@ -11,7 +11,9 @@
     "test": "node --test",
     "db:setup": "node scripts/setup-db.js",
     "db:reset": "node scripts/setup-db.js --reset",
-    "hash": "node scripts/hash.js"
+    "hash": "node scripts/hash.js",
+    "correo:probar": "node scripts/probar-correo.js",
+    "ubicaciones:generar": "node scripts/generar-ubicaciones.js"
   },
   "dependencies": {
     "bcryptjs": "2.4.3",

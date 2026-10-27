@@ -1,12 +1,20 @@
 import { UserCog } from "lucide-react";
-import { Button } from "@/shared/components/button";
 import { FormField } from "@/shared/components/FormField";
 import { Modal } from "@/shared/components/Modal";
 import { ModalAcciones } from "@/shared/components/ModalAcciones";
 import { nombreCompleto } from "@/shared/utils/formatters";
+import { ejemploDocumento, normalizarDocumento } from "@/shared/validations";
 import { usuarioDocumentTypes, usuarioStatusOptions } from "../hooks/useUsuariosPage";
 
-/** Campos de la tabla `usuarios` (sin `clave_hash`: el hash lo hace el backend). */
+/**
+ * Campos de la tabla `usuarios` (sin `clave_hash`: el hash lo hace el backend).
+ *
+ * El orden es el de todo el panel: nombre, documento, contacto, lo propio del
+ * modulo (rol y contraseña) y al final el estado.
+ *
+ * `editandoseASiMismo`: el usuario que se edita es el de la sesion. Su estado
+ * no se puede cambiar (nadie se inactiva a si mismo; el backend tampoco lo deja).
+ */
 export function UsuarioFormModal({
   open,
   editing,
@@ -14,10 +22,13 @@ export function UsuarioFormModal({
   errors,
   guardando,
   roleOptions = [],
+  editandoseASiMismo = false,
   onChange,
   onClose,
   onSave,
 }) {
+  const tipo = form.tipo_documento ?? "CC";
+
   return (
     <Modal
       open={open}
@@ -62,19 +73,29 @@ export function UsuarioFormModal({
             <FormField
               label="Tipo de documento"
               required
-              value={form.tipo_documento ?? "CC"}
+              value={tipo}
               options={usuarioDocumentTypes}
               error={errors.tipo_documento}
-              onChange={(valor) => onChange("tipo_documento", valor)}
+              // Lo que no cabe en el tipo nuevo (letras en una cédula) se quita del número.
+              onChange={(valor) => {
+                onChange("tipo_documento", valor);
+                onChange("numero_documento", normalizarDocumento(valor, form.numero_documento ?? ""));
+              }}
             />
             <FormField
               label="Número de documento"
               required
-              placeholder="1234567890"
+              placeholder={ejemploDocumento(tipo)}
               value={form.numero_documento ?? ""}
               error={errors.numero_documento}
-              hint={form.tipo_documento === "PASAPORTE" ? "Admite letras y números" : "Solo números"}
-              onChange={(valor) => onChange("numero_documento", valor)}
+              hint={
+                tipo === "PASAPORTE" || tipo === "OTRO"
+                  ? "Letras y números, sin espacios ni guiones."
+                  : tipo === "NIT"
+                    ? "Sin puntos. El dígito de verificación va tras un guion (900123456-8)."
+                    : "Solo números, sin puntos ni espacios."
+              }
+              onChange={(valor) => onChange("numero_documento", normalizarDocumento(tipo, valor))}
             />
             <FormField
               label="Correo"
@@ -113,14 +134,6 @@ export function UsuarioFormModal({
               onChange={(valor) => onChange("id_rol", valor)}
             />
             <FormField
-              label="Estado"
-              required
-              value={form.estado ?? "ACTIVO"}
-              options={usuarioStatusOptions}
-              error={errors.estado}
-              onChange={(valor) => onChange("estado", valor)}
-            />
-            <FormField
               label="Contraseña"
               type="password"
               required={!editing}
@@ -143,6 +156,16 @@ export function UsuarioFormModal({
               error={errors.confirmar_clave}
               hint="Debe coincidir con la contraseña."
               onChange={(valor) => onChange("confirmar_clave", valor)}
+            />
+            <FormField
+              label="Estado"
+              required
+              value={form.estado ?? "ACTIVO"}
+              options={usuarioStatusOptions}
+              disabled={editandoseASiMismo}
+              error={errors.estado}
+              hint={editandoseASiMismo ? "No puedes inactivar ni bloquear tu propio usuario." : undefined}
+              onChange={(valor) => onChange("estado", valor)}
             />
           </div>
         </section>

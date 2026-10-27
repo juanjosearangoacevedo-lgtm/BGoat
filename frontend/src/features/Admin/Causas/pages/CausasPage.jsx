@@ -37,6 +37,7 @@ export function CausasPage() {
   return (
     <CrudPage
       titulo="Causas de desviación"
+      entidad="causa"
       subtitulo="Motivos por los que una hora no alcanza la meta"
       recurso={endpoints.causas}
       idField="id_causa"
@@ -131,15 +132,6 @@ export function CausasPage() {
         },
         { name: "tipo", label: "Tipo", options: tipos, required: true },
         {
-          name: "descripcion",
-          label: "Descripción",
-          type: "textarea",
-          rows: 2,
-          placeholder: "Qué significa esta causa y cuándo se usa",
-          maxLength: 255,
-          ancho: "completo",
-        },
-        {
           name: "id_responsable",
           label: "Responsable",
           options: responsables.options,
@@ -177,6 +169,15 @@ export function CausasPage() {
             { value: "ACTIVO", label: "Activo" },
             { value: "INACTIVO", label: "Inactivo" },
           ],
+        },
+        // La descripción va al final, como en todo el panel.
+        {
+          name: "descripcion",
+          label: "Descripción",
+          type: "textarea",
+          rows: 2,
+          placeholder: "Qué significa esta causa y cuándo se usa",
+          maxLength: 255,
           ancho: "completo",
         },
       ]}
